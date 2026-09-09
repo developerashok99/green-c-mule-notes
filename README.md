@@ -35,6 +35,8 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 | [day23.md](day23.md) | Hands-on RAML: building the HR Employee API spec, live, in Design Center |
 | [day24.md](day24.md) | RAML best practices: externalizing examples and data types for reuse |
 | [day25.md](day25.md) | Traits vs. Fragments: reuse within one spec vs. across the whole organization |
+| [day26.md](day26.md) | Publishing to Exchange, asset types, importing a published API, scaffolding, the flow-naming golden rule |
+| [day27.md](day27.md) | Full implementation build-out: common/implementation folders, reused error handler, Database connector, property files, Domain Projects recap, OAuth token Q&A |
 
 ## Topic Quick-Reference
 
@@ -73,6 +75,10 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 | Hands-On RAML Authoring | [day23](day23.md) |
 | RAML Best Practices (Examples/Data Types) | [day24](day24.md) |
 | RAML Traits vs. Fragments | [day25](day25.md) |
+| Publishing to Exchange / Asset Types | [day26](day26.md) |
+| Importing a Published API / Scaffolding | [day26](day26.md) |
+| Database Connector (Insert/Update/Select) | [day27](day27.md) |
+| Domain Projects (recap) / OAuth Token Troubleshooting | [day27](day27.md) |
 
 ---
 *Notes generated from Telugu-language lecture recordings, transcribed and translated to English via local speech-to-text (Whisper), then organized into structured notes.*

@@ -33,5 +33,7 @@ Every file includes: plain-English explanations with analogies, worked examples 
 | [day23.md](day23.md) | Hands-on RAML authoring, live — two real bugs worked through in full |
 | [day24.md](day24.md) | Externalizing RAML examples and data types — reuse within one spec |
 | [day25.md](day25.md) | Traits vs. Fragments — the scope boundary that matters most |
+| [day26.md](day26.md) | Publishing to Exchange, importing a published API, scaffolding, the flow-naming golden rule |
+| [day27.md](day27.md) | Full implementation build-out, Database connector, property files, Domain Projects, OAuth token Q&A |
 
 > 💡 GitHub renders the Mermaid diagrams in these files natively — just view them on github.com (diagrams won't render in a plain text editor or terminal `cat`).
