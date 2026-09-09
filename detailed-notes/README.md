@@ -23,5 +23,10 @@ Every file includes: plain-English explanations with analogies, worked examples 
 | [day13.md](day13.md) | Reconnection Strategy, Response Validator, HTTPS placement |
 | [day14.md](day14.md) | Property files, environment externalization, Run Configurations, Secure Properties |
 | [day15.md](day15.md) | Error handling — Error Object, On Error Propagate, the "ANY must be last" rule |
+| [day16.md](day16.md) | Error Mapping, 3 levels of error handling, On Error Continue, Raise Error, Choice |
+| [day17.md](day17.md) | Deployment strategies: Control Plane vs. Runtime Plane model |
+| [day18.md](day18.md) | CloudHub: Worker, vCore, horizontal/vertical scaling, a real live bug |
+| [day19.md](day19.md) | On-Premises: Mule Runtime folder structure, wrapper.conf, Domain Projects |
+| [day20.md](day20.md) | Hybrid deployment, a real unresolved bug, MuleSoft Community, troubleshooting philosophy |
 
 > 💡 GitHub renders the Mermaid diagrams in these files natively — just view them on github.com (diagrams won't render in a plain text editor or terminal `cat`).

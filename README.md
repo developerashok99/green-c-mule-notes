@@ -25,6 +25,11 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 | [day13.md](day13.md) | Reconnection Strategy, Response Validator, HTTPS in API-Led Connectivity |
 | [day14.md](day14.md) | Property files, environment externalization, Run Configurations, Secure Properties/encryption |
 | [day15.md](day15.md) | Error handling: the Error Object, On Error Propagate, the "ANY must be last" rule |
+| [day16.md](day16.md) | Error Mapping, 3 levels of error handling, On Error Continue, Raise Error, Choice router |
+| [day17.md](day17.md) | Deployment strategies: Control Plane vs. Runtime Plane, CloudHub/On-Prem/Hybrid/RTF |
+| [day18.md](day18.md) | CloudHub deep dive: Worker, vCore, horizontal/vertical scaling, live deployment |
+| [day19.md](day19.md) | On-Premises deployment: Mule Runtime standalone, folder structure, Domain Projects |
+| [day20.md](day20.md) | Hybrid deployment, MuleSoft Community, a troubleshooting philosophy |
 
 ## Topic Quick-Reference
 
@@ -53,6 +58,11 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 | Reconnection Strategy / Response Validator | [day13](day13.md) |
 | Property Files / Secure Properties / Encryption | [day14](day14.md) |
 | Error Handling (Error Object, On Error Propagate) | [day15](day15.md) |
+| Error Mapping / On Error Continue / Raise Error / Choice | [day16](day16.md) |
+| Deployment Strategies (Control/Runtime Plane) | [day17](day17.md) |
+| CloudHub (Worker, vCore, Scaling) | [day18](day18.md) |
+| On-Premises Deployment (Mule Runtime, Domain Projects) | [day19](day19.md) |
+| Hybrid Deployment / MuleSoft Community | [day20](day20.md) |
 
 ---
 *Notes generated from Telugu-language lecture recordings, transcribed and translated to English via local speech-to-text (Whisper), then organized into structured notes.*
