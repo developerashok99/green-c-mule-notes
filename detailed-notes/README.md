@@ -18,5 +18,10 @@ Every file includes: plain-English explanations with analogies, worked examples 
 | [day08.md](day08.md) | Mule 4 project structure, Maven, `pom.xml`, flow anatomy |
 | [day09.md](day09.md) | Anypoint Studio UI, project lifecycle operations, workspaces |
 | [day10.md](day10.md) | URI vs. query params, pagination mechanics, strict validation |
+| [day11.md](day11.md) | HTTP Request connector, consuming third-party REST services, API-Led Connectivity in practice |
+| [day12.md](day12.md) | Shaping responses, DataWeave Playground, Target Variable, Response Timeout |
+| [day13.md](day13.md) | Reconnection Strategy, Response Validator, HTTPS placement |
+| [day14.md](day14.md) | Property files, environment externalization, Run Configurations, Secure Properties |
+| [day15.md](day15.md) | Error handling — Error Object, On Error Propagate, the "ANY must be last" rule |
 
 > 💡 GitHub renders the Mermaid diagrams in these files natively — just view them on github.com (diagrams won't render in a plain text editor or terminal `cat`).

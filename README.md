@@ -1,6 +1,6 @@
 # MuleSoft Foundations Course — Notes (Green Cloud Batch)
 
-Structured notes from a 10-day MuleSoft foundations course (Anypoint Platform / Mule 4), covering everything from "what is MuleSoft" through Studio internals, HTTP/REST fundamentals, and API design basics. This is a beginner-oriented course — more foundational than the April interview-prep batch.
+Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4), covering everything from "what is MuleSoft" through Studio internals, HTTP/REST fundamentals, API design basics, consuming third-party services, and error handling. This is a beginner-oriented course — more foundational than the April interview-prep batch.
 
 > 📘 Want deeper, example-rich notes with diagrams? See **[detailed-notes/](detailed-notes/)**.
 >
@@ -20,6 +20,11 @@ Structured notes from a 10-day MuleSoft foundations course (Anypoint Platform / 
 | [day08.md](day08.md) | Mule 4 project structure, Maven, `pom.xml`, flow anatomy |
 | [day09.md](day09.md) | Anypoint Studio UI tour, project management, workspaces |
 | [day10.md](day10.md) | URI params vs. query params, filtering/sorting/pagination, strict validation |
+| [day11.md](day11.md) | The HTTP Request connector: consuming third-party REST services, inbound/outbound terminology |
+| [day12.md](day12.md) | Shaping responses with Transform Message, DataWeave Playground, Target Variable, Response Timeout |
+| [day13.md](day13.md) | Reconnection Strategy, Response Validator, HTTPS in API-Led Connectivity |
+| [day14.md](day14.md) | Property files, environment externalization, Run Configurations, Secure Properties/encryption |
+| [day15.md](day15.md) | Error handling: the Error Object, On Error Propagate, the "ANY must be last" rule |
 
 ## Topic Quick-Reference
 
@@ -43,6 +48,11 @@ Structured notes from a 10-day MuleSoft foundations course (Anypoint Platform / 
 | URI Params vs. Query Params | [day10](day10.md) |
 | Pagination (offset/limit) | [day10](day10.md) |
 | API Strict Validation | [day10](day10.md) |
+| HTTP Request Connector (consuming APIs) | [day11](day11.md) |
+| Target Variable / Response Timeout | [day12](day12.md) |
+| Reconnection Strategy / Response Validator | [day13](day13.md) |
+| Property Files / Secure Properties / Encryption | [day14](day14.md) |
+| Error Handling (Error Object, On Error Propagate) | [day15](day15.md) |
 
 ---
 *Notes generated from Telugu-language lecture recordings, transcribed and translated to English via local speech-to-text (Whisper), then organized into structured notes.*
