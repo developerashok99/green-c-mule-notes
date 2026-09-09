@@ -35,5 +35,12 @@ Every file includes: plain-English explanations with analogies, worked examples 
 | [day25.md](day25.md) | Traits vs. Fragments — the scope boundary that matters most |
 | [day26.md](day26.md) | Publishing to Exchange, importing a published API, scaffolding, the flow-naming golden rule |
 | [day27.md](day27.md) | Full implementation build-out, Database connector, property files, Domain Projects, OAuth token Q&A |
+| [day28.md](day28.md) | Initial variables, JSON logger, and masking (intro) |
+| [day29.md](day29.md) | Masking mechanics, real database setup, and service accounts |
+| [day30.md](day30.md) | PATCH/GET build-out, RAML sync, and the Validation module |
+| [day31.md](day31.md) | API Manager, gateways, and the policy layer begins |
+| [day32.md](day32.md) | Rate Limiting, Spike Control, caching, and JSON Threat Protection |
+| [day33.md](day33.md) | OAuth 2.0, Authentication vs. Authorization, and the Authorization Code Grant |
+| [day34.md](day34.md) | Client Credentials, Resource Owner Password, Object Store caching, and JWT |
 
 > 💡 GitHub renders the Mermaid diagrams in these files natively — just view them on github.com (diagrams won't render in a plain text editor or terminal `cat`).

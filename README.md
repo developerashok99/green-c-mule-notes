@@ -37,6 +37,13 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 | [day25.md](day25.md) | Traits vs. Fragments: reuse within one spec vs. across the whole organization |
 | [day26.md](day26.md) | Publishing to Exchange, asset types, importing a published API, scaffolding, the flow-naming golden rule |
 | [day27.md](day27.md) | Full implementation build-out: common/implementation folders, reused error handler, Database connector, property files, Domain Projects recap, OAuth token Q&A |
+| [day28.md](day28.md) | Initial variable strategy, JSON logger, sensitive-data masking (intro) |
+| [day29.md](day29.md) | The `mask` function, reading MuleSoft docs, setting up the real database |
+| [day30.md](day30.md) | Remove variable, full PATCH/GET build-out, RAML-Studio sync, the Validation module |
+| [day31.md](day31.md) | Course progress recap, interview prep planning, introducing API Manager, gateways, and policies |
+| [day32.md](day32.md) | Rate Limiting, Rate Limiting SLA, Spike Control, HTTP Caching, JSON Threat Protection (theory) |
+| [day33.md](day33.md) | OAuth 2.0 deep dive: Authentication vs. Authorization, the Authorization Code Grant Type |
+| [day34.md](day34.md) | Client Credentials & Resource Owner Password Grant Types, Object Store for tokens, JWT |
 
 ## Topic Quick-Reference
 
@@ -79,6 +86,13 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 | Importing a Published API / Scaffolding | [day26](day26.md) |
 | Database Connector (Insert/Update/Select) | [day27](day27.md) |
 | Domain Projects (recap) / OAuth Token Troubleshooting | [day27](day27.md) |
+| Sensitive-Data Masking / JSON Logging | [day28](day28.md) |
+| DataWeave `mask` Function / Reading MuleSoft Docs | [day29](day29.md) |
+| Full CRUD Build-Out (PATCH/GET) / Validation Module | [day30](day30.md) |
+| API Manager / Gateways / Policies (intro) | [day31](day31.md) |
+| Rate Limiting / Spike Control / HTTP Caching / JSON Threat Protection | [day32](day32.md) |
+| OAuth 2.0 / Authorization Code Grant Type | [day33](day33.md) |
+| Client Credentials & Resource Owner Password Grant Types / JWT | [day34](day34.md) |
 
 ---
 *Notes generated from Telugu-language lecture recordings, transcribed and translated to English via local speech-to-text (Whisper), then organized into structured notes.*
