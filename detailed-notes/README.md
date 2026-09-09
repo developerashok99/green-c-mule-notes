@@ -28,5 +28,10 @@ Every file includes: plain-English explanations with analogies, worked examples 
 | [day18.md](day18.md) | CloudHub: Worker, vCore, horizontal/vertical scaling, a real live bug |
 | [day19.md](day19.md) | On-Premises: Mule Runtime folder structure, wrapper.conf, Domain Projects |
 | [day20.md](day20.md) | Hybrid deployment, a real unresolved bug, MuleSoft Community, troubleshooting philosophy |
+| [day21.md](day21.md) | API Lifecycle revisited, RAML vs OAS, the Employee use case, API-Led cost trade-offs |
+| [day22.md](day22.md) | Multiple consumers, naming conventions, JSON debugging, schema defaults, sequence diagrams |
+| [day23.md](day23.md) | Hands-on RAML authoring, live — two real bugs worked through in full |
+| [day24.md](day24.md) | Externalizing RAML examples and data types — reuse within one spec |
+| [day25.md](day25.md) | Traits vs. Fragments — the scope boundary that matters most |
 
 > 💡 GitHub renders the Mermaid diagrams in these files natively — just view them on github.com (diagrams won't render in a plain text editor or terminal `cat`).

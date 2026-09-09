@@ -30,6 +30,11 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 | [day18.md](day18.md) | CloudHub deep dive: Worker, vCore, horizontal/vertical scaling, live deployment |
 | [day19.md](day19.md) | On-Premises deployment: Mule Runtime standalone, folder structure, Domain Projects |
 | [day20.md](day20.md) | Hybrid deployment, MuleSoft Community, a troubleshooting philosophy |
+| [day21.md](day21.md) | API Lifecycle revisited (Design-Simulate-Validate), RAML/OAS, the Employee use case |
+| [day22.md](day22.md) | Multiple consumers, naming conventions, JSON debugging, schema depth, real documentation |
+| [day23.md](day23.md) | Hands-on RAML: building the HR Employee API spec, live, in Design Center |
+| [day24.md](day24.md) | RAML best practices: externalizing examples and data types for reuse |
+| [day25.md](day25.md) | Traits vs. Fragments: reuse within one spec vs. across the whole organization |
 
 ## Topic Quick-Reference
 
@@ -63,6 +68,11 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 | CloudHub (Worker, vCore, Scaling) | [day18](day18.md) |
 | On-Premises Deployment (Mule Runtime, Domain Projects) | [day19](day19.md) |
 | Hybrid Deployment / MuleSoft Community | [day20](day20.md) |
+| API Lifecycle (Design-Simulate-Validate) | [day21](day21.md) |
+| Multiple Consumers / JSON Debugging / Documentation | [day22](day22.md) |
+| Hands-On RAML Authoring | [day23](day23.md) |
+| RAML Best Practices (Examples/Data Types) | [day24](day24.md) |
+| RAML Traits vs. Fragments | [day25](day25.md) |
 
 ---
 *Notes generated from Telugu-language lecture recordings, transcribed and translated to English via local speech-to-text (Whisper), then organized into structured notes.*
