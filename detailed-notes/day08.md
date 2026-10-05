@@ -2,6 +2,8 @@
 
 > **Watch alongside:** the goal here isn't to memorize every folder — it's to stop feeling like Anypoint Studio is "magic." Every file that appears when you create a new project has a specific, explainable reason for existing. Once that clicks, working in unfamiliar projects (at a new job, say) becomes much less intimidating.
 
+> **Video-verified:** pom.xml contents, `mule-artifact.json`, the test.xml flows and slide wording were read from the class recording (11 Nov 2024). Slide images: [slides/day08](../slides/day08/).
+
 ---
 
 ## 1. Why Does This Structure Exist At All?
@@ -134,6 +136,19 @@ flowchart TB
 | **artifactId** | Unique identifier for *this specific project* | Usually matches the project's name |
 | **version** | This project's version number | e.g. `1.0.0` |
 | **packaging** | Tells Maven what *kind* of artifact this is | Set to indicate a Mule application |
+
+The actual values in the class project (*screen*):
+
+| Section | Values |
+|---|---|
+| Identity | `com.mycompany` · `hello-world-demo-app` · `1.0.0-SNAPSHOT` · packaging `mule-application` · name `hello-world-demo-app` |
+| Properties | encoding `UTF-8` (source + reporting) · `app.runtime` **4.4.0-20220221** · `mule.maven.plugin.version` **3.5.4** |
+| Build plugins | `org.apache.maven.plugins:maven-clean-plugin:3.0.0` · `org.mule.tools.maven:mule-maven-plugin:${mule.maven.plugin.version}` with `<extensions>true</extensions>` |
+| Dependencies (classifier `mule-plugin`) | `mule-http-connector` 1.6.0 · `mule-sockets-connector` 1.2.2 · `mule-db-connector` 1.12.1 (after Database was added) |
+| Repositories | `anypoint-exchange-v3` → `https://maven.anypoint.mulesoft.com/api/v3/maven` · `mulesoft-releases` → `https://repository.mulesoft.org/releases/` |
+| Plugin repositories | `mulesoft-releases` (snapshots disabled) |
+
+`mule-artifact.json` contained just `{ "minMuleVersion": "4.4.0" }`.
 
 ### The dependency mechanism, proven live in the lecture
 ```mermaid

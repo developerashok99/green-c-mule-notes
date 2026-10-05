@@ -1,5 +1,7 @@
 # Day 08 — Mule 4 Project Structure, Maven, pom.xml and Flow Anatomy
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 11 Nov 2024). Slide text and Studio screens (pom.xml, mule-artifact.json, configuration XML) marked *slide* or *screen* are read from the recording. Slide images: [slides/day08](../slides/day08/).
+
 ## 1. Overview
 
 Two projects have been built so far (Hello World and the employee-details DB app), but the generated files and folders were ignored. This session explains them.
@@ -13,6 +15,8 @@ Two projects have been built so far (Hello World and the employee-details DB app
 7. Flow anatomy: **Source, Process, Error handling**
 
 Studio basics (export/import/open/close/delete, workspaces) are covered next session.
+
+*Slide* — **Agenda for today:** Mule 4.x project structure · What is POM and its structure · What is Mule Configuration XML? · What is Mule Flow? · Anypoint Studio overview · Add modules in APS · How to export and import a project · Open, Close, and Delete a project · What is Workspace? · Q&A session. (The last four were moved to Day 09.)
 
 ---
 
@@ -145,7 +149,13 @@ When the project is built into a **JAR file** for deployment, the output goes he
 
 ### `mule-artifact.json`
 
-Declares the **Mule runtime version** the project targets — e.g. **4.4.0**.
+Declares the **Mule runtime version** the project targets. *Screen:*
+
+```json
+{
+  "minMuleVersion": "4.4.0"
+}
+```
 
 **Version confusion cleared:** job postings say "Mule 4.x developer" or "Mule 3.x developer". That refers to the **Mule runtime (server) version**, not the Studio version. The instructor's Studio is **7.12**, whose embedded runtime is **4.4.0**. A newer Studio comes with a newer runtime (e.g. 4.7).
 
@@ -155,14 +165,16 @@ Declares the **Mule runtime version** the project targets — e.g. **4.4.0**.
 
 ### 5.1 What and where
 
+*Slide* — **POM:** Core element of Maven project · POM stands for Project Object Model · It consists of pom.xml configuration file · Pom.xml is always located in the root directory of project · Pom.xml contains all configuration details, dependencies, repositories and plug-ins included in the project.
+
 - **POM = Project Object Model.** The project is described as an object in an XML file named `pom.xml`.
 - **Always in the root folder** of the project. It must not be moved.
 - Contains **configuration details, dependencies, repositories and plugins**.
 - It is the **core element of a Maven project** and keeps the project organised. Because files are in standard places, Maven can find and build them easily; randomly placed files would be confusing.
 
-### 5.2 Representative pom.xml
+### 5.2 The pom.xml shown in class
 
-The structure below follows what was shown in class (values such as plugin 3.5.4, HTTP 1.6.0, Sockets 1.2.2 were read out); some details are abbreviated.
+*Screen* — `hello-world-demo-app/pom.xml` (84 lines; namespace attributes on `<project>` and some repository `<name>`/`<layout>` lines shortened):
 
 ```xml
 <project ...>
@@ -179,7 +191,7 @@ The structure below follows what was shown in class (values such as plugin 3.5.4
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <app.runtime>4.4.0</app.runtime>
+    <app.runtime>4.4.0-20220221</app.runtime>
     <mule.maven.plugin.version>3.5.4</mule.maven.plugin.version>
   </properties>
 
@@ -189,6 +201,7 @@ The structure below follows what was shown in class (values such as plugin 3.5.4
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
+        <version>3.0.0</version>
       </plugin>
       <plugin>
         <groupId>org.mule.tools.maven</groupId>
@@ -213,21 +226,42 @@ The structure below follows what was shown in class (values such as plugin 3.5.4
       <version>1.2.2</version>
       <classifier>mule-plugin</classifier>
     </dependency>
-    <!-- mule-db-connector appears here when Database is added -->
+    <!-- added when Database was dragged in during the demo: -->
+    <dependency>
+      <groupId>org.mule.connectors</groupId>
+      <artifactId>mule-db-connector</artifactId>
+      <version>1.12.1</version>
+      <classifier>mule-plugin</classifier>
+    </dependency>
   </dependencies>
 
   <!-- Repositories: where dependencies/plugins are downloaded from -->
   <repositories>
     <repository>
       <id>anypoint-exchange-v3</id>
+      <name>Anypoint Exchange</name>
       <url>https://maven.anypoint.mulesoft.com/api/v3/maven</url>
+      <layout>default</layout>
     </repository>
     <repository>
       <id>mulesoft-releases</id>
+      <name>MuleSoft Releases Repository</name>
       <url>https://repository.mulesoft.org/releases/</url>
+      <layout>default</layout>
     </repository>
   </repositories>
-  <pluginRepositories> ... </pluginRepositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>mulesoft-releases</id>
+      <name>MuleSoft Releases Repository</name>
+      <layout>default</layout>
+      <url>https://repository.mulesoft.org/releases/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
 </project>
 ```
 
@@ -262,7 +296,7 @@ Other properties: the **runtime version** and the **encoding** (**UTF-8** by def
 **Why build?** XML files are human-readable. To deploy, the project is converted into a **JAR file** — a machine-readable, deployable package. Maven uses plugins to do this:
 
 - **Mule Maven plugin** — builds/packages the Mule application.
-- **Clean plugin** — cleans previous build output (the instructor calls it the "mule clean plugin"; in the file it is the standard `maven-clean-plugin`).
+- **Clean plugin** — cleans previous build output (the instructor calls it the "mule clean plugin"; on screen it is the standard `maven-clean-plugin`, version 3.0.0).
 
 The instructor explains this so you don't have "self-doubt" when you see these files in real projects.
 
@@ -274,7 +308,7 @@ Each module/connector is a `<dependency>` with:
 |---|---|
 | groupId | `org.mule.connectors` |
 | artifactId | `mule-http-connector`, `mule-sockets-connector`, `mule-db-connector` |
-| version | `1.6.0`, `1.2.2`, … |
+| version | `1.6.0` (HTTP), `1.2.2` (Sockets), `1.12.1` (Database) |
 | classifier | `mule-plugin` |
 
 **Demonstration:**
@@ -322,6 +356,11 @@ Plugins are downloaded the same way from **plugin repositories**.
 
 ### 6.1 What happens inside a flow
 
+*Slides:*
+- **Mule Application/Project** diagram — Mule Application/Project ⊃ Mule Configuration XML ⊃ Mule Flow ⊃ Orchestration, Transformations, Enrichments.
+- **Mule Configuration XML:** Mule application/project is a set of Mule configuration XMLs · Each Mule application can have multiple Mule config XMLs · Mule configuration XML consists of flow definitions · Studio – Message flow, Global elements and Configuration XML.
+- **Mule Flow:** Mule Flow consists of orchestration logic, transformations and enrichments · Each Mule config XML can have multiple Mule flows · Studio – Source, Process and Error handling.
+
 In Mule projects we do **orchestration, transformation and enrichment** — inside flows.
 
 DB example: request arrives → call the database and get the response (orchestration) → convert Java to JSON (transformation) → log → respond.
@@ -362,17 +401,23 @@ Project
 
 Configuration XML (simplified):
 
-```xml
-<flow name="hello-world-demo-appFlow">
-  <http:listener config-ref="HTTP_Listener_config" path="/hello"/>
-  <logger message="flow started"/>
-  <flow-ref name="testFlow1"/>
-</flow>
+*Screen* — `test.xml` → Configuration XML during the demo (`doc:id` values shortened):
 
-<flow name="testFlow1">
-  <logger message="inside testFlow1"/>
-</flow>
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="…" … >
+  <flow name="testFlow" doc:id="913d9960-…">
+    <logger level="INFO" doc:name="Logger" doc:id="…"/>
+    <flow-ref doc:name="Flow Reference" doc:id="…" name="…"/>
+  </flow>
+  <flow name="testFlow1" doc:id="…"/>
+  <flow name="testFlow3" doc:id="…"/>
+  <flow name="testFlow2" doc:id="…"/>
+</mule>
 ```
+
+The Flow Reference's **Flow name** dropdown listed every flow in the project, including `hello-world-demo-appFlow` from the other XML file. The Hello World flow itself is Listener (`/helloworld`) → Set Payload `"HELLO WORLD"` → Logger.
 
 ---
 
