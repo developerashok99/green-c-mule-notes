@@ -2,6 +2,8 @@
 
 > **Watch alongside:** dense reference material — the kind of thing you look up constantly early on, then eventually just know. This file is built to be a fast lookup table as much as a narrative read.
 
+> **Video-verified:** slide wording, drawings and the Postman results below were read from the class recording (6 Nov 2024). Slide images: [slides/day06](../slides/day06/).
+
 ---
 
 ## 1. HTTP vs. HTTPS — What Encryption Actually Protects
@@ -54,6 +56,13 @@ flowchart TD
 ### GET + body — a specific gotcha demonstrated live
 The lecture explicitly showed sending a body on a GET request and having Mule **accept it anyway**, since the flow hadn't restricted the listener's allowed methods. **The convention says don't send a body on GET** (use query/URI params instead) — but nothing in Mule's default listener configuration technically prevents it. Restricting *which* methods a given resource accepts is itself a design-time decision, defined in the API specification.
 
+On screen, the Day 05 flow was called both ways:
+
+| Request | Result |
+|---|---|
+| GET `http://localhost:8081/empdetails?empid=123` + body `{"empid": 120}` | **200 OK** — employee **120** (ravi). The flow reads `payload.empid`, so the query param `123` is ignored |
+| GET `http://localhost:8081/empdetails1?empid=123` | **404 Not Found** — `No listener for endpoint: /empdetails1` |
+
 ---
 
 ## 3. Anatomy of an HTTP Request
@@ -86,6 +95,20 @@ flowchart TB
 | **Authorization** | Security credentials — can alternatively be sent via a header, depending on design preference | Depends on whether the API is secured |
 | **Query Params** | Optional filters/sort/pagination — see `day10.md` | Almost always optional by nature |
 | **URI Params** | Identifies a specific resource, embedded in the path | Effectively mandatory when present, since the path structure requires it |
+
+### Query vs. URI params — the class drawings
+
+```mermaid
+flowchart LR
+    subgraph Q["Query params — filter / sort / paginate"]
+    Q1["XYZ company: 50 employees"] --> Q2["GET /employees?salary=10000&sortBySal=DESC"]
+    Q2 --> Q3["only employees with salary > 10000,<br/>highest first"]
+    end
+    subgraph U["URI params — Unique Resource Identifier"]
+    U1["/api/employees/{empid}"] --> U2["GET /api/employees/100"]
+    U2 --> U3["employee 100 only<br/>(100 = URI value for empid)"]
+    end
+```
 
 > 🧠 **Key mental model:** *nothing* about which headers/params are mandatory vs. optional is automatic — it's entirely a decision made when the API is **designed** (in RAML), and only enforced if that design explicitly marks something `required: true`.
 
@@ -134,9 +157,9 @@ flowchart LR
 |---|---|---|
 | **500** | Internal Server Error | Generic catch-all — e.g. the database is down |
 | **501** | Not Implemented | The request hits a function the server genuinely doesn't support |
-| **502** | Bad Gateway | An **API Gateway** in front of the API didn't get a timely response *from* the API behind it |
+| **502** | Bad Gateway | The gateway/proxy received an **invalid** response from the upstream server (slide wording) |
 | **503** | Service Unavailable | The API itself is down |
-| **504** | Gateway Timeout | Similar to 502 — an upstream server failed to respond in time |
+| **504** | Gateway Timeout | The gateway/proxy did **not receive a timely** response from the upstream server — the "API took 150 ms, gateway waits 100 ms" example |
 
 ### The Gateway diagram (502 vs. 503 vs. 504, made concrete)
 ```mermaid
@@ -149,8 +172,10 @@ sequenceDiagram
     GW->>API: Forwarded request
     Note over API: API takes too long / doesn't respond
     API-->>GW: (timeout / no response)
-    GW-->>C: 502 Bad Gateway
+    GW-->>C: 504 Gateway Timeout
 ```
+
+> The audio first used this timeout example for 502, then said 504 "or even 502"; the class slide's own definitions make it **504**. 502 is for an *invalid* reply from the API.
 The **API Gateway** analogy used: a security guard at the entrance to a house — checks credentials first, then passes the (already-validated) request through to the actual resident (API). If the resident never answers the door in time, the guard reports back a gateway-level failure (502/504) rather than the resident's own answer.
 
 ---

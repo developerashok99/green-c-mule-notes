@@ -1,5 +1,7 @@
 # Day 06 — HTTP in Depth: HTTPS, Methods, Request Structure, Status Codes and JSON
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 6 Nov 2024). Slide text, drawings and Postman/Studio screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day06](../slides/day06/).
+
 ## 1. Overview
 
 On Day 05 a request was sent and a response received. This session explains **how** that request is structured and how responses and errors are expressed, following REST/HTTP standards.
@@ -10,6 +12,10 @@ On Day 05 a request was sent and a response received. This session explains **ho
 4. Other parts of the request: body, headers, authorization, query parameters, URI parameters
 5. HTTP status codes (1xx–5xx)
 6. JSON format and data types
+
+*Slide* — **Agenda for today:** What is HTTP/HTTPS? · HTTP Methods · HTTP Response Codes · JSON Data Format · Q&A session.
+
+*Drawing* (recap at the start): Consumer → (JSON) HTTP Req → [MS] API ↔ DB, with (JSON) Res coming back.
 
 Why it matters: REST APIs depend on HTTP. **Instructor's observation:** in MuleSoft interviews, 3–4 questions on HTTP/REST/SOAP are typically asked before the MuleSoft-specific questions. These are standards — understand them rather than memorising blindly.
 
@@ -57,6 +63,13 @@ HTTPS:  Consumer ── "X9#kQ2...@!" (encrypted) ──► [hacker sees gibberi
 
 > **HTTP** = HyperText Transfer Protocol — used to structure and transfer requests and responses over the internet. **HTTPS** = HTTP Secure.
 
+*Slide* — **What is HTTP?**
+- HTTP stands for Hypertext Transfer Protocol
+- It is used to structure requests and responses over the internet
+- HTTP requires data to be transferred from one end point to another over the network.
+
+*Screen:* the Day 05 `db-select-demo` project's **HTTP_Listener_config** was opened to show where this is set — Connection → **Protocol: HTTP (Default)**, Host: All Interfaces [0.0.0.0] (default), Port: 8081, Read timeout: 30000; the **TLS** tab next to General is where HTTPS is configured later.
+
 ---
 
 ## 3. HTTP Methods
@@ -64,6 +77,15 @@ HTTPS:  Consumer ── "X9#kQ2...@!" (encrypted) ──► [hacker sees gibberi
 ### 3.1 The five widely used methods
 
 **GET, POST, PUT, PATCH, DELETE.** Other HTTP methods exist; the instructor uses these five almost exclusively.
+
+*Slide* — **HTTP Methods:**
+- GET - to fetch the available resources(200 status code)
+- POST - to create a new resource(201)
+- PUT - to completely update a resource or create a new resource if it doesn't exist.
+- PATCH - to partially update a resource
+- DELETE - to delete a resource
+
+*Drawing* on the slide: C (PM = Postman) → API → Emp DB, with employee **102** marked at both ends while PUT and DELETE were ticked.
 
 On Day 05 methods were used randomly. In real projects the method must match the **purpose** of the operation.
 
@@ -140,6 +162,8 @@ protocol   host   port  resource path
 | Port | Identifies the application on that server. One port → one active application at a time (like a house number on a street). If an app stops, its port can be reused |
 | Resource path | The resource, e.g. `/empdetails` |
 
+*Drawing:* `http://localhost:8081/empdetails` with arrows labelling **https / protocol**, **host**, **port**, **resource path** → **URL**; later "URI params or Query params" was added after the path.
+
 Together these form the **URL** (Uniform Resource Locator; the instructor called it "unique resource locator").
 
 The URL can also include an **API version** and a **base path** shared by all resources; explained later.
@@ -149,6 +173,8 @@ The URL can also include an **API version** and a **base path** shared by all re
 ---
 
 ## 5. Other Parts of the Request
+
+*Drawing* — **HTTP Request:** ① Body → imp. info ② Headers ③ Query Parameters ④ URI Parameters ⑤ URL (protocol + host + port + resource path) ⑥ Method ⑦ Authorization information.
 
 In Postman a request has: **Params, Authorization, Headers, Body** (plus Pre-request Script, Tests, Settings, which are Postman features, not part of the HTTP request).
 
@@ -205,7 +231,23 @@ http://localhost:8081/empdetails?employeeId=123&dept=IT&status=active
 GET .../bankstatement?fromDate=2024-10-15&toDate=2024-10-31
 ```
 
+*Drawing — query parameters:* "XYZ Company → 50 emps", with a table:
+
+| empId | empName | salary | designation | status |
+|---|---|---|---|---|
+| 100 | Mahesh | 10000 | Lead | active |
+| 101 | Dinesh | 20000 | Manager | active |
+| 102 | Surya | 75000 | Developer | inactive |
+| 103 | Naresh | 30000 | PM | active |
+| 150 | Rajesh | 60000 | Senior DM (delivery manager) | active |
+
+Query parameters **filter, sort, paginate** the resource info. "Want the list of emps whose salary is more than 10000" → `?salary=10000` (key = value) and `&sortBySal=DESC` (or ASC). Behind the API this becomes `select * from … where sal > 10000`, returning only the matching rows ("25 info") instead of all 50.
+
+*Screen (Postman):* the Params tab with **Query Params** key `empid`, value `123` builds the URL `http://localhost:8081/empdetails1?empid=123` automatically.
+
 #### URI parameters
+
+*Drawing:* **URI params → Unique Resource Identifier.** `http://localhost:8081/api/employees/{empid}` — `{empid}` is the key; calling `.../employees/100` makes **100 the URI value for empid** (150 or 152 would fetch those employees instead). More than one can be chained, e.g. `employees/{companyId}/{…id}`.
 
 - Part of the **path** itself; used for a value that **uniquely identifies** a resource.
 - **Example:** a bank customer's account number or customer ID:
@@ -218,7 +260,9 @@ Both are covered in depth on Day 10.
 
 ### 5.5 Student question: could Day 05's ID have been sent as a query parameter?
 
-Yes, but the flow would need to change. On Day 05 the ID was sent in the **body**, which becomes the **payload** inside Mule, so the query used `payload.empid`. If the ID is sent as a query parameter, the payload is empty and `payload.empid` fails; the value must be read from another part of the Mule event (attributes). Explained in the next session.
+Yes, but the flow would need to change. On Day 05 the ID was sent in the **body**, which becomes the **payload** inside Mule, so the query used `payload.empid`. *Screen (Postman):* GET `http://localhost:8081/empdetails?empid=123` **with** the body `{"empid": 120}` still returned **200 OK** (224 ms, 274 B) with employee **120** (ravi) — the flow reads the body, so the query parameter `123` was ignored. Changing the path to `/empdetails1` returned **404 Not Found** with the body `No listener for endpoint: /empdetails1`.
+
+If the ID is sent as a query parameter, the payload is empty and `payload.empid` fails; the value must be read from another part of the Mule event (attributes). Explained in the next session.
 
 ### 5.6 The design decides everything
 
@@ -229,6 +273,8 @@ During the **design** step, the API owner decides:
 - mandatory/optional headers,
 - mandatory/optional query parameters,
 - security.
+
+*Slides* (preview of Day 07, shown here): **Transformation of HTTP Request to Mule 4 Event** — HTTP Request (HTTP Method, URL, Headers; Body) → Mule 4 event (Message: Payload (includes attachments), Attributes; Variables; Exception message). **Mule Event:** Mule Event contains the core information processed by Mule Runtime · It travels through components inside Mule application following the logic configured · A Mule Event consists of three components – payload, attributes and variables.
 
 A real HTTP request comprises: **protocol, URL (host, port, path), method, query/URI parameters, headers, authorization, body.**
 
@@ -245,6 +291,8 @@ After sending a request, Postman shows a **status code** and a **reason phrase**
 | 3xx | Redirection | Rarely in APIs |
 | 4xx | Client-side error | Yes |
 | 5xx | Server-side error | Yes |
+
+*Slide* — **HTTP Response Codes:** 1xx informational response -request received and the process is in progress · 2xx - successful · 3xx - redirection · 4xx - client error · 5xx - server error. *Drawing* next to it: Req → API → DB with "50000" (the 1xx example below), and "200 series → success responses" on the 2xx slide.
 
 **Instructor's experience:** they have used 200, 400 and 500 series; never 100 or 300 series in APIs.
 
@@ -265,6 +313,8 @@ Meaning: request received, processing in progress.
 | **204 No Content** | Request successful; no data to return | Request is fine but there is nothing to send back |
 
 **Instructor's observation:** many teams use 200 for everything, including POST. Ideally use 201 for creation and 204 for no data. Not a hard rule (traffic-rule analogy again).
+
+*Slide:* 200 OK - The request was successful, and the server has returned the requested data. · 201 Created - The request was successful, and a new resource has been created on the server. · 204 No Content - The request was successful, but there is no data to return.
 
 Full list: search "HTTP response codes" online.
 
@@ -298,6 +348,8 @@ Problem on the API side (server's problem)    → 5xx
 | **405 Method Not Allowed** | Wrong method for this resource | API accepts only GET; client sends POST |
 | **415 Unsupported Media Type** | Wrong body format | API accepts only JSON; client sends XML |
 
+*Slides:* 400 Bad Request - The request could not be understood or was missing the required parameters. · 401 Unauthorized - The request requires authentication, and the user does not have valid credentials. · 403 Forbidden - The server understood the request, but the user is not allowed to access the requested resource. · 404 Not Found - The requested resource could not be found on the server. · 405 - Method not allowed · 415 - Unsupported media type.
+
 These are used regularly in real projects.
 
 ### 6.6 5xx — Server errors
@@ -310,6 +362,8 @@ These are used regularly in real projects.
 | **503 Service Unavailable** | The API is down/unavailable | |
 | **504 Gateway Timeout** | Gateway did not receive a timely response from the upstream server | See below |
 
+*Slides:* 500 Internal Server Error - The server encountered an error while processing the request. · 501 Not Implemented - The server does not support the functionality required to fulfil the request. · 502 Bad Gateway - The server acting as a gateway or proxy received an invalid response from the upstream server. · 503 Service Unavailable - The server is currently unavailable, and the request cannot be completed at this time. · 504 Gateway Timeout - The server acting as a gateway or proxy did not receive a timely response from the upstream server.
+
 ### 6.7 API gateway and 502/504
 
 **API gateway:** a component in front of the API. **Analogy:** a security guard at a house stops visitors, verifies them, then lets them in. The gateway checks credentials (e.g. username/password) and forwards valid requests to the API; otherwise rejects them.
@@ -321,6 +375,8 @@ Consumer ──► API Gateway ──► API
 ```
 
 **Instructor's example:** the gateway expects the API to respond within 100 ms, but the API takes 150 ms. The gateway gives up and returns an error instead of the response. The instructor used this example for **502 Bad Gateway** and then said **504** "or even 502" can be used for it.
+
+> **Transcript vs. slide:** the class's own slide gives the standard meanings — 502 = *invalid* response from upstream, 504 = no *timely* response. The timeout example in the audio therefore fits **504**.
 
 > **Technical clarification:** By the HTTP standard, **504 Gateway Timeout** is returned when the gateway does not get a response in time (the scenario above). **502 Bad Gateway** is returned when the gateway receives an **invalid** response from the upstream server (or cannot connect to it).
 
@@ -338,6 +394,24 @@ Consumer ──► API Gateway ──► API
 
 Typical flow: front-end sends JSON → MuleSoft converts as needed for back-end systems → MuleSoft returns a JSON response.
 
+*Drawing:* **JSON → one type of data format, JavaScript object notation → widely used, popular → simple to understand & use.** Example drawn in class (key/value circled):
+
+```json
+{
+  "name": "Mahesh",
+  "empID": 100,
+  "designation": "Team lead",
+  "salary": 20000,
+  "active": true,
+  "hobbies": ["watching movies", "reading books", "teaching"],
+  "DOJ": "24/July/2024",
+  "Nationality": null,
+  "familyDetails": { "spouseName": "…", "spouseWorking": true, "children": … }
+}
+```
+
+Beside it: text or string, number, Boolean, array — and **✗ date datatype in JSON**.
+
 ### 7.2 Object and array
 
 | Structure | Delimiters |
@@ -346,6 +420,8 @@ Typical flow: front-end sends JSON → MuleSoft converts as needed for back-end 
 | **Array** | `[ ]` square brackets |
 
 ### 7.3 Data types JSON accepts
+
+*Drawing* — **data types accepted by JSON:** ① string ("Mahesh") ② number (100) ③ object ({ }) ④ array ([ ]) ⑤ boolean (true/false) ⑥ null; **Date format ✗**. Next to it: JSON object `{ }`, JSON array `[ ]`, and `{"name": "mahesh", "salary": 100000, "hobbies": ["reading books", "playing"], "status": true, "address": null, "dob": "21-Dec-2000"}` — a date written as `"21/12/2000"` or `"25-10-2024"` is just a string.
 
 | Type | Rule | Example |
 |---|---|---|
@@ -386,7 +462,9 @@ Typical flow: front-end sends JSON → MuleSoft converts as needed for back-end 
 }
 ```
 
-(Key names are representative; the values and types follow the transcript.)
+*Drawing* (final): `{"name": "Mahesh"` → property 1, `"designation": "software engineer"` → property 2, `"salary": 100000`, `"hobbies": ["reading books", "watching movies", "learning new things"]` — with `"XYZ1000"` written alongside as the letters-and-digits string example.
+
+(Key names other than those on the drawing are representative; the values and types follow the transcript.)
 
 **Why an array for hobbies?** Instead of:
 
