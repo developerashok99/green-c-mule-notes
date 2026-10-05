@@ -2,6 +2,8 @@
 
 > **Watch alongside:** the practical continuation of Day 15's error handling — this is where the "ANY must be last" rule gets proven a second time (deliberately), and where you learn the three distinct *scopes* at which error handling can live.
 
+> **Video-verified:** handler names, the Choice condition and the Postman results were read from the class recording (27 Nov 2024). Slide images: [slides/day16](../slides/day16/).
+
 ---
 
 ## 1. A Real Studio Technique: Copy-Paste via Raw XML
@@ -14,7 +16,7 @@ flowchart LR
     D --> E["Delete the dummy component"]
 ```
 
-This is a genuinely useful, real-world technique for reusing already-built logic (like a Logger + Transform Message combo) without manually rebuilding it. Accept Studio's offer to regenerate a duplicate `Doc:Id` when prompted — this connects directly to Day 08's MUnit lesson: match by `Doc:Name`, not `Doc:Id`, precisely because IDs regenerate like this.
+This is a genuinely useful, real-world technique for reusing already-built logic (like a Logger + Transform Message combo) without manually rebuilding it. Accept Studio's offer to regenerate the duplicate `doc:id` when prompted (pasted components would otherwise share an ID).
 
 ---
 
@@ -116,10 +118,10 @@ flowchart LR
 flowchart LR
     Q{"Is this a TECHNICAL failure<br/>(connectivity, timeout, bad data)<br/>or a BUSINESS RULE rejection?"}
     Q -->|Technical| Auto["Automatically raised by the platform<br/>— you don't need Raise Error"]
-    Q -->|"Business (data is valid,<br/>but the rule says no)"| Manual["Use Raise Error —<br/>define your own namespace:identifier<br/>e.g. BUSINESS:AGE"]
+    Q -->|"Business (data is valid,<br/>but the rule says no)"| Manual["Use Raise Error —<br/>define your own namespace:identifier<br/>e.g. BUSINESS:&lt;identifier&gt;<br/>'age is not in the specified limits'"]
 ```
 
-**Worked example**: a loan application with age 68, when the business rule requires 18-65. Technically valid data, every system working fine — just a case the business rejects. `Raise Error` creates a genuine Error Object with your custom `errorType` and `description`, inspectable exactly like any automatically-generated one.
+**Worked example** (*screen*: project `raise-error-demo`, path `/raiseerror`, Choice `#[payload.age > 17 and payload.age < 66]`): a loan application with age 68 → Postman **500 Server Error**, text `age is not in the specified limits`; when the business rule requires 18-65. Technically valid data, every system working fine — just a case the business rejects. `Raise Error` creates a genuine Error Object with your custom `errorType` and `description`, inspectable exactly like any automatically-generated one.
 
 ---
 
