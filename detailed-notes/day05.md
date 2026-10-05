@@ -2,16 +2,18 @@
 
 > **Watch alongside:** the first time you actually touch Anypoint Studio. Build this exact flow yourself while watching — typing along, not just observing, is what makes the next few "how does HTTP become a Mule Event" sessions click.
 
+> **Video-verified:** project names, SQL, configuration values, errors and responses below were read from the class recording (5 Nov 2024). Slide images: [slides/day05](../slides/day05/).
+
 ---
 
 ## 1. The Requirement, Precisely
 
-**Input:** an `employeeId` (sent via Postman). **Output:** that employee's full details (name, salary, designation, status), as JSON.
+**Input:** an employee ID (sent via Postman as `{"empid": 120}`). **Output:** that employee's full details (name, salary, designation, status), as JSON.
 
 ```mermaid
 flowchart LR
-    PM[Postman] -->|"POST/GET body:<br/>{empId: 120}"| API{{Mule API}}
-    API -->|"SELECT * FROM employees<br/>WHERE employee_id = 120"| DB[(MySQL Database)]
+    PM[Postman] -->|"GET body:<br/>{empid: 120}"| API{{"Mule API<br/>db-select-demo"}}
+    API -->|"select * from EMPLOYEES_INFO<br/>where emp_id = :emp_id"| DB[(MySQL database mule11)]
     DB -->|"Java object<br/>(raw JDBC response)"| API
     API -->|"Converted to JSON"| PM
 ```
@@ -35,8 +37,8 @@ Configuring a **Connector Configuration** (a reusable connection definition):
 | Setting | Value used | Why |
 |---|---|---|
 | Protocol | HTTP | (not HTTPS at this stage — that's a later topic) |
-| Host | `localhost` (or `0.0.0.0`) | Deploying to your own machine for now — in real deployments this would be an actual server IP |
-| Port | `8081` | **Must be a port nothing else is currently using** — `3306` was avoided since MySQL was already listening there |
+| Host | **All Interfaces [0.0.0.0] (default)** — `localhost` also works | Deploying to your own machine for now — in real deployments this would be an actual server IP |
+| Port | `8081` | **Must be a port nothing else is currently using** — the database's own port was avoided, since MySQL was already listening there (port **330** on the instructor's machine; MySQL's default is 3306) |
 | Path | `/empdetails` | Combined with host+port, forms the full URL: `http://localhost:8081/empdetails` |
 
 > 🧠 **Port analogy from the lecture:** a port is like a house number on a street — it must uniquely identify *one* active resident (application) at a time. Two applications can't share an active port, the same way two houses can't share one address while both are occupied.
@@ -47,12 +49,34 @@ A Logger produces no functional output for the consumer — but it's how you'll 
 ### ③ Database Connector — SELECT operation
 ```mermaid
 flowchart LR
-    Cfg["Connector Config:<br/>MySQL, host, port,<br/>username, password, DB name"] --> Test{"Test Connection"}
-    Test -->|✅ Success| Query["SELECT * FROM employees_info<br/>WHERE employee_id = :employeeId"]
+    Cfg["Database_Config:<br/>MySQL Connection, localhost,<br/>port 330, root, password,<br/>database mule11"] --> Test{"Test Connection"}
+    Test -->|✅ Success| Query["select * from EMPLOYEES_INFO<br/>where emp_id = :emp_id"]
     Test -->|❌ Fail| Debug["Check: is MySQL running?<br/>Correct password?<br/>Correct DB name?"]
 ```
 - The **JDBC driver** (via "Add Recommended Library") is what actually lets Mule talk to MySQL specifically — different databases (Oracle, MS SQL Server) need their own equivalent drivers.
-- **Best practice demonstrated:** bind the employee ID **dynamically** (`payload.employeeId`, referenced via a bound parameter) rather than hard-coding a literal ID into the query string — this is what makes the same flow work for *any* incoming employee ID, not just one hardcoded test value.
+- **Best practice demonstrated:** bind the employee ID **dynamically** rather than hard-coding a literal ID into the query string — this is what makes the same flow work for *any* incoming employee ID, not just one hardcoded test value. On screen:
+
+```sql
+select * from EMPLOYEES_INFO where emp_id = :emp_id;
+```
+
+Input Parameters (fx): `{ "emp_id": payload.empid }` — the `:emp_id` placeholder is filled from the `emp_id` key.
+
+The table was created in MySQL Workbench beforehand:
+
+```sql
+CREATE TABLE `EMPLOYEES_INFO` (
+  `emp_id` int NOT NULL,
+  `emp_name` varchar(255) DEFAULT NULL,
+  `emp_status` varchar(20) NOT NULL,
+  `emp_salary` double DEFAULT NULL,
+  `emp_designation` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`emp_id`)
+);
+INSERT INTO EMPLOYEES_INFO VALUES (120, 'ravi', 'true', 80000, 'software engineer');
+```
+
+(Two more rows were inserted: 104 Dinesh and 101 Hari. A typo, `EMPLOYEE_INFO`, gave `Error Code: 1146. Table 'mule11.employee_info' doesn't exist`.)
 
 ### ④ Transform Message — Java → JSON
 The raw JDBC response comes back in **Java format** by default — not directly usable/meaningful to an external JSON-speaking consumer. A minimal Transform Message just declares the output type:
@@ -70,7 +94,7 @@ This is the simplest possible DataWeave script — no reshaping logic, just a fo
 
 | Symptom | Root cause | Fix |
 |---|---|---|
-| `Access denied for user 'root'` | Wrong password typed in the connector config (a literal typo — `22` instead of `23`) | Double-check the password matches *exactly* what was set when the MySQL user was created |
+| `Access denied for user 'root'@'localhost'` — in Postman: **500 Server Error**, `Cannot get connection for URL jdbc:mysql://localhost:330/mule11 … Access denied`; console error type **`DB:CONNECTIVITY`** | One digit of the password was wrong in the connector config | Double-check the password matches *exactly* what was set when the MySQL user was created — then Test Connection shows **"Test connection successful"** |
 | `Could not obtain connection from data source` | The MySQL **service itself** wasn't running (checked via `services.msc` on Windows) | Start the database service before testing the connector — "installed" ≠ "running" |
 | Listener won't deploy / port conflict | Chosen port already actively used by another process (e.g. MySQL itself on 3306) | Pick a genuinely free port |
 
@@ -87,6 +111,15 @@ flowchart LR
     Choice -->|"Something's wrong,<br/>need to inspect step-by-step"| Debug["Debug<br/>set breakpoints,<br/>step through component-by-component,<br/>inspect payload/attributes/variables live"]
 ```
 
+After the fix, Postman returned **200 OK** with the row as an **array** whose keys are the table's column names:
+
+```json
+[ { "emp_salary": 80000.0, "emp_status": "true", "emp_name": "ravi",
+    "emp_designation": "software engineer", "emp_id": 120 } ]
+```
+
+The console then printed all three loggers: *db select flow started*, *db select query executed successfully*, *db select process completed successfully*.
+
 - **Run** is your default for "does this work end-to-end?"
 - **Debug** becomes essential the moment something *doesn't* work as expected, or when a flow has enough components (10-15+, per the instructor) that guessing where the problem is becomes impractical without stepping through.
 - The **Mule Debugger tab** (in the bottom panel) is where you inspect the Mule Event's internal state at each breakpoint — this is the exact tool used extensively in `day07.md`'s payload/attributes/variables deep dive.
@@ -101,13 +134,13 @@ flowchart TB
     LMule[Mule App<br/>on my laptop] -->|localhost:3306| LDB[(MySQL<br/>on same laptop)]
     end
     subgraph "Real deployment (later)"
-    CMule["Mule App<br/>deployed to CloudHub<br/>(e.g. US region)"] -.->|"❌ can't just say 'localhost'"| RDB[(Company Database<br/>in Mumbai data center)]
+    CMule["Mule App<br/>deployed to CloudHub<br/>(e.g. US region)"] -.->|"❌ can't just say 'localhost'"| RDB[("Emp DB in Mumbai DC<br/>host 10.1.25.50, port 8090,<br/>DB mule10 — from the DB team")]
     end
 ```
 
 When both pieces live on your own machine, `localhost` trivially "just works." The moment the Mule app and the database live on **different servers** — possibly different regions/networks entirely — that convenience disappears, and real network connectivity (firewall rules, port openings, sometimes VPNs/proxies) must be established, usually coordinated with a **network team**.
 
-**A concrete diagnostic tool mentioned:** `telnet <server-ip> <port>` from a command line — an empty/blank response after connecting means the network path is open; a "not connected" style error means it isn't, and you'd escalate to the network team to open it (this maps directly onto the same on-premises/VPC/firewall concepts covered in the April batch's `apr21.md`, for anyone cross-referencing that course).
+**A concrete diagnostic tool mentioned:** `telnet <server-ip> <port>` from a command line — an empty/blank response after connecting means the network path is open; a "not connected" style error means it isn't, and you'd escalate to the network team to open it.
 
 ---
 

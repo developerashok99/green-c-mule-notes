@@ -127,7 +127,7 @@ Using POST to fetch or GET to create will technically work if the API allows it 
 ## 4. URL Structure
 
 ```text
-http://localhost:8081/emp-details
+http://localhost:8081/empdetails
 └─┬─┘  └───┬───┘ └┬─┘ └────┬───┘
 protocol   host   port  resource path
 ```
@@ -138,7 +138,7 @@ protocol   host   port  resource path
 | `://` | Standard separator |
 | Host | Server where the API is deployed. `localhost` = this laptop |
 | Port | Identifies the application on that server. One port → one active application at a time (like a house number on a street). If an app stops, its port can be reused |
-| Resource path | The resource, e.g. `/emp-details` |
+| Resource path | The resource, e.g. `/empdetails` |
 
 Together these form the **URL** (Uniform Resource Locator; the instructor called it "unique resource locator").
 
@@ -193,7 +193,7 @@ Security information may be sent in the **Authorization** section or in **header
 - Start with `?`, then `key=value` pairs separated by `&`.
 
 ```text
-http://localhost:8081/emp-details?employeeId=123&dept=IT&status=active
+http://localhost:8081/empdetails?employeeId=123&dept=IT&status=active
                                 └──────────────── query parameters ───┘
 ```
 
@@ -218,7 +218,7 @@ Both are covered in depth on Day 10.
 
 ### 5.5 Student question: could Day 05's ID have been sent as a query parameter?
 
-Yes, but the flow would need to change. On Day 05 the ID was sent in the **body**, which becomes the **payload** inside Mule, so the query used `payload.EMPID`. If the ID is sent as a query parameter, the payload is empty and `payload.EMPID` fails; the value must be read from another part of the Mule event (attributes). Explained in the next session.
+Yes, but the flow would need to change. On Day 05 the ID was sent in the **body**, which becomes the **payload** inside Mule, so the query used `payload.empid`. If the ID is sent as a query parameter, the payload is empty and `payload.empid` fails; the value must be read from another part of the Mule event (attributes). Explained in the next session.
 
 ### 5.6 The design decides everything
 
@@ -294,7 +294,7 @@ Problem on the API side (server's problem)    → 5xx
 | **400 Bad Request** | Request is malformed or invalid | A mandatory header or body field missing; wrong data type (salary sent as text `"80000"` instead of number `80000`) |
 | **401 Unauthorized** | Security credentials missing or wrong | Username/password wrong, or not sent |
 | **403 Forbidden** | Authenticated, but not permitted for this resource | Consumer has access only to resource 1, but calls resource 2 or 3 |
-| **404 Not Found** | Resource doesn't exist | Sending `/emp-details1` instead of `/emp-details` |
+| **404 Not Found** | Resource doesn't exist | Sending `/empdetails1` instead of `/empdetails` |
 | **405 Method Not Allowed** | Wrong method for this resource | API accepts only GET; client sends POST |
 | **415 Unsupported Media Type** | Wrong body format | API accepts only JSON; client sends XML |
 

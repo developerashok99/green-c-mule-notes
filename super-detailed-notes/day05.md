@@ -1,5 +1,7 @@
 # Day 05 — First Hands-On Mule Application: HTTP Listener → Database Select → JSON
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 5 Nov 2024). Names, SQL, configuration values, errors and responses marked *screen* are read from the recording. Slide images: [slides/day05](../slides/day05/).
+
 ## 1. Overview
 
 This session builds the first complete Mule application in Anypoint Studio and tests it with Postman.
@@ -17,6 +19,10 @@ Agenda:
 9. Real errors encountered and how they were fixed
 10. Run vs. Debug, breakpoints and the Mule Debugger
 11. Q&A: `localhost` vs. real servers, firewalls, `telnet`, port uniqueness, GET with a body, why DB results are Java
+
+*Slide — "Agenda for today":* what is HTTP request structure? · what is Mule event structure? · demonstration of MuleSoft application in APS · debug Mule application & Logger component · Set Variable component · Q&A session.
+
+*Drawing — "HTTP Request":* ① body → important info ② headers ③ query parameters ④ URI parameters ⑤ URL (protocol + host + port + resource path) ⑥ method ⑦ authorization information. (Explained on Day 06.)
 
 Account creation, Studio/Postman installation, the Mule Event and the full HTTP request structure are deferred to the next sessions.
 
@@ -78,7 +84,7 @@ Software used: a **database** (MySQL), **Postman** for testing, **Anypoint Studi
 ## 4. Step 1 — Create the Project
 
 1. **File → New → Mule Project**
-2. Name: `DB Select Demo` (a random name for now; naming conventions are covered later with a real use case)
+2. Name: `db-select-demo` *(screen)* — the flow is created as `db-select-demoFlow` (a random name for now; naming conventions are covered later with a real use case)
 3. Click **Finish**
 
 Studio creates an empty project from a template with many folders and files. Studio uses **Maven** in the background to create this structure. The structure is explained in detail later (Day 08) — ignore it for now.
@@ -100,19 +106,19 @@ Click **+** next to *Connector configuration*:
 | Setting | Value used | Explanation |
 |---|---|---|
 | Protocol | HTTP | |
-| Host | `localhost` (or default `0.0.0.0`) | Where the application is deployed. On your laptop it is localhost. On a real server it would be that server's IP (e.g. `10.1.2.50`) |
+| Host | Default **All Interfaces [0.0.0.0]** *(screen)* — `localhost` also works | Where the application is deployed. On your laptop it is localhost. On a real server it would be that server's IP (e.g. `10.1.2.50`) |
 | Port | `8081` (default) | Any free port can be used: 8085, 8090, 8080, … |
 
 **Address analogy:** to deliver a letter to a house you need its full address. Host + port + path is the full address of your API.
 
 ### 5.3 Path
 
-In the Listener's general settings, set the **path**: `/emp-details` (spoken as "EMP details" and later read out as "slash emp-details").
+In the Listener's general settings, set the **path**: `/empdetails` *(screen — Postman URL `http://localhost:8081/empdetails`)*.
 
 Full URL to call the API:
 
 ```text
-http://localhost:8081/emp-details
+http://localhost:8081/empdetails
   │       │       │      │
   │       │       │      └── path (resource)
   │       │       └── port
@@ -176,10 +182,10 @@ Click **+** next to *Connector configuration*.
 | Connection | **MySQL Connection** (Oracle → Oracle connection; Microsoft → Microsoft SQL Server connection) |
 | JDBC Driver | Required library that lets the Mule application connect to the database. Click **Configure → Add recommended libraries**; Studio downloads the driver JAR and configures it |
 | Host | Where the database server runs. Real projects: an IP like `10.1.25.50` or a hostname. Here: `localhost` |
-| Port | `3306` (MySQL default; spoken as "330" in the transcript) |
+| Port | **`330`** *(screen)* — the port the instructor's MySQL was installed on. (MySQL's default is **3306**; use whatever port your installation uses.) |
 | User | `root` |
 | Password | The password set when MySQL was installed |
-| Database | The database name, e.g. `mule3` / `mule4` / `mule11` (several were tried during the demo) |
+| Database | **`mule11`** *(screen)* — `mule3` and `mule4` were tried first; `mule11` was created during the demo |
 
 **Visual cue:** a **red** mark next to a field means it is **mandatory** and missing; the connector won't work until it is filled. It turns **green** once satisfied.
 
@@ -196,25 +202,29 @@ Click **Test Connection**.
 
 **MySQL Workbench** is the UI used to work with MySQL; the database itself runs as a Windows service.
 
-Steps shown (the exact SQL syntax is covered in the database sessions):
+SQL run in Workbench *(screen)* (SQL syntax itself is covered in the database sessions):
 
 ```sql
-CREATE DATABASE mule11;
+CREATE DATABASE `mule11`;
+USE `mule11`;
 
-CREATE TABLE employees_info (
-  employee_id          ...,
-  employee_name        ...,
-  employee_status      ...,
-  employee_salary      ...,
-  employee_designation ...
+CREATE TABLE `EMPLOYEES_INFO` (
+  `emp_id`          int          NOT NULL,
+  `emp_name`        varchar(255) DEFAULT NULL,
+  `emp_status`      varchar(20)  NOT NULL,
+  `emp_salary`      double       DEFAULT NULL,
+  `emp_designation` varchar(50)  DEFAULT NULL,
+  PRIMARY KEY (`emp_id`)
 );
 
-INSERT INTO employees_info (...) VALUES (...);   -- e.g. employee 120, Ravi
+INSERT INTO EMPLOYEES_INFO VALUES (120, 'ravi',   'true', 80000,  'software engineer');
+INSERT INTO EMPLOYEES_INFO VALUES (104, 'Dinesh', 'true', 100000, 'Seniorsoftware engineer');
+INSERT INTO EMPLOYEES_INFO VALUES (101, 'Hari',   'true', null,   'software engineer');
 
-SELECT * FROM employees_info;
+SELECT * FROM EMPLOYEES_INFO;
 ```
 
-> **Transcript unclear:** the column data types and exact inserted values could not be reliably recovered; the shape above shows the steps taken (the inserted row was employee 120, Ravi).
+**A mistake seen in Workbench:** `select * from EMPLOYEE_INFO` (missing "S") → `Error Code: 1146. Table 'mule11.employee_info' doesn't exist`. The table name must match exactly.
 
 ---
 
@@ -223,32 +233,36 @@ SELECT * FROM employees_info;
 ### 9.1 Static vs. dynamic
 
 ```sql
-SELECT * FROM employees_info WHERE employee_id = 120;   -- hard-coded: works only for 120
+select * from EMPLOYEES_INFO where emp_id = 120;   -- hard-coded: works only for 120
 ```
 
 Should the ID be hard-coded or dynamic? **Dynamic.** The ID comes from the request sent by Postman.
 
 ### 9.2 Where does the ID come from?
 
-- Postman sends the ID in the request **body**, e.g. `{ "EMPID": 120 }`.
+- Postman sends the ID in the request **body**: `{ "empid": 120 }` *(screen)*.
 - Inside the Mule application, the body is available as the **payload**.
-- So the value is read as `payload.EMPID`.
+- So the value is read as `payload.empid`.
 
 ### 9.3 How it is written (best practice)
 
 The query uses a **named parameter**, and its value is supplied in the **Input Parameters** section of the Select operation:
 
+*Screen — Select operation (connector configuration `Database_Config`):*
+
 ```sql
-SELECT * FROM employees_info WHERE employee_id = :empId
+select * from EMPLOYEES_INFO where emp_id = :emp_id;
 ```
+
+Input Parameters (fx):
 
 ```dataweave
-{ empId: payload.EMPID }
+{
+  "emp_id": payload.empid
+}
 ```
 
-Writing `payload.EMPID` directly inside the SQL string also works, but passing it as an input parameter is the **best practice**. The reasons are explained in the database sessions.
-
-> **Transcript unclear:** the exact parameter names typed on screen could not be reliably recovered; the names above illustrate the pattern.
+`:emp_id` in the query is filled from the `emp_id` key of the input parameters. Writing `payload.empid` directly inside the SQL string also works, but passing it as an input parameter is the **best practice**. The reasons are explained in the database sessions.
 
 ---
 
@@ -271,8 +285,8 @@ The flow:
 
 ```text
 ┌─────────────────────────────── DB Select Demo flow ───────────────────────────────┐
-│ Source:   HTTP Listener  (localhost:8081/emp-details)                              │
-│ Process:  Logger → Database Select → Logger → Transform Message → Logger          │
+│ Source:   HTTP Listener  (localhost:8081/empdetails)                              │
+│ Process:  Logger → Select → Logger → Transform Message → Logger   (db-select-demoFlow) │
 │ Error handling: (empty, created automatically)                                    │
 └───────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -300,11 +314,11 @@ Saving with **Ctrl+S** triggers an automatic build because "Build automatically"
 
 1. In Postman, click **+** for a new request.
 2. Method: **GET** (as used in the demo).
-3. URL: `http://localhost:8081/emp-details` — host and port separated by a colon, followed by the path.
+3. URL: `http://localhost:8081/empdetails` — host and port separated by a colon, followed by the path.
 4. **Body → raw → JSON**:
 
 ```json
-{ "EMPID": 120 }
+{ "empid": 120 }
 ```
 
 5. Click **Send**.
@@ -326,13 +340,24 @@ You called the function 'valueSelector' with these arguments ...
 
 ### Error 2 — Access denied
 
+In Test Connection:
+
 ```text
 Test connection failed — could not obtain connection from data source
 Access denied for user 'root'@'localhost' (using password: YES)
 ```
 
-**Cause:** a wrong password had been entered in the database configuration (the password was mistyped by one digit).
-**Fix:** correct the password; Test Connection then succeeded.
+At runtime the same problem returned **500 Server Error** in Postman, with this body *(screen)*:
+
+```text
+Cannot get connection for URL jdbc:mysql://localhost:330/mule11?logger=... :
+Access denied for user 'root'@'localhost' (using password: YES)
+```
+
+The console showed **Error type: `DB:CONNECTIVITY`**, and only the first logger ("DB select flow started") had printed.
+
+**Cause:** a wrong password in the database configuration (one digit was wrong).
+**Fix:** correct the password; Test Connection then showed **"Test connection successful"**, and the request worked.
 
 **Systematic check when a DB connection fails:**
 
@@ -353,17 +378,21 @@ Host correct?  → Port correct?  → Username correct?
 
 After fixing the password and redeploying:
 
+Postman showed **200 OK** with *(screen)*:
+
 ```json
-{
-  "employeeId": 120,
-  "employeeName": "Ravi",
-  "employeeDesignation": "Software Engineer",
-  "employeeSalary": 80000,
-  "employeeStatus": "working"
-}
+[
+  {
+    "emp_salary": 80000.0,
+    "emp_status": "true",
+    "emp_name": "ravi",
+    "emp_designation": "software engineer",
+    "emp_id": 120
+  }
+]
 ```
 
-(Representative — the exact JSON key names aren't readable in the transcript. The values are: ID 120, name Ravi, designation software engineer, salary 80,000, status working, from the columns employee ID, name, status, salary and designation.)
+The keys are the **table's column names**, and the result is an **array** containing one object — a Select always returns a list of rows (explained on Day 07 and Day 30).
 
 The **Console** shows three `INFO` lines — one per logger:
 
@@ -391,6 +420,8 @@ This flow has only a few components. Real flows have 10–15 connectors and comp
 4. Send the request from Postman. Execution **stops** at the breakpoint.
 5. Open the **Mule Debugger** tab. Click **Next processor** to execute one component at a time.
 
+   *Screen:* the **Variables and watches** panel lists the processor (e.g. `Select`), **`attributes`** (`HttpRequestAttributes`), **`correlationId`**, **`payload`**, **`rootId`** and **`vars`** (`size = 0` — no variables yet).
+
 Observations:
 
 - A component that hasn't executed yet is shown with a **dotted line** around it.
@@ -406,8 +437,8 @@ Breakpoints can be placed on any component, including the source. **Remove break
 The instructor deleted the Transform Message (right-click → Delete), saved, and resent the request.
 
 ```text
-Attempted to send invalid data through HTTP response
-→ HTTP 500 (server error)
+java.lang.RuntimeException: Attempted to send invalid data through http response.
+→ Postman: 500 Server Error
 ```
 
 **Reason:** the payload is still a Java object; the Listener cannot send it as a valid HTTP response body, and the consumer expects JSON anyway.
@@ -424,7 +455,7 @@ No.
 - `localhost` works only because the Mule application and MySQL are **on the same laptop**.
 - **CloudHub** is MuleSoft's cloud. Suppose the app is deployed in the **US region** and the database is in a **Mumbai** data centre. They are on different networks; the app cannot reach "localhost" in Mumbai.
 - To connect, the **firewall/port openings** between the two networks must be done. This depends on the enterprise network.
-- The database team provides the real host (e.g., `10.1.25.50`), port, database name, username and password.
+- The database team provides the real host, port, database name, username and password. The instructor's drawing: app on **CloudHub (US region)** → Emp DB in the **Mumbai DC**, with the DB team giving host **10.1.25.50**, port **8090**, DB **mule10**, user and password.
 - If the app is deployed to CloudHub without connectivity, the **application deploys and runs**, but requests that need the database fail with a connectivity error.
 
 ### Q. Same question for on-premises?
@@ -452,13 +483,13 @@ It is created automatically. Every flow has three parts: **Source**, **Process**
 - Database host/port/credentials → **database team**.
 - Listener host/port → your API; decided based on the requirement and deployment target (on-premises or CloudHub). Which ports to use on CloudHub (e.g. 8081 vs. 8091) is covered in deployment sessions.
 
-### Q. Can the Listener use port 3306?
-No. **One port can be used by only one active application at a time.** MySQL is already using 3306; using it again fails with "port already in use".
+### Q. Can the Listener use the database's port?
+No. **One port can be used by only one active application at a time.** MySQL is already using its port (330 on the instructor's machine, 3306 by default); using it again fails with "port already in use".
 
 **Analogy:** if two houses on a street had the same house number, a parcel could not be delivered correctly. A port must be a unique address. That's why 8081 was used.
 
 ### Q. How did Postman reach the API? Do Postman and Studio need to be linked?
-No linking is needed. They are independent software. The application runs on the embedded server on your laptop (your laptop is the server: `localhost`). Postman sends an HTTP request to `localhost:8081/emp-details`; if host, port and path match the Listener and the app is running, the Listener receives it. If the port is wrong, it fails. A colleague on a different laptop cannot call your localhost unless there is network connectivity. An app deployed to CloudHub is reachable over the internet.
+No linking is needed. They are independent software. The application runs on the embedded server on your laptop (your laptop is the server: `localhost`). Postman sends an HTTP request to `localhost:8081/empdetails`; if host, port and path match the Listener and the app is running, the Listener receives it. If the port is wrong, it fails. A colleague on a different laptop cannot call your localhost unless there is network connectivity. An app deployed to CloudHub is reachable over the internet.
 
 ### Q. You used GET but sent a body. Isn't GET only for fetching?
 **There is no strict rule that GET cannot have a body, but it is not recommended.**
@@ -496,7 +527,7 @@ The HTTP request structure, the Mule event, and exactly how the Listener maps on
 | Connector configuration | Reusable connection settings (e.g., host/port for HTTP; DB details) |
 | Host | Machine where the app (or DB) runs; `localhost` = this machine |
 | Port | Number identifying an application on a host; must be unique per active app |
-| Path | Resource part of the URL, e.g. `/emp-details` |
+| Path | Resource part of the URL, e.g. `/empdetails` |
 | Logger | Writes messages to the log/Console |
 | Database connector | Module for DB operations (select, insert, update, delete) |
 | JDBC driver | Library that lets the app connect to a specific database |
@@ -548,9 +579,9 @@ Not unless allowed methods are configured on the Listener. Without restriction i
 ## 18. Must Remember
 
 1. Flow: **Listener → Logger → DB Select → Logger → Transform (Java→JSON) → Logger**.
-2. URL = `http://localhost:8081/emp-details` = protocol + host + port + path.
+2. URL = `http://localhost:8081/empdetails` = protocol + host + port + path.
 3. HTTP and Sockets modules are default; **Database must be added via Add Modules**.
-4. DB config: connection type, **JDBC driver** (Add recommended libraries), host, port 3306, user, password, database.
+4. DB config: connection type, **JDBC driver** (Add recommended libraries), host, port (330 here, MySQL default 3306), user, password, database (`mule11`).
 5. Query values should be **dynamic** and passed as **input parameters**.
 6. DB results are **Java**; convert with Transform Message (`output application/json`).
 7. Loggers are your eyes in production; their order tells you where a failure occurred.

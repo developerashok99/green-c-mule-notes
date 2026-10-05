@@ -175,7 +175,7 @@ Prod ↔ Prod, UAT ↔ UAT, Dev ↔ Dev — but which DB does Mule SIT use (Dev 
 
 ## 8. Database Configuration
 
-Create it in **global-config**. Values from properties (host `localhost`, port `3306`, database `mule12`), username and password from **secure properties**.
+Create it in **global-config**. Values from properties (host `localhost`, port `330` — the instructor's MySQL port, as seen on screen in the Day 05 video; MySQL's default is 3306 — database `mule12`), username and password from **secure properties**.
 
 Select the configuration in the POST Insert operation — it's available to the whole project.
 
