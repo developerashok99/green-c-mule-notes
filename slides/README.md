@@ -22,5 +22,10 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 18 — CloudHub: Workers, vCores, Horizontal and Vertical Scaling, Deploying from Runtime Manager | [day18](day18/) | 13 |
 | Day 19 — CloudHub Follow-Up, Mule Runtime, On-Premises Standalone Deployment | [day19](day19/) | 13 |
 | Day 20 — Hybrid Deployment, Registering a Server, MuleSoft Community and Troubleshooting | [day20](day20/) | 13 |
+| Day 21 — API Lifecycle Revisited, Introduction to RAML, Employee Use Case | [day21](day21/) | 13 |
+| Day 22 — Designing the Employee API: Request Parts, Design Document, Diagrams | [day22](day22/) | 14 |
+| Day 23 — Writing the Employee API Specification in RAML (Design Center) | [day23](day23/) | 14 |
+| Day 24 — RAML Best Practices: Externalising Examples and Data Types | [day24](day24/) | 13 |
+| Day 25 — Data Types, Traits, Fragments, Mocking Service and Sharing | [day25](day25/) | 14 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
