@@ -12,5 +12,7 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 08 — Mule 4 Project Structure, pom.xml, Configuration XML and Flows | [day08](day08/) | 15 |
 | Day 09 — Anypoint Studio Tour: Project Operations, Export/Import, Workspaces | [day09](day09/) | 13 |
 | Day 10 — URI Params vs Query Params, Pagination, Strict Validation | [day10](day10/) | 13 |
+| Day 11 — Consume REST Service: HTTP Request Connector, OpenWeather API | [day11](day11/) | 16 |
+| Day 12 — Consume REST Service: Transform, Target Variable, Response Timeout | [day12](day12/) | 15 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
