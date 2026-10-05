@@ -1,5 +1,7 @@
 # Day 03 — APIs, Web Services, REST vs. SOAP, Caching and Real-Time Environments
 
+> **Sources:** audio transcript, existing notes, and the class video (slides and on-screen drawings, 14 slides, recorded 30 Oct 2024). Values marked "drawing" or "slide" are taken from the screen.
+
 ## 1. Overview
 
 Prerequisite topics start from this session.
@@ -85,14 +87,11 @@ The customer never goes into the kitchen; the kitchen never comes to the table. 
 
 ### 5.1 Request flow
 
-1. The customer taps **Check Balance** in the mobile app.
-2. A request goes to the API, for example in JSON:
+1. The customer taps **Check Balance** in the app.
+2. A request goes to the API in JSON. The instructor's drawing (slide 5, "Technical Example — ICICI Bank"):
 
 ```json
-{
-  "accountNumber": "12345",
-  "requestType": "balanceCheck"
-}
+{ "acNo": 1234, "reqType": "Balcheck" }
 ```
 
 3. The API builds and sends a query to the database. The instructor's illustrative query:
@@ -103,25 +102,34 @@ FROM balance_check
 WHERE account_number = 1234;
 ```
 
-4. The database returns the balance (e.g. 50,000).
-5. The API converts the result into **JSON** and returns it.
-6. The mobile app shows the balance properly.
+4. The database returns the balance.
+5. The API converts the result into **JSON** and returns it:
+
+```json
+{ "acNo": 1234, "Bal": 25000 }
+```
+
+6. The app shows the balance properly.
+
+(In the first, simpler version of the drawing — slide 4 — the values were `AcNo: 123`, `Balance: 50000`.)
 
 ### 5.2 One API, many front-ends
 
 The same balance request can come from:
 
-- an **Android** mobile app,
-- an **iOS** app,
-- **net banking** in a Chrome browser on a desktop or laptop.
+- **net banking** — a **web application (WA)** in a browser, built with **JavaScript**,
+- an **Android** mobile app (MA),
+- an **iOS** mobile app (MA).
 
-These front-ends are built with different languages and technologies. The **same single API** serves all of them.
+These front-ends are built with different languages and technologies, and the ICICI database side is labelled **Java** in the drawing. The **same single API** — labelled **(WS)**, a web service — serves all of them.
 
 ```text
-Android app ─┐
-iOS app ─────┼──►  Balance Check API  ──►  Database
-Net banking ─┘
+Net banking (WA, JavaScript) ─┐   {"acNo":1234,"Bal":25000}
+Android (MA) ─────────────────┼──►  API (WS)  ──►  ICICI database (Java)
+iOS (MA) ─────────────────────┘   e.g. responses 15000, 10000
 ```
+
+(The drawing showed a different balance for each front-end — 25,000, 15,000 and 10,000 — to represent different customers.)
 
 Without the API, each front-end would need its own separate way of talking to the database — one for Android, one for iOS, one for web. The API is **language independent**: it accepts a request in its defined format, processes it and returns a response, regardless of which client called it.
 
@@ -132,6 +140,11 @@ Without the API, each front-end would need its own separate way of talking to th
 ### 6.1 The instructor's rule
 
 > **All web services are APIs, but not all APIs are web services.**
+
+Slide definitions:
+
+- **API** — "API stands for Application Programming Interface. API is a piece of code that helps two or more different systems to communicate and exchange data with each other."
+- **Web service** — "Web Service is a piece of code that helps two different systems to communicate and exchange data with each other **over internet**. Types of Web Services – REST and SOAP."
 
 - If an API communicates over the **internet**, it is called a **web service**.
 - If it communicates over a **private / internal enterprise network**, the instructor calls it just an **API**.
@@ -159,22 +172,24 @@ API + private/enterprise network → API (not a web service, per the lecture)
 
 ### 7.2 Why JSON is lighter than XML
 
+The instructor wrote the same data both ways on the REST slide, labelling JSON **"Light weight"** and XML **"Heavy"**.
+
 Same data in JSON:
 
 ```json
 {
-  "accountNumber": "12345",
-  "requestType": "balanceCheck"
+  "acNo": "12345",
+  "reqType": "balanceCheck"
 }
 ```
 
 Same data in XML — every value needs an opening and a closing tag:
 
 ```xml
-<request>
-  <accountNumber>12345</accountNumber>
-  <requestType>balanceCheck</requestType>
-</request>
+<custData>
+  <acNo>12345</acNo>
+  <reqType>balancecheck</reqType>
+</custData>
 ```
 
 **Instructor's analogy:** a document with 1 lakh words is larger than one with 10,000 words. XML adds extra text (tags) for the same data, so the message is heavier. JSON is lighter, so **REST with JSON uses fewer resources**.
@@ -193,7 +208,7 @@ When you open `www.google.com`, images and data that rarely change (for example 
 
 ### 8.3 API example — resigned employees
 
-**Scenario:** an API returns all employees who resigned on **15 October** (spoken as "October 2004" in the transcript — most likely 2024, the year of the course; the exact year doesn't affect the point).
+**Scenario:** an API returns all employees who resigned on **15 October** 2024 (spoken as "October 2004" in the transcript; the screen recording is dated 30 Oct 2024, which confirms 2024).
 
 ```text
 Front-end ──► API ──► Employee database
@@ -242,6 +257,19 @@ The instructor also notes that caching is one way to improve API performance; re
 
 ### 9.2 Characteristics
 
+Slides 7–8 ("REST Web Service"):
+
+- REST stands for Representational State Transfer
+- REST follows HTTP transfer protocol
+- REST accepts JSON, XML, HTML, Plain Text as message format
+- Design REST using RAML – Restful API Modeling Language
+- RAML contains Resource details, Request & Response schema, Examples, Security Schemes, Error responses
+- REST requires fewer resources
+- Cache can be achieved with REST
+- We develop REST services majority of the times
+
+In short:
+
 - Accepts multiple formats: JSON, XML, HTML, plain text.
 - Lightweight; uses fewer resources.
 - Caching is possible.
@@ -288,9 +316,22 @@ A house can be secured in different ways: solar/electric fencing, a guard dog, a
 
 ### 11.2 Characteristics
 
+Slides 9–10 ("SOAP Web Service"):
+
+- SOAP stands for Simple Object Access Protocol
+- SOAP follows HTTP, SMTP, and UDP transfer protocols
+- SOAP accepts only XML as a message format
+- Design SOAP service using WSDL – Web Service Description Language
+- WSDL contains Resource details, Request & Response schema, Examples, Security Schemes
+- SOAP requires more bandwidth
+- Cache is not possible with SOAP
+- We develop SOAP services very rarely
+
+The instructor's sketch on this slide: request in **XML** → service → response in **XML**.
+
 | Point | Detail |
 |---|---|
-| Protocols | Can work over multiple protocols; most often HTTP |
+| Protocols | Slide: "SOAP follows **HTTP, SMTP, and UDP** transfer protocols" — HTTP is used most |
 | Format | Accepts **only XML** as input and returns **only XML** |
 | Design language | **WSDL** — Web Service Description Language |
 | Bandwidth | Needs more bandwidth because XML is heavier; SOAP is also stricter |
@@ -316,6 +357,8 @@ A house can be secured in different ways: solar/electric fencing, a guard dog, a
 ---
 
 ## 12. REST vs. SOAP
+
+Slide 11 ("REST vs SOAP") lists REST's advantages: less complex and easy to use, easy to learn, light weight, easily scalable, caching possible, accepts multiple message formats — JSON, XML, plain text, etc.
 
 | Aspect | REST | SOAP |
 |---|---|---|
@@ -345,11 +388,24 @@ A house can be secured in different ways: solar/electric fencing, a guard dog, a
 
 ### 13.1 Why have multiple environments?
 
+Slide 13 ("Real Time Environments"), verbatim:
+
+| Environment | Slide text |
+|---|---|
+| Development | For development purpose |
+| SIT | System Integration Testing – QA team |
+| UAT | User Acceptance Testing – Users |
+| Preprod | Performance Testing – QA team |
+| Prod | Live access – Available to actual users |
+| DR | Disaster Recovery – When unexpected incidents happen – Available to actual users |
+
 Different stages of development and testing need **separate, isolated infrastructure** — separate application servers, databases and connected systems (e.g., Salesforce) — so that work in one stage does not interfere with another.
 
 ### 13.2 Worked use case
 
 An API receives a request, reads data from a **database**, sends it to **Salesforce**, transforms the Salesforce response and returns it. Follow it through the environments:
+
+The instructor's sketch on the environments slide: a request comes into the **API**, which calls a **DB** and **SFDC** (Salesforce) and returns the response. The developer tests it with **Postman**. Separate features (**f1**, **f2**) are tested in their own environment, so SIT, UAT and the others each get their own set of servers.
 
 ```text
 Local (Anypoint Studio)
@@ -392,7 +448,7 @@ Isolation: the QA environment has its **own database, own Salesforce, own applic
 - **Example given:** if an API suddenly receives 500 requests per minute and is not sized for it, it can crash.
 - Whether performance testing happens depends on the organisation and expected traffic.
 
-> **Technical clarification:** the transcript doesn't name a separate environment for performance testing or any tool. It's usually done in pre-production with tools such as JMeter or LoadRunner.
+The environments slide states it directly: **"Preprod – Performance Testing – QA team"**. (No tool is named in this session; JMeter and LoadRunner come up on Day 04.)
 
 ### 13.7 Production (Prod)
 
@@ -404,7 +460,7 @@ Isolation: the QA environment has its **own database, own Salesforce, own applic
 ### 13.8 Disaster Recovery (DR)
 
 - Mostly in **financial institutions and banks**.
-- **Illustrative example:** a bank (ICICI) has customers worldwide, an on-premises data centre in **Mumbai**, and all services run on its own servers. If that data centre goes down and takes 4 days to recover, customers cannot be served for 4 days — a huge business loss.
+- **Illustrative example** (sketched in class as a "Mumbai Data Center" box of servers): a bank (ICICI) has customers worldwide, an on-premises data centre in **Mumbai**, and all services run on its own servers. If that data centre goes down and takes 4 days to recover, customers cannot be served for 4 days — a huge business loss.
 - Solution: a **second data centre** (e.g. Hyderabad) with the **same replica** of everything. If the primary fails, the DR site takes over.
 - DR is very expensive — servers and separate environments are a huge cost — so it exists only where the business needs it.
 
