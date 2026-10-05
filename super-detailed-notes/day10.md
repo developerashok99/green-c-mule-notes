@@ -1,5 +1,7 @@
 # Day 10 — URI Parameters vs. Query Parameters, Pagination, Strict Validation
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 14 Nov 2024). Slide text, drawings and Studio screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day10](../slides/day10/).
+
 ## 1. Overview
 
 URI and query parameters were introduced briefly on Day 06. This session explains them in depth because, as the instructor says, even developers with 3–6 years of experience confuse them, and **"what is the difference between URI params and query params, and when do you use each?"** is a frequent interview question.
@@ -20,6 +22,10 @@ Usually the architect or lead decides parameter design, but a developer who unde
 ## 2. URI Parameters
 
 ### 2.1 Meaning
+
+*Slide* — **URI PARAM:** URI stands for Unique Resource Identifier · It is also known as Path Param · It is used to identify unique instance of a resource and passed as a parameter in URL · `http://localhost:8081/employees/{empid}` · `http://localhost:8081/employees/101` · Demonstration in APS. (Written beside it later: "attributes.uriParams.empid".)
+
+*Drawing:* XYZ company → 50 employees → DB → employees. Table: Mahesh **100** Manager 200000 active · Dinesh **101** Lead 150000 active · Ramesh **102** Developer 75000 active, with the IDs circled as the unique values. `/employees/{empid}` → `http://localhost:8085/employees/101`; nested example `/branches/{branchId}/accounts/{acId}` → `/branches/101/accounts/12345`.
 
 - **URI** — the instructor expands it as "Unique Resource Identifier".
 - Also called a **path parameter**, because it is **part of the resource path**.
@@ -59,11 +65,11 @@ URI parameters arrive in **attributes**:
 attributes.uriParams.empId          // → "101"
 ```
 
-Case matters: `uriParams` — lower-case **u**, upper-case **P**. The key must match the name in the path exactly. (In class the key was `EMPID` — `attributes.uriParams.EMPID`; `empId` is used in these notes for readability.)
+Case matters: `uriParams` — lower-case **u**, upper-case **P**. The key must match the name in the path exactly. (The slide writes the key as `empid` — `attributes.uriParams.empid`; `empId` is used in these notes for readability.)
 
 ### 2.5 Multiple URI parameters
 
-**Example:** each department in a company has a unique department ID; within it, each employee has an ID.
+**Example:** each department in a company has a unique department ID; within it, each employee has an ID. (The class drawing used a bank: `/branches/{branchId}/accounts/{acId}` → `/branches/101/accounts/12345`.)
 
 ```text
 /departments/{deptId}/employees/{empId}
@@ -91,6 +97,8 @@ Writing just `attributes.uriParams` (or `attributes.queryParams`) without a key 
 ```
 
 ### 3.2 When to use
+
+*Slide* — **QUERY PARAM:** Query Param is used to filter, sort and paginate the collection of a result · It is passed as key-value pair at the end of URL after a question mark · `http://localhost:8081/employees?status=active` (annotated: *key* = status, *value* = active; `key1=value1&key2=value2`) · Demonstration in APS.
 
 > Query parameters are used to **filter**, **sort** and **paginate** a collection of results.
 
@@ -123,6 +131,8 @@ SELECT * FROM employees WHERE status = :status
 -- input parameter: { status: attributes.queryParams.status }
 ```
 
+*Drawing:* of 50 employees, 45 active, 3 inactive, 2 resigned. `GET /employees?status=active` → "Result → 45 employees"; with `status=inactive` the same API returns the inactive ones.
+
 Result: the 3 inactive employees. Send `status=resigned` and the query automatically returns those instead.
 
 **Student question: isn't a URI param also a filter?**
@@ -152,6 +162,8 @@ GET /employees?status=active&orderBySalary=asc     (or desc)
 | Ramesh | 75,000 | 1 |
 | Dinesh | 1,50,000 | 2 |
 | Mahesh | 2,00,000 | 3 |
+
+*Drawing (Q1):* "list of active emps → 45 → sort them in asc order by name" → `http://localhost:8081/emps?status=active&orderBySal=asc` (sort by name: ASC or DESC; Dinesh, Mahesh, Ramesh).
 
 **Why follow the standard?** Traffic-rule analogy: with common rules, everyone travels more safely. With standards, anyone looking at an API immediately knows "this is a query parameter, this is the body, this is the main data".
 
@@ -187,6 +199,10 @@ Page 2: GET /phones?offset=15&limit=15    → 16–30
 Page 3: GET /phones?offset=30&limit=15    → 31–45
 Page 4: GET /phones?offset=45&limit=15    → 46–50 (whatever remains)
 ```
+
+*Drawings:*
+- **Pagination** — "Flipkart → Samsung phone under 20000"; a phone screen showing **15** at a time; 15 + 15 + 15 + 15 + 15 + 15 + 10; loading everything → "more time"; "500 results" written at the side.
+- **Limit/offset** — "100 results": `Limit=10, offset=0` · `Limit=10, offset=10` · `L=10, O=20` · `L=10, O=30` → pages 1, 2, 3, 4 … 10 (records start at 1, 11, 21 …).
 
 The page size can be changed later (e.g., to 100 if the app gets faster) because the values are dynamic.
 
@@ -237,12 +253,28 @@ The HTTP standard doesn't limit it. Your API specification declares which query 
 
 A hacker sends **125 query parameters** (instead of 5) with a huge amount of data. If nothing restricts it, the application may **crash**.
 
+*Drawing:* "5 QP" declared, but the client sends ① string ② number ③ 50 ④ 20 more … → "125 QP" → **APIkit → strict validation**. A second sketch: an e-commerce mobile app (MA) → Flipkart API → back end, where "5 QP → 100 QP" is sent.
+
 ### 5.4 Where to fix it
 
 After designing the API in RAML and importing it into Studio, the generated project has an **APIkit Router** (covered later). Its configuration has:
 
 - **Query parameters strict validation**
 - **Headers strict validation**
+
+*Screen* — **Global Element Properties → Router** (project `hr-employees-sapi`), Router configuration tab:
+
+| Field | Value |
+|---|---|
+| Name | `hr-employees-sapi-config` |
+| API Definition | `hr-employees-sapi` |
+| Outbound headers map name | `outboundHeaders` |
+| HTTP status var name | `httpStatus` |
+| ☐ Keep RAML/OAS base URI | |
+| ☐ Disable Validations | |
+| ☐ Query parameters Strict Validations | ← enable |
+| ☐ Headers Strict Validations | ← enable |
+| Parser | AUTO (Default) |
 
 When enabled, only the query parameters/headers declared in the API specification are allowed; others are rejected with **400 Bad Request**.
 
@@ -269,20 +301,41 @@ A RAML type describes the request body — e.g. for creating an employee (POST):
 - **Default: `true`** — extra fields are accepted.
 - Set to **`false`** — extra fields are rejected with an error.
 
+*Screen* — the class project's request type, `dataTypes/requests/createEmpReqDataType.raml` (from the `hr-employees-sys-app` API spec):
+
 ```raml
-types:
-  Employee:
-    type: object
-    additionalProperties: false
-    properties:
-      employeeId: string
-      employeeName: string
-      salary: number
-      active: boolean
-      designation: string
+#%RAML 1.0 DataType
+type: object
+properties:
+  empId:
+    description: emp id indicates the employee id of an employee and it should be unique
+    type: string
+    required: true
+    example: P10300
+  empName:
+    type: string
+    required: true
+    example: mahesh
+  empSalary:
+    type: number
+    required: true
+    example: 50000
+  active:
+    type: boolean
+    required: true
+  # … empDesignation follows
 ```
 
-(Illustrative type; the class example used similar fields.)
+Matching example request: `{"empId": "P10300", "empName": "Suresh", "empSalary": 80000, "active": true, "empDesignation": "software engineer"}`.
+
+This type has **no** `additionalProperties` line, so extra fields are accepted. To reject them, add it under `type: object`:
+
+```raml
+type: object
+additionalProperties: false
+properties:
+  ...
+```
 
 Body restrictions are set in **RAML**; header and query-parameter strictness is set in the **APIkit Router**.
 
@@ -290,19 +343,41 @@ Body restrictions are set in **RAML**; header and query-parameter strictness is 
 
 Each field should also be restricted. A plain `string` accepts any length.
 
+*Screen* — `traits/headersTraits.raml` from the class project:
+
+```raml
+#%RAML 1.0 Trait
+headers:
+  transaction-id:
+    description: transaction id is used to track the request in the api led architecture
+    type: string
+    required: true
+    minLength: 20
+    maxLength: 20
+    example: abc12345qqqqqqqqqqbb
+  origin:
+    description: origin header helps to identify the system from where the transaction is initiated
+    type: string
+    required: true
+    enum:
+      - mobile
+      - webApp
+    example: webApp
+  language:
+    ...
+```
+
+`enum` is another restriction: `origin` accepts only `mobile` or `webApp`. The same idea for a body field:
+
 ```raml
 employeeId:
   type: string
   minLength: 20
   maxLength: 50
-transactionId:
-  type: string
-  minLength: 20
-  maxLength: 20      # exactly 20 characters
 ```
 
 - `minLength 20, maxLength 50` → 20–50 characters accepted.
-- `minLength 20, maxLength 20` → exactly 20; anything else → error.
+- `minLength 20, maxLength 20` → exactly 20 (the class `transaction-id`); anything else → error.
 
 ---
 
@@ -340,6 +415,8 @@ Internet ──► Experience API (secured: username/password)
 ## 8. Preview — HTTP Request Connector
 
 Next sessions cover the common "80% requirements" one by one. First: **consuming a third-party service**.
+
+*Slide* — next session's **Agenda for today:** Consume REST Service · Demonstration of consume REST service in APS · Q&A session.
 
 - HTTP module → **Request** operation (the counterpart of Listener).
 - Listener **exposes** your API; Request **calls** another API.

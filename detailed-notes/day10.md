@@ -2,6 +2,8 @@
 
 > **Watch alongside:** the instructor calls this out directly — "even people with 3-6 years of experience still confuse URI params and query params." This file exists to make sure you're not one of them. It's also a rare, refreshingly honest look at the gap between documented best practice and real-world practice.
 
+> **Video-verified:** slide wording, drawings, the APIkit Router settings and the class RAML below were read from the class recording (14 Nov 2024). Slide images: [slides/day10](../slides/day10/).
+
 ---
 
 ## 1. The One-Rule Distinction
@@ -78,6 +80,8 @@ flowchart TB
 | 3 | 200 | 100 | 201–300 |
 | N | (N-1)×100 | 100 | ... |
 
+The class drawing used **limit = 10** over 100 results: offset 0, 10, 20, 30 … → pages 1–10.
+
 ```mermaid
 sequenceDiagram
     participant UI as Front-End UI
@@ -118,9 +122,11 @@ flowchart TB
 ```
 
 ### The actual fix: API Kit Router settings
-After importing a RAML spec into Studio, the generated **API Kit Router** configuration exposes two explicit toggles:
-- **"Query Parameters Strict Validation"**
-- **"Headers Strict Validation"**
+After importing a RAML spec into Studio, the generated **API Kit Router** configuration (*Global Elements → Router → Router configuration*) has, under **Disable Validations**, two checkboxes — both **unticked by default**:
+- **"Query parameters Strict Validations"**
+- **"Headers Strict Validations"**
+
+On screen (project `hr-employees-sapi`): Name `hr-employees-sapi-config`, API Definition `hr-employees-sapi`, Outbound headers map name `outboundHeaders`, HTTP status var name `httpStatus`, Parser AUTO (Default).
 
 Enabling these makes the router **reject** any request containing parameters/headers beyond exactly what the spec declares.
 
@@ -144,9 +150,11 @@ For the **request body** (not headers/query params), RAML's schema (`type`) defi
 type: object
 additionalProperties: false
 properties:
-  employeeId: integer
-  employeeName: string
+  empId: string
+  empName: string
 ```
+
+The class type `createEmpReqDataType.raml` (fields `empId` string, `empName` string, `empSalary` number, `active` boolean, `empDesignation`) did **not** set it — so extra fields would pass.
 
 ```mermaid
 flowchart LR
@@ -155,7 +163,12 @@ flowchart LR
     Check -->|"Explicitly false"| Strict2["Extra, undeclared fields<br/>→ request REJECTED"]
 ```
 
-Field-level constraints stack on top of this — e.g. `minLength`/`maxLength` on a string field — but again, **only if explicitly configured**. Nothing is automatically restrictive; every guardrail here is opt-in.
+Field-level constraints stack on top of this — e.g. `minLength`/`maxLength` on a string field — but again, **only if explicitly configured**. The class header trait did configure them:
+
+| Header | Restriction (from `headersTraits.raml`) |
+|---|---|
+| `transaction-id` | string, required, `minLength: 20`, `maxLength: 20` → exactly 20 characters (example `abc12345qqqqqqqqqqbb`) |
+| `origin` | string, required, `enum: [mobile, webApp]` | Nothing is automatically restrictive; every guardrail here is opt-in.
 
 ---
 
