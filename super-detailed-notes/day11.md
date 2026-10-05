@@ -1,5 +1,7 @@
 # Day 11 — HTTP Request Connector: Consuming a Third-Party REST Service
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 19 Nov 2024). Slide text, drawings and Studio screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day11](../slides/day11/).
+
 ## 1. Overview
 
 Prerequisites, HTTP, the Mule event and Studio basics are done. Now the course starts on the common "80% requirements", beginning with **consuming REST services** using the **HTTP Request** operation.
@@ -11,6 +13,8 @@ Prerequisites, HTTP, the Mule event and Studio basics are done. Now the course s
 5. Practical friction with third-party APIs (documentation, Postman collections, SPOC)
 6. Demo: an API that returns weather for a city using **OpenWeatherMap**
 7. Debugging the outgoing request; payload/attributes overwritten by HTTP Request
+
+*Slide* — **Agenda for today:** Consume REST Service · Demonstration of consume REST service in APS · Q&A session.
 
 ---
 
@@ -56,6 +60,8 @@ Consumer ──► Our API (Listener) ──► HTTP Request ──► Third-par
 | Endpoint type | **Inbound endpoint** — accepts incoming requests | **Outbound endpoint** — calls the outside world |
 
 Studio enforces placement: Listener in Process → not allowed; Request in Source → not allowed. A process component can be placed in Process (and inside error handling), not in Source.
+
+*Drawing:* REST APIs → **Create REST services** → HTTP → **Listener (inbound endpoint)**; → **Consume REST services** → HTTP → **Request (outbound endpoint)**.
 
 **Terminology:** "inbound calls" (coming to us) and "outbound calls" (from us to others) are used in project discussions.
 
@@ -103,25 +109,33 @@ Experience API ──HTTP Request──► Process API
 
 Different teams use different terms; recognise them all.
 
+*Drawing — naming:* type of API → `exp-api` / `eapi`, `papi` / `proc-api`, `sapi` / `sys-api`; source → `SFDC` / `sf` (Salesforce); target → `DB` (database). Example names: `sf-db-cust-eapi`, `sfdc-db-customer-eapi` = **salesforce – database – customer – experience – api**. CloudHub application names are limited to **42 characters**, so short forms are used.
+
+### 4.4 A bigger example drawn in class — ICICI personal loan
+
+*Drawing:* a customer applies for a personal loan (PL) of 20,00,000 on the ICICI Bank web app (WA). The API flow: Listener → Transform → **HTTP Request** to the **PAN REST API** (Central Govt / NSDL) → Transform → **Web Service Consumer** to the **Aadhaar SOAP API** (Central Govt / UIDAI) → Transform → **HTTP Request** to the **company name match REST API** → Transform → **HTTP Request** to a REST API → Transform → **SFTP** to a server → Transform. Labelled "orchestration, transformation + enrichment (ESB)"; "3 REST APIs, 1 SOAP, 1 SFTP"; PAN verification, Aadhaar verification, CIBIL score → loan decision OK / not OK.
+
 ---
 
 ## 5. What You Need to Call Any REST API
 
-Before configuring an HTTP Request, collect:
+Before configuring an HTTP Request, collect the details. *Drawing* — **Details required for configuring HTTP Requestor** (as filled in for the weather API):
 
-| Item | Example |
-|---|---|
-| Method | GET / POST / … |
-| Protocol | HTTP / HTTPS |
-| Host | `api.openweathermap.org` |
-| Port | 443 (HTTPS default) |
-| Base path | `/` |
-| Path | `/data/2.5/weather` |
-| Query parameters | `q`, `appid` |
-| URI parameters | none here |
-| Authorization / security | API key, username/password, token… |
-| Headers | e.g. `Content-Type` |
-| Body | JSON/XML, if required |
+| # | Item | Weather API (from the drawing) |
+|---|---|---|
+| 1 | HTTP method | **GET** |
+| 2 | Protocol | **HTTP** |
+| 3 | Host | `api.openweathermap.org` |
+| 4 | Port | **80** |
+| 5 | Base path | ✗ (none) |
+| 6 | Path | `/data/2.5/weather` |
+| 7 | Body | ✗ |
+| 8 | Query params | **2** (`q`, `appid`) |
+| 9 | URI params | ✗ |
+| 10 | Authorization | — (the API key goes as a query param) |
+| 11 | Headers | ✗ |
+
+Beside it: **Domain → host + port**; **HTTP → 80 (port)**, **HTTPS → 443 (port)**; and our request body `{"city": "Hyderabad"}`.
 
 Not every API needs every item, but you must know exactly what each target API requires.
 
@@ -178,6 +192,17 @@ Our API ──► OpenWeatherMap (query params: q=<city>, appid=<key>)
 Our response: selected fields (city, min/max temperature, unit …)
 ```
 
+*Drawing — the target request/response:*
+
+```json
+{ "city": "Mumbai" }
+```
+```json
+{ "city": "Mumbai", "minTemp": 35, "maxTemp": 45, "tempUnit": "celcius" }
+```
+
+Beside it: `"300" → 300 − 273.15` (Kelvin to Celsius) and `"xyz" as Number` (type conversion, next session).
+
 **Temperature unit:** in India temperature is measured in **Celsius**; OpenWeatherMap returns **Kelvin** by default. The response must be converted — like converting weight between kilograms and pounds. Conversion and response shaping are done next session.
 
 Use **Transform Message** for complex transformations; Set Payload for small ones; Set Variable when storing values (also possible inside Transform Message).
@@ -203,7 +228,7 @@ GET https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={A
 
 | Part | Value |
 |---|---|
-| Protocol | HTTPS |
+| Protocol | HTTPS in the docs (the Mule app used **HTTP**, see §7.7) |
 | Host | `api.openweathermap.org` |
 | Port | Not shown → HTTPS default **443** (`api.openweathermap.org:443` works the same). HTTP default is 80 |
 | Path | `/data/2.5/weather` |
@@ -252,13 +277,14 @@ The request tab showed **hidden auto-generated headers** (click "hide auto-gener
 
 ### 7.7 Building the Mule application
 
-**Naming:** a name should reflect source, target and business process. The instructor's project name combined "consume rest service" with the batch name. Naming conventions are covered later.
+**Naming:** a name should reflect source, target and business process. The instructor's project was **`consume-rest-service-7303`** (*screen* — "consume rest service" + the batch number), workspace `WS APS`. Naming conventions are covered later.
 
 ```text
-Flow
- Source:   HTTP Listener     path: /weather  (or /weatherOfCity)
+consume-rest-service-7303Flow                                   (screen)
+ Source:   Listener          HTTP_Listener_config, 0.0.0.0:8081, path /weather
  Process:  Logger            message: payload.city
-           HTTP Request      GET https://api.openweathermap.org:443/data/2.5/weather
+           Request           HTTP_Request_configuration_openweather
+                             GET http://api.openweathermap.org/data/2.5/weather
                              query params: q = payload.city, appid = "<api key>"
            Logger
 ```
@@ -267,12 +293,14 @@ Flow
 
 **HTTP Request configuration (global element):**
 
-| Setting | Value |
+| Setting | Value (*screen*) |
 |---|---|
-| Protocol | HTTPS |
+| Name | `HTTP_Request_configuration_openweather` |
+| Protocol | **HTTP** |
 | Host | `api.openweathermap.org` |
-| Port | 443 |
-| Base path | `/` |
+| Port | **80** (HTTP default) |
+| Base path | none |
+| Connection idle timeout | 30000 |
 
 **HTTP Request operation:**
 
@@ -286,7 +314,7 @@ Flow
 
 **URL composition:** `host:port / base path / path ? query params`.
 
-> **Transcript unclear:** the instructor says the base path was left as a single `/` and reads the path out as "data slash 2.5 … slash weather". The exact split between base path and path on screen could not be fully recovered. Either way the full URL is `/data/2.5/weather`.
+> **Screen-verified:** the base path is empty and the operation's Path is `/data/2.5/weather`; Studio shows the full URL under Configuration as `http://api.openweathermap.org/data/2.5/weather`. The notes previously said HTTPS/443 — the class app actually used **HTTP on port 80** (the Day 13 error also reads `http://api.openweathermap.org:80/data/2.5/weather`).
 
 **Domain names:** `api.openweathermap.org` (like `www.google.com`) is a **domain name**. Behind it is an IP (e.g. `10.1.25.50`) and a port. The domain name maps to that server and port.
 
@@ -296,11 +324,16 @@ Flow
 - The real problem: the query-parameter values were in **fx (expression)** mode. In DataWeave, a literal value must be a quoted string:
 
 ```dataweave
+%dw 2.0
+output application/java
+---
 {
-  q: payload.city,
-  appid: "1234abcd..."      // literal must be in double quotes
+  q : payload.city,
+  appid : "<api key>"      // literal must be in double quotes
 }
 ```
+
+(*Screen:* this is how it appears in the Configuration XML, inside `<http:query-params><![CDATA[#[ … ]]]></http:query-params>`. The real key is not reproduced here.)
 
 After quoting the key, the error disappeared. Fields can be edited in table form or in fx mode.
 
@@ -332,7 +365,9 @@ Request from Postman (body `{"city": "Mumbai"}`) to `http://localhost:8081/weath
 - **payload** = OpenWeatherMap's response (the city payload is gone)
 - **attributes** = the response's attributes: headers, **statusCode 200**, **reasonPhrase OK** (the original attributes are gone)
 
-The Logger printed `Mumbai` before the request. After the flow ends, control returns to the Listener, which sends the payload as the HTTP response body (Listener → **Responses** section has a success response and an error response — covered next session).
+*Screen (debugger at the first Logger):* attributes = `HttpRequestAttributes` with request path `/weather`, method GET, listener path `/weather`; vars size 0. At the Request, the evaluated query params showed `q=Mumbai`.
+
+The Logger printed `Mumbai` before the request. After the flow ends, control returns to the Listener, which sends the payload as the HTTP response body. *Screen* — Listener → **Responses**: Response body `payload`; **Error Response** body `output text/plain --- error.description`; status code and reason phrase empty (defaults). Covered next session.
 
 ---
 
@@ -405,7 +440,7 @@ When it's the same for every request (e.g. an API key) — though in real projec
 3. Consumer/client/source calls; producer/service provider answers.
 4. Before calling an API: **method, protocol, host, port, base path, path, params, headers, auth, body**.
 5. Get a **Postman collection**; unclear docs → **SPOC**.
-6. HTTPS default port **443** (HTTP 80); domain names map to IP + port.
+6. HTTP default port **80**, HTTPS **443**; domain names map to IP + port. The class weather app used **HTTP on port 80**.
 7. In fx mode, literal values must be in **double quotes**.
 8. HTTP Request sends the current payload as body by default.
 9. **HTTP Request overwrites payload and attributes** → save values in variables first.

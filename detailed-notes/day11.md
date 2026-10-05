@@ -2,6 +2,8 @@
 
 > **Watch alongside:** this is the day the course flips from "exposing your own API" to "calling someone else's" — arguably the single most universally-used skill in real MuleSoft work, since virtually every integration needs to call at least one outside system.
 
+> **Video-verified:** the HTTP Request configuration, flow, Listener responses and drawings below were read from the class recording (19 Nov 2024). Slide images: [slides/day11](../slides/day11/).
+
 ---
 
 ## 1. Listener vs. Request — Two Halves of the Same Coin
@@ -56,6 +58,8 @@ sequenceDiagram
 
 Every arrow between layers in API-Led Connectivity (Day 04) is an **HTTP Request**, since every layer is a REST API. This is stated directly as true **~99.9% of the time**.
 
+Drawn in class — a fuller example, an ICICI personal-loan API: Listener → **HTTP Request** to the PAN REST API (NSDL) → **Web Service Consumer** to the Aadhaar SOAP API (UIDAI) → **HTTP Request** to a company-name-match REST API → **HTTP Request** to another REST API → **SFTP** — "3 REST APIs, 1 SOAP, 1 SFTP", with a Transform between each step (orchestration, transformation and enrichment). Naming drawn alongside: `exp-api`/`eapi`, `proc-api`/`papi`, `sys-api`/`sapi` → e.g. `sfdc-db-customer-eapi`; CloudHub names max 42 characters.
+
 **Terminology that comes with this** — same request, different names depending on who's asking:
 
 | Role | Also called |
@@ -87,10 +91,22 @@ flowchart TB
 flowchart LR
     PM[Postman] -->|"city name"| L[HTTP Listener]
     L --> Log[Logger]
-    Log --> Req["HTTP Request<br/>host=api.openweathermap.org<br/>path=/data/2.5/weather<br/>?q={city}&appid=HARDCODED"]
+    Log --> Req["HTTP Request<br/>http://api.openweathermap.org:80<br/>path=/data/2.5/weather<br/>?q={city}&appid=HARDCODED"]
     Req --> TM[Transform Message]
     TM --> PM
 ```
+
+What was actually configured (*screen*):
+
+| Piece | Value |
+|---|---|
+| Project / flow | `consume-rest-service-7303` / `consume-rest-service-7303Flow` |
+| Listener | `HTTP_Listener_config`, 0.0.0.0:8081, path `/weather` |
+| Request config | `HTTP_Request_configuration_openweather` — protocol **HTTP**, host `api.openweathermap.org`, port **80**, no base path, connection idle timeout 30000 |
+| Request operation | GET, path `/data/2.5/weather`, query params `{ q : payload.city, appid : "<api key>" }` |
+| Listener Responses | body `payload`; Error Response body `output text/plain --- error.description` |
+
+The class drawing listed the same: method GET, protocol HTTP, host, port 80, base path ✗, path `/data/2.5/weather`, body ✗, query params 2, URI params ✗, headers ✗ — and "HTTP → 80, HTTPS → 443".
 
 - **Host/port resolution, demystified**: `api.openweathermap.org` is a human-friendly alias — behind it is an actual IP + port, exactly the same host+port model already used for `localhost` throughout the course.
 - **Query parameters**: `q` is bound **dynamically** to `payload.city`; `appid` is **hardcoded**, deliberately — it's genuinely constant across every request, so dynamic binding would add complexity for zero benefit.
