@@ -1,5 +1,7 @@
 # Day 15 — Error Handling (Part 1): Default vs. Custom, the Error Object, On Error Propagate, ANY
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 26 Nov 2024). Slide text, drawings and Studio/Postman screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day15](../slides/day15/).
+
 ## 1. Overview
 
 Error handling takes 2–3 sessions. This first session covers:
@@ -12,6 +14,8 @@ Error handling takes 2–3 sessions. This first session covers:
 6. Building custom error handling with **On Error Propagate** (HTTP:NOT_FOUND, MULE:EXPRESSION)
 7. Unmatched errors → default handler
 8. The **ANY** error type and why it must be **last**
+
+*Slide* — **Agenda for today:** Error Handling in Mule 4.x · Default Error Handling and Listener configuration · Error Object · On Error Propagate · On Error Continue · Global Error Handler. (On Error Continue and the global handler were done on Day 16.)
 
 ---
 
@@ -143,6 +147,8 @@ Process ── error ──► Error handling
 
 ### 7.2 Building it — HTTP:NOT_FOUND
 
+*Drawing:* Error handler, On Error Propagate, On Error Continue, Raise Error → error handling in Mule; Try scope → component-level error handling. And: "On Error Propagate — it will stop the process and propagate the error response to the next level".
+
 **Step 1 — Add On Error Propagate** to the flow's **Error handling** section.
 
 **Step 2 — Set Type.** Click the search icon next to **Type**: a list of error types for the modules in the project (HTTP, MULE, …). Select **`HTTP:NOT_FOUND`**. (There is also a **When** field for conditions.)
@@ -159,7 +165,7 @@ output application/json
 ---
 {
   errorStatusCode: 400,
-  errorMessage: error.description
+  message: error.description
 }
 ```
 
@@ -175,7 +181,7 @@ output application/json
 "Bad Request"
 ```
 
-(In class the `statusCode` variable was first set to 404 and later changed to 400 so that it matched the payload's `errorStatusCode`.)
+(In class the `statusCode` variable was first set to 404 and later changed to 400 so that it matched the payload's `errorStatusCode`. *Screen:* with the mismatch, Postman showed **"404 Bad Request"** — status code 404 from the variable, reason phrase "Bad Request" — for GET `http://localhost:8081/weather/city` with body `{"city": "M"}`.)
 
 Why 400 when the third party returned 404? The consumer sent a wrong city — a client-side data problem — so 400 Bad Request was chosen. **There is no hard rule** on 400 vs. 500 here; what matters is that the consumer understands the error.
 
@@ -195,14 +201,14 @@ Wrong city → `HTTP:NOT_FOUND` → matched → Logger printed the description �
 
 ```text
 HTTP/1.1 400 Bad Request
-{ "errorStatusCode": 400, "errorMessage": "..." }
+{ "errorStatusCode": 400, "message": "HTTP GET on resource 'http://api.openweathermap.org:80/data/2.5/weather' failed: not found (404)." }
 ```
 
 The message can be more helpful, e.g. "City name not in the right format, please send the right city." Real error responses may have 5–10 fields. The **consumer and provider must agree** on the error format.
 
 ### 7.4 Rename components
 
-Right-click → **Rename** to give clear display names, e.g. `Error Logger`, `Build Error Response`. When copying (Ctrl+C/Ctrl+V), "Copy of" is added — rename it.
+Right-click → **Rename** to give clear display names — in class: `Error Logger` and `Set Error Response, status code and reason phrase` (*screen*). When copying (Ctrl+C/Ctrl+V), "Copy of" is added — rename it.
 
 ---
 

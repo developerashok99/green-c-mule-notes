@@ -2,6 +2,8 @@
 
 > **Watch alongside:** the single most consequential *ordering* rule in the entire course lives here — get it backwards, and every specific error handler you write silently becomes dead code.
 
+> **Video-verified:** handler types, the error transform and the Postman result below were read from the class recording (26 Nov 2024). Slide images: [slides/day15](../slides/day15/).
+
 ---
 
 ## 1. Default vs. Custom Error Handling
@@ -64,6 +66,20 @@ flowchart TB
 ```
 
 **The deliberate design judgment, not a mechanical rule**: deciding whether a given failure is "the client's fault" (4xx) or "the server's fault" (5xx) is a call the team makes, not something derived automatically. Example: a `404` from a wrong city name was deliberately mapped to `400` in the custom response (client sent bad data), even though the underlying third-party response was itself a 404.
+
+The class handler (*screen*): On Error Propagate type `HTTP:NOT_FOUND` → Logger (`error.description`) → Transform Message:
+
+```dataweave
+%dw 2.0
+output application/json
+---
+{
+  "errorStatusCode": 400,
+  "message": error.description
+}
+```
+
+plus variables `statusCode` and `reasonPhrase`, mapped in the Listener's Error Response (body `payload`, status code `vars.statusCode`, reason phrase `vars.reasonPhrase`). Postman for `{"city": "M"}`: `{"errorStatusCode": 400, "message": "HTTP GET on resource 'http://api.openweathermap.org:80/data/2.5/weather' failed: not found (404)."}` — first shown as "404 Bad Request" while the `statusCode` variable was still 404.
 
 ---
 
