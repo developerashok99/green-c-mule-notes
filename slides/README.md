@@ -27,5 +27,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 23 — Writing the Employee API Specification in RAML (Design Center) | [day23](day23/) | 14 |
 | Day 24 — RAML Best Practices: Externalising Examples and Data Types | [day24](day24/) | 13 |
 | Day 25 — Data Types, Traits, Fragments, Mocking Service and Sharing | [day25](day25/) | 14 |
+| Day 26 — Publishing to Exchange, Importing into Studio, Scaffolding and the APIkit Router | [day26](day26/) | 15 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
