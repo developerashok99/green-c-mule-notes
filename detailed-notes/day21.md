@@ -2,6 +2,8 @@
 
 > **Watch alongside:** this is the pivot point where the course stops talking about API design in the abstract and starts building a real, complete API spec — the Employee use case introduced here is what gets actually built in RAML over the next several sessions.
 
+> **Video-verified:** slide wording and the use-case drawings match the class recording (6 Dec 2024). Slide images: [slides/day21](../slides/day21/).
+
 ---
 
 ## 1. The Design Phase Has Its Own Internal Cycle

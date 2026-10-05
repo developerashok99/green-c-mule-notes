@@ -1,5 +1,7 @@
 # Day 21 — API Lifecycle Revisited, RAML Introduction and the Employee Use Case
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 6 Dec 2024). Slide text and drawings marked *slide* or *drawing* are read from the recording. Slide images: [slides/day21](../slides/day21/).
+
 ## 1. Overview
 
 The course now starts building a complete API. Plan:
@@ -85,6 +87,8 @@ The course's interview Q&A document gives a compact answer: **design, implementa
 ---
 
 ## 3. RAML
+
+*Slide* — **What is RAML?** RAML stands for RESTful API Modeling Language · RAML is a YAML-based modeling language to describe RESTful APIs and design API Specification · We define requests, responses, schemas, examples, resources, methods, security schemes in API Spec · Design Center of Anypoint Platform supports RAML and OAS (Swagger).
 
 ### 3.1 Where and how
 
@@ -185,13 +189,17 @@ Source (front-end HR app; Postman for testing)
 
 > If methods clearly distinguish operations under one resource, use one resource. If not, use different resources.
 
-The instructor planned Option B here. Note that when the RAML was actually written (Day 23), the class used sub-resources `/employees/add`, `/employees/update` and `/employees/fetch`, even though the noun-only practice was explained.
+The instructor planned Option B here. *Drawing:* "Employees use case — REST APIs → methods: ① Create emp → POST ② Update emp → PATCH (partial update) (PUT) ③ Fetch emp by id → GET; (resource) /employees: /post → create, /patch → update, /get → fetch"; source HR app (FE) → API → target DB, tested with Postman.
+
+> **Correction (from the Day 23 video):** the RAML the class built in Design Center (`hr-employees-sapi-7303`) had the endpoints `/employees` and `/employees/{empid}` — i.e. Option B. A reference project from an earlier batch, opened in Studio, used `/employees/add` etc.; the earlier note confused the two.
 
 ---
 
 ## 7. Applying API-Led Connectivity
 
 ### 7.1 Layers for this use case
+
+*Drawing* — **API-led architecture:** source → HR app (web or mobile); target → HR database (Oracle or MySQL); context → employee details; type of API → system, process or exp. Naming: `hr-employees-sys-api` (**kebab case**), also `hr-employees-sys-app`, `hr-employees-sapi`; `dbGetResponse` (**camel case**); a longer name `mobile-hr-employees-db-sapi` shortened to `mob-hr-emp-db-sapi` (CloudHub limit ~42 characters).
 
 ```text
 Consumer (HR web app)
@@ -309,7 +317,7 @@ No. Skip layers (e.g., Process) when not needed — each API costs vCores. It de
 4. **RAML** = YAML-based; **1.0** is the version to know. **OAS** = Swagger (2.0/3.0).
 5. Spec contains **requests, responses, errors, schemas, examples, resources, methods, security**.
 6. "RAML ready" (casual) = "API specification ready" (official).
-7. Employee use case: **POST create, PATCH update, GET fetch** — planned on one `/employees` resource (built on Day 23 as `/employees/add|update|fetch`).
+7. Employee use case: **POST create, PATCH update, GET fetch** — on `/employees` and `/employees/{empid}` (as built on Day 23).
 8. **Source** = HR app (Postman for now); **target** = employees DB.
 9. Every extra layer costs vCores — skip the Process API when not needed.
 10. Experience API: **HTTPS + OAuth**; internal layers: lighter policies (client ID enforcement / basic auth).
