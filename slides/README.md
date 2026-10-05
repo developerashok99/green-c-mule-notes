@@ -17,5 +17,10 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 13 — Response Timeout, Response Validator, Reconnection Strategy, Target Variable | [day13](day13/) | 13 |
 | Day 14 — Property Files per Environment and Secure Properties | [day14](day14/) | 11 |
 | Day 15 — Error Handling: Error Object, On Error Propagate, Listener Error Response | [day15](day15/) | 14 |
+| Day 16 — Error Handling Part 2: On Error Continue, Global Handler, Try, Raise Error, Choice | [day16](day16/) | 16 |
+| Day 17 — Deployment Strategies: CloudHub, On-Premises, Hybrid, Load Balancers | [day17](day17/) | 14 |
+| Day 18 — CloudHub: Workers, vCores, Horizontal and Vertical Scaling, Deploying from Runtime Manager | [day18](day18/) | 13 |
+| Day 19 — CloudHub Follow-Up, Mule Runtime, On-Premises Standalone Deployment | [day19](day19/) | 13 |
+| Day 20 — Hybrid Deployment, Registering a Server, MuleSoft Community and Troubleshooting | [day20](day20/) | 13 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
