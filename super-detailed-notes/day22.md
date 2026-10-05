@@ -1,5 +1,7 @@
 # Day 22 — Designing the Employee API: Counting APIs, Naming, JSON Validation, the Design Document and Project Documentation
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 7 Dec 2024). Slide text, drawings and the design-document screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day22](../slides/day22/).
+
 ## 1. Overview
 
 Continuing the employee use case before writing RAML:
@@ -104,23 +106,33 @@ A validator showed: `Error: Parse error … Expecting 'EOF'` near `"active": tru
 
 ### 6.1 Request (create employee)
 
-Example request body (illustrative field set based on the class):
+Request body (*slide*):
 
 ```json
 {
-  "employeeId": "E1001",
-  "employeeName": "Mahesh",
-  "employeeSalary": 100000,
-  "employeeDesignation": "Software Engineer",
+  "empId": "P10300",
+  "empName": "Suresh",
+  "empSalary": 80000,
   "active": true,
-  "dateOfJoining": "2024-10-25",
-  "hobbies": ["reading books"]
+  "empDesignation": "software engineer"
 }
 ```
 
+(*Drawing:* while discussing data types, a date-of-joining written as a string `"25-01-2025"` and a `hobbies` array were sketched next to it — "JSON data types → date datatype ✗".)
+
 ### 6.2 Responses
 
-**Success:** a JSON object (e.g. a message confirming creation, with the employee ID).
+**Success** (*slide*):
+
+```json
+{ "statusCode": 201, "message": "employee details created successfully in the db" }
+```
+
+**Error** (*slide*):
+
+```json
+{ "statusCode": 400, "message": "bad request" }
+```
 
 **Error:** a status code and a message:
 
@@ -178,6 +190,8 @@ A unique ID per request, sent in a header, used for **traceability** across APIs
 
 ### 8.1 Resource and methods
 
+*Drawing — POST:* QP ✗ · URI P ✗ · body ✓ → schema/example · headers ✓ · method ✓ · protocol ✓ · DF (data format) — JSON · response — success/error, each with schema and example. Headers: ① source → HR web app ② correlation id ③ transaction id. *Drawing — GET:* body ✗ · headers ✓ · QP ✗ (empId) · URI params ✓; response = the employee JSON.
+
 `/employees` with **POST** (create), **PATCH** (partial update), **GET** (fetch, using the employee ID as a URI parameter — the unique resource identifier).
 
 For each: query params (none), URI params, headers, body, method, protocol (HTTP/HTTPS), data format (JSON), success response, error response.
@@ -194,10 +208,20 @@ Ideally experience, process and system APIs, each with its own request/response.
 
 A typical system API design document lists:
 
+*Screen* — the sample design document shown in class (a "Functional Specification Document for Transaction Management" from another project): **System API** — Version `1.0.0`, Resource `/members/transactions`, Method `POST`, Endpoint function "This endpoint will receive the request from upstream APIs and create a transaction in the SFDC CRM system." Headers table (Field Name | Description | Mandatory | Type):
+
+| Header | Description (abridged from screen) | Mandatory | Type |
+|---|---|---|---|
+| `x-transaction-id` | used for logging and tracking a transaction in all layers; example `abcdefgh-jxbv859-sjd76432-3746bb`; **min length 32, max length 32** | Y | String |
+| `x-channel` | identifies whether the transaction is from a mobile or web application; **enum: mobile/webApp** | Y | String |
+| `x-origin-language` | language used by the user; example English | Y | String |
+| `x-origin-market` | country from which the transaction is initiated; example IND | Y | String |
+| `x-client-id` / client secret | client ID enforcement is enforced on the System API as it's consumed for internal purposes | Y | String |
+
 | Item | Example content |
 |---|---|
 | Resource / endpoint | the system API path and method |
-| Headers | e.g. `transactionId` — string, min/max length (e.g. 32 characters), mandatory; `originMarket` — country from which the transaction is initiated, string, mandatory; `client_id` — passed as a header because **client ID enforcement** policy applies (internal API) |
+| Headers | as in the table above |
 | Query / URI params | none (if not listed, they don't exist) |
 | Request body | example plus **field rules**: name, type, length, mandatory, **level** |
 | Response body | example plus field rules (e.g. fields inside a `data` object are level 2) |
@@ -212,13 +236,15 @@ A typical system API design document lists:
 
 The system API must map request fields to database columns:
 
+*Drawing* — **Mapping sheet:**
+
 | API field | DB column |
 |---|---|
-| employeeId | employee_id |
-| employeeSalary | employee_salary |
-| employeeName | employee_name |
-| employeeStatus | employee_status |
-| designation | … |
+| empId | employee_ID |
+| empDes(ignation) | employee_designation |
+| empSal(ary) | employee_salary |
+| empName | employee_name |
+| active | employee_status |
 
 In class the names matched; in real projects they often don't. Work out the mapping — if unclear, ask the business: "Please arrange a call and let's discuss."
 

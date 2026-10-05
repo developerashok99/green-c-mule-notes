@@ -2,6 +2,8 @@
 
 > **Watch alongside:** the most practically dense session in this arc — a real JSON-debugging technique (spotting smart quotes from PowerPoint), a precise RAML default fact worth memorizing exactly, and a fully worked example of why sequence diagrams matter that isn't just theory.
 
+> **Video-verified:** the request/response JSON, the mapping sheet and the sample design document match the class recording (7 Dec 2024). Slide images: [slides/day22](../slides/day22/).
+
 ---
 
 ## 1. Counting APIs for Multiple Consumers and Systems
@@ -54,7 +56,7 @@ A second real bug demonstrated live: a stray trailing comma causing an "expectin
 
 ```mermaid
 flowchart LR
-    Field["employeeId field"] --> Type["type: string"]
+    Field["empId field"] --> Type["type: string"]
     Field --> Length["minLength / maxLength<br/>e.g. max 20 chars"]
     Field --> Mandatory["required: true<br/>(RAML DEFAULT if omitted!)"]
 ```
