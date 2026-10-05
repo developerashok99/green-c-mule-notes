@@ -2,8 +2,8 @@
 
 > **Watch alongside:** the two-factor model (Control Plane × Runtime Plane) presented here is the single cleanest mental model for a question that confuses people even after years of real MuleSoft experience: "wait, are we on-premises or hybrid?"
 
-
 > **Video-verified:** the plane definitions, strategy table and port values match the class whiteboard (28 Nov 2024). Slide images: [slides/day17](../slides/day17/).
+
 ---
 
 ## 1. The Two Factors That Actually Decide Deployment Strategy
