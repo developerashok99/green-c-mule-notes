@@ -14,5 +14,7 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 10 — URI Params vs Query Params, Pagination, Strict Validation | [day10](day10/) | 13 |
 | Day 11 — Consume REST Service: HTTP Request Connector, OpenWeather API | [day11](day11/) | 16 |
 | Day 12 — Consume REST Service: Transform, Target Variable, Response Timeout | [day12](day12/) | 15 |
+| Day 13 — Response Timeout, Response Validator, Reconnection Strategy, Target Variable | [day13](day13/) | 13 |
+| Day 14 — Property Files per Environment and Secure Properties | [day14](day14/) | 11 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
