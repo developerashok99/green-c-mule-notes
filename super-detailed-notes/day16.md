@@ -1,6 +1,6 @@
 # Day 16 — Error Handling (Part 2): ANY Order, Parent/Child Flows, On Error Continue, Error Mapping, Global Handler, Try, Raise Error, Choice
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 27 Nov 2024). Drawings and Studio/Postman screens marked *drawing* or *screen* are read from the recording. Slide images: [slides/day16](../slides/day16/). Cleaned transcript: kept locally in `transcripts-cleaned/day16.txt`.
+> **Sources:** audio transcript, existing notes, and the class video (recorded 27 Nov 2024). Drawings and Studio/Postman screens marked *drawing* or *screen* are read from the recording. Slide images: [slides/day16](../slides/day16/).
 
 ## 1. Overview
 
