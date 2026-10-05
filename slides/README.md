@@ -1,0 +1,9 @@
+# Slides
+
+Slides and on-screen drawings captured from the class recordings, one folder per day. Each folder's README lists the frames with their time in the video and links to that day's notes.
+
+| Day | Folder | Frames |
+|---|---|---|
+| Day 03 — APIs, Web Services, REST vs SOAP, Environments | [day03](day03/) | 15 |
+
+Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
