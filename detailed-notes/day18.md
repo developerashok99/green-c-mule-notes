@@ -2,6 +2,8 @@
 
 > **Watch alongside:** this session pairs theory with a genuinely messy, real, unresolved-within-the-session bug (a payload arriving in binary format after a runtime version jump) — worth watching specifically to see what real troubleshooting looks like, not just the clean end-state.
 
+> **Video-verified:** slide definitions and Runtime Manager settings match the class recording (2 Dec 2024). Slide images: [slides/day18](../slides/day18/).
+
 ---
 
 ## 1. CloudHub = Integration Platform as a Service

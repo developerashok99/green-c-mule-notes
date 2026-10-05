@@ -1,5 +1,7 @@
 # Day 18 — CloudHub in Depth: Worker, vCore, Horizontal and Vertical Scaling, Deploying from Runtime Manager
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 2 Dec 2024). Slide text and Runtime Manager screens marked *slide* or *screen* are read from the recording. Slide images: [slides/day18](../slides/day18/).
+
 ## 1. Overview
 
 1. Recap: why some organisations can't use CloudHub
@@ -21,6 +23,8 @@ MuleSoft has no data centres of its own; it prepares AWS/Azure infrastructure fo
 ---
 
 ## 3. What Is CloudHub?
+
+*Slide* — **What is CloudHub?** CloudHub is an integration platform as a service (iPaaS) where you can deploy Mule applications in the cloud environment provided by MuleSoft · Worker is a dedicated Mule instance that runs your Mule application · vCore – worker sizes are measured in vCores (0.1 vCores – 500 MB, 0.2 vCores – 1 GB, 1 vCore – 1.5 GB).
 
 > **CloudHub is an integration platform as a service (iPaaS)** where you deploy Mule applications in a cloud environment provided by MuleSoft.
 
@@ -103,6 +107,8 @@ Consumers ──► Load balancer ──► Worker 1
 
 ### 6.2 Definition
 
+*Slide* — **Horizontal Scaling:** The process of increasing number of workers and deploy application on multiple workers · If you want to process high frequency small payload requests, then go for HS · It provides high-availability. (*Drawing:* Flipkart sale, load balancer across workers, 1,00,000 → 3,40,000 requests.)
+
 > **Horizontal scaling** = increasing the **number of workers** and deploying the application on multiple workers.
 
 **When?** To process **high-frequency, small-payload** requests — the **number** of requests increases; the payload size stays the same.
@@ -122,6 +128,8 @@ Consumers ──► Load balancer ──► Worker 1
 - If this exceeds the worker's memory → **out of memory** errors / crashes.
 
 ### 7.2 Definition
+
+*Slide* — **Vertical Scaling:** The process of increasing the vCore size of a worker · If you want to process large payload requests with less frequency, then go for VS. (*Drawing:* payload 200 KB → 2000 KB; 0.1 → 0.2 vCore.)
 
 > **Vertical scaling** = increasing the **vCore size** of the worker (more memory/CPU), e.g. 0.1 → 0.2.
 
