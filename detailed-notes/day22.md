@@ -41,7 +41,7 @@ Real-world naming varies by organization (`-sapi` suffix, or other patterns) —
 
 ```mermaid
 flowchart TB
-    Copy["Copied JSON from PowerPoint/Word"] --> Smart["⚠️ Straight quotes ' \" '<br/>silently become<br/>'smart quotes' ' “ ” '"]
+    Copy["Copied JSON from PowerPoint/Word"] --> Smart["⚠️ Straight double quotes #quot;<br/>silently become<br/>smart quotes “ ”"]
     Smart --> Break["Looks IDENTICAL to the eye,<br/>but breaks JSON parsing"]
     Break --> Fix["Fix: retype the quotes manually,<br/>or paste into Postman/a validator<br/>to catch the error"]
 ```
@@ -119,8 +119,9 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    API["API field: employee_salary"] -.maps to.-> DB["DB column: SALARY_AMT"]
-    API2["API field: employee_name"] -.maps to.-> DB2["DB column: EMP_FULL_NM"]
+    API["API field: empSalary"] -.maps to.-> DB["DB column: employee_salary"]
+    API2["API field: empName"] -.maps to.-> DB2["DB column: employee_name"]
+    API3["API field: active"] -.maps to.-> DB3["DB column: employee_status"]
 ```
 
 When field names *don't* cleanly match (the realistic case, not the exception), a **mapping sheet** — built collaboratively, often requiring a direct call with the business/data team — is the practical artifact that resolves the ambiguity.
