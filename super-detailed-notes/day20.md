@@ -1,5 +1,7 @@
 # Day 20 — Hybrid Deployment, Registering a Server, MuleSoft Community and How to Troubleshoot
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 5 Dec 2024). Drawings and screens marked *drawing* or *screen* are read from the recording; the server-registration token shown in class is not reproduced. Slide images: [slides/day20](../slides/day20/).
+
 ## 1. Overview
 
 1. Recap: on-premises in practice
@@ -72,6 +74,8 @@ Once the runtime is started (`mule.bat`), the server shows **Running** in Runtim
 
 ## 5. Live Attempt — Certificate Error (Unresolved)
 
+*Drawing (end of class):* "① CloudHub 2.0 app → error while testing; ② Hybrid model → server not getting registered (error) — certificate."
+
 The instructor registered the local runtime used on Day 19.
 
 - Running the registration command printed:
@@ -82,6 +86,7 @@ The certificate provided by the Anypoint Management Center is not valid.
 Probably you are a victim of a man-in-the-middle attack. Contact support.
 ```
 
+- *Screen:* the command also printed `java.security.SignatureException: Signature does not match`, and a retry hit `Unable to delete file … being used by another process`.
 - The server appeared in Runtime Manager as **Created**, with only a **Delete** option — no start/stop — because the connection wasn't established.
 
 **What was tried:**

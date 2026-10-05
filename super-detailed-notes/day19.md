@@ -1,5 +1,7 @@
 # Day 19 — CloudHub 2.0 Follow-Up and On-Premises Deployment with Mule Standalone Runtime; Domain Projects
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 4 Dec 2024). Slide text and command-line/Studio screens marked *slide* or *screen* are read from the recording. Slide images: [slides/day19](../slides/day19/).
+
 ## 1. Overview
 
 1. Continuing the CloudHub 2.0 problem from Day 18 (binary payload) — redeploy, zero downtime, still unresolved
@@ -79,6 +81,10 @@ Your server (in your data centre)
 ```
 
 > **Mule runtime** is the runtime engine that hosts and runs Mule applications — a **Mule application server**. You deploy apps on it and see their logs.
+
+*Slide* — **Mule Runtime:** A Mule Runtime is a runtime engine to host and run Mule applications/projects – similar to an application server · Mule Runtimes can be provisioned on-premises or in the cloud.
+
+*Slide* — **Agenda for today:** CloudHub demonstration · Deployment strategies continuation · Mule Runtime · On-premise (standalone) demonstration · Hybrid demonstration · Q&A session.
 
 ### 4.2 Many apps per runtime
 

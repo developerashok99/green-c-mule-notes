@@ -2,6 +2,8 @@
 
 > **Watch alongside:** this is the most "hands dirty" session in the deployment arc — real port conflicts, a real config-file numbering bug, and the exact folder-by-folder anatomy of a standalone Mule Runtime installation.
 
+> **Video-verified:** folder names, wrapper.conf entries and error messages match the class recording (4 Dec 2024). Slide images: [slides/day19](../slides/day19/).
+
 ---
 
 ## 1. The Mule Runtime Folder Structure — Full Map

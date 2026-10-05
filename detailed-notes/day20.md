@@ -2,6 +2,8 @@
 
 > **Watch alongside:** this session is valuable less for the mechanics (which mirror CloudHub/On-Premises) and more for what it models: a genuinely unresolved live bug, honestly narrated, plus an explicit, ordered philosophy for how to actually get unstuck in a real job.
 
+> **Video-verified:** the registration steps, error messages and Java support table match the class recording (5 Dec 2024). Slide images: [slides/day20](../slides/day20/).
+
 ---
 
 ## 1. Hybrid, Precisely Mapped
