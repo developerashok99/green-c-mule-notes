@@ -1,5 +1,7 @@
 # Day 13 — Reconnection Strategy, Response Validator and Where HTTPS Is Used
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 21 Nov 2024). Drawings and Studio screens marked *drawing* or *screen* are read from the recording. Slide images: [slides/day13](../slides/day13/).
+
 ## 1. Overview
 
 Day 12 covered target variable and response timeout. This session completes the HTTP Request best practices:
@@ -10,6 +12,8 @@ Day 12 covered target variable and response timeout. This session completes the 
 4. Aside: how real APIs handle many concurrent requests (instances, servers, load balancer)
 5. **Response validator** — success / failure status code validators
 6. HTTP vs. HTTPS between API-led layers
+
+*Drawing — response timeout recap:* Req → Listener → Log → **HTTP Req** → TM → Log; the weather API responds in ~100 ms; "500 ms — Response Timeout"; **default — 10000 ms — 10 secs**; HTTP Timeout error. Beside it: **Connector config → RT → default**; 1st HTTP Req → 800 ms, 2nd HTTP Req → 500 ms (operation-level overrides); and "RS — try for 3 times with a gap of 1000 ms".
 
 > Target variable and reconnection strategy are **common to most connectors** (Salesforce, Database, HTTP…). Learn them once; apply everywhere. The response validator is specific to HTTP Request.
 
@@ -59,6 +63,8 @@ If every reconnection attempt fails, the error is raised.
 **Cost:** a response that normally takes 150 ms takes about 4+ seconds if two 2-second retries were needed. Acceptable in exchange for not failing on small glitches.
 
 **Instructor's view:** using a reconnection strategy is a **mandatory best practice** in real projects. It applies to any connector that connects to another system over a network — HTTP Request, Database, Salesforce.
+
+*Drawing:* Req → API → … → HTTP request ✗ (network → internet) → weather API; **HTTP Connectivity Error**. "General: ① connectivity error ② ″ ③ connectivity ✓ (response) ④ ″ → error"; **Reconnection Strategy → 2000 ms, 3 times**; RC: ① Standard ② None ③ Forever; normal response time 150 ms.
 
 ### 2.4 Options
 
@@ -167,13 +173,15 @@ Also available at connector configuration level.
 
 **When?** Rarely — only when a business requirement says a non-2xx response should be treated as normal. When that happens, use this option.
 
+*Drawing:* REST service ↔ HTTP Request inside the flow; **200 → series — success; 400 → client-side error; 500 → server-side error**; "Success status code validator → 200 (201, 205, 206)" — anything else listed as an error.
+
 ### 4.3 Demonstration
 
 1. Without a validator: a valid city → status code **200** (seen in the debugger).
 2. A wrong city name → OpenWeatherMap returns **404 Not Found** → treated as an error.
-3. Configured the **success status code validator** to include the 4xx range ("let's give 400 to 499"), e.g. `200..299,400..499`.
-   > **Transcript unclear:** the exact value typed on screen isn't readable (the instructor first mentions `200,400`, then `400..499`); any value that includes 404 gives the result below.
-4. Sent the wrong city again → the 404 was treated as **success** and the flow continued to the next component. (The later Transform Message then failed because there was no weather data and the mapping still read a wrong path — a separate, expected issue.)
+3. Configured Request → **Response** → Response validator **Success status code validator**, Values **`200,400`** (*screen*, 49:05).
+4. Sent a wrong city (`{"city": "M"}`) → still **`HTTP:NOT_FOUND`**: "HTTP GET on resource 'http://api.openweathermap.org:80/data/2.5/weather' failed: not found (404)." (*screen*, 53:52) — `200,400` lists only 200 and 400, not 404.
+5. With the validator widened to the 4xx range (the audio says "let's give 400 to 499", i.e. `200,400..499`), the 404 was treated as **success** and the flow continued. The Transform Message then failed with "You called the function '-' with these arguments: Null, Number (273.15)" (*screen*, 56:38), because a 404 body has no `main` — a separate, expected issue.
 
 Practise with both validators and different status codes.
 
