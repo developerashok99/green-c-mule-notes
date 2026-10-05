@@ -1,5 +1,7 @@
 # Day 17 — Deployment Strategies: CloudHub, On-Premises, Hybrid, Runtime Fabric; Load Balancing and Scaling
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 28 Nov 2024). This session was taught on the whiteboard; text marked *drawing* is read from it. Slide images: [slides/day17](../slides/day17/).
+
 ## 1. Overview
 
 So far applications were developed and tested **locally**. A local app works only while your laptop is on, and nobody else can use it. This session covers where and how applications are deployed.
@@ -81,6 +83,8 @@ AWS/Azure provide raw cloud infrastructure. They don't run Mule apps out of the 
 
 > Components used to **control/manage** Mule applications.
 
+*Drawing:* "The components which are used to control the aspects of Mule apps will fall under **control plane**: ① Runtime Manager ② API Manager ③ Exchange — Management Center → Anypoint Platform — hosted by MuleSoft / own."
+
 | Component | Use |
 |---|---|
 | Runtime Manager | Deploy, start, stop, restart apps; check logs |
@@ -95,11 +99,15 @@ You could host them on your own servers instead: procure hardware (CPU, memory),
 
 > Components used while the application **runs**.
 
+*Drawing:* "The components which are used while runtime aspects of MuleSoft app fall under **runtime plane**: ① Mule runtime ② connectors & components ③ logging → MuleSoft / own."
+
 - A Java app runs on a server with Java installed. A Mule app runs on a server with the **Mule runtime** installed.
 - The **Mule runtime** is the software that executes Mule applications.
 - Connectors execute, and logs are written, where the app runs.
 
 ### 5.3 The matrix
+
+*Drawing:* a table with columns **Deployment model | Control plane | Runtime plane**, rows CloudHub, on-premises, hybrid and RTF, with workers on AWS/Azure noted beside CloudHub.
 
 | Strategy | Control plane | Runtime plane |
 |---|---|---|
@@ -204,6 +212,8 @@ If one worker cannot handle the full load alone, it may crash too — that's a c
 
 ### 9.4 Shared vs. dedicated load balancer (CloudHub)
 
+*Drawing:* "LB → Load balancer: SLB (shared), DLB (dedicated)"; deploy app → load balancer (round robin) → workers → high availability, less downtime; CloudHub (US east) with 0.1 vCore workers.
+
 | | Shared Load Balancer (SLB) | Dedicated Load Balancer (DLB) |
 |---|---|---|
 | Who uses it | Many companies in the CloudHub environment | Only your organisation |
@@ -213,6 +223,8 @@ If one worker cannot handle the full load alone, it may crash too — that's a c
 **Example:** ABC company has an app on 2 workers; XYZ company has an app on 3 workers. Both companies' requests go through the same shared load balancer. With a DLB, only ABC's traffic goes through ABC's DLB.
 
 ### 9.5 Ports (CloudHub)
+
+*Drawing:* "SLB: HTTP — 8081 (port), HTTPS — 8082; DLB: HTTP — 8091, HTTPS — 8092".
 
 | Load balancer | HTTP listener port | HTTPS listener port |
 |---|---|---|
