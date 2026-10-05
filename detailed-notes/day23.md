@@ -2,6 +2,8 @@
 
 > **Watch alongside:** the first genuinely complete, real RAML file gets built here, line by line — including two real, live bugs (an `additionalProperties` ordering mistake, and an unresolved "Try It" enum validation bug) that are worth watching precisely because they're authentic, not staged.
 
+> **Video-verified:** the RAML structure, headers, body fields and error messages below were read from the class recording (8 Dec 2024). Slide images: [slides/day23](../slides/day23/).
+
 ---
 
 ## 1. Design Center's Four Project Types
@@ -28,11 +30,13 @@ flowchart LR
     subgraph "✅ CORRECT — one noun resource, method carries the action"
     R["/employees"] --> M1["POST → create"]
     R --> M2["PATCH → update"]
-    R --> M3["GET → fetch"]
+    R --> Sub["/{empid}"] --> M3["GET → fetch by id"]
     end
 ```
 
 **The reasoning, precisely**: *"employee is not noun... it should be plural. The action point should not be there"* — the HTTP method already communicates the action; the resource name should describe *what thing* is being acted upon.
+
+**What the class built** (*screen*): `/employees` with `post` and `patch`, and `/{empid}` with `get` — the correct pattern on the right.
 
 **Honest real-world caveat**: *"unless there is a very strict architect... they say they will keep it as they like"* — this convention is well-established but not universally enforced in practice.
 
@@ -44,10 +48,10 @@ flowchart LR
 flowchart TB
     Employees["employees:"] --> Post["  post:<br/>(tab-indented → nested under employees)"]
     Employees --> Patch["  patch:<br/>(tab-indented → nested under employees)"]
-    Employees --> Get["  get:<br/>(tab-indented → nested under employees)"]
+    Employees --> Sub["  /{empid}:<br/>(nested resource)"] --> Get["    get:"]
 ```
 
-A misaligned tab silently changes what's nested under what — exactly the same YAML mechanics from Day 14's property files, now applied to RAML. **Copy-paste-then-edit** is a genuinely efficient, real authoring technique for near-identical blocks (demonstrated directly for the `origin`/`language` headers).
+A misaligned tab silently changes what's nested under what — exactly the same YAML mechanics from Day 14's property files, now applied to RAML. **Copy-paste-then-edit** is a genuinely efficient, real authoring technique for near-identical blocks (demonstrated directly for the `origin`/`language` headers). The class headers (*screen*): `transaction-id` (string, required, minLength/maxLength 32), `origin` (string, required, `enum: [mobile, web]`), `language` (string, `required: false`, example "english"); body fields `empId` (number), `empName`, `empSalary`, `active`, `empDesignation`.
 
 ---
 

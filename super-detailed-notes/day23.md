@@ -1,5 +1,7 @@
 # Day 23 — Writing the Employee API Specification in RAML (Design Center)
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 8 Dec 2024). RAML, errors and documentation-panel screens marked *screen* are read from the recording. Slide images: [slides/day23](../slides/day23/).
+
 ## 1. Overview
 
 Everything needed is ready — request, response, error response, headers — so this session writes the RAML.
@@ -9,7 +11,7 @@ Everything needed is ready — request, response, error response, headers — so
 3. Design Center layout and auto-suggestions
 4. Root-level information: title, description, version, protocols, media type
 5. Resources and sub-resources; resource naming best practice
-6. Headers: `transactionId`, `origin` (enum), `language` (optional)
+6. Headers: `transaction-id`, `origin` (enum), `language` (optional)
 7. Request body with properties, examples and `additionalProperties`
 8. Responses: 201 success, 400, 500
 9. Update (PATCH) and fetch (GET) resources
@@ -55,12 +57,16 @@ Left: files of the project | Middle: RAML editor | Right: auto-generated documen
 
 ```raml
 #%RAML 1.0
-title: hr-employees-sapi
-description: This API will facilitate creating, updating and fetching employee details using the HR database.
+title: hr-employees-sapi-7303
+description: This API will faciliate creating, updating and fetching employee details using HR database
 version: v1
-protocols: [ HTTP, HTTPS ]
-mediaType: application/json
+protocols:
+  - HTTP
+mediaType:
+- application/json
 ```
+
+(*Screen* — project `hr-employees-sapi-7303`, root file `hr-employees-sapi-7303.raml`; typos as typed in class.)
 
 - **Version:** `v1`. Minor additions → v1.1, v1.2; major changes → v2. The instructor doesn't suggest "1.0" style.
 - **Protocols** and **mediaType** are good practice. Some fields (e.g. baseUri) are optional.
@@ -74,27 +80,23 @@ mediaType: application/json
 - A resource name should be a **noun** (a thing or person) and **plural**: `/employees`.
 - It should **not** contain an **action** ("createEmployee", "add") — the **method** (POST/PATCH/GET) already indicates the action.
 
-### 5.2 What was built
-
-**Instructor's observation:** in real projects teams often name things their own way unless the architect is strict. In class, the `employees` resource got three **sub-resources**, one per operation:
+### 5.2 What was built (*screen*)
 
 ```raml
 /employees:
-  /add:
-    post:
-      ...
-  /update:
-    patch:
-      ...
-  /fetch:
+  post:
+    description: This endpoint will help to create a new employee in HR databse
+    ...
+  patch:
+    ...
+  /{empid}:
     get:
       ...
 ```
 
-- Indentation (a tab) under `/employees` makes `add`, `update`, `fetch` its **sub-resources**: `/employees/add`, `/employees/update`, `/employees/fetch`.
-- The editor's **minimise** icons collapse blocks to check the structure.
+The documentation panel listed the endpoints **`/employees`** and **`/{empid}`** — one resource with `post` and `patch`, and a nested URI-parameter resource for `get`. This follows the best practice above.
 
-> **Note:** the strict best-practice alternative is a single `/employees` resource with `post`, `patch` and `get` methods.
+> **Correction:** earlier versions of these notes said the class used `/employees/add`, `/employees/update`, `/employees/fetch`. That structure belongs to a reference project from an earlier batch (`hr-employees-sapi-7302`) that was opened in Studio for comparison; the class's own RAML used `/employees` and `/{empid}`.
 
 ---
 
@@ -102,30 +104,32 @@ mediaType: application/json
 
 ```raml
 /employees:
-  /add:
-    post:
-      description: This endpoint will help to create a new employee in the HR database.
-      headers:
-        transactionId:
-          description: Unique ID to trace the transaction
-          type: string
-          required: true
-          minLength: 32
-          maxLength: 32
-          example: "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
-        origin:
-          description: Identifies the application the request comes from
-          type: string
-          enum: [ mobile, web ]
-          example: mobile
-        language:
-          description: Language used by the user
-          type: string
-          required: false
-          example: English
+  post:
+    description: This endpoint will help to create a new employee in HR databse
+    headers:
+      transaction-id:
+        description: tranaction-id is useful to track the journey of a request in Mulesoft layers
+        type: string
+        required: true
+        minLength: 32
+        maxLength: 32
+        example: "abcdefgh-jxbv8599-sjdf762-3746bb"
+      origin:
+        description: This header will help us to understand from where the request is initiated
+        type: string
+        required: true
+        enum:
+          - mobile
+          - web
+        example: "mobile"
+      language:
+        description: language used by the user
+        type: string
+        required: false
+        example: "english"
 ```
 
-(Representative; values follow the design document from Day 22.)
+(*Screen*, typos as typed in class. An example shorter than 32 characters gave "Error: should NOT be shorter than 32 characters".)
 
 ### Rules
 
@@ -154,31 +158,46 @@ Headers have the same shape: copy one header (Ctrl+C), paste (Ctrl+V), then chan
 ## 7. POST — Request Body
 
 ```raml
-      body:
-        application/json:
-          type: object
-          additionalProperties: false
-          properties:
-            employeeId:
-              type: string
-              description: Unique ID of the employee
-            employeeName:
-              type: string
-            employeeSalary:
-              type: number
-            employeeDesignation:
-              type: string
-            active:
-              type: boolean
-          example:
-            employeeId: "EMP001"
-            employeeName: "Suresh"
-            employeeSalary: 100000
-            employeeDesignation: "Software Engineer"
-            active: true
+    body:
+      application/json:
+        type: object
+        additionalProperties: false
+        properties:
+          empId:
+            description: this field defines the id of an employee
+            type: number
+            required: true
+            example: 1000
+          empName:
+            description: this field defines the name of an employee
+            type: string
+            required: true
+            example: "Mahesh"
+          empSalary:
+            description: this field reflects the salary of an employee
+            type: number
+            required: true
+            example: 75000
+          active:
+            description: this field defines the status of an employee
+            type: boolean
+            required: true
+            example: true
+          empDesignation:
+            description: this field defines the designation of an employee
+            type: string
+            required: true
+            example: "software engineer"
+        example: {
+          "empId": 1000,
+          "empName": "Mahesh",
+          "empSalary": 80000,
+          "active": true,
+          "empDesignation": "software engineer"
+        }
 ```
 
-(Representative; names approximate the class example.)
+(*Screen*; descriptions as typed. In this RAML `empId` is a **number** — an example with a string id gave "Error: empId should be number". The Day 22 design document used a string id `"P10300"`; the two differ.)
 
 - Description: writing descriptions is a good practice.
 - **Example errors:** with an example, the editor showed "should have required property active / employeeDesignation / …". All properties are required by default, so the example must contain them. Careful alignment (select lines → Tab) fixed the structure.
@@ -188,7 +207,7 @@ Headers have the same shape: copy one header (Ctrl+C), paste (Ctrl+V), then chan
 
 - Default **true** — extra fields are accepted.
 - Set **false** to reject fields not listed.
-- **Position:** put it **after `type: object` and before `properties`**. Placing it elsewhere gave errors ("expecting boolean, null provided").
+- **Position:** put it **after `type: object` and before `properties`**. *Screen:* placing it wrongly gave "Error: Syntax error in the following text: 'false'", "Error: Expecting !!bool, !!null provided" and "Error: should NOT have additional properties".
 
 ### Saving
 
@@ -209,7 +228,7 @@ Design Center **auto-saves**. A **star (*)** on the file name means unsaved; it 
                 message: string
               example:
                 statusCode: 201
-                message: "Employee created successfully"
+                message: "employee details created successfully in the db"
         400:
           body:
             application/json:
@@ -219,7 +238,7 @@ Design Center **auto-saves**. A **star (*)** on the file name means unsaved; it 
                 message: string
               example:
                 statusCode: 400
-                message: "Bad request"
+                message: "bad request"
         500:
           body:
             application/json:
@@ -229,8 +248,10 @@ Design Center **auto-saves**. A **star (*)** on the file name means unsaved; it 
                 message: string
               example:
                 statusCode: 500
-                message: "Internal server error"
+                message: "internal server error"
 ```
+
+(*Screen:* each response property also had `description`, `type`, `required` and `example` lines, e.g. `statusCode: description: this field defines the stataus code of the response, type: number, required: true, example: 500`; messages as shown.)
 
 - Here the error responses have the same structure as success; in real APIs error responses often differ.
 - **Indent multiple lines:** select them and press **Tab** (repeat for more levels) — no need to indent one by one.
@@ -248,14 +269,14 @@ Copy the POST block (similar structure), change:
 
 - method to `patch`, description,
 - examples (e.g. updated designation),
-- success code **200**, message "Updated successfully".
+- success code **200**, message "employee details updated successfully in the db" (*screen*).
 
 The same `additionalProperties` placement rule applies.
 
 ### 9.2 Fetch (GET)
 
 - Method `get`.
-- **Employee ID** is passed as a **URI parameter** (unique resource identifier) → `uriParameters` with `employeeId`.
+- **Employee ID** is passed as a **URI parameter** (unique resource identifier): the nested resource **`/{empid}`** under `/employees` (*screen*: documentation shows `/{empid}`; the mock URL ends `/employees/{empid}`).
 - Response **200** with the employee details.
 
 ---
@@ -274,7 +295,7 @@ The right panel generates **documentation** automatically: title, version, endpo
 
 ### Error seen
 
-Every attempt returned **400 Bad Request** — "Request validation error … enum value". Removing a mandatory field changed the error to "Required key employeeId not found", proving validation works. **The instructor couldn't trace the enum issue** (seen in 2–3 batches); it works without the enum. Testing will be done with a separate **mocking service** instead.
+Every attempt returned **400 Bad Request** — "Request validation error … enum value". Removing a mandatory field changed the error to a "Required key … not found" error for the missing field, proving validation works. **The instructor couldn't trace the enum issue** (seen in 2–3 batches); it works without the enum. Testing will be done with a separate **mocking service** instead.
 
 ---
 
@@ -307,7 +328,7 @@ for **readability** and **modularity** (fewer lines).
 | Design Center project | Workspace containing RAML files |
 | Fragment | Reusable RAML piece |
 | AsyncAPI | Spec format for asynchronous APIs |
-| Resource / sub-resource | `/employees` / `/employees/add` |
+| Resource / nested resource | `/employees` / `/employees/{empid}` |
 | `headers`, `uriParameters`, `body`, `responses` | RAML sections of a method |
 | `required` | Mandatory flag; default true |
 | `enum` | Allowed values list |
@@ -348,7 +369,7 @@ Give it a `default` value in RAML.
 
 1. Design Center → **Create → New API Specification** → name (e.g. `hr-employees-sapi`) → **RAML 1.0**.
 2. Root: `title`, `description`, `version: v1`, `protocols`, `mediaType`.
-3. Best practice: **plural noun resources, no verbs**; class used `/employees/add|update|fetch` sub-resources.
+3. Best practice: **plural noun resources, no verbs**; the class RAML used `/employees` (post, patch) and `/employees/{empid}` (get).
 4. Headers: names must match exactly; `required` default **true**; `minLength`/`maxLength`; **`enum`** for allowed values.
 5. Body: `type: object`, **`additionalProperties: false`** (before `properties`), properties, example.
 6. Responses: **201** create, **200** update/fetch, **400**, **500** with examples.
