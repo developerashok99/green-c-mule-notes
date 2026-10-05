@@ -1,5 +1,7 @@
 # Day 25 — Data Types (Theory), Traits, Fragments, Mocking Service and Sharing
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 11 Dec 2024). Slide text and Design Center/Studio screens marked *slide* or *screen* are read from the recording. Slide images: [slides/day25](../slides/day25/).
+
 ## 1. Overview
 
 Examples and data types were externalised on Day 24. Headers were still repeated in every method. This session:
@@ -69,46 +71,62 @@ Under a method (e.g. `patch`) you have description, headers, body, responses. A 
 ### 3.4 Creating a headers trait
 
 1. **New folder** `traits`.
-2. **New file → RAML → Trait**, name e.g. `headers.raml`.
+2. **New file → RAML → Trait**, name **`headersTraits.raml`** (*screen*).
 3. Inside, type `headers:` (the editor suggests all method-level nodes: body, responses, security schemes…). Paste the three headers; fix indentation (Tab / Shift+Tab).
 
 ```raml
 #%RAML 1.0 Trait
 headers:
-  transactionId:
+  transaction-id:
+    description: tranaction-id is useful to track the journey of a request in Mulesoft layers
     type: string
+    required: true
     minLength: 32
     maxLength: 32
+    example: "abcdefgh-jxbv8599-sjdf762-3746bb"
   origin:
+    description: This header will help us to understand from where the request is initiated
     type: string
-    enum: [ mobile, web ]
+    ...
   language:
-    type: string
-    required: false
+    ...
 ```
 
-(Representative.)
+(*Screen:* `/traits/headersTraits.raml` — the same three headers moved out of the root file.)
 
 4. Declare it in the root file and apply it with `is`:
 
 ```raml
 #%RAML 1.0
-title: hr-employees-sapi
+title: hr-employees-sapi-7303
+...
+types:
+  postRequestDataType: !include /dataTypes/requests/postRequestDataType.raml
+  postResponseDataType: !include /dataTypes/responses/postResponseDataType.raml
+  patchRequestDataType: !include /dataTypes/requests/patchRequestDataType.raml
+  patchResponseDataType: !include /dataTypes/responses/patchResponseDataType.raml
+  getResponseDataType: !include dataTypes/responses/getResponseDataType.raml
+  400errorResponseDataType: !include /dataTypes/errorResponses/400errorResponseDataType.raml
+  500errorResponseDataType: !include /dataTypes/errorResponses/500errorResponseDataType.raml
+
 traits:
-  headersTrait: !include traits/headers.raml
+  headersTraits: !include /traits/headersTraits.raml
 
 /employees:
-  /add:
-    post:
-      is: [ headersTrait ]
-      body: ...
-  /update:
-    patch:
-      is: [ headersTrait ]
-  /fetch:
+  post:
+    is:
+      - headersTraits
+    body: ...
+  patch:
+    is:
+      - headersTraits
+  /{empid}:
     get:
-      is: [ headersTrait ]
+      is:
+        - headersTraits
 ```
+
+(*Screen* for the `types` and `traits` blocks; the resource part follows the Day 23 structure.)
 
 - Remove the old headers blocks from each method.
 - Multiple traits: `is: [ traitA, traitB ]`.
@@ -164,7 +182,7 @@ When a fragment changes, publish a new version and consumers import the latest v
 ### 6.2 Creating a fragment
 
 1. Design Center → **Create → New Fragment** (not New API Specification).
-2. Name it meaningfully. The instructor named it **business headers**:
+2. Name it meaningfully. *Screen:* the fragment project was **`common-headers-fragment`**, and its trait file **`businessHeadersTraits.raml`** — the instructor explained the "business headers" name:
    - `origin` and `language` describe business information about the request (where it comes from, what language).
    - Transaction/correlation IDs are technical IDs (identify the request, check logs).
    - "Every name should be meaningful and thoughtful."
@@ -194,11 +212,11 @@ When a fragment changes, publish a new version and consumers import the latest v
 
 ```raml
 traits:
-  # headersTrait: !include traits/headers.raml
-  headersTrait: !include exchange_modules/<group-id>/business-headers/1.0.1/headers.raml
+  #headersTraits: !include /traits/headersTraits.raml
+  headersTraits: !include /exchange_modules/<org-id>/common-headers-fragment/1.0.1/<trait file>
 ```
 
-(Path representative.)
+(*Screen:* `exchange_modules/<org id>/common-headers-fragment/1.0.1/` appeared in the file tree; the reference project opened in Studio used the same pattern.)
 
 **Careful:** names must match; if the fragment's trait name differs from what methods use in `is`, you get errors. If the fragment changes, update the version/reference in each consuming API.
 

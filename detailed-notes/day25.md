@@ -2,6 +2,8 @@
 
 > **Watch alongside:** the single fact worth extracting from this entire session, if nothing else: **Trait = reuse within one spec. Fragment = reuse across the whole organization.** Everything else in this session builds around that one distinction.
 
+> **Video-verified:** trait, fragment and type names (`headersTraits`, `common-headers-fragment`, `postRequestDataType` …) match the class recording (11 Dec 2024). Slide images: [slides/day25](../slides/day25/).
+
 ---
 
 ## 1. The Core Distinction, Visualized
@@ -33,7 +35,7 @@ flowchart TB
 ```mermaid
 flowchart LR
     Create["Create traits/ folder<br/>+ a .raml file of TYPE: Trait"] --> Define["Define shared content<br/>(headers: transactionId, origin, language)"]
-    Define --> Import["Import into root RAML:<br/>traits: headers: !include traits/headers.raml"]
+    Define --> Import["Import into root RAML:<br/>traits: headersTraits: !include /traits/headersTraits.raml"]
     Import --> Apply["Apply at each method:<br/>is: [headers]"]
 ```
 
