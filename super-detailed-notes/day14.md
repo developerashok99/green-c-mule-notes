@@ -1,5 +1,7 @@
 # Day 14 — Property Files, Externalisation per Environment, Run Configurations and Secure Properties
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 25 Nov 2024; the class used two decks, "13th Day" and "14th Day"). Slide text, drawings and screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day14](../slides/day14/).
+
 ## 1. Overview
 
 > **Instructor's note:** few interview questions come from this topic, but it is used **compulsorily in real project work every day**.
@@ -20,11 +22,15 @@
 
 The weather application calls a third-party REST API and (in this example) a database. Each environment has its own values:
 
-| Environment | Weather API host (illustrative) | Database host (illustrative) |
+*Drawing* — **Importance of externalizing properties** (environments Dev, SIT, UAT, preprod, prod, DR):
+
+| Environment | ① REST service — HTTP Req | ② Database |
 |---|---|---|
-| Dev | `dev.api.openweathermap.org` | `10.1.25.50` (port 3306) |
-| UAT | `uat.api.openweathermap.org` | `10.1.25.51` |
-| Prod | `api.openweathermap.org` | `10.1.25.52` |
+| Dev | `dev.api…` | `10.1.25.50` port **330** |
+| UAT | `uat.api.openweathermap.org` | `10.1.25.51` port 330 |
+| Prod | `api.openweathermap.org` | `10.1.25.52` port 330 |
+
+(The Dev/UAT hosts are illustrative; only the Prod host is real. Port 330 matches the instructor's MySQL from Day 05 — MySQL's default is 3306.)
 
 The API key (secret) also differs per environment.
 
@@ -57,25 +63,30 @@ Property files can be:
 
 They differ only in **syntax**. No performance difference; the architect/organisation chooses.
 
-### 3.1 YAML example
+### 3.1 YAML example (*slide* — "difference between .yaml and .properties")
 
 ```yaml
-# Listener configuration
+#### HTTP Listener Config Details ####
+
 http:
   listener:
     host: "0.0.0.0"
     port: "8081"
     path: "/weather"
 
-# Weather request configuration
+#### Weather REST Service Config Details ####
+
 weather:
-  host: "api.openweathermap.org"
-  port: "443"
-  path: "/data/2.5/weather"
-  appid: "<api key>"
+  request:
+    host: "api.openweathermap.org"
+    port: "80"
+    path: "/data/2.5/weather"
+  reconnection:
+    frequency: "2000"
+    attempts: "3"
 ```
 
-(Representative; the class file followed this structure.)
+(The API key was added to the same file during the demo as another `weather` key; its value is not reproduced.)
 
 - `#` = **comment**. Use comment **headings** per configuration (listener, weather request, …). In real projects there are 10–15 configurations; headings make files readable. **Best practice.**
 - Nesting by **indentation**: `http:` → newline → indented `listener:` → indented `host`, `port`, `path`. The full key is `http.listener.host`.
@@ -85,17 +96,22 @@ weather:
 ### 3.2 `.properties` example
 
 ```properties
-# Listener configuration
-http.listener.host=0.0.0.0
-http.listener.port=8081
-http.listener.path=/weather
+#### HTTP Listener Config Details ####
 
-# Weather request configuration
-weather.host=api.openweathermap.org
-weather.port=443
-weather.path=/data/2.5/weather
-weather.appid=<api key>
+http.listener.host= 0.0.0.0
+http.listener.port= 8081
+http.listener.path= /weather
+
+#### Weather REST Service Config Details ####
+
+weather.request.host= api.openweathermap.org
+weather.request.port= 80
+weather.request.path= /data/2.5/weather
+weather.reconnection.frequency= 2000
+weather.reconnection.attempts= 3
 ```
+
+Note the reconnection strategy's frequency and attempts (Day 13) are externalised too.
 
 **Key names are the same in every environment's file; only the values change.**
 
@@ -133,6 +149,8 @@ Everything environment-related: the **Listener** configuration (host, port, path
 
 ## 5. Step 2 — Configuration Properties Global Element
 
+*Slide* — **Properties implementation steps:** Prepare property file for each environment · Configure configuration property global element · Configure the properties in components ( ${key} ) and Dataweave ( Mule::p('key') ) · Pass the runtime arguments and deploy.
+
 1. Open the XML → **Global Elements** tab → **Create**.
 2. **Global Configurations → Configuration properties** (or search "configuration properties").
 3. **File:** choose the file, e.g. `config/dev.yaml`.
@@ -167,7 +185,7 @@ Listener configuration → Edit:
 
 Listener path: `${http.listener.path}`.
 
-HTTP Request configuration: Host `${weather.host}`, Port `${weather.port}`; operation path `${weather.path}`.
+HTTP Request configuration: Host `${weather.request.host}`, Port `${weather.request.port}`; operation path `${weather.request.path}`; reconnection Frequency `${weather.reconnection.frequency}`, Attempts `${weather.reconnection.attempts}`.
 
 At runtime Mule looks up the key in the loaded property file and substitutes its value.
 
@@ -178,17 +196,17 @@ In fx/DataWeave (e.g. the `appid` query parameter, which is an expression):
 ```dataweave
 {
   q: payload.city,
-  appid: p('weather.appid')
+  appid: p('weather.appid')      // key name representative
 }
 ```
 
 - `${...}` does **not** work inside DataWeave.
-- Use the **`p`** function (small p) with the key in **single quotes**.
+- Use the **`p`** function (small p) with the key in **single quotes** — written on the slide as `Mule::p('key')`; `p('key')` works too.
 - **Instructor:** "There's no particular reason — it's the syntax."
 
 ### 6.3 Question: is the same host used in test and prod?
 
-The **key** (e.g. `weather.host`) is the same in every file. The **value** differs. Code always references the key; the environment's file supplies the value.
+The **key** (e.g. `weather.request.host`) is the same in every file. The **value** differs. Code always references the key; the environment's file supplies the value.
 
 ---
 
@@ -258,6 +276,22 @@ WhatsApp messages are encrypted end to end. If someone intercepts them, they see
 **Proof it's needed:** without the module, Global Elements → Create shows no Secure Properties option. After adding it, it appears.
 
 ### Step 2 — Encrypt the value
+
+*Slide* — **Secure properties implementation steps:** Add secure properties module from Exchange to Studio · Encrypt the sensitive data in property files · Configure secure configuration property global element · Configure the properties in components ( ${secure::key} ) and Dataweave ( Mule::p('secure::key') ) · Pass the runtime arguments and deploy.
+
+*Slide* — the **JAR** way (the class's own example values):
+
+```text
+Encrypt a string:
+java -cp secure-properties-tool.jar com.mulesoft.tools.SecurePropertiesTool string encrypt Blowfish CBC MyMuleSoftKey mahesh
+  → dTiMggBF7rw=
+
+Decrypt a string:
+java -cp secure-properties-tool.jar com.mulesoft.tools.SecurePropertiesTool string decrypt Blowfish CBC MyMuleSoftKey dTiMggBF7rw=
+  → mahesh
+```
+
+Arguments: `string` · `encrypt`/`decrypt` · algorithm · mode · **key** · value.
 
 MuleSoft provides a **Secure Properties Tool** web page (and a JAR) to encrypt/decrypt values.
 
@@ -334,7 +368,7 @@ Global elements
    Secure properties config   file = config/${mule.env}.yaml, key = ${secure.key}
 
 Components
-   ${http.listener.port}   ${weather.host}   p('weather.appid')   ${secure::db.password}
+   ${http.listener.port}   ${weather.request.host}   p('weather.appid')   ${secure::db.password}
 
 Run Configuration (Environment)
    mule.env = prod

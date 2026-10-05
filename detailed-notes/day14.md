@@ -2,6 +2,8 @@
 
 > **Watch alongside:** the instructor flags this directly as *more* important for real work than for interviews — this is the mechanism that makes "the same code deploys correctly to Dev, UAT, and Prod" actually true, rather than aspirational.
 
+> **Video-verified:** the property-file contents, slide steps and encryption example below were read from the class recording (25 Nov 2024). Slide images: [slides/day14](../slides/day14/).
+
 ---
 
 ## 1. The Core Problem — Why Hardcoding Breaks Across Environments
@@ -36,6 +38,39 @@ flowchart LR
     Config --> Prod["prod.yaml"]
 ```
 - **Key insight**: the **key names** (e.g. `host`) are identical across all three files — only the **values** differ. Your application code references the key the same way regardless of environment.
+The class files (*slide*), same keys in both formats:
+
+```yaml
+#### HTTP Listener Config Details ####
+http:
+  listener:
+    host: "0.0.0.0"
+    port: "8081"
+    path: "/weather"
+#### Weather REST Service Config Details ####
+weather:
+  request:
+    host: "api.openweathermap.org"
+    port: "80"
+    path: "/data/2.5/weather"
+  reconnection:
+    frequency: "2000"
+    attempts: "3"
+```
+
+```properties
+http.listener.host= 0.0.0.0
+http.listener.port= 8081
+http.listener.path= /weather
+weather.request.host= api.openweathermap.org
+weather.request.port= 80
+weather.request.path= /data/2.5/weather
+weather.reconnection.frequency= 2000
+weather.reconnection.attempts= 3
+```
+
+Referenced as `${weather.request.host}` in configuration fields and `Mule::p('key')` (or `p('key')`) in DataWeave. The drawing that motivated it: Dev/UAT/Prod each have their own REST host and database (`10.1.25.50`/`.51`/`.52`, port 330).
+
 - `.yaml` and `.properties` are **functionally identical** — a pure team/architect style convention, zero technical performance difference.
 
 ### Step 2 & 4 — The Dynamic File Path (the actual magic)
@@ -92,7 +127,7 @@ sequenceDiagram
 flowchart TB
     S1["1. Add Secure Properties module<br/>(via Palette or Exchange, version-dependent)"] --> S2
     S2["2. Create Secure Properties Config<br/>Global Element — points at file,<br/>specifies algorithm/key/mode"] --> S3
-    S3["3. Encrypt the value<br/>using MuleSoft's online Secure Properties Tool<br/>(AES needs exactly 16-byte key; Blowfish is flexible)"] --> S4
+    S3["3. Encrypt the value<br/>using MuleSoft's online Secure Properties Tool<br/>(AES needs exactly 16-byte key; Blowfish is flexible)<br/>or the JAR: SecurePropertiesTool string encrypt Blowfish CBC key value"] --> S4
     S4["4. Mark it in the file:<br/>key: ![encryptedGarbage]"] --> S5
     S5["5. Reference with the secure:: prefix:<br/>${secure::key}"]
 ```
