@@ -2,22 +2,23 @@
 
 > **Watch alongside:** this is where the weather API demo actually becomes *useful* — reshaping a messy third-party response into a clean one — and where two genuinely important "best practice" connector settings (Target Variable, Response Timeout) get their full explanation.
 
+> **Video-verified:** variable names, the transform, the error message and the Postman result below were read from the class recording (20 Nov 2024). Slide images: [slides/day12](../slides/day12/).
+
 ---
 
-## 1. Transform Message vs. Chained Set Variables — the Dependency Problem
+## 1. Multiple Targets in One Transform Message — and the Dependency Rule
 
 ```mermaid
 flowchart TB
-    subgraph "❌ Two independent Set Variables — breaks if B depends on A"
-    SV1["Set Variable: A = ..."] --> SV2["Set Variable: B = f(A)?"]
-    SV2 -.->|"Set Variable can't reference<br/>another variable being created<br/>in the same step"| X["⚠️ Not how Set Variable works"]
+    subgraph "✅ Independent values — one Transform Message is fine"
+    TM["Transform Message:<br/>payload = ...<br/>vars.A = ...<br/>vars.B = ... (doesn't use A)"]
     end
-    subgraph "✅ Transform Message — handles dependency cleanly"
-    TM["Transform Message:<br/>vars.A = ...<br/>vars.B = vars.A + ..."]
+    subgraph "✅ B depends on A — use separate, sequential components"
+    SV1["Set Variable / Transform:<br/>vars.A = ..."] --> SV2["Set Variable / Transform:<br/>vars.B = f(vars.A)"]
     end
 ```
 
-The concrete reason to prefer Transform Message over chaining Set Variable components: **when one value you're creating depends on another value you're also creating**, Transform Message expresses that naturally in one place; two separate Set Variable components cannot cleanly reference each other's in-progress output.
+Transform Message can set the payload **and** several variables at once (Add new target), which saves dragging in several Set Variable components. But the instructor's rule: **if the second variable depends on the first, don't create both in the same Transform Message** — create the first, then the second in a separate component after it. All targets of one Transform Message are evaluated against the same incoming event, so one target can't read a variable another target is creating in that same step.
 
 ---
 
@@ -33,6 +34,19 @@ flowchart LR
     Sub --> Celsius[Celsius value]
 ```
 
+- **The class transform** (*screen*):
+  ```dataweave
+  %dw 2.0
+  output application/json
+  ---
+  {
+    "city": vars.request.city,
+    "minTemp": vars.weatherResponse.main.temp_min - 273.15,
+    "maxTemp": vars.weatherResponse.main.temp_max - 273.15,
+    "tempUnit": "celcius"
+  }
+  ```
+  → Postman 200 OK: `{"city": "Mumbai", "minTemp": 22.94, "maxTemp": 24.99, "tempUnit": "celcius"}`.
 - **Don't assume the formula — look it up.** *"I don't know now, so what do I do? Google."* This is presented as completely normal, expected professional behavior.
 - **Don't assume the type either.** Use `typeOf(value)` to check whether a value pulled from JSON is actually a String or a Number before doing arithmetic on it — DataWeave doesn't always coerce silently, and relying on it to do so is fragile.
 - **The DataWeave Playground** (a separate, standalone MuleSoft website) is the fast way to iterate on an expression like this — paste sample JSON, write the expression, see the result instantly, without redeploying a whole Mule project.
@@ -66,7 +80,7 @@ flowchart TB
 
 - **Where it lives**: any connector's **Advanced** tab (demonstrated on HTTP Request; the same field exists on Database, Salesforce, etc. — it's a generic connector feature, not HTTP-specific).
 - **What changes when you use it**: the connector's response is redirected into the **named variable you specify** — `payload` and `attributes` are left **completely untouched**, not just recoverable-after-the-fact. This is strictly cleaner than the manual pattern, since nothing is lost in either direction.
-- **Proven live, not just described**: setting a Target Variable *without* updating the downstream Transform Message mapping causes a real, predicted failure (`null minus a number`) — proving the response genuinely stopped landing in `payload`. Fixing the mapping to read `vars.weatherResponse` instead resolves it.
+- **Proven live, not just described**: setting a Target Variable *without* updating the downstream Transform Message mapping causes a real, predicted failure (`You called the function '-' with these arguments: Null, Number (273.15)` — MULE:EXPRESSION, Postman 500) — proving the response genuinely stopped landing in `payload`. Fixing the mapping to read `vars.weatherResponse` instead resolves it.
 - **Naming discipline matters**: an unclear Target Variable name makes it hard to trace where a value came from later — name it after the connector/system it represents.
 
 ---

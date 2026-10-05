@@ -1,5 +1,7 @@
 # Day 12 — Shaping the Weather Response, DataWeave Playground, Target Variable and Response Timeout
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 20 Nov 2024). Slide text and Studio/Postman/Playground screens marked *slide* or *screen* are read from the recording. Slide images: [slides/day12](../slides/day12/).
+
 ## 1. Overview
 
 On Day 11 the weather API returned OpenWeatherMap's raw response. This session:
@@ -13,6 +15,8 @@ On Day 11 the weather API returned OpenWeatherMap's raw response. This session:
 7. **Response Timeout** — default, connector level vs. operation level, real project example, how to test it
 
 Reconnection strategy and response validator follow on Day 13.
+
+*Slide* — **Agenda for today:** Demonstration of consume REST service in APS · Propagation of payload, attributes, and variables across HTTP Request · Target Variable, Response Timeout, Response Validator and Reconnection Strategy · Q&A session.
 
 ---
 
@@ -44,18 +48,18 @@ The request/response of our API were decided in advance (design first):
 
 ```json
 // Request
-{ "city": "Hyderabad" }
+{ "city": "Mumbai" }
 
-// Response
+// Response (as designed on the class slide)
 {
-  "city": "Hyderabad",
-  "minTemperature": 24.5,
-  "maxTemperature": 31.2,
-  "temperatureUnit": "Celsius"
+  "city": "Mumbai",
+  "minTemp": 35,
+  "maxTemp": 45,
+  "tempUnit": "celcius"
 }
 ```
 
-(Field names representative.) The output of the final Transform Message must be **`application/json`** (not Java), because our consumer expects JSON. The Listener then sends the payload as the response body.
+(*Slide/screen* — the class used these exact keys; "celcius" is spelled that way in class. The drawing also showed the URL shape `http://host:port/basepath/path`.) The output of the final Transform Message must be **`application/json`** (not Java), because our consumer expects JSON. The Listener then sends the payload as the response body.
 
 The instructor pasted the target structure into Transform Message and mapped each field. A red mark caused by the pasted double quotes was a formatting issue, not a real error.
 
@@ -63,7 +67,7 @@ The instructor pasted the target structure into Transform Message and mapped eac
 
 The city is in **our request** and also in the weather response (`name`). But after the HTTP Request, our original payload is gone.
 
-**Solution used:** before the HTTP Request, store the request in a variable (`requestVariable`). In the transform, read `vars.requestVariable.city`.
+**Solution used** (*screen*): a **Set Variable** named `request` before the HTTP Request, holding the incoming payload. In the transform, read `vars.request.city`. The flow became Listener → Logger → **Set Variable** → Request → Transform Message → Logger.
 
 ---
 
@@ -80,7 +84,7 @@ MuleSoft's **online DataWeave Playground** lets you try transformations without 
 | `payload` | Whole payload |
 | `payload.main` | The `main` object |
 | `payload.main.temp` | Temperature (e.g., 300) |
-| `payload.main.temp_min`, `payload.main.temp_max` | Min/max temperature |
+| `payload.main.temp_min`, `payload.main.temp_max` | Min/max temperature (*screen*, Hyderabad: 288.38 / 289.88) |
 
 ---
 
@@ -112,17 +116,21 @@ typeOf("300")                      // → String
 
 DataWeave sometimes converts automatically; many languages don't. Convert explicitly when a value might be a string.
 
-### 4.3 Final transformation (representative)
+*Screen (Playground):* `"110" - 24` returned **86**, with the warning `[dw] Auto-Coercing type from: "110" to: Number` … "HINT: To avoid this warning please coerce the argument to match". Google gave **300 K = 26.85 °C** (K − 273.15).
+
+### 4.3 Final transformation (*screen*)
+
+First version (reading the payload):
 
 ```dataweave
 %dw 2.0
 output application/json
 ---
 {
-  city: vars.requestVariable.city,
-  minTemperature: payload.main.temp_min - 273.15,
-  maxTemperature: payload.main.temp_max - 273.15,
-  temperatureUnit: "Celsius"
+  "city": vars.request.city,
+  "minTemp": payload.main.temp_min - 273.15,
+  "maxTemp": payload.main.temp_max - 273.15,
+  "tempUnit": "celcius"
 }
 ```
 
@@ -170,19 +178,29 @@ HTTP Request → **Advanced** tab → **Target Variable**: `weatherResponse`.
 The transform still read `payload.main.temp_min`. The payload no longer contains `main`:
 
 ```text
-You called the function '-' with these arguments: null and Number
+You called the function '-' with these arguments:
+  1: Null (null)
+  2: Number (273.15)
 ```
+
+(*Screen:* error type `MULE:EXPRESSION` in the debugger; Postman showed **500 Server Error** with the same message.)
 
 `null − 273.15` is not possible.
 
 **Fix:** read from the variable:
 
 ```dataweave
-minTemperature: vars.weatherResponse.main.temp_min - 273.15,
-maxTemperature: vars.weatherResponse.main.temp_max - 273.15
+"city": vars.request.city,
+"minTemp": vars.weatherResponse.main.temp_min - 273.15,
+"maxTemp": vars.weatherResponse.main.temp_max - 273.15,
+"tempUnit": "celcius"
 ```
 
-After saving (Build Automatically redeploys), the request worked.
+After saving (Build Automatically redeploys), the request worked. *Screen (Postman):* GET `http://localhost:8081/weather`, body `{"city": "Mumbai"}` → **200 OK**:
+
+```json
+{ "city": "Mumbai", "minTemp": 22.94, "maxTemp": 24.99, "tempUnit": "celcius" }
+```
 
 ### 6.5 Notes
 
@@ -215,7 +233,7 @@ If a called system is not responding, it's better to stop waiting and reply "ple
 | Level | Where | Applies to |
 |---|---|---|
 | **Connector configuration** | Request configuration → Edit → Settings → (default) response timeout | **All** operations using that configuration |
-| **Operation** | HTTP Request operation → **Response** section → Response timeout | Only that operation |
+| **Operation** | HTTP Request operation → **Response** section → Response timeout | Only that operation (*screen:* set to **5000**, with Response validator **None**) |
 
 **Why two?** One Request configuration (same host and port) can be reused by several operations with different methods and paths.
 
@@ -320,7 +338,7 @@ Build a slow API (using DataWeave `wait`) and call it with a shorter timeout; th
 2. Use **DataWeave Playground** to build mappings quickly.
 3. Kelvin → Celsius: **−273.15**; check types with **`typeOf`**, convert with **`as Number`**.
 4. **Propagation:** connectors overwrite **payload and attributes**, not variables.
-5. Save needed values in variables **before** connectors (e.g. `vars.requestVariable.city`).
+5. Save needed values in variables **before** connectors (class: `vars.request.city`).
 6. **Target Variable** (Advanced) stores the response in a variable; payload and attributes stay unchanged.
 7. Using a target variable means downstream mappings must read **`vars.<name>`**, not payload.
 8. Dependent variables → **separate sequential components**, not one Transform Message.
