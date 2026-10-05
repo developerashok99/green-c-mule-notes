@@ -2,6 +2,8 @@
 
 > **Watch alongside:** the densest conceptual day so far — four ideas that all connect: the API lifecycle (the *steps* of building an API), ESB (the *architecture* that replaced point-to-point chaos), monolithic vs. microservices (the *general* industry pattern), and API-Led Connectivity (MuleSoft's *specific* recipe for applying microservices thinking to APIs).
 
+> **Video-verified:** slide text and the instructor's drawings below were checked against the class recording (4 Nov 2024; decks "MULESOFT 3rd Day" and "MULESOFT 4th Day"). Slide images: [slides/day04](../slides/day04/).
+
 ---
 
 ## 1. The API Lifecycle — 6 Steps, Mapped to House Construction
@@ -17,12 +19,30 @@ flowchart LR
 
 | Step | House analogy | API equivalent | Anypoint tool |
 |---|---|---|---|
-| **Design** | Architect draws a blueprint, checks municipal (GHMC) rules | Define request/response schema, examples, security requirements — the **API specification / contract** | **Design Center** (using RAML) |
+| **Design** | Go to the architect — GHMC rules, discuss requirements, plan, apply for approval | Define request/response schema, examples, security requirements — the **API specification / contract** | **Design Center** (using RAML) |
 | **Implement** | Construction workers build to spec | Actual development — connectors, transformations, orchestration | **Anypoint Studio** |
 | **Deploy** | Move in | Push the built app to a runtime (cloud or on-prem) | **Runtime Manager** |
-| **Test** | Inspect the finished house | QA validates functionality (Postman/SoapUI); separately, performance testers load-test (JMeter/LoadRunner) | External tools + Postman |
+| **Test** | Inspect the finished house | QA validates functionality (Postman/SoapUI); separately, performance testers load-test (JMeter/LoadRunner) | Slide: **"QA team"** — tested with **Postman** |
 | **Secure** | Install locks, fencing, alarm | Apply auth/rate-limiting/etc. policies | **API Manager** |
-| **Monitor** | Ongoing maintenance | Track requests, failures, response times | **Runtime Manager** / **Anypoint Monitoring** |
+| **Monitor** | Ongoing maintenance | Track requests, failures, response times | Slide: **"API Monitor"** (Anypoint Monitoring); **Runtime Manager** for logs |
+
+The slide itself lists: **Design – Design Center · Implementation – Anypoint Studio · Deploy – Runtime Manager · Test – QA team · Secure – API Manager · Monitor – API Monitor.** The instructor's drawing grouped them:
+
+```mermaid
+flowchart LR
+    subgraph AP["Anypoint Platform"]
+    DC[Design Center] --> Spec[API spec]
+    RM[Runtime Manager] --> Dep[Deploy]
+    AM[API Manager] --> Sec[Secure]
+    MON[API Monitoring] --> Mon[Monitor]
+    RM2[Runtime Manager] --> Logs[Logs]
+    end
+    subgraph AS["Anypoint Studio"]
+    Impl["Implementation &<br/>Development"]
+    end
+```
+
+The house drawing's five steps were: ① buy the plot and finalise requirements (Hyderabad) → ② architect: GHMC rules, plan, approval → ③ engineer and construction workers build → ④ secure it: electrical fence and a dog → ⑤ house-warming and moving in.
 
 > 💡 **Why MuleSoft's "full lifecycle" claim matters commercially:** every single step above has a **native MuleSoft tool**. A competing platform that's weak in, say, API security or monitoring forces you to license and integrate a **third-party tool** for that step — extra cost, extra integration work, extra vendor relationships. MuleSoft's pitch is "one platform, every step."
 
@@ -32,6 +52,22 @@ In the lecture, a student asked why security isn't just baked in during developm
 ---
 
 ## 2. Point-to-Point Integration — Why It Collapses Under Scale
+
+**Slide text:** "Two applications need to be integrated. Disadvantages: No. of integrations are more; Change in one application will force to implement the change in other applications."
+
+The slide's picture reused the Day 01 conference analogy — **four languages need six translators**:
+
+```mermaid
+flowchart LR
+    J((Japanese)) ---|J to S| S((Spanish))
+    J ---|J to F| F((French))
+    J ---|J to H| H((Hindi))
+    S ---|S to F| F
+    S ---|S to H| H
+    F ---|H to F| H
+```
+
+The instructor then drew the fix: **one translator in the middle**, connected to every language (the ESB idea in §3).
 
 **The setup:** before ESB architecture existed, if System A needed to talk to System B, you built a direct integration between exactly those two. Need A to also talk to C? Build another direct integration. And so on.
 
@@ -83,6 +119,8 @@ flowchart TB
 > If you only have **2 systems** to connect, building a full ESB architecture is overkill — plain point-to-point is simpler and cheaper. ESB earns its complexity once you have **many** systems that all need to talk to each other, which is the normal state for any real enterprise.
 
 ### The 3 capabilities that qualify a tool as "ESB"
+
+**Slide text:** "More applications need to be integrated. Features of ESB tool: Allows Orchestration logic · Allows Transformations (XML to JSON) · Allows Enrichments (First name, middle name and last name to full name)."
 ```mermaid
 flowchart LR
     ESB{{ESB Tool}} --> O["Orchestration<br/>(sequence the calls correctly)"]
@@ -92,7 +130,21 @@ flowchart LR
 
 1. **Orchestration** — like a music conductor: decide *when* and *in what order* to call each system (check inventory → then charge payment → then bill → then ship). Get the order wrong (e.g. charge before confirming stock) and you create real business problems.
 2. **Transformation** — converting data shape/format between systems (JSON ↔ XML, Java ↔ JSON, etc.) — this is the same concept introduced in the Day 01 Flipkart example.
-3. **Enrichment** — a *specific kind* of transformation: combining or enhancing data rather than just reshaping it (e.g. `firstName` + `lastName` → `fullName`).
+3. **Enrichment** — a *specific kind* of transformation: combining or enhancing data rather than just reshaping it (slide example: first name + middle name + last name → full name).
+
+The slide **"Flipkart (Enterprise) – Mule ESB Integration"** shows all three in one Mule application:
+
+```mermaid
+flowchart LR
+    Req[Request] --> Src[Source] --> IM[IM connector] --> SF[SF connector] --> TR[Transformation] --> EN[Enrichment] --> P[P connector] --> B[B connector] --> D[D connector]
+    IM -.- INV[(Inventory Mgmt)]
+    SF -.- CRM[(CRM - Salesforce)]
+    P -.- PAY[(Payment - Razorpay)]
+    B -.- BILL[(Billing - Geneva)]
+    D -.- DEL[(Delivery App)]
+```
+
+…with an **Error handling** block around the whole orchestration.
 
 MuleSoft provides native support for all three, which is precisely why it qualifies as, and is marketed as, an ESB tool.
 
@@ -114,9 +166,12 @@ flowchart TB
 
 | Advantages | Disadvantages |
 |---|---|
-| Simple to develop, test, deploy (one thing) | Complexity **and response time both increase** as features pile up (like opening a 2-lakh-word document vs. a 10,000-word one — it's just heavier) |
+| Slide: simple to develop · faster to develop · easy to test · easy to deploy | Complexity **and response time both increase** as features pile up (like opening a 2-lakh-word document vs. a 10,000-word one — it's just heavier) |
 | | **Any** small change (e.g. fixing password-reset logic) forces a **full redeploy** — causing downtime for completely unrelated features too |
 | | **Not reliable** — one broken piece can take the *entire* application down |
+| | Slide also lists: **difficult to understand**, **dependent** |
+
+The instructor's drawing: a small issue in one feature → bug fix → **production deploy of the whole application, 1–2 hours of maintenance during which no other service works**.
 
 ### Microservices: each capability is its own application
 ```mermaid
@@ -134,7 +189,7 @@ flowchart TB
 | **Lower complexity** per service — easier to reason about | **More inter-service communication** needed — network calls where a monolith would've had an in-process function call |
 | **Reusable** — e.g. one login service reused across multiple front-end apps | A response-format change in one service can still **ripple** to whatever consumes it |
 | **Faster long-term development** (though *slower initially*, since more services must be stood up) | **More resource usage** (CPU/memory per service) → higher cost, since MuleSoft licenses by **vCore** |
-| **Independently scalable** — scale only the hot service (e.g. "shipment status" during a sale), not everything | |
+| **Independently scalable** — scale only the hot service (e.g. "shipment status" during a sale), not everything | Slide: **"vCore availability – Mule – 0.1 = 500 MB"** — every extra application consumes vCores |
 | **More reliable** — one broken service ≠ everything down | |
 
 ### The scalability example, worked through
@@ -145,6 +200,8 @@ flowchart LR
     Q -->|Monolith| M["Must scale up<br/>EVERY feature's resources,<br/>even unaffected ones"]
     Q -->|Microservices| Ms["Scale up ONLY the<br/>high-traffic services<br/>(e.g. order + shipment status)"]
 ```
+> **Transcript vs. drawing:** the audio gives 1 lakh → 3 lakh orders per day; the drawing on the slide reads **10,000** normally and **30,000 per day** in the festive season (the same 3× jump). The point is identical either way.
+
 The car-capacity analogy used in the lecture: a car rated for 1,000kg can be *forced* to carry 3,000kg, but it will fail. Scaling infrastructure works the same way — once load exceeds what current resources can handle, the system starts failing, and you must proactively add capacity (servers/CPU/memory) — the microservices advantage is that you can add capacity **surgically**, only where the actual bottleneck is.
 
 > Auto-scaling exists as a **premium MuleSoft feature** — without it, this capacity increase during a festive sale is a manual operational task, not automatic.
@@ -157,6 +214,13 @@ Real organizations often run a **hybrid** — grouping 2-3 related business capa
 ## 5. API-Led Connectivity — MuleSoft's Microservices Recipe, Specifically for APIs
 
 This is MuleSoft's named best-practice pattern (not a mandatory rule) for applying microservices thinking specifically to API architecture.
+
+**Slide text:** "Integration strategy to transfer data b/n applications in a methodical way through reusable and purposeful APIs · APIs are developed to play a specific role such as accessing data from source systems, combining this data in processes, or providing an experience for the end-user · Best practice specified by MuleSoft · Not mandatory."
+
+**Per-layer slides:**
+- **System API** — reusable system calls; consume data from system and pass it to **upstream** API; examples: Salesforce, databases, FTP, web services.
+- **Process API** — consume data from System APIs and shape data as per the requirement; example: order history (Salesforce – order management).
+- **Experience API** — reconfigure data consumed from **downstream** API so that it is easily consumed by the intended audience; example: mobile app and web app.
 
 ```mermaid
 flowchart TB
@@ -211,6 +275,26 @@ sequenceDiagram
     Proc-->>ExpWeb: Combined, processed response
     ExpWeb-->>Web: Filtered for web (more data)
 ```
+The actual slide diagram ("Implementation of microservices using API-led connectivity", Flipkart):
+
+```mermaid
+flowchart TB
+    MA[Mobile API] --> SS[Shipment status]
+    MA --> OS[Order status]
+    MA --> OH[Order history]
+    WA[Web app API] --> OS
+    WA --> OH
+    OS --> CU[Customers]
+    OH --> CU
+    SS --> TOLL[Toll shipments]
+    SS --> UPS[UPS shipments]
+    CU --> SAP[SAP customers]
+    CU --> SFC[Salesforce customers]
+    OH --> ORD[Orders]
+    OS --> ORD
+    MA -.->|"skip Process layer"| TOLL
+```
+
 Notice: **the Process API and System APIs are built once and reused** — only the Experience layer differs per consumer. This is the concrete payoff of the pattern.
 
 ### It's a best practice, not a mandate — when to skip the Process layer
@@ -224,6 +308,8 @@ If a Process API would do nothing but blindly pass data through unchanged, it's 
 > *"Since these layers are all inside our own enterprise, do we still need security between them?"* — **Yes.** Internal-network communication is not automatically safe. The lecture specifically cites banking/RBI compliance requirements as a reason internal API-to-API calls still need proper security — "it's internal" is not a security exemption, especially in regulated industries.
 
 ### Advantages & Disadvantages (same as microservices generally, applied to APIs)
+Slide text — advantages: reusability · scalability · time to market is faster in the long run · easy to manage · any change in one layer, no changes required in other layers. Disadvantages: instead of one API we develop more APIs, so it takes more time in the initial phase · more APIs → more vCores purchase → increases cost.
+
 | Advantages | Disadvantages |
 |---|---|
 | Reusable Process/System layers | More APIs to build initially (slower start) |

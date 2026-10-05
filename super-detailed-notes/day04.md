@@ -1,5 +1,7 @@
 # Day 04 — API Lifecycle, Point-to-Point vs. ESB, Monolithic vs. Microservices, API-Led Connectivity
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 4 Nov 2024). The class used two slide decks, "MULESOFT 3rd Day" (lifecycle, point-to-point, ESB) and "MULESOFT 4th Day" (monolithic, microservices, API-led). Text marked *slide* or *drawing* is taken from the screen. Slide images: [slides/day04](../slides/day04/).
+
 ## 1. Overview
 
 This is the densest conceptual session of the prerequisites. Four connected ideas:
@@ -17,6 +19,8 @@ This is the densest conceptual session of the prerequisites. Four connected idea
 
 ### 2.1 What is a lifecycle?
 
+*Slide — "API Life Cycle":* **Design** – Design Center · **Implementation** – Anypoint Studio · **Deploy** – Runtime Manager · **Test** – QA team · **Secure** – API Manager · **Monitor** – API Monitor.
+
 Software development has a lifecycle (SDLC): requirements gathering, development, testing, etc. An API also has a lifecycle — a defined sequence of steps.
 
 The steps listed in this lecture:
@@ -26,6 +30,14 @@ Design ──► Implementation ──► Deploy ──► Test ──► Secure
 ```
 
 ### 2.2 House-construction analogy
+
+*Drawing — "Generic Example – Home construction":*
+
+1. Buy the plot and finalise the requirements – Hyd(erabad)
+2. Go to the architect – GHMC rules – discuss requirements – plan – apply for approval
+3. Take the plan and start construction – engineer and construction workers
+4. House construction is done – secure – electrical fence and dog
+5. House-warming ceremony and occupying the house
 
 | House construction | API |
 |---|---|
@@ -105,9 +117,22 @@ If the front-end team's application is not ready, we would have to wait for it b
 
 **What:** Track the number of requests and responses, failures and successes, and response times (minimum, maximum).
 
-**Where:** **Anypoint Monitoring**. Runtime Manager also shows some basic statistics and logs.
+**Where:** the slide says **"API Monitor"** — i.e. **Anypoint Monitoring**. Runtime Manager also shows some basic statistics and the **logs**.
 
 ### 2.9 Summary table
+
+*Drawing — which part of MuleSoft does each step:*
+
+```text
+Anypoint Platform                         Anypoint Studio
+  Design Center    → API spec               → Implementation
+  Runtime Manager  → Deploy                   & Development
+  API Manager      → Secure
+  API Monitoring   → Monitor
+  Runtime Manager  → Logs
+```
+
+On the lifecycle slide the instructor also noted: MuleSoft is used for **APIs and integrations** — mostly **REST APIs**; Design is done in Design Center with **RAML**; Test by the QA team uses **Postman**; every other step is in Anypoint Platform.
 
 | Step | What happens | MuleSoft tool |
 |---|---|---|
@@ -149,9 +174,13 @@ The same lifecycle is revisited in much more detail about 10–15 sessions later
 
 ### 3.1 What it is
 
+*Slide — "Point-to-Point Integration":* two applications need to be integrated. Disadvantages: the number of integrations is more; a change in one application will force you to implement the change in other applications.
+
 Before ESB architecture, organisations integrated systems by building a **direct integration for every pair** of systems that needed to communicate.
 
 ### 3.2 Conference analogy (from Day 01)
+
+*Slide diagram:* four languages — **Japanese, Spanish, French, Hindi** — need **six** pairwise translators: J↔S, J↔F, J↔H, S↔H, S↔F, H↔F. The instructor then drew a new language joining (each needing lines to every existing language), and finally the fix: **one "Translator" in the middle** connected to every language — the ESB idea.
 
 Japanese, Spanish, French and Hindi speakers need a translator for each pair. When a **German** delegate joins, new translators are needed for German↔Japanese, German↔Spanish, German↔Hindi and German↔French — four new pairings for one new person. The next new language adds five, and so on.
 
@@ -181,6 +210,8 @@ Japanese, Spanish, French and Hindi speakers need a translator for each pair. Wh
 ## 4. ESB — Enterprise Service Bus
 
 ### 4.1 Idea
+
+*Slide — "ESB (Enterprise Service Bus)":* more applications need to be integrated. Features of an ESB tool: allows **orchestration** logic · allows **transformations** (XML to JSON) · allows **enrichments** (first name, middle name and last name to full name).
 
 Like the **common translator** at the conference: all systems connect to one central mediator, which handles communication with every other system. Adding a system means connecting it once to the bus.
 
@@ -218,6 +249,8 @@ Deciding **in which sequence** systems are called, and coordinating them.
 
 **Example (Flipkart order, illustrative):**
 
+*Slide — "Flipkart (Enterprise) – Mule ESB Integration":* applications **Inventory Mgmt, CRM (Salesforce), Billing (Geneva), Delivery App, Payment (Razorpay)**. The Mule application receives the **request** and orchestrates: **Source → IM connector → SF connector → Transformation → Enrichment → P connector → B connector → D connector**, with **Error handling** around it.
+
 ```text
 Mobile app ──► MuleSoft API
                  1. SAP          — is the phone in stock?
@@ -249,7 +282,7 @@ Transformations are written in **DataWeave**.
 Another example given: receiving a date of birth and calculating **age** from it.
 
 ```text
-firstName + " " + lastName  ──►  fullName
+firstName + " " + middleName + " " + lastName  ──►  fullName   (slide example)
 dateOfBirth                 ──►  age
 ```
 
@@ -260,6 +293,8 @@ MuleSoft provides all three — **orchestration, transformation, enrichment** �
 ## 5. Monolithic Applications
 
 ### 5.1 Definition
+
+*Slide — "Monolithic Application":* collection of all business services into one application — login, password reset, user ID recover, check balance, fund transfer. *(Drawing: ICICI bank front-end (MA) → one application → back-end database.)*
 
 > **Monolithic application: a collection of all business services in one application.**
 
@@ -286,6 +321,8 @@ Each feature has its own code, but all the code is packaged and deployed as **on
 
 ### 5.3 Advantages
 
+*Slide:* simple to develop · faster to develop · easy to test · easy to deploy.
+
 - Easy to develop (one application)
 - Easy to test
 - Easy to deploy
@@ -293,6 +330,10 @@ Each feature has its own code, but all the code is packaged and deployed as **on
 Fine for small applications; problems appear at **enterprise** scale.
 
 ### 5.4 Disadvantages
+
+*Slide:* complexity increases with time · difficult to understand · slower response – huge application · deploy the entire application even for a small update – makes even other services not working · non-reliable · dependent.
+
+*Drawing:* consumer → one application (Login, Password reset, Balance check, Fund transfer, User ID recovery … n). A small issue in one feature → bug fix → **production deployment of the whole application, 1–2 hours of maintenance, during which no other service works**.
 
 **1. Complexity increases as services increase.**
 10 services become 20 in the same application; understanding the application becomes very difficult over time.
@@ -318,6 +359,8 @@ As enterprise complexity increased, a group of experts studied these problems an
 
 ### 6.1 Principles
 
+*Slide — "Microservices":* split the entire project into smaller processes · develop each business service as a separate project or application. *(Drawing: the ICICI mobile app and a new mutual-funds mobile app both using the same separate **Login** service.)*
+
 1. **Split the project into multiple smaller processes** — but **meaningful** processes, not random splits.
 2. **Develop each business service as a separate project/application.**
 
@@ -332,6 +375,8 @@ Balance-check service      Fund-transfer service
 The bank plans a new **mutual funds** app (another front-end). Because login is an independent service, the mutual funds app can **reuse** the same login service. In a monolith, login code is bundled with everything else and cannot be reused like this.
 
 ### 6.3 Advantages
+
+*Slide:* less complexity · develop faster · easy to understand · easy to manage · easy to reuse · scalable easily · reliable · independent. The instructor annotated "develop faster" with **"initial (takes more time)"**.
 
 | Advantage | Explanation |
 |---|---|
@@ -351,6 +396,8 @@ The bank plans a new **mutual funds** app (another front-end). Because login is 
 - Festive season: traffic doubles or triples — about **3 lakh** per day.
 - If the system can handle at most **1.5 lakh**, it will crash.
 
+> **Transcript vs. drawing:** the audio gives 1 lakh → 3 lakh per day; the instructor's drawing on the slide reads **"10000"** normally and **"FE 30000 / 1 day"** in the festive season (the same 3× jump), with the extra capacity added only to the busy services. The exact figures could not be reconciled; the point — scale only the services that need it — is the same.
+
 **Car analogy:** a car rated for 1,000 kg might move with 3,000 kg, but it won't last.
 
 **Scalability** = increasing servers, CPU and memory to handle more traffic.
@@ -364,6 +411,8 @@ The bank plans a new **mutual funds** app (another front-end). Because login is 
 - Without it, organisations increase resources **manually** before known events — e.g. sale days like **Big Billion Days** — and reduce them afterwards.
 
 ### 6.6 Disadvantages
+
+*Slide:* establish inter-service communication · impact of change in one service on other services · **vCore availability – Mule – 0.1 = 500 MB** (each extra application consumes vCores).
 
 | Disadvantage | Explanation |
 |---|---|
@@ -398,6 +447,10 @@ The bank plans a new **mutual funds** app (another front-end). Because login is 
 To guide how to split, MuleSoft introduced **API-Led Connectivity**: "If you implement microservices in MuleSoft this way, you will get the best results."
 
 ### 7.2 Definition
+
+*Slide — "API-Led Connectivity":* integration strategy to transfer data between applications in a methodical way through reusable and purposeful APIs · APIs are developed to play a specific role such as accessing data from source systems, combining this data in processes, or providing an experience for the end user · **best practice specified by MuleSoft** · **not mandatory**.
+
+*Slide diagram (MuleSoft's standard picture):* **Experience APIs** — innovation and digital products; **Process APIs** — agility and new value creation; **System APIs** — decentralised access to core assets (SaaS apps, mainframe, FTP/files, databases, web services, legacy systems). Ownership runs from **Central IT** (system) through **LoB Dev/IT** (process) to **App Dev** (experience), with a **C4E** (Centre for Enablement) sharing assets.
 
 > **API-Led Connectivity** is an integration strategy to transfer data between applications in a methodical way through **reusable** and **purposeful** APIs.
 
@@ -436,6 +489,8 @@ mainframe, SAP, legacy systems, REST/SOAP web services
 
 #### Experience API
 
+*Slide:* reconfigure data consumed from the **downstream** API so that it is easily consumed by the intended audience. Example – mobile app and web app.
+
 - **Exposed to the front-end** (the experience system).
 - The front-end is called the experience system because the user experiences it; the API exposed to it is the Experience API.
 - Receives the request and passes it to the Process API; returns the final response.
@@ -443,11 +498,15 @@ mainframe, SAP, legacy systems, REST/SOAP web services
 
 #### Process API
 
+*Slide:* consume data from System APIs and shape data as per the requirement. Example – **order history** (Salesforce – order management).
+
 - Contains the **business logic**: which systems to call, in what order, how to transform data, how to build the final response.
 - Consumes data from System APIs and shapes it as per the requirement.
 - May call one or many System APIs, and may call other Process APIs.
 
 #### System API
+
+*Slide:* reusable system calls · consume data from the system and pass it to the **upstream** API · examples of systems: Salesforce, databases, FTP, web services.
 
 - **Connects to one system** and gets or sends data. No business logic.
 - MuleSoft definition: reusable system calls that consume data from systems and pass it to the **upstream** API.
@@ -477,6 +536,16 @@ Desktop app ─► Desktop Experience API ┘                ──► System AP
 Why separate Experience APIs? Different experience systems may need different **security**, different **amount of data**, or a different **response structure**.
 
 ### 7.6 Example — Flipkart order history
+
+*Slide diagram — "Implementation of microservices using API-led connectivity" (Flipkart, MA = mobile app, WA = web app):*
+
+```text
+Experience:  Mobile API                Web app API
+Process:     Shipment status   Order status   Customers   Order history
+System:      Toll shipments  UPS shipments  SAP customers  Salesforce customers  Orders
+```
+
+**Customers** (process) uses **SAP customers** and **Salesforce customers**; **Order history** uses Customers and **Orders**; **Shipment status** uses **Toll** and **UPS** shipments. The instructor drew a red line straight from the **Mobile API to Toll shipments** to show skipping the Process layer (§7.7).
 
 **Illustrative example:** a user who has used Flipkart for a year opens **order history** in the mobile app.
 
@@ -527,6 +596,8 @@ Internal communication happens inside the enterprise network, but **security is 
 
 ### 7.9 Advantages of API-Led Connectivity
 
+*Slide:* reusability · scalability · time to market is faster in the long run · easy to manage · any change in one layer, no changes required in other layers.
+
 | Advantage | Explanation |
 |---|---|
 | Reusability | Process and System APIs reused by many Experience APIs |
@@ -541,6 +612,8 @@ Internal communication happens inside the enterprise network, but **security is 
 - If the System API's **response structure** changes → every API that consumes it (e.g. Order History and Order Status Process APIs) must change.
 
 ### 7.10 Disadvantages
+
+*Slide:* instead of one API we are developing more APIs, so it takes more time in the initial phase · more APIs – more vCores purchase – increases cost.
 
 - More APIs → **more initial development time**.
 - More APIs → **more memory and CPU** → higher cost.
