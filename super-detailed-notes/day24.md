@@ -1,5 +1,7 @@
 # Day 24 — RAML Best Practices: Externalising Examples and Data Types
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 9 Dec 2024). File names and RAML marked *screen* are read from the recording. Slide images: [slides/day24](../slides/day24/).
+
 ## 1. Overview
 
 The specification from Day 23 works but is ~300 lines in one file with no best practices. Today:
@@ -32,10 +34,21 @@ The specification from Day 23 works but is ~300 lines in one file with no best p
 In Design Center: **+ → New folder**.
 
 ```text
-examples/
+examples/                      (screen)
+├── errorResponses/
+│   ├── 400ErrorResponseExample.json
+│   └── 500ErrorResponseExample.json
 ├── requests/
-├── responses/
-└── error-responses/
+│   ├── patchRequestExample.json
+│   └── postRequestExample.json
+└── responses/
+    ├── patchResponseExample.json
+    └── postResponseExample.json
+dataTypes/
+├── errorResponses/
+├── requests/
+│   └── postRequestDataType.raml
+└── responses/
 ```
 
 Subfolders aren't mandatory, but with many resources (e.g., 25) separate folders make files easy to find.
@@ -43,15 +56,15 @@ Subfolders aren't mandatory, but with many resources (e.g., 25) separate folders
 ### 3.2 Moving an example out
 
 1. In the main file, select the POST request example → **Ctrl+X**.
-2. In `examples/requests` → **New file → Other** → name e.g. `post-request-example.json` → paste → right-click → **Format**.
+2. In `examples/requests` → **New file → Other** → name e.g. `postRequestExample.json` → paste → right-click → **Format**.
 3. On the file, click **⋮ → Copy path**.
 4. In the main file:
 
 ```raml
-        example: !include examples/requests/post-request-example.json
+        example: !include examples/requests/postRequestExample.json
 ```
 
-`!include` pulls the file's content in at that place. The example is still validated against the type — e.g., `employeeSalary` as a string gave "should be number".
+`!include` pulls the file's content in at that place. The example is still validated against the type — e.g., `empSalary` as a string gave "should be number".
 
 ### 3.3 Responses and error responses
 
@@ -62,15 +75,15 @@ Same steps:
         201:
           body:
             application/json:
-              example: !include examples/responses/post-response-example.json
+              example: !include examples/responses/postResponseExample.json
         400:
           body:
             application/json:
-              example: !include examples/error-responses/400-error-example.json
+              example: !include examples/errorResponses/400ErrorResponseExample.json
         500:
           body:
             application/json:
-              example: !include examples/error-responses/500-error-example.json
+              example: !include examples/errorResponses/500ErrorResponseExample.json
 ```
 
 - **Duplicate** an existing file (e.g. 400 → 500) and edit it instead of creating from scratch.
@@ -96,17 +109,17 @@ That's why custom data types are defined from built-in types (string, number, bo
 ### 4.2 Folder
 
 ```text
-data-types/
+dataTypes/          (screen)
+├── errorResponses/
 ├── requests/
-├── responses/
-└── error-responses/
+└── responses/
 ```
 
 (Subfolders optional.)
 
 ### 4.3 Creating a data type file
 
-1. `data-types/requests` → **New file** → type **RAML data type** → e.g. `post-request-data-type.raml`. The first line is the fragment header.
+1. `dataTypes/requests` → **New file** → type **RAML data type** → e.g. `postRequestDataType.raml`. The first line is the fragment header.
 2. Cut `type: object … properties …` from the main file (Ctrl+X), paste it into the new file.
 3. Fix indentation: select the lines → **Shift+Tab** (backward indentation) until aligned. (Tab = forward.)
 
@@ -115,14 +128,20 @@ data-types/
 type: object
 additionalProperties: false
 properties:
-  employeeId: string
-  employeeName: string
-  employeeSalary: number
-  employeeDesignation: string
-  active: boolean
+  empName:
+    description: this field defines the name of an employee
+    type: string
+    required: true
+    example: "mahesh"
+  empId:
+    description: this field defines the id of an employee
+    type: number
+    required: true
+    example: 1000
+  ...
 ```
 
-(Representative.)
+(*Screen:* `dataTypes/requests/postRequestDataType.raml`. Pasting without fixing indentation first gave "Syntax error in the following text: ' properties: …'".)
 
 ### 4.4 Declaring and using it — different from examples
 
@@ -130,28 +149,27 @@ Examples are placed directly with `!include`. Data types are first **declared un
 
 ```raml
 #%RAML 1.0
-title: hr-employees-sapi
+title: hr-employees-sapi-7303
+...
 types:
-  addRequestDataType:   !include data-types/requests/post-request-data-type.raml
-  addResponseDataType:  !include data-types/responses/post-response-data-type.raml
-  errorResponseDataType: !include data-types/error-responses/error-response-data-type.raml
+  postRequestDataType: !include /dataTypes/requests/postRequestDataType.raml
 
 /employees:
-  /add:
-    post:
-      body:
-        application/json:
-          type: addRequestDataType
-          example: !include examples/requests/post-request-example.json
-      responses:
-        201:
-          body:
-            application/json:
-              type: addResponseDataType
-              example: !include examples/responses/post-response-example.json
+  post:
+    description: This endpoint will help to create a new employee in HR databse
+    headers: ...
+    body:
+      application/json:
+        type: postRequestDataType
+        example: !include /examples/requests/postRequestExample.json
+    responses:
+      201:
+        body:
+          application/json:
+            example: !include /examples/responses/postResponseExample.json
 ```
 
-(Alias names representative; the class used names like "add request data type".)
+(*Screen* for the `types` line and the resource; the response data types were added the same way. A reference project from an earlier batch used aliases like `addRequestDataType`.)
 
 - Declare `types` at the top of the root file.
 - If a referenced type doesn't exist, the editor shows an error and suggests existing type names.
@@ -232,10 +250,10 @@ Headers repeat in every method. RAML has **traits** for that: define headers onc
 Split it into folders and files — examples (JSON), data types (RAML DataType files), traits — and reference them from the root file.
 
 ### Q2. How do you reference an external example?
-`example: !include examples/requests/post-request-example.json`.
+`example: !include examples/requests/postRequestExample.json`.
 
 ### Q3. How do you reference an external data type?
-Declare it under `types:` with an alias (`MyType: !include data-types/....raml`), then use `type: MyType`.
+Declare it under `types:` with an alias (`MyType: !include /dataTypes/....raml`), then use `type: MyType`.
 
 ### Q4. What's the difference between an example and a data type?
 An example shows sample values; a data type defines structure and constraints and is used to validate.
@@ -251,7 +269,7 @@ Repeated items such as headers (traits), error response types, and common object
 ## 11. Must Remember
 
 1. Best practices → **readability + modularity**.
-2. Folders: `examples/` and `data-types/`, each with requests/responses/error-responses.
+2. Folders: `examples/` and `dataTypes/`, each with `requests`, `responses`, `errorResponses`.
 3. Examples: JSON files + **`!include`** (use Copy path).
 4. Data types: `#%RAML 1.0 DataType` files → declare under **`types:`** with an alias → use **`type: alias`**.
 5. Data types validate structure; examples are just sample values.

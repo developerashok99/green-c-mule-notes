@@ -2,6 +2,8 @@
 
 > **Watch alongside:** this is where a 300-line, hard-to-navigate RAML file becomes a genuinely maintainable, modular structure — the mechanics here (examples vs. data types using different reference syntax) are worth building yourself, not just reading about.
 
+> **Video-verified:** folder and file names (`examples/…`, `dataTypes/…`, `postRequestDataType`) match the class recording (9 Dec 2024). Slide images: [slides/day24](../slides/day24/).
+
 ---
 
 ## 1. The Core Problem and the Two Different Fixes
@@ -21,14 +23,14 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    Main["Main RAML file"] -->|"body → example:<br/>!include examples/requests/post-request-example.json"| File["post-request-example.json<br/>(plain JSON, illustrative only)"]
+    Main["Main RAML file"] -->|"body → example:<br/>!include examples/requests/postRequestExample.json"| File["postRequestExample.json<br/>(plain JSON, illustrative only)"]
 ```
 
 ```
 examples/
-├── requests/post-request-example.json
+├── requests/postRequestExample.json
 ├── responses/post-response-example.json
-└── error-responses/{400,500}-error-example.json
+└── errorResponses/{400,500}-error-example.json
 ```
 
 Reference obtained via **right-click → Copy Path** (avoiding manual typing errors) — then wired in with `!include`.
@@ -39,7 +41,7 @@ Reference obtained via **right-click → Copy Path** (avoiding manual typing err
 
 ```mermaid
 flowchart LR
-    Main["Main RAML file"] -->|"1. types: PostRequestDataType:<br/>!include data-types/requests/post-request-datatype.raml"| Import["Data type IMPORTED,<br/>given an alias"]
+    Main["Main RAML file"] -->|"1. types: PostRequestDataType:<br/>!include dataTypes/requests/post-request-datatype.raml"| Import["Data type IMPORTED,<br/>given an alias"]
     Main -->|"2. body → type: PostRequestDataType"| Apply["Data type APPLIED<br/>to a specific field/body"]
 ```
 
