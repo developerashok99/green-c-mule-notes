@@ -8,5 +8,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 04 — API Lifecycle, Point-to-Point vs ESB, Monolithic vs Microservices, API-Led Connectivity | [day04](day04/) | 28 |
 | Day 05 — First Mule App: Listener, Database Select, Transform, Debugging | [day05](day05/) | 14 |
 | Day 06 — HTTP/HTTPS, Methods, Request Parts, Status Codes, JSON | [day06](day06/) | 23 |
+| Day 07 — Mule Event (Payload, Attributes, Variables), Anypoint Platform Tour | [day07](day07/) | 24 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.

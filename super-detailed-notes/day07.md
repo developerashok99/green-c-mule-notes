@@ -1,5 +1,7 @@
 # Day 07 — The Mule Event (Payload, Attributes, Variables) and Anypoint Platform Setup
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 7 Nov 2024). Slide text, drawings and Studio/Postman/Anypoint screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day07](../slides/day07/).
+
 ## 1. Overview
 
 Day 06 covered the HTTP request from the outside. This session follows the request **inside** the Mule application.
@@ -36,7 +38,11 @@ Next processor (Logger, Database, …) ──► … ──► end of flow
 
 The Mule application does not work with the raw HTTP request directly. The Listener converts it into MuleSoft's internal structure — the **Mule event** — and passes it on.
 
+*Drawing:* (JSON) HTTP Req → [MS] API ↔ DB, (JSON) Res back; below it, **HTTP listener → Mule message event**.
+
 ### 2.2 What is a Mule event?
+
+*Slide* — **Mule Event:** Mule Event contains the core information processed by Mule Runtime · It travels through components inside Mule application following the logic configured · A Mule Event consists of three components – payload, attributes and variables.
 
 > The **Mule event** contains the core information processed by the Mule runtime.
 
@@ -59,6 +65,8 @@ Mule event
 
 This is a common **certification and interview question**.
 
+*Slide* — **Transformation of HTTP Request to Mule 4 Event:** HTTP Request (HTTP Method, URL, Headers; Body) → Mule 4 event (Message: Payload (includes attachments), Attributes; Variables; Exception message). Arrows were drawn in class from **Body → Payload** and from **Method/URL/Headers → Attributes**.
+
 ### 2.4 How HTTP parts map into the Mule event
 
 | HTTP request | Mule event |
@@ -67,7 +75,7 @@ This is a common **certification and interview question**.
 | **Query params, URI params, headers** (and method, path, etc.) | **attributes** |
 | Nothing from outside | **variables** — start **empty**; created only inside the flow |
 
-Day 05 example: the employee ID was sent in the **body**, so it was read as `payload.EMPID`.
+Day 05 example: the employee ID was sent in the **body** (`{"empid": 120}`), so it was read as `payload.empid`.
 
 ---
 
@@ -77,7 +85,7 @@ Day 05 example: the employee ID was sent in the **body**, so it was read as `pay
 
 - Breakpoint on the first component after the Listener.
 - **Debug** the project (right-click on white space → Debug). Studio warned "errors exist in the project" — continue.
-- Request from Postman: a JSON body, URL, method, authorization, **one query parameter**, **no headers** set explicitly.
+- Request from Postman (*screen*): GET `http://localhost:8081/empdetails?empid=123`, JSON body `{"empid": 120}`, **one query parameter** (`empid=123`), **no headers** set explicitly.
 
 ### 3.2 What the Mule Debugger showed
 
@@ -100,6 +108,44 @@ The **Mule Debugger** view shows three entries: **Attributes, Payload, Vars**.
 
 The important parts for development are **headers, query params and URI params**.
 
+*Screen* — the attributes as pasted into Notepad++:
+
+```text
+org.mule.extension.http.api.HttpRequestAttributes
+{
+   Request path=/empdetails
+   Raw request path=/empdetails
+   Method=GET
+   Listener path=/empdetails
+   Local Address=/127.0.0.1:8081
+   Query String=empid=123
+   Relative Path=/empdetails
+   Masked Request Path=null
+   Remote Address=/127.0.0.1:63610
+   Request Uri=/empdetails?empid=123
+   Raw request Uri=/empdetails?empid=123
+   Scheme=http
+   Version=HTTP/1.1
+   Headers=[
+      content-type=application/json
+      user-agent=PostmanRuntime/7.42.0
+      accept=*/*
+      cache-control=no-cache
+      postman-token=…
+      host=localhost:8081
+      accept-encoding=gzip, deflate, br
+      connection=keep-alive
+      content-length=22
+   ]
+   Query Parameters=[
+      empid=123
+   ]
+   URI Parameters=[]
+}
+```
+
+Evaluating `attributes.headers` in the debugger listed the same 9 entries (`size = 9`); Postman's own Headers tab showed them as auto-generated.
+
 ---
 
 ## 4. Reading Values — DataWeave Expressions
@@ -113,20 +159,20 @@ In the Mule Debugger, the **x+y** (evaluate expression) button runs a DataWeave 
 | What | Expression |
 |---|---|
 | Whole payload | `payload` |
-| Field in the payload | `payload.EMPID` |
+| Field in the payload | `payload.empid` |
 | All query params | `attributes.queryParams` |
-| One query param | `attributes.queryParams.EMPID` |
+| One query param | `attributes.queryParams.empid` |
 | URI params | `attributes.uriParams` (or `attributes.uriParams.id`) |
 | All headers | `attributes.headers` |
 | One header | `attributes.headers.'content-type'` |
-| A variable | `vars.employeeId` |
+| A variable | `vars.employeeID` |
 
 ### 4.3 Case sensitivity — demonstrated mistakes
 
-- `Payload.EMPID` (capital P) → **doesn't work**. The keyword is `payload` in lower case.
+- `Payload.empid` (capital P) → **doesn't work**. The keyword is `payload` in lower case.
 - `queryParams` → lower-case **q**, upper-case **P**. A typo (missing letter) returned nothing.
 - Header names: `attributes.headers.'Content-Type'` returned nothing; the header key is stored in **lower case** (`content-type`). Header names containing `-` must be written in quotes.
-- Variable/parameter names are case-sensitive too — `vars.employeeID` ≠ `vars.employeeId`.
+- Variable/parameter names are case-sensitive too — the class variable was `employeeID`, so `vars.employeeId` would not find it.
 
 ---
 
@@ -139,9 +185,11 @@ Stepping past the **Database Select** in the debugger:
 ```text
 Before DB Select                    After DB Select
 payload    = request body           payload    = database result (Java) ← overwritten
-attributes = headers, queryParams…  attributes = cleared / replaced     ← lost
+attributes = headers, queryParams…  attributes = null                  ← lost
 vars       = (whatever was set)     vars       = unchanged              ← safe
 ```
+
+*Screen:* at the Logger after the Select, the debugger showed `attributes = null`, `payload = {CaseInsensitiveHashMap} size = 1` (the DB row), and `vars` still holding `employeeID = "123"`.
 
 > When a component connects to an external system (database, HTTP request, etc.), **payload and attributes can be overwritten**.
 
@@ -168,31 +216,31 @@ A student asked: before or after the Select? **Before** — the attributes are s
 ```text
 HTTP Listener
    ▼
-Set Variable   name = employeeId
-               value = attributes.queryParams.EMPID      (expression mode, fx)
+Set Variable   name = employeeID
+               value = attributes.queryParams.empid      (expression mode, fx)
    ▼
 Logger
    ▼
 Database Select     (payload and attributes overwritten)
    ▼
-Transform Message   (can still use vars.employeeId)
+Transform Message   (can still use vars.employeeID)
 ```
 
 ### 6.2 Configuration
 
-- **Name:** `employeeId`
-- **Value:** click **fx** (expression mode — enables DataWeave) and write the expression reading the query param. The key name must match exactly what was sent (case-sensitive). (The query-param key is spoken both as "EMPID" and "employee ID"; the names in the diagram above are representative.)
+- **Name:** `employeeID` (*screen*)
+- **Value:** click **fx** (expression mode — enables DataWeave) and write the expression reading the query param. The key name must match exactly what was sent (case-sensitive). *Screen:* the flow became Listener → Logger → **Set Variable** → Select → Logger → Transform Message → Logger, with Value `#[ attributes.queryParams.empid ]`. (The audio says "EMPID"; the Postman key was `empid`.)
 
 ### 6.3 Result
 
 - Saving (Ctrl+S) rebuilds and redeploys automatically.
-- Sent the request again. **Vars** changed from 0 to **1**: `employeeId = 123`.
+- Sent the request again. **Vars** changed from 0 to **1**: `employeeID = "123"` (*screen* — a string, because query parameters always arrive as text).
 - The variable's media type showed **Java** (`application/java`) because no output format was declared. That is fine — it is a single value used internally, not sent to the consumer. Declaring `output application/json` would store it as JSON.
 - After the Database Select, payload and attributes changed, but **the variable was still there**, all the way to the end.
 
 ### 6.4 Accessing and lifetime
 
-- Syntax: `vars.<variableName>` → `vars.employeeId`
+- Syntax: `vars.<variableName>` → `vars.employeeID`
 - Lifetime: until the end of the flow (more precisely, the Mule event), unless removed with **Remove Variable** or overwritten by setting it again.
 
 ---
@@ -262,19 +310,21 @@ Postman ◄──HTTP response── HTTP Listener ◄──Mule event── Log
 
 The response was an **array containing an object** — the database returns a list of rows. Why the Select returns an array is explained in the database sessions.
 
+*Screen* (Postman, 200 OK):
+
 ```json
 [
   {
-    "employeeId": 120,
-    "employeeName": "Ravi",
-    "employeeDesignation": "Software Engineer",
-    "employeeSalary": 80000,
-    "employeeStatus": "working"
+    "emp_salary": 80000.0,
+    "emp_status": "true",
+    "emp_name": "ravi",
+    "emp_designation": "software engineer",
+    "emp_id": 120
   }
 ]
 ```
 
-(Field names representative.) The fields could be renamed through transformation (e.g. `empSalary`, `empStatus`); that is done later.
+The keys are the table's column names. The fields could be renamed through transformation (e.g. `empSalary`, `empStatus`); that is done later.
 
 ### 8.3 Questions
 
@@ -293,6 +343,8 @@ That belongs to API security. 8–10 policies will be covered later, including o
 ---
 
 ## 9. Anypoint Platform Account
+
+*Slide* — **Agenda for today** (second part): Anypoint Platform and Anypoint Studio overview · Download & Install Anypoint Studio · Download & Install Postman · Q&A session. *Drawing:* MuleSoft → Anypoint Platform; Anypoint Studio → IDE.
 
 1. Go to Anypoint Platform → **Sign up**.
 2. Fill in first name, last name, email (Gmail is fine), job title (e.g., software engineer), country, state, company name (any), number of employees, username and password. Phone and industry are optional.
@@ -318,6 +370,10 @@ Notes:
 - The instructor uses version **7.12**; a newer version (e.g. 7.17) is fine — differences are mostly Java/performance related.
 - Older versions required installing Java and Maven separately. Current versions have them **embedded** — just download, unzip and run.
 
+*Screen:* Studio's project tree showed **Mule Server 4.4.0 EE**, **JRE System Library [JDK 8 (Embedded)]** and **HTTP [v1.6.0]**.
+
+*Slide* — **Anypoint Studio:** It is a user-friendly IDE( Integrated Development Environment) used for implementing and testing Mule applications. *Drawing:* MuleSoft → APIs & Integrations.
+
 **Anypoint Studio** is a user-friendly integrated development environment used for implementing and testing Mule applications. Developers spend most of their time here.
 
 ---
@@ -331,6 +387,8 @@ Notes:
 | Architect / Lead | Requires many years of experience |
 | MuleSoft tester | A few roles; MuleSoft apps can also be tested by general API testers |
 | Business Analyst | Generic role; gathers requirements |
+
+*Drawing* (on the Anypoint Monitoring slide): "MuleSoft developer / Mule ESB developer"; MuleSoft → API & integrations, RPA, Composer, Databases(?); Studio → 7.x; Mule → **4.x** and 3.x. A **3.x app → Mule Migration Agent → 4.x** converts about **60–70%** automatically; the rest is manual.
 
 ---
 
@@ -352,6 +410,8 @@ A newer IDE introduced recently. **Instructor's view:** it still needs more capa
 - resources and methods
 - security
 
+*Slide* — **Design Center:** Design API specifications using RAML(0.8 or 1.0) or OAS(2.0 or 3.0) · RAML – RESTful API Modelling Language · OAS – Open API Specification. *Drawing:* Design Center (APP) → supports RAML & OAS; 1.0 circled; OAS marked ✗ for this course, with "(Swagger)".
+
 **Language:** **RAML** (RESTful API Modeling Language). Versions **0.8** (old) and **1.0**.
 
 **Alternative:** **OAS** (OpenAPI Specification), formerly called **Swagger**. Design Center supports it too. Non-Mule projects (e.g. Spring Boot) mostly use OAS; MuleSoft projects mostly use RAML.
@@ -370,6 +430,8 @@ Opening it: **Start designing** on the home page, or the menu (☰) → **Design
 - Exchange shows both **MuleSoft-provided assets** and **your organisation's assets** (the company name given at sign-up).
 - Opening it: **Discover and share** on the home page, or menu → **Exchange**.
 
+*Slide* — **Anypoint Exchange:** Central repository to share Mulesoft resources such as API specifications, Connectors, Templates, Examples etc. within or outside organization. *Screen:* **All assets** listed MuleSoft connectors (Salesforce, Slack, HTTP, Database, Workday…); the organisation's own root showed two API specs.
+
 ### 12.4 Runtime Manager
 
 > Used to **deploy and manage applications** from one central location.
@@ -379,6 +441,10 @@ Opening it: **Start designing** on the home page, or the menu (☰) → **Design
 - Operations: **deploy, start, stop, restart**, view **logs**, basic statistics.
 - Manages apps running on cloud, hybrid and on-premises.
 
+*Slide* — **Runtime Manager:** It is used to deploy and manage all your applications from one central location, whether your apps are running on cloud or on-premises (edited live to "cloud or hybrid").
+
+*Screen* — **Deploy Application** (Sandbox): application name, Deployment Target **Shared Space (CloudHub 2.0)**, Application File (choose JAR); Runtime tab — Release Channel **Edge**, Runtime Version **4.8.1:6e**, Java Version **Java 8** / Java 17, Replica Count **1**, Replica size **0.1 vCores**, Deployment model **Rolling update**. The Applications list showed apps on CloudHub with runtime 4.8.0.
+
 ### 12.5 API Manager
 
 Manages APIs (that reside in Exchange):
@@ -387,9 +453,13 @@ Manages APIs (that reside in Exchange):
 - **alerts** for failures,
 - **SLAs** (Service Level Agreements).
 
+*Slide* — **API Manager:** It helps to manage APIs that reside in Exchange · Manage policies, alerts, clients, SLAs. *Screen:* an API's **Policies** page (Automated policies; API-level policies → Add policy).
+
 **SLA example (Netflix/Prime analogy):** a free tier can send up to 1,000 requests per day; a premium tier up to 10,000. API Manager lets you treat the two groups differently.
 
 ### 12.6 Anypoint Monitoring
+
+*Slide:* Monitor the performance of APIs such as CPU usage, Memory usage etc. *Screen:* Monitoring → "Using built-in dashboards" (choose environment and resource).
 
 Monitors memory usage, CPU, performance, requests and responses. Runtime Manager shows minimal monitoring; Anypoint Monitoring gives more detail through dashboards (select the API and environment).
 
@@ -427,6 +497,15 @@ New Mule project (e.g. hello-world)
 ```
 
 Send a request from Postman → response "Hello World".
+
+*Screen* — the instructor built it at the end of class: project **hello-world-demo-app**, flow `hello-world-demo-appFlow` = Listener (`HTTP_Listener_config`, path **`/helloworld`**) → Set Payload → Logger. Two errors came up while switching apps:
+
+| Postman result | Cause |
+|---|---|
+| **404 Not Found** — `No listener for endpoint: /helloworld` | The old `db-select-demo` app was still the one running on 8081 |
+| `Error: connect ECONNREFUSED 127.0.0.1:8081` | Sent while the runtime was restarting — nothing listening on 8081 yet |
+
+After redeploying, the console showed `hello-world-demo-app … DEPLOYED`.
 
 Then practise:
 

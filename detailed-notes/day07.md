@@ -2,6 +2,8 @@
 
 > **Watch alongside:** this is arguably the single most important mental model in the entire course. Nearly every confusing bug a beginner hits ("why did my data disappear?") traces back to not understanding this session. Take it slowly.
 
+> **Video-verified:** the Postman request, debugger values, Set Variable config, slide wording and Anypoint screens below were read from the class recording (7 Nov 2024). Slide images: [slides/day07](../slides/day07/).
+
 ---
 
 ## 1. From HTTP Request to Mule Event
@@ -57,23 +59,32 @@ sequenceDiagram
     participant Listener as HTTP Listener
     participant DB as Database Select
 
-    HTTP->>Listener: body={}, headers={...}, queryParams={employeeId: 120}
+    HTTP->>Listener: body={empid: 120}, 9 headers, queryParams={empid: 123}
     Listener->>Listener: Converts to Mule Event
-    Note over Listener: payload = {} (whatever was in body)<br/>attributes = {headers, queryParams: {employeeId:120}, uriParams}<br/>variables = {} (empty)
+    Note over Listener: payload = {empid: 120} (the body)<br/>attributes = {headers, queryParams: {empid: 123}, uriParams: []}<br/>variables = {} (size 0)
     Listener->>DB: passes Mule Event forward
     DB->>DB: Runs SELECT query, gets result
-    Note over DB: payload = DB RESULT (overwritten!)<br/>attributes = {} (CLEARED!)<br/>variables = {} (still empty, untouched)
+    Note over DB: payload = DB RESULT (overwritten!)<br/>attributes = null (CLEARED!)<br/>variables = {} (still empty, untouched)
 ```
 
-**The consequence:** by the time you're past the Database component, the original `employeeId` you read from `attributes.queryParams` is **gone** — unless you explicitly saved it somewhere safe *before* the Database component ran.
+**The consequence:** by the time you're past the Database component, the original `empid` you read from `attributes.queryParams` is **gone** — unless you explicitly saved it somewhere safe *before* the Database component ran.
 
 ### Why `variables` exist — the entire reason for their design
 ```mermaid
 flowchart TB
-    Start["Incoming request:<br/>attributes.queryParams.employeeId = 120"] --> Save["Set Variable:<br/>vars.employeeId = attributes.queryParams.employeeId"]
+    Start["Incoming request:<br/>attributes.queryParams.empid = 123"] --> Save["Set Variable:<br/>vars.employeeID = attributes.queryParams.empid"]
     Save --> DBCall["Database Select runs<br/>(wipes payload & attributes)"]
-    DBCall --> Later["Later in the flow:<br/>vars.employeeId still = 120 ✅<br/>(survived the overwrite)"]
+    DBCall --> Later["Later in the flow:<br/>vars.employeeID still = 123 ✅<br/>(survived the overwrite)"]
 ```
+
+What the debugger actually showed (*screen*):
+
+| Point in the flow | payload | attributes | vars |
+|---|---|---|---|
+| Logger right after the Listener | the body `{"empid": 120}` | `HttpRequestAttributes` — method GET, requestPath `/empdetails`, queryString `empid=123`, queryParams `{empid: 123}`, uriParams `[]`, **9 headers** (content-type, user-agent `PostmanRuntime/7.42.0`, accept, cache-control, postman-token, host `localhost:8081`, accept-encoding, connection, content-length `22`) | size 0 |
+| Logger after the Select (with Set Variable added) | the DB row (`CaseInsensitiveHashMap`) | **null** | `employeeID = "123"` (application/java) |
+
+Note `"123"` is a **string** — query parameters always arrive as text.
 
 > 🧠 **The rule to internalize:** if you'll need a piece of data *after* a component that produces its own output (Database, HTTP Request, any connector call), **save it to a variable first.** Variables are Mule's answer to "how do I keep something around across an overwrite?"
 
@@ -91,11 +102,11 @@ flowchart LR
 | What | Syntax | Common mistake |
 |---|---|---|
 | The payload itself | `payload` | Typing `Payload` (capital P) — MuleSoft requires exact lowercase |
-| A specific field in the payload | `payload.employeeId` | Wrong casing on the field name |
-| A query parameter | `attributes.queryParams.employeeId` | Typing `queryparam` instead of `queryParams` (exact casing) |
+| A specific field in the payload | `payload.empid` | Wrong casing on the field name |
+| A query parameter | `attributes.queryParams.empid` | Typing `queryparam` instead of `queryParams` (exact casing) |
 | A URI parameter | `attributes.uriParams.employeeId` | Same casing trap |
 | A header | `attributes.headers.'content-type'` | Forgetting headers often need quoting due to hyphens |
-| A variable | `vars.employeeId` | Forgetting the `vars.` prefix entirely |
+| A variable | `vars.employeeID` | Forgetting the `vars.` prefix entirely |
 
 **How to practice this safely:** use the **Mule Debugger's "x+y" (evaluate expression)** button while stepped into a breakpoint — type any expression and it evaluates live against the *actual* current state of the Mule Event, which is the fastest way to learn the exact syntax without guessing blind.
 
@@ -121,9 +132,9 @@ flowchart TB
 ### Concrete demonstrated pattern: preserving a query param before a DB call
 ```mermaid
 flowchart LR
-    L[Listener] --> SV2["Set Variable:<br/>name = employeeIdVar<br/>value = attributes.queryParams.employeeId"]
+    L[Listener] --> Lg[Logger] --> SV2["Set Variable:<br/>name = employeeID<br/>value = attributes.queryParams.empid"]
     SV2 --> DB2["Database Select<br/>(wipes attributes)"]
-    DB2 --> TM2["Transform Message:<br/>can still reference vars.employeeIdVar"]
+    DB2 --> Lg2[Logger] --> TM2["Transform Message:<br/>can still reference vars.employeeID"] --> Lg3[Logger]
 ```
 This is the exact fix for the overwrite problem shown in Section 2 — copy what you need into a variable *before* the component that will destroy it.
 
@@ -173,6 +184,26 @@ flowchart TB
 | **Anypoint Monitoring** | Deeper operational dashboards | Architect/Lead/Ops |
 | **Access Management / Secrets Manager** | User/role/environment administration, certificate storage | Admin/DevOps (rarely a developer's job day-to-day) |
 
+Slide wording (*slide*):
+- **Design Center** — Design API specifications using RAML(0.8 or 1.0) or OAS(2.0 or 3.0); RAML – RESTful API Modelling Language; OAS – Open API Specification (drawn: "Swagger").
+- **Anypoint Exchange** — Central repository to share Mulesoft resources such as API specifications, Connectors, Templates, Examples etc. within or outside organization.
+- **API Manager** — It helps to manage APIs that reside in Exchange; Manage policies, alerts, clients, SLAs.
+- **Runtime Manager** — It is used to deploy and manage all your applications from one central location, whether your apps are running on cloud or on-premises (edited live to "hybrid").
+- **Anypoint Monitoring** — Monitor the performance of APIs such as CPU usage, Memory usage etc.
+
+**Runtime Manager → Deploy Application** as shown on screen (CloudHub 2.0):
+
+| Setting | Value shown |
+|---|---|
+| Deployment Target | Shared Space (CloudHub 2.0) |
+| Application File | the app's JAR |
+| Release Channel / Runtime Version | Edge / 4.8.1:6e |
+| Java Version | Java 8 (Java 17 optional) |
+| Replicas | 1 × 0.1 vCores |
+| Deployment model | Rolling update |
+
+> Drawn on the Monitoring slide: **Mule 3.x app → Mule Migration Agent → 4.x** converts roughly 60–70% automatically; the rest is manual. Studio is 7.x; the runtime is Mule 4.x.
+
 ---
 
 ## 7. Team Roles, Revisited
@@ -186,6 +217,21 @@ flowchart LR
 ```
 
 This reinforces the Day 02 framing: the developer track is both the largest and the most accessible entry point, which is why the course (and this note series) stays squarely focused on developer-level skills.
+
+---
+
+## 8. Practice: Hello World (built at the end of class)
+
+```mermaid
+flowchart LR
+    PM[Postman<br/>GET localhost:8081/helloworld] --> L["Listener<br/>path /helloworld"] --> SP[Set Payload] --> Lg[Logger]
+```
+
+| What Postman showed | Why |
+|---|---|
+| 404 — `No listener for endpoint: /helloworld` | The previous app (`db-select-demo`) was still the one deployed on 8081 |
+| `ECONNREFUSED 127.0.0.1:8081` | Request sent while the runtime was restarting |
+| Retry once the console shows `hello-world-demo-app … DEPLOYED` | Only the running app's listeners answer |
 
 ---
 
