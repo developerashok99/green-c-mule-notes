@@ -16,5 +16,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 12 — Consume REST Service: Transform, Target Variable, Response Timeout | [day12](day12/) | 15 |
 | Day 13 — Response Timeout, Response Validator, Reconnection Strategy, Target Variable | [day13](day13/) | 13 |
 | Day 14 — Property Files per Environment and Secure Properties | [day14](day14/) | 11 |
+| Day 15 — Error Handling: Error Object, On Error Propagate, Listener Error Response | [day15](day15/) | 14 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
