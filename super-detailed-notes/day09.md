@@ -1,5 +1,7 @@
 # Day 09 — Anypoint Studio Tour: Layout, Menus, Project Operations and Workspaces
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 13 Nov 2024). Dialog text, paths and versions marked *screen* are read from the recording. This session is a live Studio demo — the only slide is the agenda carried over from Day 08. Slide images: [slides/day09](../slides/day09/).
+
 ## 1. Overview
 
 A practical tour of Anypoint Studio — the options a developer uses every day.
@@ -106,7 +108,7 @@ Right-click the project you want → **Close Unrelated Projects** → all **othe
 
 ### 3.6 Delete — the "contents on disk" trap
 
-Right-click → **Delete** shows a checkbox: **Delete project contents on disk (cannot be undone)**.
+Right-click → **Delete** opens *Delete Resources* (*screen*): "Remove project 'dummy' from the workspace?", a checkbox **Delete project contents on disk (cannot be undone)**, and "Project location: D:\WS APS\dummy".
 
 ```text
 Delete WITHOUT the checkbox   → removed from Studio only
@@ -116,7 +118,7 @@ Delete WITH the checkbox      → removed from Studio AND from the workspace
 
 **Demonstration:**
 
-1. Created a project `dummy`. Right-click → **Show In → System Explorer** showed its folder in the workspace (`D:\WSAPS…`).
+1. Created a project `dummy`. Right-click → **Show In → System Explorer** showed its folder in the workspace (`D:\WS APS\dummy`).
 2. Deleted it **without** the checkbox → gone from Studio, but the folder was still in the workspace after refreshing.
 3. Tried to create a new project named `dummy` → error: **a folder named dummy already exists under the specified project location**.
 4. Fix: delete the leftover folder manually from the workspace, then the new project could be created.
@@ -143,7 +145,17 @@ Project code is in XML files — human-readable. To deploy, the project is packa
 3. Next → keep defaults → choose the output location.
 4. **Finish** → "Project exported successfully at <location>".
 
-The instructor exported the **ActiveMQ demo** project; the JAR appeared under `C:\Users\<user>\`.
+*Screen* — the **Export Mule Project** dialog ("Export a Mule project as a deployable archive"):
+
+| Field | Value |
+|---|---|
+| JAR file | `C:\Users\<user>\activemq-demo` |
+| Attach project sources | ✔ |
+| Only export project sources | ☐ |
+| Include project modules and dependencies | ✔ |
+| Note | "A lightweight package generated without modules and dependencies won't be deployable to CloudHub but can be imported into Studio." |
+
+The instructor exported the **activemq-demo** project; `activemq-demo.jar` appeared under `C:\Users\<user>\`.
 
 Share it through a common location (Teams, SharePoint, a shared drive) so the colleague can download it.
 
@@ -151,7 +163,7 @@ Share it through a common location (Teams, SharePoint, a shared drive) so the co
 
 1. **File → Import**.
 2. Expand **Anypoint Studio** → choose **Packaged mule application (.jar)** (the JAR option).
-3. Browse to the JAR → set the project name (if a project with the same name exists, change it).
+3. Browse to the JAR → set the project name. *Screen* — **Mule Import from Deployable Archive**: with File `C:\Users\<user>\activemq-demo.jar` and Project Name `activemq-demo`, the dialog showed **"A project with name "activemq-demo" already exists in D:\WS APS. Cannot write into destination file D:\WS APS\activemq-demo"** and Finish stayed disabled — so the name was changed.
 4. Finish → the import progresses (e.g., 41% → 100%) → the project appears in Package Explorer (here as `activemq-demo-1`).
 
 ---
@@ -222,7 +234,7 @@ Search across projects; results appear in the **Search** tab with file and line.
 
 ### 5.9 Help
 
-- **About Anypoint Studio** — shows the Studio version (instructor: **7.12.0**). The version also shows on the splash screen when Studio starts.
+- **About Anypoint Studio** — shows the Studio version (*screen*: "Anypoint Studio - Tooling for Mule Runtime, Version: **7.12.0**, Build Id: 202203291742"). The version also shows on the splash screen when Studio starts.
 - **Install New Software** — install plugins into Studio (shown later when needed).
 
 **Version reminder:** "Mule 4.x developer" refers to the **Mule runtime** version (the embedded server — 4.4 for the instructor), **not** the Studio version (7.12).
@@ -264,7 +276,7 @@ Double-clicking a tab maximises it.
 
 ### 9.1 What is a workspace?
 
-A **workspace** is the **folder where Studio creates and stores projects**. It is not a project itself. The instructor's workspace is `D:\WSAPS`. Right-click a project → **Show In → System Explorer** opens its location.
+A **workspace** is the **folder where Studio creates and stores projects**. It is not a project itself. The instructor's workspace is `D:\WS APS`. Right-click a project → **Show In → System Explorer** opens its location.
 
 ### 9.2 Why multiple workspaces?
 
@@ -273,14 +285,14 @@ A **workspace** is the **folder where Studio creates and stores projects**. It i
 
 ### 9.3 Switching — steps
 
-1. Create a new folder, e.g. `D:\workspace-dummy`.
-2. **File → Switch Workspace → Other…** → select the folder → **Launch**.
+1. Create a new folder — the instructor used `D:\WS Dummy`.
+2. **File → Switch Workspace → Other…** → the *Anypoint Studio Launcher* opens ("Select a directory as workspace — Anypoint Studio uses the workspace directory to store its preferences and development artifacts") → Workspace `D:\WS Dummy` → **Launch**.
 3. Studio restarts with the new workspace. A welcome pop-up appears → **Continue to Studio**.
 4. Package Explorer is **empty**.
 
 A fresh workspace folder contains only Studio **metadata** (e.g., `.metadata` with plugin information), no projects.
 
-**Switching back:** File → Switch Workspace → select `D:\WSAPS` → Studio restarts showing all original projects.
+**Switching back:** File → Switch Workspace → select `D:\WS APS` → Studio restarts showing all original projects.
 
 ---
 

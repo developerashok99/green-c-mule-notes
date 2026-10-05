@@ -2,6 +2,8 @@
 
 > **Watch alongside:** less conceptual, more "muscle memory" — the instructor's explicit advice is to deliberately practice every operation here once (open, close, delete, export, import, switch workspace) rather than discover them awkwardly for the first time mid-project, under time pressure, later.
 
+> **Video-verified:** dialog text, workspace paths and versions below were read from the class recording (13 Nov 2024). Slide images: [slides/day09](../slides/day09/).
+
 ---
 
 ## 1. The Studio Layout, Mapped
@@ -73,7 +75,17 @@ sequenceDiagram
 ```
 
 - A **JAR file** is the "machine-readable" form of your human-readable XML project — the same underlying concept as a deployable build artifact anywhere else in software.
-- This export/import cycle is a genuine, demonstrated way to hand a project to a colleague without a shared code repository — though in real teams this is normally superseded by **Bitbucket/Git** (covered in the April batch course's `apr26.md`/`apr27.md`, for anyone cross-referencing).
+- This export/import cycle is a genuine, demonstrated way to hand a project to a colleague without a shared code repository — though in real teams this is normally superseded by **Bitbucket/Git** (covered later in the course).
+
+What the dialogs actually showed (*screen*):
+
+| Step | Dialog | Key detail |
+|---|---|---|
+| Export | **Export Mule Project** | JAR file `C:\Users\<user>\activemq-demo`; ✔ Attach project sources; ✔ Include project modules and dependencies — "a lightweight package generated without modules and dependencies won't be deployable to CloudHub but can be imported into Studio" |
+| Import | **Mule Import from Deployable Archive** | Same name as an existing project → "A project with name "activemq-demo" already exists in D:\WS APS" and Finish is disabled → rename (it came in as `activemq-demo-1`) |
+| Delete | **Delete Resources** | "Remove project 'dummy' from the workspace?" + ☐ Delete project contents on disk (cannot be undone) — location `D:\WS APS\dummy` |
+| Switch workspace | **Anypoint Studio Launcher** | Workspace `D:\WS Dummy` → Launch |
+| Help → About | **About Anypoint Studio** | Version 7.12.0, Build Id 202203291742 |
 
 ---
 
@@ -81,11 +93,11 @@ sequenceDiagram
 
 ```mermaid
 flowchart TB
-    WS["Workspace<br/>(e.g. D:\WSAPS)"] --> P1[Project 1]
+    WS["Workspace<br/>(instructor: D:\WS APS)"] --> P1[Project 1]
     WS --> P2[Project 2]
     WS --> P3[Project 3]
 
-    WS2["Different Workspace<br/>(e.g. D:\WorkspaceDummy)"] --> Empty["Completely separate,<br/>independent project list"]
+    WS2["Different Workspace<br/>(instructor: D:\WS Dummy)"] --> Empty["Completely separate,<br/>independent project list"]
 ```
 
 - A **workspace** is just the folder where Studio physically stores every project you create/import while pointed at it — it is *not* itself a project.

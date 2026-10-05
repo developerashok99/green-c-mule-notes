@@ -10,5 +10,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 06 — HTTP/HTTPS, Methods, Request Parts, Status Codes, JSON | [day06](day06/) | 23 |
 | Day 07 — Mule Event (Payload, Attributes, Variables), Anypoint Platform Tour | [day07](day07/) | 24 |
 | Day 08 — Mule 4 Project Structure, pom.xml, Configuration XML and Flows | [day08](day08/) | 15 |
+| Day 09 — Anypoint Studio Tour: Project Operations, Export/Import, Workspaces | [day09](day09/) | 13 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
