@@ -43,5 +43,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 39 — MUnit Testing | [day39](day39/) | 27 |
 | Day 40 — MUnit — Flow Tests and Error Handler Tests | [day40](day40/) | 25 |
 | Day 41 — Consuming a SOAP Service | [day41](day41/) | 20 |
+| Day 42 — Scatter-Gather | [day42](day42/) | 26 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
