@@ -2,6 +2,9 @@
 
 > **Watch alongside:** the single idea that unlocks this whole session is that **HTTP Request connectors overwrite `attributes`** — everything about capturing headers/URI-params/query-params/correlation-ID into *variables* immediately at flow start exists solely to survive that overwrite. Once that clicks, the four different "how to create variables" methods are just style choices; the `now()`/timezone/asynchronous-logging/masking material builds logging discipline on top of that same foundation.
 
+
+> **Video-verified:** checked against the class recording (14 Dec 2024). Names below are the ones on screen: `initialize-variables-sub-flow`, Transform Message "Create Initial Variables", loggers "Before HR DB"/"After DB" with trace points `START`/`BEFORE_DB`/`AFTER_DB`. Slide images: [slides/day28](../slides/day28/).
+
 ---
 
 ## 1. The Attribute-Overwrite Problem — Why Initial Variables Exist At All
@@ -64,6 +67,8 @@ flowchart TB
     Global -.->|"contains shared settings, e.g."| Mask["masking fields (Day 29)<br/>indent setting"]
 ```
 
+> *Screen:* the project in class kept the **core Logger** with a JSON DataWeave message (`output application/json indent = false`); the JSON Logger connector was explained but not added.
+
 **Why not just use the plain built-in `Logger`?** *"We use JSON logger. Actually, there are some extra beneficial functionalities in it... it depends on the organization and depends on the integration architect."*
 
 **The reuse story ties directly back to Exchange (Day 26)**: *"if we don't have JSON Loggers, it's difficult to build custom Loggers for this particular organization... you publish them in the exchange and import them from the exchange."* Exactly the same mechanism used earlier for reusable connectors/fragments.
@@ -87,10 +92,12 @@ flowchart LR
 ```mermaid
 flowchart LR
     Info["INFO level"] -->|"prints EVERY time"| Always["Always visible in logs"]
-    Debug["DEBUG level"] -->|"prints ONLY when there is an error"| Rare["Space-efficient — silent<br/>unless something goes wrong"]
+    Debug["DEBUG level"] -->|"prints ONLY when log4j2 enables DEBUG"| Rare["Space-efficient — silent<br/>unless DEBUG is switched on"]
 ```
 
 *"If you occupy too much space, the logger will not print [everything]. It will print only when there is an error."* Explicitly deferred: *"I don't want to confuse you with the functionality... we will discuss it separately."*
+
+> **Correction:** DEBUG isn't tied to errors — a DEBUG logger prints only when its category is set to DEBUG in `log4j2.xml` (the root there is `<AsyncRoot level="INFO">`). The Logger's level dropdown on screen: INFO, DEBUG, WARN, ERROR, TRACE.
 
 ---
 
@@ -110,13 +117,34 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    Start["START logger<br/>trace point: 'start'"] --> BeforeDB["BEFORE-DB logger<br/>trace point: 'before DB'"]
-    BeforeDB --> DB[("Database call")]
-    DB --> AfterDB["AFTER-DB logger<br/>trace point: 'after DB'"]
-    AfterDB --> End["END logger<br/>trace point: 'end'"]
+    Start["START logger<br/>tracePoint: START"] --> BeforeDB["Before HR DB logger<br/>tracePoint: BEFORE_DB"]
+    BeforeDB --> DB[("DB Insert")]
+    DB --> AfterDB["After DB logger<br/>tracePoint: AFTER_DB"]
+    AfterDB --> End["END logger<br/>tracePoint: END"]
 ```
 
 **Recommended structured fields, given directly**: application name · flow name · **source** · **destination** · **transaction ID** · **member/employee ID** — built once for the start logger, then copy-pasted and adapted (swap `start time`→`end time`, `start DB time`→`end DB time`) for the rest.
+
+*Screen — the class's "Before HR DB" logger message:*
+
+```dataweave
+%dw 2.0
+output application/json indent = false
+---
+{
+  "applicationName": app.name,
+  "flowName": flow.name,
+  "source": "front-end",
+  "destination": "HR DB",
+  "transactionId": vars.headers.'transaction-id',
+  "employeeId": vars.requestPayload.empId,
+  "startDBTime": now(),
+  "tracePoint": "BEFORE_DB",
+  "message": "post employees implementation flow started"
+}
+```
+
+The After DB copy uses `"endDBTime": now()`. The reference project's start logger had `"destination": "SFDC"`, `vars.headers.'x-transaction-id'`, `memberId` and `"tracePoint": "START"`.
 
 ---
 

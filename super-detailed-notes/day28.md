@@ -1,5 +1,7 @@
 # Day 28 — Initial Variables, JSON Logger, Timing with `now()`, Asynchronous Logging and Sensitive Data
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 14 Dec 2024). Code, configuration and output marked *screen* are read from the recording. Slide images: [slides/day28](../slides/day28/).
+
 ## 1. Overview
 
 The skeleton is ready; now it's improved step by step:
@@ -35,11 +37,36 @@ The instructor puts a **Flow Reference** to an "initial variables" **sub flow** 
 ```text
 Main flow:
   HTTP Listener
-  Flow Reference → init-variables flow     (creates initial variables)
+  Flow Reference → initialize-variables-sub-flow   (creates initial variables)
   APIkit Router
 ```
 
+*Screen:* the sub flow is `initialize-variables-sub-flow` and lives in a common XML file. It holds one Transform Message, display name **"Create Initial Variables"**, with five `ee:set-variable` entries and an empty `ee:message`, so the payload is untouched:
+
+```xml
+<sub-flow name="initialize-variables-sub-flow">
+  <ee:transform doc:name="Create Initial Variables">
+    <ee:message>
+    </ee:message>
+    <ee:variables>
+      <ee:set-variable variableName="queryParams">attributes.queryParams default ""</ee:set-variable>
+      <ee:set-variable variableName="uriParams">attributes.uriParams default ""</ee:set-variable>
+      <ee:set-variable variableName="headers">attributes.headers</ee:set-variable>
+      <ee:set-variable variableName="startTime">now()</ee:set-variable>
+      <ee:set-variable variableName="requestPayload">%dw 2.0
+output application/json
+---
+payload</ee:set-variable>
+    </ee:variables>
+  </ee:transform>
+</sub-flow>
+```
+
+(The real XML wraps each expression in `<![CDATA[...]]>`; shortened here.)
+
 > **Technical clarification:** before the APIkit Router runs, **URI parameters are not yet extracted** (the Listener path is `/api/*`), so `attributes.uriParams` is empty there. The instructor hinted at this ("we'll get an issue with URI params"). Capture URI params inside the resource flow instead.
+
+*Screen:* that's what the class did — the PATCH/GET resource flows set a variable from `attributes.uriParams.empid` before the Flow Reference to the implementation flow. Tested in Postman: PATCH returned **200** with `"employee details updated successfully in the db"`.
 
 ### 2.3 Example (Transform Message with several variables)
 
@@ -71,6 +98,8 @@ If one variable depends on another (e.g. query-param value needs a URI-param val
 ---
 
 ## 3. JSON Logger
+
+> *Screen:* in class the loggers were the **core Logger** with a JSON-structured DataWeave message (below); the JSON Logger connector itself was only explained, not added to the project.
 
 ### 3.1 Why not the plain Logger?
 
@@ -104,6 +133,13 @@ JSON Logger is a **custom connector**. Organisations publish it (or their own cu
 
 INFO prints every time. Other levels (DEBUG, ERROR) relate to what is printed depending on configuration. Covered separately later.
 
+*Screen:* the core Logger's **Level** dropdown offers **INFO, DEBUG, WARN, ERROR, TRACE**.
+
+*Screen — `src/main/resources/log4j2.xml`* (opened in class):
+- A **RollingFile** appender named `file`, writing to `${sys:mule.home}/logs/<app-name>.log`, with `SizeBasedTriggeringPolicy size="10 MB"` and `DefaultRolloverStrategy max="10"`. Pattern starts `%-5p %d [%t] [processor: %X{processorPath}; event: %X{correlation…` (level, date, thread, processor path, correlation ID).
+- Commented-out loggers you can enable, e.g. HTTP wire logging (`org.mule.service.http.impl.service.HttpMessageLogger` at **DEBUG**).
+- `<AsyncRoot level="INFO">` → the root logger is **asynchronous** and INFO by default (see section 5).
+
 > **Technical clarification:** a logger at DEBUG prints only if that logger's category is set to DEBUG (e.g. in `log4j2.xml`); the default level is INFO. It's not tied to whether an error happened.
 
 ### 3.6 `app.name` and `flow.name`
@@ -116,27 +152,55 @@ Use these instead of hard-coding names. The same logger copied into another flow
 |---|---|
 | Start of processing | START |
 | End of processing | END |
-| Before an external call (DB, HTTP) | BEFORE_REQUEST |
-| After an external call | AFTER_REQUEST |
+| Before an external call (DB, HTTP) | BEFORE_REQUEST (class: **BEFORE_DB**) |
+| After an external call | AFTER_REQUEST (class: **AFTER_DB**) |
 | In between | FLOW |
 
 The APIkit Router isn't the start; the start logger is in the resource/implementation flow.
 
 ### 3.8 Content — example
 
+*Screen — reference project's "Start Logger"* (shown first as the model):
+
 ```dataweave
+%dw 2.0
+output application/json indent = false
+---
 {
-  applicationName: app.name,
-  flowName: flow.name,
-  source: "HR application",
-  destination: "Employees DB",
-  transactionId: vars.headers.'transaction-id',
-  employeeId: vars.requestPayload.employeeId,
-  startTime: vars.startTime
+  "applicationName": app.name,
+  "flowName": flow.name,
+  "source": "front-end",
+  "destination": "SFDC",
+  "transactionId": vars.headers.'x-transaction-id',
+  "memberId": vars.requestPayload.memberId,
+  "startTime": vars.StartTime,
+  "tracePoint": "START",
+  "message": "post members transactions flow started"
 }
 ```
 
-(Representative; header/field names depend on the project.)
+*Screen — the class's "Before HR DB" logger* in `post-employee-implementation-flow`, placed before the DB Insert:
+
+```dataweave
+%dw 2.0
+output application/json indent = false
+---
+{
+  "applicationName": app.name,
+  "flowName": flow.name,
+  "source": "front-end",
+  "destination": "HR DB",
+  "transactionId": vars.headers.'transaction-id',
+  "employeeId": vars.requestPayload.empId,
+  "startDBTime": now(),
+  "tracePoint": "BEFORE_DB",
+  "message": "post employees implementation flow started"
+}
+```
+
+The **After DB** logger after the Insert is a copy with `"endDBTime": now()` and trace point AFTER_DB.
+
+*Screen — DataWeave Playground:* the same object with `indent = false` prints on one line, e.g. `{"applicationName":...,"flowName":...,...}`.
 
 **End logger:** copy the start logger, change the trace point to END and swap times (end time instead of start time). For the DB: **before** logger with `startDbTime`, **after** logger with `endDbTime`.
 
@@ -149,6 +213,8 @@ If a key contains a hyphen (e.g. `transaction-id`), reference it in **quotes**: 
 ## 4. Timing With `now()`
 
 ### 4.1 `now()`
+
+*Screen:* in the DataWeave Playground, `now()` returned the current date-time with a `Z` (UTC) offset.
 
 DataWeave function returning the current **date and time**, including milliseconds.
 
