@@ -1,5 +1,7 @@
 # Day 32 — Rate Limiting, Rate Limiting SLA, Spike Control, HTTP Caching, JSON Threat Protection, IP Allow/Block Lists (Theory)
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 19 Dec 2024). Diagrams marked *drawing* are read from the instructor's "MULESOFT Policies.pptx" in the recording; this class was theory only. Slide images: [slides/day32](../slides/day32/).
+
 ## 1. Overview
 
 This is a theory session on policies; applying them in API Manager is quick and comes in the practical sessions.
@@ -56,6 +58,7 @@ First request at 10:06  →  window 1: 10:06–10:07  (95 allowed, rest → 429)
 ```
 
 - The window starts at the **first request**, not at a clock boundary and not at deploy time.
+- *Drawing:* deploy at 10:00 am, first request at 10:10 am → windows 10:10–10:11, 10:11–10:12, 10:12–10:13…; limit 95/min (capacity 100); consumers C1/C2/C3 sending 30 + 40 + 10…; the 96th → "reject the request with **429** error — Too many requests".
 - After a **redeploy/restart**, the window starts again from the first request after it.
 - **Within a window:** if 95 arrive in the first 30 seconds, everything else in the remaining 30 seconds is rejected. The next window accepts 95 again.
 - **Instructor's observation:** "99.99%" of people are unclear about where the window starts.
@@ -74,7 +77,7 @@ Through **performance / load testing**:
 
 **Illustrative example:** test at 500 requests/hour, then 1000, 2000 — fine up to 2000; beyond that the system (3 workers) crashes. That's the capacity; set the limit below it.
 
-**Another scenario:** your API calls a third-party API that allows only 10,000 requests per minute/hour. Limit your API accordingly, so you don't send them 11,000.
+**Another scenario:** your API calls a third-party API that allows only 10,000 requests per minute/hour. Limit your API accordingly, so you don't send them 11,000. (*Drawing:* our API → **Okta API**, 10,000 req/hour.)
 
 **Instructor's observation:** in real time the policy is used less, since CloudHub can scale to handle more requests. Applied mainly where a limit is compulsory or there's a risk of unexpected traffic.
 
@@ -119,6 +122,8 @@ You **commercialise** your API and offer membership levels — **silver, gold, d
 
 A gold member can send 2 per minute; the 3rd gets **429**.
 
+*Drawing (second example):* API limit 100/min — **Gold** C1 50 req/min, **Silver** C2 25 req/min, **Bronze** C3 10 req/min; "Rate Limiting SLA → RL + CID" (rate limiting plus client ID).
+
 **How consumers are told apart:** like **client ID enforcement** — each consumer has its own client ID/secret. You create **SLA tiers** in API Manager, consumers are linked to a tier, and the SLA-based policy refers to them. (Practical shown later.)
 
 ### 5.3 Difference (interview)
@@ -158,6 +163,8 @@ Spike control uses the **sliding window algorithm**.
 - **Fixed window:** fixed blocks — 10:01–10:02, 10:02–10:03…
 - **Sliding window:** at each new request, look **back** over the configured duration from **that moment** and count requests in that range. The window moves with time.
 
+*Drawing:* "Spike control (Throttling) — 5 reqs / 5 sec"; requests numbered along a timeline (10:01 … 10:05 … 10:16) with the window sliding; "Rate limiting → fixed window (10:00 to 11:00, 1000 reqs/hour)" vs "Spike control → sliding window algorithm". Another drawing: 7 requests against 5 req / 5 sec — 2 wait, retried; still over → 429.
+
 **Illustrative example** (limit 5 requests per 5 minutes):
 
 ```text
@@ -195,6 +202,7 @@ Requests at 10:00:10, 10:00:40, 10:01:20, 10:02:00, 10:04:30   (5 used)
 ### 7.3 Example 2 — HR resignations
 
 - HR1 asks: employees who resigned in November (25). HR2 asks the same list. The data doesn't change quickly → serve from cache.
+- *Drawing:* HR1/HR2/HR3 → API → HR DB; Nov → 25, Oct → 50, Dec → 10+ (the current month keeps changing, so it must not be served from an old cache).
 
 ### 7.4 Cache duration
 
@@ -240,7 +248,9 @@ RAML validation happens **after** the request enters the application. The policy
 
 **Illustrative example:** allowlist `10.1.25.1`, `10.1.25.2`, `10.1.25.3`. A request from `10.1.25.50` → not in the list → the gateway rejects it.
 
-> **Transcript unclear:** the rest of the IP allowlist/blocklist explanation is lost in a speech-to-text repetition loop, so any further detail or example given in class could not be reliably recovered.
+*Drawing:* **API IPW** (allowlist) — `10.1.25.1`, `10.1.25.2`, `10.1.25.3` allowed; a request from `10.1.25.25` is rejected. **API IPB** (blocklist) — `10.1.25.100`, `.101`, `.102` blocked; requests from those three are rejected, every other address is accepted.
+
+> **Transcript unclear:** the rest of the spoken explanation is lost in a speech-to-text repetition loop; the drawing above is what was shown.
 
 ---
 

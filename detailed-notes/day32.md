@@ -2,6 +2,8 @@
 
 > **Watch alongside:** the one distinction to lock in before anything else is **Rate Limiting rejects outright; Spike Control queues and retries**. Everything else in this session — fixed vs. sliding window, SLA tiers, caching duration, gateway-level vs. RAML-level validation — is a variation or elaboration on top of that single fork.
 
+> **Video-verified:** checked against the class recording (19 Dec 2024) — a theory class on the instructor's policy drawings. Added from the drawings: the 10:10 window example, Okta 10,000 req/hour, Gold/Silver/Bronze tiers, 5 req / 5 sec spike control, the HR cache counter-example and the IP lists. Slide images: [slides/day32](../slides/day32/).
+
 ---
 
 ## 1. 401 vs. 400 — A Quick Diagnostic
@@ -29,6 +31,8 @@ flowchart TB
 
 **The window's start time is NOT a clean clock boundary — it's the first request after deploy/restart**, called out as a near-universal point of confusion: *"99.99% for people... redeployed the application at 10.05. But the first request came at 10.06. Then, the first time the rate limiting number will be taken, the time will be 10.06."*
 
+*Drawing:* the same idea with deploy 10:00 am, first request 10:10 am → windows 10:10–10:11, 10:11–10:12; limit 95/min against 100/min capacity; over-limit → 429 "Too many requests". Another drawing shows why limits exist: our API calls the **Okta API**, which allows 10,000 req/hour.
+
 **Scope is per-APPLICATION, not per-consumer**: *"is it 95 for each of them or 95 for all?... because we are handling our application in the application, so only 95 will handle our application."*
 
 **429's meaning, stated directly**: *"Rate Limiting is a policy, it is a contract between the consumers and us. We will not be able to process more than this. That's why 400 series."*
@@ -50,6 +54,10 @@ flowchart TB
 **The precise difference vs. plain Rate Limiting, stated directly**: *"Rate Limiting policy is for the entire API... calculate the total number of requests received from the total consumers... and reject irrespective of the consumer... here the limit is specific to each consumer or each client."*
 
 **Honest personal caveat**: *"if you ask me, I have never implemented rate limiting SLA in my total experience. But if you go for an interview, you will get all these questions."*
+
+---
+
+*Drawing (second SLA example):* API limit 100/min — **Gold** C1 50 req/min, **Silver** C2 25 req/min, **Bronze** C3 10 req/min; "Rate Limiting SLA → RL + CID".
 
 ---
 
@@ -83,6 +91,8 @@ flowchart LR
     Sliding["SLIDING window (Spike Control):\ncontinuously looks BACK N seconds\nfrom the CURRENT moment"]
     Sliding -.->|"advantage"| More["Can free up capacity continuously\nas old requests age out —\nmore requests handled in less time"]
 ```
+
+*Drawing:* "Spike control (Throttling) — 5 reqs / 5 sec", sliding window; "Rate limiting → fixed window, 10:00 to 11:00, 1000 reqs/hour".
 
 **The core Rate-Limiting-vs-Spike-Control distinction**: *"if it doesn't happen [get accepted immediately], this spike control policy shouldn't reject us... that request will be placed in the queue... after the window is opened, it will try to process the message from the queue."*
 
@@ -133,8 +143,8 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    Allow["IP ALLOW LIST\nOnly listed IPs accepted"] 
-    Block["IP BLOCK LIST\nOnly listed IPs rejected,\neverything else accepted"]
+    Allow["IP ALLOW LIST<br/>only 10.1.25.1 / .2 / .3 accepted<br/>request from 10.1.25.25 rejected"]
+    Block["IP BLOCK LIST<br/>10.1.25.100 / .101 / .102 rejected,<br/>everything else accepted"]
 ```
 
 ---
