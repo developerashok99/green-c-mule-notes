@@ -24,6 +24,9 @@ Notes for this day: [detailed-notes/day31.md](../../detailed-notes/day31.md) · 
 | 16 | 79:57 | *Drawing:* HTTP Caching — repeated identical requests answered from the cache (Object Store), saving calls to the back end |
 | 17 | 79:52 | *Drawing:* JSON Threat Protection — gateway checks JSON structure/size before it reaches the API (also XML) |
 | 18 | 80:06 | *Drawing:* Mule gateway (Mule apps on the worker) vs Flex Gateway (Mule, Java and Python apps); other gateways: Kong, Apigee (Google), Tyk |
+| 19 | 56:36 | dev.yaml with the encrypted DB username/password and `autodiscovery.id: "19942054"` (from the sys-app; to be replaced with instance ID 20120438) |
+| 20 | 23:05 | Anypoint Platform sign-in (anypoint.mulesoft.com/login) before opening API Manager |
+| 21 | 23:09 | Anypoint Platform home (org EPAM): Code Builder, Design Center, Management Center → API Manager, API Governance, Runtime Manager |
 
 ---
 
@@ -81,3 +84,11 @@ Notes for this day: [detailed-notes/day31.md](../../detailed-notes/day31.md) · 
 ### 18 — *Drawing:* Mule gateway (Mule apps on the worker) vs Flex Gateway (Mule, Java and Python apps); other gateways: Kong, Apigee (Google), Tyk
 ![drawing-gateways](18-drawing-gateways.jpg)
 
+### 19 — dev.yaml with the encrypted DB username/password and `autodiscovery.id: "19942054"` (from the sys-app; to be replaced with instance ID 20120438)
+![dev-yaml-autodiscovery](19-dev-yaml-autodiscovery.jpg)
+
+### 20 — Anypoint Platform sign-in (anypoint.mulesoft.com/login) before opening API Manager
+![anypoint-login](20-anypoint-login.jpg)
+
+### 21 — Anypoint Platform home (org EPAM): Code Builder, Design Center, Management Center → API Manager, API Governance, Runtime Manager
+![anypoint-home](21-anypoint-home.jpg)

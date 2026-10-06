@@ -30,10 +30,10 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 26 — Publishing to Exchange, Importing into Studio, Scaffolding and the APIkit Router | [day26](day26/) | 15 |
 | Day 27 — Implementing the Employee API: Project Structure, Global Config, Error Handler, Database Config, MySQL Setup | [day27](day27/) | 14 |
 | Day 28 — Initial Variables, JSON Logger Messages, now(), Asynchronous Logging | [day28](day28/) | 14 |
-| Day 29 — Masking, Secure Properties and DB Error Handling | [day29](day29/) | 28 |
+| Day 29 — Masking, Secure Properties and DB Error Handling | [day29](day29/) | 31 |
 | Day 30 — PATCH/GET Implementation, Validation and Error Mapping | [day30](day30/) | 26 |
-| Day 31 — API Manager, Gateways and Policies | [day31](day31/) | 18 |
+| Day 31 — API Manager, Gateways and Policies | [day31](day31/) | 21 |
 | Day 32 — Rate Limiting, Spike Control, Caching and Threat Protection | [day32](day32/) | 14 |
-| Day 33 — OAuth 2.0 Theory | [day33](day33/) | 20 |
+| Day 33 — OAuth 2.0 Theory | [day33](day33/) | 24 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.

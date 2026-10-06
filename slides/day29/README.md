@@ -34,6 +34,9 @@ Notes for this day: [detailed-notes/day29.md](../../detailed-notes/day29.md) · 
 | 26 | 82:47 | On Error Propagate type DB:CONNECTIVITY → Error Logger + Final Error Response (statusCode 500, error.description) |
 | 27 | 83:24 | Postman → 500 Server Error, "Could not obtain connection from data source" |
 | 28 | 85:07 | MySQL Workbench: `select * from EMPLOYEES_INFO` — rows 120 ravi, 1000 Suresh, 1001 Suresh |
+| 29 | 0:36 | dev.yaml: listener 0.0.0.0:8081 `api/*`; database host localhost, port 330, db mule8, username `![GLXPpiI1r4jRxD7uEXR5Iw==]`, password `![1rfh04McIxNQi/bKeObUKA==]`; autodiscovery.id 19942054 |
+| 30 | 51:14 | Secure Properties Generator — Decrypt, AES, CBC, key `ABCD1234DEFG5678`, value `GLXPpiI1r4jRxD7uEXR5Iw==` → result `root` |
+| 31 | 54:55 | Secure Properties Generator — Decrypt with the same key, value `1rfh04McIxNQi/bKeObUKA==` → result `Vision@2022` |
 
 ---
 
@@ -121,12 +124,11 @@ Notes for this day: [detailed-notes/day29.md](../../detailed-notes/day29.md) · 
 ### 28 — MySQL Workbench: `select * from EMPLOYEES_INFO` — rows 120 ravi, 1000 Suresh, 1001 Suresh
 ![workbench-rows](28-workbench-rows.jpg)
 
----
+### 29 — dev.yaml: listener 0.0.0.0:8081 `api/*`; database host localhost, port 330, db mule8, username `![GLXPpiI1r4jRxD7uEXR5Iw==]`, password `![1rfh04McIxNQi/bKeObUKA==]`; autodiscovery.id 19942054
+![dev-yaml-encrypted](29-dev-yaml-encrypted.jpg)
 
-### Not included — credential screens
+### 30 — Secure Properties Generator — Decrypt, AES, CBC, key `ABCD1234DEFG5678`, value `GLXPpiI1r4jRxD7uEXR5Iw==` → result `root`
+![decrypt-username](30-decrypt-username.jpg)
 
-Three screens are left out because they show the real encryption key and decrypted DB login. In the notes they're described with **placeholder** values (see [super-detailed-notes/day29.md §10](../../super-detailed-notes/day29.md)):
-
-- 0:36 — `dev.yaml` with encrypted username/password — placeholder `![Xy3dEmOuSeRnAmE1==]` / `![Pq9dEmOpAsSwOrD2==]`
-- 51:14 — Secure Properties Generator, Decrypt username — key `DEMOKEY123456789` → `root`
-- 54:55 — Secure Properties Generator, Decrypt password — same key → `<mysql-root-password>`
+### 31 — Secure Properties Generator — Decrypt with the same key, value `1rfh04McIxNQi/bKeObUKA==` → result `Vision@2022`
+![decrypt-password](31-decrypt-password.jpg)

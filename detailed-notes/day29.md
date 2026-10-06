@@ -132,7 +132,7 @@ flowchart LR
 
 *Screen:* the encrypted username/password in `dev.yaml`/`prod.yaml` were copied from the sys-app, and the instructor had to work out which key made them (*"I think I took it from the Sys app"*). Decrypting them in the Secure Properties Generator with that key returned the expected username and password, so that key became the `secure.key` global property (it can also go in Debug Configurations → Environment). Reinforces the Day 27 warning: lose track of the key and the encrypted values are unreadable. Remove these global properties before pushing code.
 
-> **Placeholder values** (fake, not the class ones): key `DEMOKEY123456789`; yaml `username: "![Xy3dEmOuSeRnAmE1==]"`, `password: "![Pq9dEmOpAsSwOrD2==]"`; Decrypt (AES, CBC) of the username → `root`, of the password → `<mysql-root-password>`. The real screens are in the recording at 0:36 (`dev.yaml`), 51:14 and 54:55 (Decrypt results); they aren't published here.
+> **Values as shown on screen** (2024 demo setup, now expired): key `ABCD1234DEFG5678`; yaml `username: "![GLXPpiI1r4jRxD7uEXR5Iw==]"`, `password: "![1rfh04McIxNQi/bKeObUKA==]"`; Decrypt (AES, CBC) of the username → `root`, of the password → `Vision@2022`. Screens: [slides/day29](../slides/day29/) 29–31.
 
 ---
 

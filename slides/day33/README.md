@@ -1,6 +1,6 @@
 # Day 33 — Slides and On-Screen Drawings
 
-Slides and drawings from the Day 33 class (20 Dec 2024): what OAuth 2.0 is, authentication vs authorization, the GeeksforGeeks/Facebook sign-in demo, the Authorization Code Grant flow and the OAuth terminology. The last three slides were flicked through at the end and are taught on Day 34. Google sign-in screens showing personal e-mail addresses are left out. Repeated and blank frames have been removed. Times are positions in the video.
+Slides and drawings from the Day 33 class (20 Dec 2024): what OAuth 2.0 is, authentication vs authorization, the GeeksforGeeks/Facebook sign-in demo, the Authorization Code Grant flow and the OAuth terminology. The last three slides were flicked through at the end and are taught on Day 34. Repeated and blank frames have been removed. Times are positions in the video.
 
 Notes for this day: [detailed-notes/day33.md](../../detailed-notes/day33.md) · [super-detailed-notes/day33.md](../../super-detailed-notes/day33.md) · [summary](../../day33.md)
 
@@ -26,6 +26,10 @@ Notes for this day: [detailed-notes/day33.md](../../detailed-notes/day33.md) · 
 | 18 | 71:30 | (Deck scrolled at the end — taught on Day 34) OAuth 2.0 Flow — Client Credentials Grant |
 | 19 | 71:35 | (Day 34 preview) OAuth 2.0 Flow — Resource Owner Password Grant |
 | 20 | 71:55 | (Day 34 preview) JWT — JSON Web Token; compact, self-contained JSON object; header, payload and signature separated by dots |
+| 21 | 23:32 | Sign in with Google "to continue to GeeksforGeeks" (incognito, accounts.google.com) |
+| 22 | 23:42 | Google password step — the password is typed on Google, never on GeeksforGeeks |
+| 23 | 23:55 | Google consent: "Google will share your name, email address, language preference, and profile picture with GeeksforGeeks" — Cancel / Continue |
+| 24 | 26:28 | Back on GeeksforGeeks: account created (profile maheshrew9nd) from the Google details |
 
 ---
 
@@ -89,3 +93,14 @@ Notes for this day: [detailed-notes/day33.md](../../detailed-notes/day33.md) · 
 ### 20 — (Day 34 preview) JWT — JSON Web Token; compact, self-contained JSON object; header, payload and signature separated by dots
 ![jwt-intro](20-jwt-intro.jpg)
 
+### 21 — Sign in with Google "to continue to GeeksforGeeks" (incognito, accounts.google.com)
+![google-signin](21-google-signin.jpg)
+
+### 22 — Google password step — the password is typed on Google, never on GeeksforGeeks
+![google-password](22-google-password.jpg)
+
+### 23 — Google consent: "Google will share your name, email address, language preference, and profile picture with GeeksforGeeks" — Cancel / Continue
+![google-consent](23-google-consent.jpg)
+
+### 24 — Back on GeeksforGeeks: account created (profile maheshrew9nd) from the Google details
+![gfg-profile](24-gfg-profile.jpg)
