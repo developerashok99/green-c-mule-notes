@@ -1,5 +1,7 @@
 # Day 26 — Publishing the Specification to Exchange, Importing It into Studio, Scaffolding and the APIkit Router
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 12 Dec 2024). Design Center, Exchange, Studio and Postman screens marked *screen* are read from the recording. Slide images: [slides/day26](../slides/day26/).
+
 ## 1. Overview
 
 The specification (with its fragment) is complete. This session:
@@ -14,6 +16,8 @@ The specification (with its fragment) is complete. This session:
 8. Folder organisation: implementation and common
 9. Debug test: GET success, wrong resource, POST with a bad body → 400
 
+*Slide* — **Agenda for today:** API Specification Implementation using RAML · Q&A session.
+
 ---
 
 ## 2. Why Publish to Exchange?
@@ -25,7 +29,7 @@ You *can* work without publishing, but in industry, **as soon as the spec is rea
 
 Exchange is a shared repository used by developers **and** by other Anypoint Platform modules.
 
-Publish from Design Center: **Publish → Publish to Exchange** (the root file is published).
+Publish from Design Center: **Publish → Publish to Exchange** (the root file is published). *Screen* — Publishing to Exchange: **Asset version 1.0.0**, **API version v1**, **LifeCycle State: Stable**; the asset page then showed `hr-employees-sapi-7303` — REST API, v1, Latest 1.0.0, Stable, with endpoints `/employees` and `/{empid}`.
 
 ---
 
@@ -76,7 +80,7 @@ Once published, every developer in the organisation can find it by searching Exc
 
 ### 5.1 New project
 
-File → New → **Mule Project** (or right-click in Package Explorer) → name e.g. `hr-employees-sapi-…`.
+File → New → **Mule Project** (or right-click in Package Explorer) → name **`hr-employees-sapi-7303`** (*screen*).
 
 **Runtime:** choose the Mule runtime (4.4.0 used). **Install Runtimes** lets you install other runtime versions (e.g. 4.3 … 4.8) from Studio.
 
@@ -111,17 +115,17 @@ File → New → **Mule Project** (or right-click in Package Explorer) → name 
 > **Scaffolding** uses the API specification to generate flows: one **main flow** with a Listener and the **APIkit Router**, plus **one flow per resource-method**.
 
 ```text
-Main flow
-  HTTP Listener (path e.g. /api/*)
+hr-employees-sapi-7303-main                                  (screen)
+  Listener (path /api/*)
      ▼
   APIkit Router  ── validates the request against the spec, then routes
-     ├─► post:\employees\add:application\json:<config>
-     ├─► patch:\employees\update:application\json:<config>
-     └─► get:\employees\fetch\(employeeId):<config>
-  Error handling (generated On Error Propagate per APIkit error)
+     ├─► post:\employees:application\json:hr-employees-sapi-7303-config
+     ├─► patch:\employees:application\json:hr-employees-sapi-7303-config
+     └─► get:\employees\(empid):hr-employees-sapi-7303-config
+  Error handling: On Error Propagate per APIkit error
+     (APIKIT:BAD_REQUEST, APIKIT:NOT_FOUND, APIKIT:METHOD_NOT_ALLOWED,
+      APIKIT:NOT_ACCEPTABLE, APIKIT:UNSUPPORTED_MEDIA_TYPE, APIKIT:NOT_IMPLEMENTED)
 ```
-
-(Flow-name format representative.)
 
 Without scaffolding, you'd create a separate listener and flow for every method yourself.
 
@@ -132,11 +136,11 @@ Without scaffolding, you'd create a separate listener and flow for every method 
 
 > **APIkit Router** validates the incoming request against the API specification (resource, method, headers, body schema…) and **routes** it to the matching flow. Invalid requests are rejected.
 
-**Router configuration:** click the router → its global configuration (e.g. `hr-employees-sapi-config`). **API definition** points to the imported spec (root RAML, data types, examples, the headers fragment) — it has everything needed to validate.
+**Router configuration** (*screen*): Name **`hr-employees-sapi-7303-config`**, API Definition `hr-employees-sapi-7303`, Outbound headers map name `outboundHeaders`, HTTP status var name `httpStatus`, Keep RAML/OAS base URI ☐, Disable Validations ☐ (Query parameters / Headers Strict Validations ☐), Parser AUTO (Default). **API definition** points to the imported spec (root RAML, data types, examples, the headers fragment) — it has everything needed to validate.
 
 ### 6.3 The golden rule — don't rename generated flows
 
-The generated flow name (e.g. `post:\employees\add:application\json:hr-employees-sapi-config`) encodes **method : resource : media type : config**. The router uses it to find the flow.
+The generated flow name (e.g. `post:\employees:application\json:hr-employees-sapi-7303-config`) encodes **method : resource : media type : config**. The router uses it to find the flow.
 
 > Change it and the router can't route (requests fail). **Never change these generated flow names.** Other (your own) flows can be named freely.
 
@@ -164,6 +168,26 @@ pom.xml now contains:
 
 - the **API specification** (and its fragment) from Exchange, and
 - the **APIkit module** (e.g. 1.5.11, `mule-plugin`).
+
+*Screen:*
+
+```xml
+<dependency>
+  <groupId>9756392d-0db8-4065-b2c4-989d3e2d4e05</groupId>   <!-- organisation ID -->
+  <artifactId>hr-employees-sapi-7303</artifactId>
+  <version>1.0.0</version>
+  <classifier>raml</classifier>
+  <type>zip</type>
+</dependency>
+<dependency>
+  <groupId>org.mule.modules</groupId>
+  <artifactId>mule-apikit-module</artifactId>
+  <version>1.5.11</version>
+  <classifier>mule-plugin</classifier>
+</dependency>
+```
+
+(The project itself: groupId `com.mycompany`, artifactId `hr-employees-sapi-7303`, `app.runtime` 4.4.0-20220221.)
 
 Update versions in pom.xml or via the module view if a newer version (e.g., from Exchange) is needed. Studio must stay connected to Exchange (account not expired).
 
@@ -195,7 +219,19 @@ src/main/resources/                ← property files
 
 ### What the generated flows contain
 
-From the spec's examples, each generated flow has a **Transform Message** returning the **example response**. For GET, an extra Transform Message stores the **URI parameter** in a variable.
+From the spec's examples, each generated flow has a **Transform Message** returning the **example response** — *screen*, POST flow:
+
+```dataweave
+%dw 2.0
+output application/json
+---
+{
+  statusCode: 201,
+  message: "employee details created successfully in the db"
+}
+```
+
+For GET, an extra Transform Message stores the **URI parameter** in a variable (the GET flow has two Transform Messages).
 
 ---
 
@@ -205,13 +241,15 @@ Two loggers were added to visualise routing; app run in **Debug** mode.
 
 ### 8.1 GET — success
 
-- Postman: `http://localhost:8081/api/employees/fetch/<id>` (scaffolded listener path is `/api/*`; the transcript shows the employees path).
+- Postman: `http://localhost:8081/api/employees/<empid>` (*screen* — scaffolded listener path `/api/*`).
 - **Headers:** copy the headers from the earlier mock test (Ctrl+A, Ctrl+C) and paste in Postman **Headers → Bulk edit** — faster than adding each key.
 - The router routed to the GET flow; the response was the spec's **example** employee data.
 
 ### 8.2 Wrong resource
 
-`…/employees1` → no such resource in the spec → the **router** rejects it (resource not found). Earlier (without APIkit) the **Listener** rejected unknown paths because the path was configured in the Listener; now the Listener accepts `/api/*` and the router validates.
+`http://localhost:8081/api/employees1` → no such resource in the spec → the **router** rejects it: *screen* — **404 Not Found**, `{"message": "Resource not found"}`. Earlier (without APIkit) the **Listener** rejected unknown paths because the path was configured in the Listener; now the Listener accepts `/api/*` and the router validates.
+
+*Screen:* POST `http://localhost:8081/api/employees` with the example body (`empId` 1000, `empName` "Suresh", `empSalary` 80000, `active` true, `empDesignation` "software engineer") → **201 Created**, `{"statusCode": 201, "message": "employee details created successfully in the db"}`. A request to a method the spec declares but which wasn't wired returned **501 Not Implemented**, `{"message": "Not Implemented"}`.
 
 ### 8.3 POST — bad body
 

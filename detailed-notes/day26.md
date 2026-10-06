@@ -2,6 +2,8 @@
 
 > **Watch alongside:** this session's payoff is the "golden rule" in section 4 — the API Kit Router matches on auto-generated flow names, and breaking that naming pattern silently breaks routing. Everything before it (Exchange, asset types, import options) is setup for understanding *why* that pattern exists and where it comes from.
 
+> **Video-verified:** flow names, the router configuration, pom dependencies and Postman results below were read from the class recording (12 Dec 2024). Slide images: [slides/day26](../slides/day26/).
+
 ---
 
 ## 1. Why Publish to Exchange At All
@@ -80,7 +82,7 @@ flowchart TB
     Import["API spec imported"] --> Scaffold["Scaffolding process"]
     Scaffold --> Listener["ONE Listener flow<br/>(all requests land here)"]
     Scaffold --> Router["API Kit Router component<br/>(inspects request against spec)"]
-    Scaffold --> Flows["ONE flow PER resource-method<br/>e.g. post:\employee, get:\employee\{id}"]
+    Scaffold --> Flows["ONE flow PER resource-method<br/>e.g. post:\employees:application\json:…-config,<br/>get:\employees\(empid):…-config"]
     Router -->|routes matching request to| Flows
 ```
 
@@ -92,7 +94,7 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    Spec["API spec resource/method order"] -->|generates matching pattern| Names["Scaffolded flow names<br/>e.g. post:\employee"]
+    Spec["API spec resource/method order"] -->|generates matching pattern| Names["Scaffolded flow names<br/>e.g. post:\employees:application\json:<br/>hr-employees-sapi-7303-config"]
     Router["API Kit Router"] -->|matches incoming request against| Names
     Rename["❌ Rename or reorder<br/>this generated pattern"] --> Break["Router gets confused —<br/>cannot find where to route"]
 ```
@@ -104,10 +106,21 @@ flowchart LR
 ```mermaid
 flowchart TB
     Safe["✅ SAFE to rename freely:<br/>custom/private flows YOU create"] 
-    Unsafe["❌ NEVER rename:<br/>auto-generated resource-method<br/>flow names (post:\employee, etc.)"]
+    Unsafe["❌ NEVER rename:<br/>auto-generated resource-method<br/>flow names (post:\employees:…, etc.)"]
 ```
 
 **Extending a live production API** (adding a 4th resource to 3 already-live ones): go back to Design Center → add resource + data types/examples → republish (version bumps) → re-pull in Studio. Same golden rule applies: *"we should not touch anything for this order or combination."*
+
+The class project's generated flows (*screen*):
+
+| Flow | Contents |
+|---|---|
+| `hr-employees-sapi-7303-main` | Listener (`/api/*`) → APIkit Router; On Error Propagate per APIKIT error type |
+| `post:\employees:application\json:hr-employees-sapi-7303-config` | Transform Message → `{statusCode: 201, message: "employee details created successfully in the db"}` |
+| `patch:\employees:application\json:hr-employees-sapi-7303-config` | Transform Message → the PATCH example |
+| `get:\employees\(empid):hr-employees-sapi-7303-config` | Transform Message (store `empid`) → Transform Message (example employee) |
+
+Router configuration: `hr-employees-sapi-7303-config`, API Definition `hr-employees-sapi-7303`, `outboundHeaders`, `httpStatus`. pom.xml gained the spec (`hr-employees-sapi-7303` 1.0.0, classifier `raml`, type `zip`) and `mule-apikit-module` 1.5.11.
 
 **How the router actually knows where to send requests**: its auto-generated router configuration's **API Definition** field points straight at the imported spec (fragment included) — the router validates the full data type/schema, not just the URL path.
 
@@ -117,7 +130,8 @@ flowchart TB
 flowchart LR
     Main["Main flow"] -->|has| Source["A SOURCE component"]
     Main -->|has| ErrH["Its own error handling"]
-    Private["Private (sub)flow"] -->|has NEITHER| NoSource["No source, no error handling"]
+    Private["Private flow"] -->|has| PErr["Error handling, but NO source"]
+    Sub["Sub flow"] -->|has NEITHER| NoSource["No source, no error handling"]
 ```
 
 The generated **API Console flow** (also a main flow, used for a lightweight built-in test GUI) is typically deleted in real projects — *"not required 90% of the time."*
@@ -139,13 +153,16 @@ sequenceDiagram
     Router->>GetFlow: route (path + schema OK)
     GetFlow-->>Client: 200 + employee data
 
-    Client->>Listener: GET /employees1 (wrong path)
-    Listener-->>Client: ❌ rejected at LISTENER level
+    Client->>Listener: GET /api/employees1 (wrong path)
+    Listener->>Router: forward (Listener accepts /api/*)
+    Router-->>Client: ❌ 404 "Resource not found" (ROUTER level)
 
     Client->>Listener: POST /employees (malformed body)
     Listener->>Router: forward
     Router-->>Client: ❌ 400 Bad Request<br/>(schema validation failure, ROUTER level)
 ```
+
+Results on screen: POST `/api/employees` → **201 Created** with the example message; `/api/employees1` → **404** `{"message": "Resource not found"}`; an unwired method → **501** `{"message": "Not Implemented"}`. (Before APIkit, unknown paths were rejected by the Listener because its path was fixed; now the Listener takes `/api/*` and the router validates.)
 
 **Postman efficiency tip**: copy a full working header block (Ctrl+A, Ctrl+C) and paste into a new request's Headers tab via **Bulk Edit (Ctrl+B)** instead of retyping.
 
