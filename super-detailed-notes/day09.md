@@ -1,6 +1,10 @@
 # Day 09 — Anypoint Studio Tour: Layout, Menus, Project Operations and Workspaces
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 13 Nov 2024). Dialog text, paths and versions marked *screen* are read from the recording. This session is a live Studio demo — the only slide is the agenda carried over from Day 08. Slide images: [slides/day09](../slides/day09/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 13 Nov 2024).
+> - Dialog text, paths and versions marked *screen* are read from the recording.
+> - This session is a live Studio demo — the only slide is the agenda carried over from Day 08.
+> - Slide images: [slides/day09](../slides/day09/).
 
 ## 1. Overview
 
@@ -136,7 +140,9 @@ To share a project with a colleague, or to receive one. (Projects are also share
 
 ### 4.2 What is a JAR file?
 
-Project code is in XML files — human-readable. To deploy, the project is packaged into a **JAR file** — a machine-readable, deployable archive. Exporting creates this JAR.
+- Project code is in XML files — human-readable.
+- To deploy, the project is packaged into a **JAR file** — a machine-readable, deployable archive.
+- Exporting creates this JAR.
 
 ### 4.3 Export — steps
 
@@ -186,7 +192,9 @@ Share it through a common location (Teams, SharePoint, a shared drive) so the co
 
 ### 5.2 Edit
 
-Cut (Ctrl+X), Copy (Ctrl+C), Paste (Ctrl+V), Select All (Ctrl+A). Shortcuts work everywhere — e.g., copy from Studio and paste into Notepad. **You rarely need to open this menu.**
+- Cut (Ctrl+X), Copy (Ctrl+C), Paste (Ctrl+V), Select All (Ctrl+A).
+- Shortcuts work everywhere — e.g., copy from Studio and paste into Notepad.
+- **You rarely need to open this menu.**
 
 ### 5.3 Source
 
@@ -206,14 +214,19 @@ Search across projects; results appear in the **Search** tab with file and line.
 
 **Build Automatically** (enabled by default) — when you save, the project is rebuilt and redeployed automatically. If disabled, you must stop and redeploy the application yourself after changes.
 
-**Clean** — deletes the generated build output (JAR files in `target/`). When you run a project many times with changes, cached/stale values can cause odd behaviour. Clean, then deploy again.
+- **Clean** — deletes the generated build output (JAR files in `target/`).
+- When you run a project many times with changes, cached/stale values can cause odd behaviour.
+- Clean, then deploy again.
 
 ### 5.7 Run
 
 - **Run / Debug** — run with defaults.
 - **Run Configurations / Debug Configurations** — run with **specific settings**.
 
-**Example:** three environments (Dev, UAT, Prod), each with its own database and property file. To test locally against the UAT database, tell Studio which property file to use — in the Run/Debug Configuration. Covered in the property-files session (Day 14).
+**Example:**
+- Three environments (Dev, UAT, Prod), each with its own database and property file.
+- To test locally against the UAT database, tell Studio which property file to use — in the Run/Debug Configuration.
+- Covered in the property-files session (Day 14).
 
 - **Run History / Debug History** — re-run a previous configuration.
 - Toolbar buttons exist for Run and Debug configurations.
@@ -228,7 +241,9 @@ Search across projects; results appear in the **Search** tab with file and line.
 
 > Don't close the Mule Debugger by accident — but if you do, this is how to get it back.
 
-**Perspective** — the arrangement of panels. If the layout gets messed up, **Window → Perspective → Reset Perspective** restores the default. This is the perspective option you'll use most.
+- **Perspective** — the arrangement of panels.
+- If the layout gets messed up, **Window → Perspective → Reset Perspective** restores the default.
+- This is the perspective option you'll use most.
 
 **Preferences** — explained when needed.
 
@@ -276,7 +291,10 @@ Double-clicking a tab maximises it.
 
 ### 9.1 What is a workspace?
 
-A **workspace** is the **folder where Studio creates and stores projects**. It is not a project itself. The instructor's workspace is `D:\WS APS`. Right-click a project → **Show In → System Explorer** opens its location.
+- A **workspace** is the **folder where Studio creates and stores projects**.
+- It is not a project itself.
+- The instructor's workspace is `D:\WS APS`.
+- Right-click a project → **Show In → System Explorer** opens its location.
 
 ### 9.2 Why multiple workspaces?
 

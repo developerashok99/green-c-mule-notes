@@ -1,6 +1,9 @@
 # Day 07 — Detailed Notes: The Mule Event Model + Anypoint Platform Setup
 
-> **Watch alongside:** this is arguably the single most important mental model in the entire course. Nearly every confusing bug a beginner hits ("why did my data disappear?") traces back to not understanding this session. Take it slowly.
+> **Watch alongside:**
+> - This is arguably the single most important mental model in the entire course.
+> - Nearly every confusing bug a beginner hits ("why did my data disappear?") traces back to not understanding this session.
+> - Take it slowly.
 
 > **Video-verified:** the Postman request, debugger values, Set Variable config, slide wording and Anypoint screens below were read from the class recording (7 Nov 2024). Slide images: [slides/day07](../slides/day07/).
 

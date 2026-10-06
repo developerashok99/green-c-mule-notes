@@ -2,7 +2,10 @@
 
 > **Watch alongside:** this is the session where the project actually becomes real — a thin routing layer (from Day 26's scaffolding) gets real business logic wired behind it: folders for organization, a reused error handler, and Insert/Update/Select database operations, all externalized through property files. The live copy-paste bugs here (duplicate flow names, blank SQL query) are worth reproducing yourself — they're the exact mistakes this workflow is prone to.
 
-> **Video-verified:** checked against the class recording (13 Dec 2024). Names below are the ones on screen: project `hr-employees-sapi-7303`, `common/globall-config.xml`, `common/common-error-handler.xml`, `implementation/*-employee-implementation.xml`. Slide images: [slides/day27](../slides/day27/).
+> **Video-verified:**
+> - Checked against the class recording (13 Dec 2024).
+> - Names below are the ones on screen: project `hr-employees-sapi-7303`, `common/globall-config.xml`, `common/common-error-handler.xml`, `implementation/*-employee-implementation.xml`.
+> - Slide images: [slides/day27](../slides/day27/).
 
 ---
 

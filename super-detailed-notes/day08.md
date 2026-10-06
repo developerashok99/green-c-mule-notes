@@ -1,6 +1,9 @@
 # Day 08 — Mule 4 Project Structure, Maven, pom.xml and Flow Anatomy
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 11 Nov 2024). Slide text and Studio screens (pom.xml, mule-artifact.json, configuration XML) marked *slide* or *screen* are read from the recording. Slide images: [slides/day08](../slides/day08/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 11 Nov 2024).
+> - Slide text and Studio screens (pom.xml, mule-artifact.json, configuration XML) marked *slide* or *screen* are read from the recording.
+> - Slide images: [slides/day08](../slides/day08/).
 
 ## 1. Overview
 
@@ -30,7 +33,9 @@ Studio basics (export/import/open/close/delete, workspaces) are covered next ses
 
 ### Seeing it on disk
 
-Right-click the project → **Show In → System Explorer**. This opens the **workspace** folder — the folder where Studio stores all your projects. Inside each project you see `src/main/mule/…` and so on.
+- Right-click the project → **Show In → System Explorer**.
+- This opens the **workspace** folder — the folder where Studio stores all your projects.
+- Inside each project you see `src/main/mule/…` and so on.
 
 ---
 
@@ -79,9 +84,16 @@ Empty by default. Used when:
 1. you must connect to a system for which **no connector** exists — write the connection in Java, or
 2. something **cannot be done** with Mule components/DataWeave — write small Java logic and call it from the flow.
 
-**Instructor's experience:** very rare. They have never used it themselves and don't know Java. In one project a Java developer was brought into the team, given the requirement, and their code was used.
+**Instructor's experience:**
+- Very rare.
+- They have never used it themselves and don't know Java.
+- In one project a Java developer was brought into the team, given the requirement, and their code was used.
 
-**Instructor's view on Java:** if 10 jobs exist, maybe 2–3 require Mule + Java; the other 7–8 don't. People without Java apply to those. Even when a Java need comes up, usually a team member or a senior handles it. If someone asks whether you know Java, it's fine to say no.
+**Instructor's view on Java:**
+- If 10 jobs exist, maybe 2–3 require Mule + Java; the other 7–8 don't.
+- People without Java apply to those.
+- Even when a Java need comes up, usually a team member or a senior handles it.
+- If someone asks whether you know Java, it's fine to say no.
 
 ### 3.3 `src/main/resources` — resources for the main project
 
@@ -93,7 +105,10 @@ Automatically contains:
 | `application-types.xml` | Used by the system; we don't touch it |
 | `api/` | Where an imported API specification (RAML) is placed |
 
-**Why log4j2?** MuleSoft is built on **Spring**, which is built on **Java**. The standard Java logging framework **Log4j2** is used in the background. `log4j2.xml` defines how logs are printed, log file names, and which log levels are printed. Studied later.
+**Why log4j2?**
+- MuleSoft is built on **Spring**, which is built on **Java**.
+- The standard Java logging framework **Log4j2** is used in the background. `log4j2.xml` defines how logs are printed, log file names, and which log levels are printed.
+- Studied later.
 
 **`api/` folder:** the API specification designed in Design Center is imported here (or referenced as a JAR dependency — the second way is shown later).
 
@@ -157,7 +172,11 @@ Declares the **Mule runtime version** the project targets. *Screen:*
 }
 ```
 
-**Version confusion cleared:** job postings say "Mule 4.x developer" or "Mule 3.x developer". That refers to the **Mule runtime (server) version**, not the Studio version. The instructor's Studio is **7.12**, whose embedded runtime is **4.4.0**. A newer Studio comes with a newer runtime (e.g. 4.7).
+**Version confusion cleared:**
+- Job postings say "Mule 4.x developer" or "Mule 3.x developer".
+- That refers to the **Mule runtime (server) version**, not the Studio version.
+- The instructor's Studio is **7.12**, whose embedded runtime is **4.4.0**.
+- A newer Studio comes with a newer runtime (e.g. 4.7).
 
 ---
 
@@ -275,7 +294,10 @@ Declares the **Mule runtime version** the project targets. *Screen:*
 **artifactId — unique name of the project.**
 
 - Usually the **same as the project name**. Some organisations add something extra, but most projects keep them the same.
-- Why unique? Built JARs are stored in a folder structure by groupId → artifactId → version. **Analogy:** saving `test.doc` twice in the same folder → Windows asks you to replace it. Two projects with the same groupId + artifactId would collide.
+- Why unique?
+  - Built JARs are stored in a folder structure by groupId → artifactId → version.
+  - **Analogy:** saving `test.doc` twice in the same folder → Windows asks you to replace it.
+  - Two projects with the same groupId + artifactId would collide.
 
 **version** — e.g. `1.0.0`, `1.0.1`.
 
@@ -293,7 +315,10 @@ Other properties: the **runtime version** and the **encoding** (**UTF-8** by def
 
 ### 5.5 Build
 
-**Why build?** XML files are human-readable. To deploy, the project is converted into a **JAR file** — a machine-readable, deployable package. Maven uses plugins to do this:
+**Why build?**
+- XML files are human-readable.
+- To deploy, the project is converted into a **JAR file** — a machine-readable, deployable package.
+- Maven uses plugins to do this:
 
 - **Mule Maven plugin** — builds/packages the Mule application.
 - **Clean plugin** — cleans previous build output (the instructor calls it the "mule clean plugin"; on screen it is the standard `maven-clean-plugin`, version 3.0.0).
@@ -346,7 +371,10 @@ Plugins are downloaded the same way from **plugin repositories**.
 
 **Most frequently used:** `src/main/mule`, `src/main/resources`, `src/test/munit`, `src/test/resources` and **pom.xml**.
 
-**Instructor's observation:** many people in real projects don't know what groupId and artifactId are, or why dependencies exist. Minimum knowledge of the basics gives more confidence. The instructor faced the same difficulty when moving from mainframes to MuleSoft — they practised repeatedly and adapted in 10–15 days.
+**Instructor's observation:**
+- Many people in real projects don't know what groupId and artifactId are, or why dependencies exist.
+- Minimum knowledge of the basics gives more confidence.
+- The instructor faced the same difficulty when moving from mainframes to MuleSoft — they practised repeatedly and adapted in 10–15 days.
 
 **Summary of the build idea:** Studio is an enhanced Eclipse-based IDE; MuleSoft reused existing tools (Maven, Log4j2, Spring, Java) and organised everything on top. Human-readable XML → Maven build → machine-readable JAR → deployed on a server.
 

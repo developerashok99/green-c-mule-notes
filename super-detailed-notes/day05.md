@@ -1,6 +1,9 @@
 # Day 05 — First Hands-On Mule Application: HTTP Listener → Database Select → JSON
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 5 Nov 2024). Names, SQL, configuration values, errors and responses marked *screen* are read from the recording. Slide images: [slides/day05](../slides/day05/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 5 Nov 2024).
+> - Names, SQL, configuration values, errors and responses marked *screen* are read from the recording.
+> - Slide images: [slides/day05](../slides/day05/).
 
 ## 1. Overview
 
@@ -87,7 +90,9 @@ Software used: a **database** (MySQL), **Postman** for testing, **Anypoint Studi
 2. Name: `db-select-demo` *(screen)* — the flow is created as `db-select-demoFlow` (a random name for now; naming conventions are covered later with a real use case)
 3. Click **Finish**
 
-Studio creates an empty project from a template with many folders and files. Studio uses **Maven** in the background to create this structure. The structure is explained in detail later (Day 08) — ignore it for now.
+- Studio creates an empty project from a template with many folders and files.
+- Studio uses **Maven** in the background to create this structure.
+- The structure is explained in detail later (Day 08) — ignore it for now.
 
 ---
 
@@ -137,7 +142,10 @@ Once deployed, any request sent to this URL is received by the Listener and pass
 
 ### Why loggers matter
 
-In a **local** Studio you can debug step by step. In **production** you cannot attach a debugger. The only way to know what happened is the **logs**. If loggers are not placed, nothing is printed and you have no visibility.
+- In a **local** Studio you can debug step by step.
+- In **production** you cannot attach a debugger.
+- The only way to know what happened is the **logs**.
+- If loggers are not placed, nothing is printed and you have no visibility.
 
 **Logger placement as a diagnostic tool:**
 
@@ -262,7 +270,9 @@ Input Parameters (fx):
 }
 ```
 
-`:emp_id` in the query is filled from the `emp_id` key of the input parameters. Writing `payload.empid` directly inside the SQL string also works, but passing it as an input parameter is the **best practice**. The reasons are explained in the database sessions.
+- `:emp_id` in the query is filled from the `emp_id` key of the input parameters.
+- Writing `payload.empid` directly inside the SQL string also works, but passing it as an input parameter is the **best practice**.
+- The reasons are explained in the database sessions.
 
 ---
 
@@ -410,7 +420,9 @@ In the failed attempts only the first logger had printed, showing the failure wa
 
 ### 13.1 Why debug?
 
-This flow has only a few components. Real flows have 10–15 connectors and components. When something fails, stepping through shows exactly where.
+- This flow has only a few components.
+- Real flows have 10–15 connectors and components.
+- When something fails, stepping through shows exactly where.
 
 ### 13.2 How
 
@@ -443,7 +455,10 @@ java.lang.RuntimeException: Attempted to send invalid data through http response
 
 **Reason:** the payload is still a Java object; the Listener cannot send it as a valid HTTP response body, and the consumer expects JSON anyway.
 
-**Lesson:** the request format, response format and error response must be agreed with business analysts, architects and leads **before** development (the design step). When that is clear, the developer's job is straightforward. Adding the Transform Message back fixed the problem.
+**Lesson:**
+- The request format, response format and error response must be agreed with business analysts, architects and leads **before** development (the design step).
+- When that is clear, the developer's job is straightforward.
+- Adding the Transform Message back fixed the problem.
 
 ---
 
@@ -453,7 +468,9 @@ java.lang.RuntimeException: Attempted to send invalid data through http response
 No.
 
 - `localhost` works only because the Mule application and MySQL are **on the same laptop**.
-- **CloudHub** is MuleSoft's cloud. Suppose the app is deployed in the **US region** and the database is in a **Mumbai** data centre. They are on different networks; the app cannot reach "localhost" in Mumbai.
+- **CloudHub** is MuleSoft's cloud.
+  - Suppose the app is deployed in the **US region** and the database is in a **Mumbai** data centre.
+  - They are on different networks; the app cannot reach "localhost" in Mumbai.
 - To connect, the **firewall/port openings** between the two networks must be done. This depends on the enterprise network.
 - The database team provides the real host, port, database name, username and password. The instructor's drawing: app on **CloudHub (US region)** → Emp DB in the **Mumbai DC**, with the DB team giving host **10.1.25.50**, port **8090**, DB **mule10**, user and password.
 - If the app is deployed to CloudHub without connectivity, the **application deploys and runs**, but requests that need the database fail with a connectivity error.
@@ -477,7 +494,9 @@ e.g.  telnet 10.1.2.5 8801
 If not connected: inform your **team lead** and raise a request with the **network team** with the necessary approvals. Opening connectivity usually takes **one or two days**. (The telnet client must be enabled on Windows; it was not enabled on the instructor's machine.)
 
 ### Q. Why is there an "Error handling" section in the flow even though we didn't add one?
-It is created automatically. Every flow has three parts: **Source**, **Process** and **Error handling**. Explained later.
+- It is created automatically.
+- Every flow has three parts: **Source**, **Process** and **Error handling**.
+- Explained later.
 
 ### Q. Who decides the Listener's host and port? The database's host and port?
 - Database host/port/credentials → **database team**.
@@ -486,18 +505,33 @@ It is created automatically. Every flow has three parts: **Source**, **Process**
 ### Q. Can the Listener use the database's port?
 No. **One port can be used by only one active application at a time.** MySQL is already using its port (330 on the instructor's machine, 3306 by default); using it again fails with "port already in use".
 
-**Analogy:** if two houses on a street had the same house number, a parcel could not be delivered correctly. A port must be a unique address. That's why 8081 was used.
+**Analogy:**
+- If two houses on a street had the same house number, a parcel could not be delivered correctly.
+- A port must be a unique address.
+- That's why 8081 was used.
 
 ### Q. How did Postman reach the API? Do Postman and Studio need to be linked?
-No linking is needed. They are independent software. The application runs on the embedded server on your laptop (your laptop is the server: `localhost`). Postman sends an HTTP request to `localhost:8081/empdetails`; if host, port and path match the Listener and the app is running, the Listener receives it. If the port is wrong, it fails. A colleague on a different laptop cannot call your localhost unless there is network connectivity. An app deployed to CloudHub is reachable over the internet.
+- No linking is needed.
+- They are independent software.
+- The application runs on the embedded server on your laptop (your laptop is the server: `localhost`).
+- Postman sends an HTTP request to `localhost:8081/empdetails`; if host, port and path match the Listener and the app is running, the Listener receives it.
+- If the port is wrong, it fails.
+- A colleague on a different laptop cannot call your localhost unless there is network connectivity.
+- An app deployed to CloudHub is reachable over the internet.
 
 ### Q. You used GET but sent a body. Isn't GET only for fetching?
 **There is no strict rule that GET cannot have a body, but it is not recommended.**
 
-The instructor changed the method to **POST** and even **DELETE** and resent — the response still came back. **Reason:** no **allowed methods** restriction was configured in the Listener, so it accepts any method. When and how to use and restrict methods is covered next session.
+- The instructor changed the method to **POST** and even **DELETE** and resent — the response still came back.
+- **Reason:** no **allowed methods** restriction was configured in the Listener, so it accepts any method.
+- When and how to use and restrict methods is covered next session.
 
 ### Q. Why does the database return Java and not JSON?
-The database connectivity is built on Java (JDBC), so results come as Java objects. The consumer sends and expects JSON. The two don't "speak the same language" — that is exactly why **integration/mediation platforms** exist. A single request may need several systems, each expecting a different format (XML, Java, CSV …). The mediation platform receives one format, converts for each system, and builds the final response.
+- The database connectivity is built on Java (JDBC), so results come as Java objects.
+- The consumer sends and expects JSON.
+- The two don't "speak the same language" — that is exactly why **integration/mediation platforms** exist.
+- A single request may need several systems, each expecting a different format (XML, Java, CSV …).
+- The mediation platform receives one format, converts for each system, and builds the final response.
 
 ---
 
@@ -563,7 +597,9 @@ The Database connector returns Java objects; consumers expect JSON (or another a
 Run executes the flow end to end. Debug lets you set breakpoints and execute one processor at a time, inspecting the payload and other data.
 
 ### Q7. Why doesn't `localhost` work for a database after deploying to CloudHub?
-`localhost` refers to the machine the app runs on. In CloudHub the app runs on MuleSoft's servers; the database is elsewhere. Use the real host and establish network/firewall connectivity.
+- `localhost` refers to the machine the app runs on.
+- In CloudHub the app runs on MuleSoft's servers; the database is elsewhere.
+- Use the real host and establish network/firewall connectivity.
 
 ### Q8. How do you check network connectivity to a database server?
 `telnet <ip> <port>`. A blank screen means connected; otherwise ask the network team to open the connectivity.

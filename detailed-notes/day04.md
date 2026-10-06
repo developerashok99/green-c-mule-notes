@@ -44,10 +44,15 @@ flowchart LR
 
 The house drawing's five steps were: ① buy the plot and finalise requirements (Hyderabad) → ② architect: GHMC rules, plan, approval → ③ engineer and construction workers build → ④ secure it: electrical fence and a dog → ⑤ house-warming and moving in.
 
-> 💡 **Why MuleSoft's "full lifecycle" claim matters commercially:** every single step above has a **native MuleSoft tool**. A competing platform that's weak in, say, API security or monitoring forces you to license and integrate a **third-party tool** for that step — extra cost, extra integration work, extra vendor relationships. MuleSoft's pitch is "one platform, every step."
+> - 💡 **Why MuleSoft's "full lifecycle" claim matters commercially:** every single step above has a **native MuleSoft tool**.
+> - A competing platform that's weak in, say, API security or monitoring forces you to license and integrate a **third-party tool** for that step — extra cost, extra integration work, extra vendor relationships.
+> - MuleSoft's pitch is "one platform, every step."
 
 ### A subtlety on ordering: why does "Secure" come *after* "Test"?
-In the lecture, a student asked why security isn't just baked in during development. The answer: **developer testing** (quick sanity checks — "does this even respond?") is different from **formal security testing**, which is its own detailed discipline requiring the app to already be deployed to a proper environment. So practically: build → do quick functional checks → deploy → let QA test thoroughly → *then* apply and validate formal security policies → monitor in production. The six steps are a clean mental model, but real projects loop and overlap them somewhat.
+- In the lecture, a student asked why security isn't just baked in during development.
+- The answer: **developer testing** (quick sanity checks — "does this even respond?") is different from **formal security testing**, which is its own detailed discipline requiring the app to already be deployed to a proper environment.
+- So practically: build → do quick functional checks → deploy → let QA test thoroughly → *then* apply and validate formal security policies → monitor in production.
+- The six steps are a clean mental model, but real projects loop and overlap them somewhat.
 
 ---
 
@@ -69,7 +74,11 @@ flowchart LR
 
 The instructor then drew the fix: **one translator in the middle**, connected to every language (the ESB idea in §3).
 
-**The setup:** before ESB architecture existed, if System A needed to talk to System B, you built a direct integration between exactly those two. Need A to also talk to C? Build another direct integration. And so on.
+**The setup:**
+- Before ESB architecture existed, if System A needed to talk to System B, you built a direct integration between exactly those two.
+- Need A to also talk to C?
+- Build another direct integration.
+- And so on.
 
 ```mermaid
 flowchart TB
@@ -81,7 +90,9 @@ flowchart TB
     C --- D
 ```
 
-With just 4 systems, that's already 6 direct connections. The growth is **combinatorial** — for *n* systems, potential point-to-point integrations grow roughly as *n(n-1)/2*. The instructor cites a real example: **~4,000 APIs in a single large organization** — imagine that complexity without a central architecture.
+- With just 4 systems, that's already 6 direct connections.
+- The growth is **combinatorial** — for *n* systems, potential point-to-point integrations grow roughly as *n(n-1)/2*.
+- The instructor cites a real example: **~4,000 APIs in a single large organization** — imagine that complexity without a central architecture.
 
 ### The two compounding disadvantages
 1. **Adding one new system** can require building integrations to *every* existing system it needs to talk to — not just one new connection, but potentially many.
@@ -324,5 +335,7 @@ Slide text — advantages: reusability · scalability · time to market is faste
 - **API Lifecycle**: Design → Implement → Deploy → Test → Secure → Monitor — MuleSoft has a native tool for every step, which is a real competitive differentiator.
 - **Point-to-point integration** collapses under scale because connections grow combinatorially and any system's change ripples everywhere it's directly connected. **ESB** fixes this with a central bus — one connection per system, not one per pair.
 - **ESB = Orchestration + Transformation + Enrichment**, all natively provided by MuleSoft.
-- **Monolithic** = simple but fragile and hard to scale surgically. **Microservices** = more overhead, but reusable, independently scalable, and more reliable. Real orgs often land on a pragmatic hybrid.
+- **Monolithic** = simple but fragile and hard to scale surgically.
+  - **Microservices** = more overhead, but reusable, independently scalable, and more reliable.
+  - Real orgs often land on a pragmatic hybrid.
 - **API-Led Connectivity** = MuleSoft's 3-layer (Experience → Process → System) recipe for applying microservices thinking to API design specifically — a best practice to apply based on actual reuse/complexity needs, not a rule to follow blindly, and never an excuse to skip security just because traffic stays "internal."

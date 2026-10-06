@@ -1,6 +1,9 @@
 # Day 34 — Client Credentials and Resource Owner Password Grants, Token Caching (Object Store), and JWT Validation
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 21 Dec 2024). Slide text marked *slide*, diagrams marked *drawing* and pages marked *screen* are read from the recording. Slide images: [slides/day34](../slides/day34/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 21 Dec 2024).
+> - Slide text marked *slide*, diagrams marked *drawing* and pages marked *screen* are read from the recording.
+> - Slide images: [slides/day34](../slides/day34/).
 
 ## 1. Overview
 
@@ -21,7 +24,9 @@
 
 ### 2.1 Example — Zomato and Domino's
 
-A user selects **Domino's** on Zomato to order pizza. Zomato (the **client**) needs Domino's **pizza types** from Domino's **resource server**, protected by OAuth. Domino's has an **authorization server**.
+- A user selects **Domino's** on Zomato to order pizza.
+- Zomato (the **client**) needs Domino's **pizza types** from Domino's **resource server**, protected by OAuth.
+- Domino's has an **authorization server**.
 
 1. **Registration (once):** when Zomato ties up with Domino's, it registers as a client. Domino's authorization server generates a **client ID and client secret** for Zomato and shares them (mail or another channel).
 2. Domino's also gives the **token endpoint** — a URL, e.g. `https://<auth-server>.com/.../token` (the endpoint is the path at the end).
@@ -59,7 +64,10 @@ Third-party client ──► [OAuth] Our Experience API (ABC company) ──► 
 
 - **Authorization server:** e.g. **Okta**, **Auth0**. Most enterprises use a separate identity provider (they already use it for **single sign-on**).
 
-> **Technical clarification:** the instructor mentioned that MuleSoft can also provide an OAuth server for companies without the budget. To be precise: MuleSoft offers an **OAuth 2.0 Provider** (a module you deploy as a Mule app) and API Manager can be connected to external **client providers** (e.g. Okta, PingFederate, OpenAM). API Manager itself isn't an authorization server.
+> **Technical clarification:**
+> - The instructor mentioned that MuleSoft can also provide an OAuth server for companies without the budget.
+> - To be precise: MuleSoft offers an **OAuth 2.0 Provider** (a module you deploy as a Mule app) and API Manager can be connected to external **client providers** (e.g. Okta, PingFederate, OpenAM).
+> - API Manager itself isn't an authorization server.
 
 ### 3.2 What we give the client
 
@@ -83,7 +91,9 @@ The token is sent in the **Authorization header**.
 
 ### 3.4 How does the client keep the token for an hour?
 
-The client is also an application with code. It keeps the token in a **cache** — e.g. for ~**55 minutes** (slightly less than the 1-hour validity). When the cache entry expires, the next request generates a new token and caches it again.
+- The client is also an application with code.
+- It keeps the token in a **cache** — e.g. for ~**55 minutes** (slightly less than the 1-hour validity).
+- When the cache entry expires, the next request generates a new token and caches it again.
 
 **Advantages:** less load on the authorization server, more speed, less resource use.
 
@@ -91,7 +101,9 @@ The client is also an application with code. It keeps the token in a **cache** �
 
 ### 3.5 MuleSoft calling an OAuth-protected API — where to keep the token?
 
-Scenario: our **experience API** calls our **process API**, which is also protected by OAuth. Same process: register a client, get client ID/secret and token endpoint, generate the token. Where to keep it for an hour?
+- Scenario: our **experience API** calls our **process API**, which is also protected by OAuth.
+- Same process: register a client, get client ID/secret and token endpoint, generate the token.
+- Where to keep it for an hour?
 
 | Option | Verdict |
 |---|---|
@@ -103,7 +115,10 @@ Scenario: our **experience API** calls our **process API**, which is also protec
 
 ### 3.6 HTTP caching policy on the token endpoint?
 
-Question: with Object Store on our side, is an HTTP caching policy still needed? The authorization server is owned by **another team**; whether they put an HTTP caching policy on their token API is their decision. Ideally they should — there's no guarantee every client caches. But caching on the client side (Object Store) is more efficient, because client and server are different parties and each call between them takes time.
+- Question: with Object Store on our side, is an HTTP caching policy still needed?
+- The authorization server is owned by **another team**; whether they put an HTTP caching policy on their token API is their decision.
+- Ideally they should — there's no guarantee every client caches.
+- But caching on the client side (Object Store) is more efficient, because client and server are different parties and each call between them takes time.
 
 ---
 
@@ -116,7 +131,9 @@ Question: with Object Store on our side, is an HTTP caching policy still needed?
 
 ### 4.2 Example — Zomato order history
 
-Ramesh already has a Zomato account and places orders. Zomato has its own **authorization server** and an **orders resource server** protected by OAuth. No third-party servers involved.
+- Ramesh already has a Zomato account and places orders.
+- Zomato has its own **authorization server** and an **orders resource server** protected by OAuth.
+- No third-party servers involved.
 
 1. Ramesh logs in on the Zomato front end; the request goes to Zomato's web server (backend).
 2. The backend sends **client credentials + Ramesh's username/password** to the token endpoint.
@@ -133,7 +150,9 @@ Ramesh already has a Zomato account and places orders. Zomato has its own **auth
 
 ### 4.3 Instructor's note
 
-Question in class from someone who used client credentials in a project without the full picture. **Instructor's view:** people with 5–10 years' experience often can't answer "Why client credentials and not authorization code?" — not for lack of talent but because of the comfort zone. These are the minimum skills.
+- Question in class from someone who used client credentials in a project without the full picture.
+- **Instructor's view:** people with 5–10 years' experience often can't answer "Why client credentials and not authorization code?" — not for lack of talent but because of the comfort zone.
+- These are the minimum skills.
 
 ---
 
@@ -174,7 +193,10 @@ Base64 is a standard **encoding** format (encryption, by contrast, uses a key/al
 - **Plugins → MIME Tools → Base64 Decode** → original text.
 - Online tools do the same.
 
-> **Technical clarification:** Base64 is **not** security — anyone can decode a JWT's header and payload. JWT security comes from the **signature** (tampering is detected), not from hiding the content. Don't put secrets in the payload.
+> **Technical clarification:**
+> - Base64 is **not** security — anyone can decode a JWT's header and payload.
+> - JWT security comes from the **signature** (tampering is detected), not from hiding the content.
+> - Don't put secrets in the payload.
 
 ---
 
@@ -182,7 +204,9 @@ Base64 is a standard **encoding** format (encryption, by contrast, uses a key/al
 
 ### 7.1 Problem with plain OAuth validation
 
-A client sends on average **10,000 requests per hour**. It saves the token, so token **generation** is fine (once per hour). But for each request, our API (resource server) asks the authorization server to **validate** the token → **10,000 calls** to the auth server per hour.
+- A client sends on average **10,000 requests per hour**.
+- It saves the token, so token **generation** is fine (once per hour).
+- But for each request, our API (resource server) asks the authorization server to **validate** the token → **10,000 calls** to the auth server per hour.
 
 HTTP caching doesn't really help — each request still needs validation. Can we remove this step?
 
@@ -205,12 +229,17 @@ Gateway: verify signature with public certificate → valid: process; invalid: r
 
 - The authorization server **signs** the JWT with its **private certificate**.
 - It gives us the matching **public certificate**; we configure it at **API Manager** level.
-- For each request, the gateway checks the **signature** with the public certificate. Correct → process. Wrong → reject.
+- For each request, the gateway checks the **signature** with the public certificate.
+  - Correct → process.
+  - Wrong → reject.
 - No call to the authorization server per request → that step is removed.
 
 **The private certificate is never shared** — not with the client, not with anyone. It stays with whoever (person/machine) generated it; only the public certificate is shared.
 
-> **Technical clarification:** strictly these are a private **key** and public key (often distributed as a certificate or via a **JWKS** URL). This applies to asymmetric algorithms like **RS256**. **HS256** (the jwt.io default shown) is symmetric — the same shared secret signs and verifies.
+> **Technical clarification:**
+> - Strictly these are a private **key** and public key (often distributed as a certificate or via a **JWKS** URL).
+> - This applies to asymmetric algorithms like **RS256**.
+> - **HS256** (the jwt.io default shown) is symmetric — the same shared secret signs and verifies.
 
 ### 7.4 Keeping the public certificate up to date
 
@@ -230,7 +259,9 @@ Both will be shown in the implementation.
 
 ### 7.6 Why it matters
 
-The main job of the client and resource server is **processing requests**. If token generation, validation and security take a lot of time, overall response time suffers — like a company outsourcing small work to focus on its core business. JWT validation reduces that overhead.
+- The main job of the client and resource server is **processing requests**.
+- If token generation, validation and security take a lot of time, overall response time suffers — like a company outsourcing small work to focus on its core business.
+- JWT validation reduces that overhead.
 
 OAuth and JWT are **generic** concepts (any technology). Knowing why they work this way is what makes applying them in MuleSoft meaningful.
 
@@ -269,7 +300,9 @@ No user or browser is involved and the data isn't owned by an individual user; t
 The client sends the user's username/password plus client credentials to get a token, to access that user's own data. Less secure — the client handles the password.
 
 ### Q4. Compare the three grant types.
-Authorization code: third-party sign-in, user-owned data. Client credentials: server-to-server, common data. Password: user's own data on the client's own system.
+- Authorization code: third-party sign-in, user-owned data.
+- Client credentials: server-to-server, common data.
+- Password: user's own data on the client's own system.
 
 ### Q5. How should a client handle token expiry?
 Reuse the token while valid (cache it slightly shorter than its lifetime); regenerate after expiry.

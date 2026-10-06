@@ -91,7 +91,10 @@ flowchart LR
 ```
 
 - **Default, unconfigured behavior**: 200-series = success, everything else = error. This is what every prior session has relied on implicitly.
-- **The override mechanism**: on the Request operation's Response tab, **Success Status Code Validator** / **Failure Status Code Validator** let you explicitly redefine this — with range syntax like `400..499`. In class (*screen*): first `200,400` — a wrong city still failed with `HTTP:NOT_FOUND` (404 isn't in that list); after widening to the 4xx range the 404 passed as success and the next Transform failed on `null - 273.15`. The drawing summarised: 200 series → success, 400 → client-side error, 500 → server-side error; success status code validator → 200 (201, 205, 206), anything else → error.
+- **The override mechanism**:
+  - On the Request operation's Response tab, **Success Status Code Validator** / **Failure Status Code Validator** let you explicitly redefine this — with range syntax like `400..499`.
+  - In class (*screen*): first `200,400` — a wrong city still failed with `HTTP:NOT_FOUND` (404 isn't in that list); after widening to the 4xx range the 404 passed as success and the next Transform failed on `null - 273.15`.
+  - The drawing summarised: 200 series → success, 400 → client-side error, 500 → server-side error; success status code validator → 200 (201, 205, 206), anything else → error.
 - **Proven live**: configuring Success = `200, 404` and then sending a request that triggers a real 404 from OpenWeatherMap — confirmed, via the debugger, that the flow proceeds past the HTTP Request step as if it succeeded.
 - **How rarely this should be used, stated directly**: *"it rarely comes, but in such situations... you should use this option."* A genuine escape hatch for unusual business needs (e.g. "not found" being an expected, valid outcome for some specific workflow) — not a casual override.
 

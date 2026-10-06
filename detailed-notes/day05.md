@@ -98,7 +98,10 @@ This is the simplest possible DataWeave script — no reshaping logic, just a fo
 | `Could not obtain connection from data source` | The MySQL **service itself** wasn't running (checked via `services.msc` on Windows) | Start the database service before testing the connector — "installed" ≠ "running" |
 | Listener won't deploy / port conflict | Chosen port already actively used by another process (e.g. MySQL itself on 3306) | Pick a genuinely free port |
 
-> 💡 **General debugging instinct modeled here:** when a connection fails, systematically check — is the service actually *running*? Are the credentials *exactly* right (case-sensitive, no typos)? Is the port actually *free*? This same checklist applies to almost any connector, not just Database.
+> - 💡 **General debugging instinct modeled here:** when a connection fails, systematically check — is the service actually *running*?
+> - Are the credentials *exactly* right (case-sensitive, no typos)?
+> - Is the port actually *free*?
+> - This same checklist applies to almost any connector, not just Database.
 
 ---
 

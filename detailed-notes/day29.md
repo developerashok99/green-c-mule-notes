@@ -2,7 +2,10 @@
 
 > **Watch alongside:** this session turns yesterday's masking *cliffhanger* into working code, then pivots to something equally important — actually building the real MySQL database and wiring MuleSoft to it safely. The one rule worth internalizing hardest here: **never use a human account for machine-to-machine communication** — always a dedicated service account, because it must keep working even if the person who owns it resigns.
 
-> **Video-verified:** checked against the class recording (16 Dec 2024). Corrected from the screen: module `dw::util::Values`, `mask field(...) with ...` syntax, the class table `EMPLOYEES_INFO` (`emp_id` …), the input parameters, the `DATABASE:NO_DATA_FOUND` deploy failure, and the 201/400/500 test results. Slide images: [slides/day29](../slides/day29/).
+> **Video-verified:**
+> - Checked against the class recording (16 Dec 2024).
+> - Corrected from the screen: module `dw::util::Values`, `mask field(...) with ...` syntax, the class table `EMPLOYEES_INFO` (`emp_id` …), the input parameters, the `DATABASE:NO_DATA_FOUND` deploy failure, and the 201/400/500 test results.
+> - Slide images: [slides/day29](../slides/day29/).
 
 ---
 
@@ -15,7 +18,9 @@ flowchart LR
     Call --> Out["Matching fields replaced in the output"]
 ```
 
-*"This mask function will be in the availability of the data [library]... we have to import the utility from the values library."* Exact syntax (*screen*): `import * from dw::util::Values` — capital **V**. In the Playground, without the import the output is `Unable to resolve reference of: mask`. With it:
+- *"This mask function will be in the availability of the data [library]... we have to import the utility from the values library."* Exact syntax (*screen*): `import * from dw::util::Values` — capital **V**.
+- In the Playground, without the import the output is `Unable to resolve reference of: mask`.
+- With it:
 
 ```dataweave
 %dw 2.0
@@ -130,7 +135,11 @@ flowchart LR
     Fix --> Works["✅ Connection works — key is tracked"]
 ```
 
-*Screen:* the encrypted username/password in `dev.yaml`/`prod.yaml` were copied from the sys-app, and the instructor had to work out which key made them (*"I think I took it from the Sys app"*). Decrypting them in the Secure Properties Generator with that key returned the expected username and password, so that key became the `secure.key` global property (it can also go in Debug Configurations → Environment). Reinforces the Day 27 warning: lose track of the key and the encrypted values are unreadable. Remove these global properties before pushing code.
+*Screen:*
+- The encrypted username/password in `dev.yaml`/`prod.yaml` were copied from the sys-app, and the instructor had to work out which key made them (*"I think I took it from the Sys app"*).
+- Decrypting them in the Secure Properties Generator with that key returned the expected username and password, so that key became the `secure.key` global property (it can also go in Debug Configurations → Environment).
+- Reinforces the Day 27 warning: lose track of the key and the encrypted values are unreadable.
+- Remove these global properties before pushing code.
 
 > **Values as shown on screen** (2024 demo setup, now expired): key `ABCD1234DEFG5678`; yaml `username: "![GLXPpiI1r4jRxD7uEXR5Iw==]"`, `password: "![1rfh04McIxNQi/bKeObUKA==]"`; Decrypt (AES, CBC) of the username → `root`, of the password → `Vision@2022`. Screens: [slides/day29](../slides/day29/) 29–31.
 
@@ -174,7 +183,10 @@ flowchart LR
 }
 ```
 
-**A deploy failure before the test (screen):** the reused `common-error-handler.xml` had an On Error Propagate for `DATABASE:NO_DATA_FOUND`. Deploy failed — `Could not find ErrorType for the given identifier: 'DATABASE:NO_DATA_FOUND'`. A custom type can't be used in a handler until the app can raise it, so the block was commented out (`<!-- … -->`) for now.
+**A deploy failure before the test (screen):**
+- The reused `common-error-handler.xml` had an On Error Propagate for `DATABASE:NO_DATA_FOUND`.
+- Deploy failed — `Could not find ErrorType for the given identifier: 'DATABASE:NO_DATA_FOUND'`.
+- A custom type can't be used in a handler until the app can raise it, so the block was commented out (`<!-- … -->`) for now.
 
 **Live `fx` gotcha**: `payload.employeeId` typed directly (without enabling `fx`/expression mode) fails — *"it is working only in expression mode. `Payload.` is not an expression"* by default; the `fx` toggle must be explicitly turned on.
 

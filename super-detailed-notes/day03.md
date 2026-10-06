@@ -42,7 +42,9 @@ An **API is a type of integration** — a part of integration. Almost all work i
 
 ### 3.2 Where is the code in MuleSoft?
 
-In MuleSoft you mostly drag and drop components. Behind the scenes, Anypoint Studio **generates XML code** automatically. Because you write very little code by hand, MuleSoft is called a **low-code tool**.
+- In MuleSoft you mostly drag and drop components.
+- Behind the scenes, Anypoint Studio **generates XML code** automatically.
+- Because you write very little code by hand, MuleSoft is called a **low-code tool**.
 
 ### 3.3 API as a layer
 
@@ -158,7 +160,11 @@ API + internet network          → web service
 API + private/enterprise network → API (not a web service, per the lecture)
 ```
 
-> **Technical clarification:** The commonly used definition is that a *web service* is an API that is accessed over a network using web protocols (HTTP, SOAP, etc.). Web services can also run inside private networks. Many APIs are not web services at all — for example, a library's programming interface or an operating-system API, which are called within the same program/machine. The statement "all web services are APIs, but not all APIs are web services" is correct; the internet-vs-private-network split is the instructor's simplified way to explain it.
+> **Technical clarification:**
+> - The commonly used definition is that a *web service* is an API that is accessed over a network using web protocols (HTTP, SOAP, etc.).
+> - Web services can also run inside private networks.
+> - Many APIs are not web services at all — for example, a library's programming interface or an operating-system API, which are called within the same program/machine.
+> - The statement "all web services are APIs, but not all APIs are web services" is correct; the internet-vs-private-network split is the instructor's simplified way to explain it.
 
 ---
 
@@ -192,7 +198,10 @@ Same data in XML — every value needs an opening and a closing tag:
 </custData>
 ```
 
-**Instructor's analogy:** a document with 1 lakh words is larger than one with 10,000 words. XML adds extra text (tags) for the same data, so the message is heavier. JSON is lighter, so **REST with JSON uses fewer resources**.
+**Instructor's analogy:**
+- A document with 1 lakh words is larger than one with 10,000 words.
+- XML adds extra text (tags) for the same data, so the message is heavier.
+- JSON is lighter, so **REST with JSON uses fewer resources**.
 
 ---
 
@@ -233,7 +242,9 @@ Request ──► Is the result in cache?
 
 ### 8.4 Where does the cache live?
 
-The application is deployed on a **server** — a cloud server or an on-premises server; the organisation decides (e.g., a bank such as ICICI may choose on-premises; another company may choose cloud). Any application uses server memory while processing a request. A cache is a part of that server memory used to keep results for reuse.
+- The application is deployed on a **server** — a cloud server or an on-premises server; the organisation decides (e.g., a bank such as ICICI may choose on-premises; another company may choose cloud).
+- Any application uses server memory while processing a request.
+- A cache is a part of that server memory used to keep results for reuse.
 
 Caching in MuleSoft (e.g., with Object Store) is covered later in the course.
 
@@ -304,7 +315,9 @@ REST APIs are designed with **RAML** (RESTful API Modeling Language).
 
 ### 10.3 Securing an API — the house analogy
 
-A house can be secured in different ways: solar/electric fencing, a guard dog, a security guard. In the same way, REST and SOAP services can be secured in different ways. The security schemes are defined in the design (RAML or WSDL).
+- A house can be secured in different ways: solar/electric fencing, a guard dog, a security guard.
+- In the same way, REST and SOAP services can be secured in different ways.
+- The security schemes are defined in the design (RAML or WSDL).
 
 ---
 
@@ -380,7 +393,11 @@ Slide 11 ("REST vs SOAP") lists REST's advantages: less complex and easy to use,
 
 ### A student asked: do we need to know every protocol (SMTP, UDP, …)?
 
-**Instructor's answer:** No one knows everything. A teacher is ahead of you only in their subject. The instructor does not use SMTP or UDP in MuleSoft work, so cannot explain why those are used; with 1–2 years of practice students can surpass the instructor. Focus on the protocols actually used.
+**Instructor's answer:**
+- No one knows everything.
+- A teacher is ahead of you only in their subject.
+- The instructor does not use SMTP or UDP in MuleSoft work, so cannot explain why those are used; with 1–2 years of practice students can surpass the instructor.
+- Focus on the protocols actually used.
 
 ---
 
@@ -405,7 +422,9 @@ Different stages of development and testing need **separate, isolated infrastruc
 
 An API receives a request, reads data from a **database**, sends it to **Salesforce**, transforms the Salesforce response and returns it. Follow it through the environments:
 
-The instructor's sketch on the environments slide: a request comes into the **API**, which calls a **DB** and **SFDC** (Salesforce) and returns the response. The developer tests it with **Postman**. Separate features (**f1**, **f2**) are tested in their own environment, so SIT, UAT and the others each get their own set of servers.
+- The instructor's sketch on the environments slide: a request comes into the **API**, which calls a **DB** and **SFDC** (Salesforce) and returns the response.
+- The developer tests it with **Postman**.
+- Separate features (**f1**, **f2**) are tested in their own environment, so SIT, UAT and the others each get their own set of servers.
 
 ```text
 Local (Anypoint Studio)
@@ -511,7 +530,9 @@ The number depends on the organisation's requirements and budget.
 A piece of code that enables two or more systems to communicate and exchange data. It acts as a middle layer — like a waiter between customer and kitchen — receiving requests, processing them with the back-end and returning responses.
 
 ### Q2. What is the difference between an API and a web service?
-All web services are APIs, but not all APIs are web services. A web service is an API accessed over a network using web protocols (the instructor's simplification: over the internet). Other APIs — such as library or operating-system APIs — are not web services.
+- All web services are APIs, but not all APIs are web services.
+- A web service is an API accessed over a network using web protocols (the instructor's simplification: over the internet).
+- Other APIs — such as library or operating-system APIs — are not web services.
 
 ### Q3. What is REST?
 REpresentational State Transfer — an architectural style for web services that uses HTTP. It is flexible, lightweight, supports formats such as JSON and XML, is easily scalable and supports caching.
@@ -535,7 +556,9 @@ Storing results temporarily to reuse them for repeated requests. Use it when the
 Consume existing SOAP services; they rarely create new ones.
 
 ### Q10. What environments are used in real projects and why?
-Dev, SIT/QA, UAT, Pre-Prod (performance), Prod and DR. Each has its own servers and systems so development, testing, business validation, load testing and live traffic don't interfere. Many companies use only 3–4.
+- Dev, SIT/QA, UAT, Pre-Prod (performance), Prod and DR.
+- Each has its own servers and systems so development, testing, business validation, load testing and live traffic don't interfere.
+- Many companies use only 3–4.
 
 ### Q11. What is UAT?
 User Acceptance Testing — the business team or clients test the application against business requirements and give sign-off.

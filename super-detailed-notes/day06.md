@@ -1,6 +1,9 @@
 # Day 06 — HTTP in Depth: HTTPS, Methods, Request Structure, Status Codes and JSON
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 6 Nov 2024). Slide text, drawings and Postman/Studio screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day06](../slides/day06/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 6 Nov 2024).
+> - Slide text, drawings and Postman/Studio screens marked *slide*, *drawing* or *screen* are read from the recording.
+> - Slide images: [slides/day06](../slides/day06/).
 
 ## 1. Overview
 
@@ -17,7 +20,9 @@ On Day 05 a request was sent and a response received. This session explains **ho
 
 *Drawing* (recap at the start): Consumer → (JSON) HTTP Req → [MS] API ↔ DB, with (JSON) Res coming back.
 
-Why it matters: REST APIs depend on HTTP. **Instructor's observation:** in MuleSoft interviews, 3–4 questions on HTTP/REST/SOAP are typically asked before the MuleSoft-specific questions. These are standards — understand them rather than memorising blindly.
+- Why it matters: REST APIs depend on HTTP.
+- **Instructor's observation:** in MuleSoft interviews, 3–4 questions on HTTP/REST/SOAP are typically asked before the MuleSoft-specific questions.
+- These are standards — understand them rather than memorising blindly.
 
 Next session: how the HTTP request is converted into a **Mule event** inside the application.
 
@@ -107,7 +112,10 @@ With POST, the record should not already exist. If it does, the API typically re
 
 ### 3.4 PUT — full update, or create if missing
 
-**Use case:** employee **102** exists. Send all of 102's details (e.g., with a new email and phone number). The **entire** record is replaced with the new details.
+**Use case:**
+- Employee **102** exists.
+- Send all of 102's details (e.g., with a new email and phone number).
+- The **entire** record is replaced with the new details.
 
 > PUT: if the resource exists → **completely update** (replace) it; if it doesn't exist → **create** it.
 
@@ -135,7 +143,10 @@ With POST, the record should not already exist. If it does, the API typically re
 
 ### 3.8 Standards, not hard rules — the traffic-rule analogy
 
-Using POST to fetch or GET to create will technically work if the API allows it (as shown on Day 05). But when everyone sees GET, they immediately understand "fetch". Like traffic rules — sometimes people deviate slightly, but don't break them completely. **Follow the standard so everyone understands; deviate only with reason.**
+- Using POST to fetch or GET to create will technically work if the API allows it (as shown on Day 05).
+- But when everyone sees GET, they immediately understand "fetch".
+- Like traffic rules — sometimes people deviate slightly, but don't break them completely.
+- **Follow the standard so everyone understands; deviate only with reason.**
 
 ### 3.9 Common interview questions
 
@@ -201,7 +212,11 @@ Examples:
 | `source: mobile-application` / `source: web-application` | Which application sent the request |
 | Application name, language, etc. | Other descriptive information |
 
-**Are headers mandatory?** Only if the API design says so. Example: the API owner may define 2 mandatory and 2 optional headers. Missing a mandatory one → error. Optional ones are used if present and ignored if absent.
+**Are headers mandatory?**
+- Only if the API design says so.
+- Example: the API owner may define 2 mandatory and 2 optional headers.
+- Missing a mandatory one → error.
+- Optional ones are used if present and ignored if absent.
 
 ### 5.3 Authorization
 
@@ -260,7 +275,10 @@ Both are covered in depth on Day 10.
 
 ### 5.5 Student question: could Day 05's ID have been sent as a query parameter?
 
-Yes, but the flow would need to change. On Day 05 the ID was sent in the **body**, which becomes the **payload** inside Mule, so the query used `payload.empid`. *Screen (Postman):* GET `http://localhost:8081/empdetails?empid=123` **with** the body `{"empid": 120}` still returned **200 OK** (224 ms, 274 B) with employee **120** (ravi) — the flow reads the body, so the query parameter `123` was ignored. Changing the path to `/empdetails1` returned **404 Not Found** with the body `No listener for endpoint: /empdetails1`.
+- Yes, but the flow would need to change.
+- On Day 05 the ID was sent in the **body**, which becomes the **payload** inside Mule, so the query used `payload.empid`.
+- *Screen (Postman):* GET `http://localhost:8081/empdetails?empid=123` **with** the body `{"empid": 120}` still returned **200 OK** (224 ms, 274 B) with employee **120** (ravi) — the flow reads the body, so the query parameter `123` was ignored.
+- Changing the path to `/empdetails1` returned **404 Not Found** with the body `No listener for endpoint: /empdetails1`.
 
 If the ID is sent as a query parameter, the payload is empty and `payload.empid` fails; the value must be read from another part of the Mule event (attributes). Explained in the next session.
 
@@ -312,7 +330,10 @@ Meaning: request received, processing in progress.
 | **201 Created** | Request successful; a new resource created | POST creates a new employee |
 | **204 No Content** | Request successful; no data to return | Request is fine but there is nothing to send back |
 
-**Instructor's observation:** many teams use 200 for everything, including POST. Ideally use 201 for creation and 204 for no data. Not a hard rule (traffic-rule analogy again).
+**Instructor's observation:**
+- Many teams use 200 for everything, including POST.
+- Ideally use 201 for creation and 204 for no data.
+- Not a hard rule (traffic-rule analogy again).
 
 *Slide:* 200 OK - The request was successful, and the server has returned the requested data. · 201 Created - The request was successful, and a new resource has been created on the server. · 204 No Content - The request was successful, but there is no data to return.
 
@@ -366,7 +387,10 @@ These are used regularly in real projects.
 
 ### 6.7 API gateway and 502/504
 
-**API gateway:** a component in front of the API. **Analogy:** a security guard at a house stops visitors, verifies them, then lets them in. The gateway checks credentials (e.g. username/password) and forwards valid requests to the API; otherwise rejects them.
+**API gateway:**
+- A component in front of the API.
+- **Analogy:** a security guard at a house stops visitors, verifies them, then lets them in.
+- The gateway checks credentials (e.g. username/password) and forwards valid requests to the API; otherwise rejects them.
 
 ```text
 Consumer ──► API Gateway ──► API
@@ -374,7 +398,10 @@ Consumer ──► API Gateway ──► API
      waits for the API's response up to its time limit
 ```
 
-**Instructor's example:** the gateway expects the API to respond within 100 ms, but the API takes 150 ms. The gateway gives up and returns an error instead of the response. The instructor used this example for **502 Bad Gateway** and then said **504** "or even 502" can be used for it.
+**Instructor's example:**
+- The gateway expects the API to respond within 100 ms, but the API takes 150 ms.
+- The gateway gives up and returns an error instead of the response.
+- The instructor used this example for **502 Bad Gateway** and then said **504** "or even 502" can be used for it.
 
 > **Transcript vs. slide:** the class's own slide gives the standard meanings — 502 = *invalid* response from upstream, 504 = no *timely* response. The timeout example in the audio therefore fits **504**.
 
@@ -382,7 +409,10 @@ Consumer ──► API Gateway ──► API
 
 ### 6.8 Error handling is hard
 
-**Instructor's observation:** showing proper errors is challenging. In many systems, 60–70% of errors are shown well; 30–40% are confusing (one problem shows another error). Proper error responses are an important part of API design and error handling (Days 15–16).
+**Instructor's observation:**
+- Showing proper errors is challenging.
+- In many systems, 60–70% of errors are shown well; 30–40% are confusing (one problem shows another error).
+- Proper error responses are an important part of API design and error handling (Days 15–16).
 
 ---
 
@@ -543,7 +573,9 @@ Query parameters are key–value pairs after `?` at the end of the URL, typicall
 405 when the method isn't allowed for the resource; 415 when the request body format isn't supported.
 
 ### Q12. Difference between 502 and 504?
-Both involve a gateway/proxy. 504: the upstream server didn't respond in time. 502: the gateway got an invalid response (or couldn't connect).
+- Both involve a gateway/proxy.
+- 504: the upstream server didn't respond in time.
+- 502: the gateway got an invalid response (or couldn't connect).
 
 ### Q13. What data types does JSON support? Does JSON have a date type?
 String, number, boolean, null, object and array. No date type — dates are sent as strings.

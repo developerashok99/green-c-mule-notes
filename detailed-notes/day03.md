@@ -26,7 +26,9 @@ flowchart TB
     Q -->|Private / internal network| PA["Plain API<br/>(not a web service)"]
 ```
 
-- Think of the network as a **vehicle** — you need *some* way to physically carry the request from caller to API. If that vehicle is the public internet, you've built a web service. If it's a private/internal enterprise network, it's "just" an API, not exposed publicly.
+- Think of the network as a **vehicle** — you need *some* way to physically carry the request from caller to API.
+  - If that vehicle is the public internet, you've built a web service.
+  - If it's a private/internal enterprise network, it's "just" an API, not exposed publicly.
 - **Practical consequence:** an API that's *only* ever called from within a company's own internal network never technically needs to be internet-facing — but the moment any external caller (a partner, a public mobile app) needs to reach it, it becomes a web service and needs internet-facing protocols (HTTP/HTTPS) and appropriate security.
 
 ---
@@ -114,7 +116,10 @@ vs. XML:
 XML's opening/closing tags make the *same information* physically larger on the wire. At scale (a document with 10,000 words vs. 1,00,000 words), this size difference translates directly into slower transfer and processing — which is why REST/JSON, being lighter, is the default choice for anything performance-sensitive.
 
 ### Caching — a concrete worked example
-**Scenario:** "Get all employees who resigned **on** October 15th, 2024." The class query was `SELECT * FROM employees WHERE resignation date = 15 Oct`. It returned 5 employees (105, 106, 108, 109, 112), and the same request came 20 times a day. The year is spoken as "2004" in the audio, but the recording is dated 30 Oct 2024, which confirms 2024.
+**Scenario:**
+- "Get all employees who resigned **on** October 15th, 2024." The class query was `SELECT * FROM employees WHERE resignation date = 15 Oct`.
+- It returned 5 employees (105, 106, 108, 109, 112), and the same request came 20 times a day.
+- The year is spoken as "2004" in the audio, but the recording is dated 30 Oct 2024, which confirms 2024.
 
 ```mermaid
 flowchart TB
@@ -145,7 +150,9 @@ flowchart TB
 - **Prod** – Live access – Available to actual users
 - **DR** – Disaster Recovery – When unexpected incidents happen – Available to actual users
 
-The instructor's sketch on this slide: a request comes into the **API**, which calls a **DB** and **SFDC** (Salesforce) and returns the response. The developer tests it with **Postman**. Separate features (**f1**, **f2**) are tested in their own environment.
+- The instructor's sketch on this slide: a request comes into the **API**, which calls a **DB** and **SFDC** (Salesforce) and returns the response.
+- The developer tests it with **Postman**.
+- Separate features (**f1**, **f2**) are tested in their own environment.
 
 ```mermaid
 flowchart LR
@@ -189,7 +196,9 @@ flowchart TB
 If Dev and QA shared one database, a developer's rough local testing could corrupt data the QA team is relying on for a completely unrelated test case — hence the discipline of giving each environment (that a company can afford to run) its own dedicated backend systems.
 
 ### Why not every company has all 6?
-It's purely a **cost/requirement trade-off**. Running 6 fully separate environments (each with its own app servers, databases, Salesforce sandboxes, etc.) is expensive. Most real companies run a pragmatic subset — commonly **Dev → Test → Prod** — while highly regulated or massive-scale organizations (banks, in particular, per the Disaster Recovery example) invest in the full set including DR, because the cost of *not* having it (extended outage → massive customer/business loss) is far higher than the infrastructure cost.
+- It's purely a **cost/requirement trade-off**.
+- Running 6 fully separate environments (each with its own app servers, databases, Salesforce sandboxes, etc.) is expensive.
+- Most real companies run a pragmatic subset — commonly **Dev → Test → Prod** — while highly regulated or massive-scale organizations (banks, in particular, per the Disaster Recovery example) invest in the full set including DR, because the cost of *not* having it (extended outage → massive customer/business loss) is far higher than the infrastructure cost.
 
 ---
 

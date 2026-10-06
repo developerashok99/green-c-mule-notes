@@ -1,6 +1,9 @@
 # Day 22 — Designing the Employee API: Counting APIs, Naming, JSON Validation, the Design Document and Project Documentation
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 7 Dec 2024). Slide text, drawings and the design-document screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day22](../slides/day22/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 7 Dec 2024).
+> - Slide text, drawings and the design-document screens marked *slide*, *drawing* or *screen* are read from the recording.
+> - Slide images: [slides/day22](../slides/day22/).
 
 ## 1. Overview
 
@@ -86,7 +89,9 @@ Names are decided from the context: business functionality (employee), layer (ex
 
 ### 4.3 Live debugging
 
-A validator showed: `Error: Parse error … Expecting 'EOF'` near `"active": true`. Cause: a **comma** at the end. Removing it fixed the error; then "bad string" errors appeared from copied double quotes.
+- A validator showed: `Error: Parse error … Expecting 'EOF'` near `"active": true`.
+- Cause: a **comma** at the end.
+- Removing it fixed the error; then "bad string" errors appeared from copied double quotes.
 
 **Instructor's advice:** read error messages 4–5 times; they become easy to understand.
 
@@ -145,7 +150,9 @@ The design document — request, response, error response — is the **understan
 
 ### 6.3 Many fields? Don't panic
 
-A request may have 120 fields. Break them down **one by one**: name, type (string, number, boolean…), mandatory or optional, length. Note them; discuss unclear ones with the team lead.
+- A request may have 120 fields.
+- Break them down **one by one**: name, type (string, number, boolean…), mandatory or optional, length.
+- Note them; discuss unclear ones with the team lead.
 
 ### 6.4 Mandatory vs. optional
 
@@ -166,7 +173,9 @@ In RAML a property is **required by default**; mark it `required: false` (or `?`
 
 **Student question:** can we send the token in the body?
 
-Technically yes — nothing breaks. But it's not the standard (traffic-rule analogy again). **Tokens and correlation IDs go in headers**; the **body** carries the main business data for processing.
+- Technically yes — nothing breaks.
+- But it's not the standard (traffic-rule analogy again).
+- **Tokens and correlation IDs go in headers**; the **body** carries the main business data for processing.
 
 ### 7.2 Gateway flow
 
@@ -190,7 +199,10 @@ A unique ID per request, sent in a header, used for **traceability** across APIs
 
 ### 8.1 Resource and methods
 
-*Drawing — POST:* QP ✗ · URI P ✗ · body ✓ → schema/example · headers ✓ · method ✓ · protocol ✓ · DF (data format) — JSON · response — success/error, each with schema and example. Headers: ① source → HR web app ② correlation id ③ transaction id. *Drawing — GET:* body ✗ · headers ✓ · QP ✗ (empId) · URI params ✓; response = the employee JSON.
+*Drawing — POST:*
+- QP ✗ · URI P ✗ · body ✓ → schema/example · headers ✓ · method ✓ · protocol ✓ · DF (data format) — JSON · response — success/error, each with schema and example.
+- Headers: ① source → HR web app ② correlation id ③ transaction id.
+- *Drawing — GET:* body ✗ · headers ✓ · QP ✗ (empId) · URI params ✓; response = the employee JSON.
 
 `/employees` with **POST** (create), **PATCH** (partial update), **GET** (fetch, using the employee ID as a URI parameter — the unique resource identifier).
 
@@ -265,7 +277,11 @@ As a developer you can't know the sequence without these.
 
 ### Real example — token validation (instructor's project)
 
-A requirement: support a `sysToken` in an API with **4 endpoints**. One endpoint (`checkUserExistence`) goes to a system API called `cprv`; the other three go to process APIs. **Token validation is only in the cprv system API.** Question: implement the token for all four or one? **Only the one** going to cprv. The documentation/sequence diagram makes this clear.
+- A requirement: support a `sysToken` in an API with **4 endpoints**.
+- One endpoint (`checkUserExistence`) goes to a system API called `cprv`; the other three go to process APIs.
+- **Token validation is only in the cprv system API.** Question: implement the token for all four or one?
+- **Only the one** going to cprv.
+- The documentation/sequence diagram makes this clear.
 
 ---
 

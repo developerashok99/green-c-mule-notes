@@ -1,6 +1,9 @@
 # Day 12 — Shaping the Weather Response, DataWeave Playground, Target Variable and Response Timeout
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 20 Nov 2024). Slide text and Studio/Postman/Playground screens marked *slide* or *screen* are read from the recording. Slide images: [slides/day12](../slides/day12/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 20 Nov 2024).
+> - Slide text and Studio/Postman/Playground screens marked *slide* or *screen* are read from the recording.
+> - Slide images: [slides/day12](../slides/day12/).
 
 ## 1. Overview
 
@@ -67,7 +70,9 @@ The instructor pasted the target structure into Transform Message and mapped eac
 
 The city is in **our request** and also in the weather response (`name`). But after the HTTP Request, our original payload is gone.
 
-**Solution used** (*screen*): a **Set Variable** named `request` before the HTTP Request, holding the incoming payload. In the transform, read `vars.request.city`. The flow became Listener → Logger → **Set Variable** → Request → Transform Message → Logger.
+- **Solution used** (*screen*): a **Set Variable** named `request` before the HTTP Request, holding the incoming payload.
+- In the transform, read `vars.request.city`.
+- The flow became Listener → Logger → **Set Variable** → Request → Transform Message → Logger.
 
 ---
 
@@ -92,7 +97,9 @@ MuleSoft's **online DataWeave Playground** lets you try transformations without 
 
 ### 4.1 Finding the formula
 
-A temperature of ~300 is clearly not Celsius (normal is ~22°C). The value is in **Kelvin**. The documentation should state the unit (this free API didn't make it obvious).
+- A temperature of ~300 is clearly not Celsius (normal is ~22°C).
+- The value is in **Kelvin**.
+- The documentation should state the unit (this free API didn't make it obvious).
 
 **Instructor:** "I don't know the formula — so what do I do? Google it", or check the documentation.
 
@@ -248,7 +255,9 @@ HTTP Request config (host/port)  ← timeout 11000 → applies to both
 
 ### 7.4 Real project example (instructor's experience)
 
-The team deployed 8 applications to production early in the morning and was monitoring support. One app consumed a third-party API that takes about **120 seconds** (requests took 90–110 seconds). This was a **background** process, so the business accepted it.
+- The team deployed 8 applications to production early in the morning and was monitoring support.
+- One app consumed a third-party API that takes about **120 seconds** (requests took 90–110 seconds).
+- This was a **background** process, so the business accepted it.
 
 With the default 10-second timeout, **every** request would time out even though the target eventually processes it. So they **increased the response timeout** for that call.
 
@@ -278,11 +287,18 @@ output application/json
 
 (Illustrative.)
 
-**Result:** App 1 waits 5 s → `HTTP:TIMEOUT`. App 1 does not wait for App 2's eventual reply. Set App 1's timeout to 12–15 s and it succeeds.
+**Result:**
+- App 1 waits 5 s → `HTTP:TIMEOUT`.
+- App 1 does not wait for App 2's eventual reply.
+- Set App 1's timeout to 12–15 s and it succeeds.
 
 ### 7.6 Setting the right value
 
-**Example:** front end → Experience API → Process API → two System APIs. The whole response should take ~500 ms. One System API usually takes ~5 seconds; setting its timeout to 6 seconds avoids errors, but **5–6 seconds per request is still a poor experience** for a live user. Not timing out ≠ fast enough.
+**Example:**
+- Front end → Experience API → Process API → two System APIs.
+- The whole response should take ~500 ms.
+- One System API usually takes ~5 seconds; setting its timeout to 6 seconds avoids errors, but **5–6 seconds per request is still a poor experience** for a live user.
+- Not timing out ≠ fast enough.
 
 Background operations (document upload/processing, huge data, run in non-business hours) can take 5–10 times longer — that's acceptable. Different data-processing strategies are used for different cases.
 

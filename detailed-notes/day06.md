@@ -54,7 +54,9 @@ flowchart TD
 > ⚠️ **These are conventions, not compiler-enforced rules.** Nothing technically stops you from using GET to create a resource — but every consumer, tool, and interviewer *expects* the convention to be followed, and deviating causes real confusion (e.g. caching proxies may assume GET has no side effects and cache it — breaking a GET-that-secretly-writes-data in surprising ways).
 
 ### GET + body — a specific gotcha demonstrated live
-The lecture explicitly showed sending a body on a GET request and having Mule **accept it anyway**, since the flow hadn't restricted the listener's allowed methods. **The convention says don't send a body on GET** (use query/URI params instead) — but nothing in Mule's default listener configuration technically prevents it. Restricting *which* methods a given resource accepts is itself a design-time decision, defined in the API specification.
+- The lecture explicitly showed sending a body on a GET request and having Mule **accept it anyway**, since the flow hadn't restricted the listener's allowed methods.
+- **The convention says don't send a body on GET** (use query/URI params instead) — but nothing in Mule's default listener configuration technically prevents it.
+- Restricting *which* methods a given resource accepts is itself a design-time decision, defined in the API specification.
 
 On screen, the Day 05 flow was called both ways:
 

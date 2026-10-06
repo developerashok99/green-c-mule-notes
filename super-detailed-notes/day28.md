@@ -1,6 +1,9 @@
 # Day 28 — Initial Variables, JSON Logger, Timing with `now()`, Asynchronous Logging and Sensitive Data
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 14 Dec 2024). Code, configuration and output marked *screen* are read from the recording. Slide images: [slides/day28](../slides/day28/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 14 Dec 2024).
+> - Code, configuration and output marked *screen* are read from the recording.
+> - Slide images: [slides/day28](../slides/day28/).
 
 ## 1. Overview
 
@@ -21,7 +24,9 @@ The skeleton is ready; now it's improved step by step:
 
 ### 2.1 Why
 
-Values such as **headers, correlation ID, transaction ID, query params, URI params** and the original **payload** are needed later (for logging, mapping, calling other systems). But connectors (e.g. HTTP Request) **overwrite payload and attributes**. **Variables** aren't overwritten unless you deliberately do it.
+- Values such as **headers, correlation ID, transaction ID, query params, URI params** and the original **payload** are needed later (for logging, mapping, calling other systems).
+- But connectors (e.g. HTTP Request) **overwrite payload and attributes**.
+- **Variables** aren't overwritten unless you deliberately do it.
 
 > Standard practice in many companies: capture these values into **variables** right at the beginning of the request.
 
@@ -64,7 +69,10 @@ payload</ee:set-variable>
 
 (The real XML wraps each expression in `<![CDATA[...]]>`; shortened here.)
 
-> **Technical clarification:** before the APIkit Router runs, **URI parameters are not yet extracted** (the Listener path is `/api/*`), so `attributes.uriParams` is empty there. The instructor hinted at this ("we'll get an issue with URI params"). Capture URI params inside the resource flow instead.
+> **Technical clarification:**
+> - Before the APIkit Router runs, **URI parameters are not yet extracted** (the Listener path is `/api/*`), so `attributes.uriParams` is empty there.
+> - The instructor hinted at this ("we'll get an issue with URI params").
+> - Capture URI params inside the resource flow instead.
 
 *Screen:* that's what the class did — the PATCH/GET resource flows set a variable from `attributes.uriParams.empid` before the Flow Reference to the implementation flow. Tested in Postman: PATCH returned **200** with `"employee details updated successfully in the db"`.
 
@@ -109,7 +117,9 @@ With the plain Logger, every logger must be filled manually with transaction ID,
 
 ### 3.2 Where it comes from
 
-JSON Logger is a **custom connector**. Organisations publish it (or their own custom logger) to **Exchange** and import it into projects from there — like importing a JAR in Java. Build once, reuse 100 times.
+- JSON Logger is a **custom connector**.
+- Organisations publish it (or their own custom logger) to **Exchange** and import it into projects from there — like importing a JAR in Java.
+- Build once, reuse 100 times.
 
 ### 3.3 Fields
 
@@ -131,7 +141,9 @@ JSON Logger is a **custom connector**. Organisations publish it (or their own cu
 
 ### 3.5 Log level
 
-INFO prints every time. Other levels (DEBUG, ERROR) relate to what is printed depending on configuration. Covered separately later.
+- INFO prints every time.
+- Other levels (DEBUG, ERROR) relate to what is printed depending on configuration.
+- Covered separately later.
 
 *Screen:* the core Logger's **Level** dropdown offers **INFO, DEBUG, WARN, ERROR, TRACE**.
 
@@ -275,7 +287,9 @@ These are **sensitive information** — they can be misused. Each organisation (
 
 ### 6.2 Audits
 
-Regulators such as the **RBI** can audit and ask to see production logs; you can't refuse. If logs show sensitive data, they issue warnings. Data leaks or employee misuse damage the company's reputation (especially for listed companies).
+- Regulators such as the **RBI** can audit and ask to see production logs; you can't refuse.
+- If logs show sensitive data, they issue warnings.
+- Data leaks or employee misuse damage the company's reputation (especially for listed companies).
 
 ### 6.3 Fix — masking
 

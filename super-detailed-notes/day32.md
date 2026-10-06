@@ -1,6 +1,9 @@
 # Day 32 — Rate Limiting, Rate Limiting SLA, Spike Control, HTTP Caching, JSON Threat Protection, IP Allow/Block Lists (Theory)
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 19 Dec 2024). Diagrams marked *drawing* are read from the instructor's "MULESOFT Policies.pptx" in the recording; this class was theory only. Slide images: [slides/day32](../slides/day32/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 19 Dec 2024).
+> - Diagrams marked *drawing* are read from the instructor's "MULESOFT Policies.pptx" in the recording; this class was theory only.
+> - Slide images: [slides/day32](../slides/day32/).
 
 ## 1. Overview
 
@@ -26,7 +29,10 @@ This is a theory session on policies; applying them in API Manager is quick and 
 
 **Why it matters:** knowing which error appears tells you what went wrong and where to look.
 
-> **Technical clarification:** the exact status for **missing** credentials depends on the policy and its version. MuleSoft's Basic Authentication policy normally returns **401** when the `Authorization` header is missing too. Confirm with your own test instead of relying on one rule.
+> **Technical clarification:**
+> - The exact status for **missing** credentials depends on the policy and its version.
+> - MuleSoft's Basic Authentication policy normally returns **401** when the `Authorization` header is missing too.
+> - Confirm with your own test instead of relying on one rule.
 
 ---
 
@@ -38,7 +44,10 @@ This is a theory session on policies; applying them in API Manager is quick and 
 
 **Why:** if traffic exceeds what the servers can handle, the app crashes ("WhatsApp is down", "Facebook crashed" — one common reason is more traffic than expected).
 
-**Illustrative example:** server capacity is 100 requests/minute. Set the policy to **95 per minute**. In one window, requests 96, 97, 98… are rejected.
+**Illustrative example:**
+- Server capacity is 100 requests/minute.
+- Set the policy to **95 per minute**.
+- In one window, requests 96, 97, 98… are rejected.
 
 ### 3.2 The error — 429
 
@@ -65,7 +74,9 @@ First request at 10:06  →  window 1: 10:06–10:07  (95 allowed, rest → 429)
 
 ### 3.4 Per consumer or total?
 
-Three consumers send 30 + 40 + 60 within one minute. The limit (95) is for **all consumers together** — the API's capacity is what's being protected. Whichever requests come after the 95th in that window are rejected, regardless of consumer.
+- Three consumers send 30 + 40 + 60 within one minute.
+- The limit (95) is for **all consumers together** — the API's capacity is what's being protected.
+- Whichever requests come after the 95th in that window are rejected, regardless of consumer.
 
 **Rejected requests aren't processed or tracked by us** — the consumer must retry. If consumers complain a lot, increase capacity (workers) and raise the limit.
 
@@ -89,7 +100,10 @@ Rate limiting is a **general API concept**, not MuleSoft-specific. Here we learn
 
 ### 3.7 Why so much depth for a rarely used policy?
 
-**Instructor's view:** interviews ask about policies. Saying "I only used basic authentication" in 3–5 years of experience won't look good. Know at least the minimum depth: fixed window, where the window starts, 429 when the quota is reached.
+**Instructor's view:**
+- Interviews ask about policies.
+- Saying "I only used basic authentication" in 3–5 years of experience won't look good.
+- Know at least the minimum depth: fixed window, where the window starts, 429 when the quota is reached.
 
 ---
 
@@ -152,7 +166,11 @@ A gold member can send 2 per minute; the 3rd gets **429**.
 
 APIs follow the **request–reply** pattern: the consumer waits for the response. A queued request gets a **delayed** response.
 
-**Question in class:** can the window be 30 minutes, or 100 requests per 5 minutes with the queue waiting 3–4 minutes? **No** — making the consumer wait minutes is bad user experience. Spike control is designed for **short time frames** (seconds). Plan to respond within about **5–10 seconds**; if it takes longer, the request times out and is rejected.
+**Question in class:**
+- Can the window be 30 minutes, or 100 requests per 5 minutes with the queue waiting 3–4 minutes?
+- **No** — making the consumer wait minutes is bad user experience.
+- Spike control is designed for **short time frames** (seconds).
+- Plan to respond within about **5–10 seconds**; if it takes longer, the request times out and is rejected.
 
 > **Technical clarification:** in MuleSoft's Spike Control policy you configure the number of requests per time period, plus a **delay between attempts** and **number of attempts** (and a queue size). A request that still can't be processed after the attempts is rejected with **429**.
 
@@ -201,12 +219,16 @@ Requests at 10:00:10, 10:00:40, 10:01:20, 10:02:00, 10:04:30   (5 used)
 
 ### 7.3 Example 2 — HR resignations
 
-- HR1 asks: employees who resigned in November (25). HR2 asks the same list. The data doesn't change quickly → serve from cache.
+- HR1 asks: employees who resigned in November (25).
+  - HR2 asks the same list.
+  - The data doesn't change quickly → serve from cache.
 - *Drawing:* HR1/HR2/HR3 → API → HR DB; Nov → 25, Oct → 50, Dec → 10+ (the current month keeps changing, so it must not be served from an old cache).
 
 ### 7.4 Cache duration
 
-Keep it short. **15 days** → thousands of different responses stored → cache memory under pressure. Typically **1–2 days** (based on the data).
+- Keep it short.
+- **15 days** → thousands of different responses stored → cache memory under pressure.
+- Typically **1–2 days** (based on the data).
 
 **When to use:** frequently requested data that **doesn't change often**.
 
@@ -218,7 +240,10 @@ Keep it short. **15 days** → thousands of different responses stored → cache
 
 ### 8.1 Problem
 
-The body is validated by the RAML/APIkit Router (e.g., a field is `string`). But how big a string? What if a consumer sends a **huge** message — e.g. **1 lakh (100,000) properties** instead of 5 (`additionalProperties` is `true` by default)? The API may run out of memory and crash, again and again.
+- The body is validated by the RAML/APIkit Router (e.g., a field is `string`).
+- But how big a string?
+- What if a consumer sends a **huge** message — e.g. **1 lakh (100,000) properties** instead of 5 (`additionalProperties` is `true` by default)?
+- The API may run out of memory and crash, again and again.
 
 ### 8.2 The policy
 

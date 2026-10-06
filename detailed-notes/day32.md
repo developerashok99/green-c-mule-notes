@@ -2,7 +2,10 @@
 
 > **Watch alongside:** the one distinction to lock in before anything else is **Rate Limiting rejects outright; Spike Control queues and retries**. Everything else in this session — fixed vs. sliding window, SLA tiers, caching duration, gateway-level vs. RAML-level validation — is a variation or elaboration on top of that single fork.
 
-> **Video-verified:** checked against the class recording (19 Dec 2024) — a theory class on the instructor's policy drawings. Added from the drawings: the 10:10 window example, Okta 10,000 req/hour, Gold/Silver/Bronze tiers, 5 req / 5 sec spike control, the HR cache counter-example and the IP lists. Slide images: [slides/day32](../slides/day32/).
+> **Video-verified:**
+> - Checked against the class recording (19 Dec 2024) — a theory class on the instructor's policy drawings.
+> - Added from the drawings: the 10:10 window example, Okta 10,000 req/hour, Gold/Silver/Bronze tiers, 5 req / 5 sec spike control, the HR cache counter-example and the IP lists.
+> - Slide images: [slides/day32](../slides/day32/).
 
 ---
 

@@ -18,7 +18,9 @@ flowchart TB
     end
 ```
 
-Transform Message can set the payload **and** several variables at once (Add new target), which saves dragging in several Set Variable components. But the instructor's rule: **if the second variable depends on the first, don't create both in the same Transform Message** — create the first, then the second in a separate component after it. All targets of one Transform Message are evaluated against the same incoming event, so one target can't read a variable another target is creating in that same step.
+- Transform Message can set the payload **and** several variables at once (Add new target), which saves dragging in several Set Variable components.
+- But the instructor's rule: **if the second variable depends on the first, don't create both in the same Transform Message** — create the first, then the second in a separate component after it.
+- All targets of one Transform Message are evaluated against the same incoming event, so one target can't read a variable another target is creating in that same step.
 
 ---
 
@@ -101,7 +103,10 @@ sequenceDiagram
 
 - **Default: 10,000ms (10 seconds).** Exceeding it raises an `HTTP:TIMEOUT` error automatically.
 - **Configurable at two levels**: the shared **Connector Configuration** (applies to every operation using it) and the individual **operation** (overrides just that one call) — the same dual-level pattern as Reconnection Strategy (Day 13).
-- **The two-app proof, built live**: App 2 is rigged with a DataWeave `wait` function to deliberately delay 10 seconds. App 1 calls it with a 5-second timeout. Result: App 1 times out at 5 seconds and never sees App 2's eventual (valid but late) response — it's simply discarded.
+- **The two-app proof, built live**:
+  - App 2 is rigged with a DataWeave `wait` function to deliberately delay 10 seconds.
+  - App 1 calls it with a 5-second timeout.
+  - Result: App 1 times out at 5 seconds and never sees App 2's eventual (valid but late) response — it's simply discarded.
 
 ### The Real Production Story
 > *"We deployed 8 applications... a specific use case: we consume a third-party API that takes 120 seconds... people are accepting it, because it's happening in the background."*

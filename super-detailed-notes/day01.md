@@ -33,13 +33,17 @@ The instructor's one-line version:
 
 ### 2.2 What is a "tool" or "platform"?
 
-A tool/platform is software that reduces work you would otherwise do manually and repeatedly. Integration *can* be built by hand in Java or .NET, but it takes more effort and more development time. MuleSoft provides ready-made building blocks so the same integration is built faster.
+- A tool/platform is software that reduces work you would otherwise do manually and repeatedly.
+- Integration *can* be built by hand in Java or .NET, but it takes more effort and more development time.
+- MuleSoft provides ready-made building blocks so the same integration is built faster.
 
 > **Instructor's observation:** An integration that might take about a week in hand-written code can be done in one or two days in MuleSoft. This is a rough illustration, not a measured benchmark.
 
 ### 2.3 Why speed matters — "time to market"
 
-**Time to market** is how quickly a business can take a new product or feature from idea to production. Businesses going through digital transformation compete on speed; if competitors deliver faster, the slower business loses customers. Tools that cut integration time therefore have high demand.
+- **Time to market** is how quickly a business can take a new product or feature from idea to production.
+- Businesses going through digital transformation compete on speed; if competitors deliver faster, the slower business loses customers.
+- Tools that cut integration time therefore have high demand.
 
 ### 2.4 What is integration?
 
@@ -59,9 +63,15 @@ The integration layer:
 
 An **enterprise** is a large organization. **Illustrative examples** used in class: Flipkart, Amazon, Reliance, banks.
 
-To run its business, an enterprise uses many applications — for example Salesforce (CRM), SAP (ERP / inventory), Jira, Bitbucket, payment systems, databases. These applications need to talk to each other. A platform that connects all of them is an integration platform such as MuleSoft.
+- To run its business, an enterprise uses many applications — for example Salesforce (CRM), SAP (ERP / inventory), Jira, Bitbucket, payment systems, databases.
+- These applications need to talk to each other.
+- A platform that connects all of them is an integration platform such as MuleSoft.
 
-> **Technical clarification:** The lecture says systems "cannot communicate directly." In practice, applications *can* talk directly using common protocols (HTTP/REST, SOAP, messaging, files, etc.). The difficulty is that each system has different APIs, data formats, protocols, authentication and business rules. Building and maintaining all those direct connections is expensive. MuleSoft simplifies and centralizes this work.
+> **Technical clarification:**
+> - The lecture says systems "cannot communicate directly." In practice, applications *can* talk directly using common protocols (HTTP/REST, SOAP, messaging, files, etc.).
+> - The difficulty is that each system has different APIs, data formats, protocols, authentication and business rules.
+> - Building and maintaining all those direct connections is expensive.
+> - MuleSoft simplifies and centralizes this work.
 
 ---
 
@@ -115,7 +125,10 @@ Java application
 Java application
 ```
 
-> **Technical clarification:** "Java format" and ".NET format" are a simplification. What really differs is the API contract (endpoints, fields, data format such as JSON/XML, protocol, security). MuleSoft maps between those contracts.
+> **Technical clarification:**
+> - "Java format" and ".NET format" are a simplification.
+> - What really differs is the API contract (endpoints, fields, data format such as JSON/XML, protocol, security).
+> - MuleSoft maps between those contracts.
 
 The same idea works for two systems or many systems.
 
@@ -125,7 +138,9 @@ The same idea works for two systems or many systems.
 
 ### 4.1 The scenario
 
-An international climate conference is held in India. Delegates come from Japan, France and Spain (a German delegate is also mentioned). Each group speaks only its own language; the Indian side speaks Hindi.
+- An international climate conference is held in India.
+- Delegates come from Japan, France and Spain (a German delegate is also mentioned).
+- Each group speaks only its own language; the Indian side speaks Hindi.
 
 > **Transcript unclear:** this part of the recording is heavily garbled (it mentions a translator handling "German to Spanish, German to French … German to Hindi" and "the job has become very easy"). The pairwise-vs-central explanation below is reconstructed from that context and the conclusion the instructor states; the exact set-up described in class could not be reliably recovered.
 
@@ -148,7 +163,9 @@ French ───── Hindi                          French      Hindi
 
 ### 4.3 What it teaches
 
-An enterprise uses different applications for different business needs. If all of them connect through one integration platform, communication across the enterprise becomes much easier to manage. That is what MuleSoft does.
+- An enterprise uses different applications for different business needs.
+- If all of them connect through one integration platform, communication across the enterprise becomes much easier to manage.
+- That is what MuleSoft does.
 
 This "pairwise vs. central hub" contrast returns on Day 04 as **point-to-point integration vs. ESB (Enterprise Service Bus)**.
 
@@ -158,7 +175,10 @@ This "pairwise vs. central hub" contrast returns on Day 04 as **point-to-point i
 
 ### 5.1 The user's view
 
-**Illustrative example:** A customer opens the Flipkart web or mobile app, chooses a Samsung phone, and places the order. Within one or two seconds the app says the order is placed. Many steps run in the background.
+**Illustrative example:**
+- A customer opens the Flipkart web or mobile app, chooses a Samsung phone, and places the order.
+- Within one or two seconds the app says the order is placed.
+- Many steps run in the background.
 
 > The systems below are the instructor's teaching example ("for our easy understanding"). They are not a verified description of Flipkart's actual architecture.
 
@@ -196,13 +216,23 @@ Mobile / Web App:  "Order placed. Delivery on <date>." (trackable)
 ### 5.4 What MuleSoft does at each step
 
 **Step 1 — Inventory check (SAP).**
-The request from the mobile app is in a format SAP does not understand. MuleSoft converts it into SAP's format, sends it using the **SAP connector**, and gets the response ("quantity available, go ahead"). SAP's response is in SAP's own format, so it must be converted again before the next system can use it.
+
+- The request from the mobile app is in a format SAP does not understand.
+- MuleSoft converts it into SAP's format, sends it using the **SAP connector**, and gets the response ("quantity available, go ahead").
+- SAP's response is in SAP's own format, so it must be converted again before the next system can use it.
 
 **Step 2 — Customer details (Salesforce CRM).**
-The CRM holds the customer's full name, date of birth and saved addresses. A customer may have several addresses (e.g., Hyderabad and Vizag). If ordering for delivery to Hyderabad, the Hyderabad address is selected. MuleSoft sends a request to Salesforce and receives the details.
+
+- The CRM holds the customer's full name, date of birth and saved addresses.
+- A customer may have several addresses (e.g., Hyderabad and Vizag).
+- If ordering for delivery to Hyderabad, the Hyderabad address is selected.
+- MuleSoft sends a request to Salesforce and receives the details.
 
 **Data transformation / enrichment example:**
-Salesforce may return the name as two fields — first name `Mahesh`, last name `Reddy`. The billing and delivery systems may need one full name. MuleSoft combines (enriches/transforms) the data:
+
+- Salesforce may return the name as two fields — first name `Mahesh`, last name `Reddy`.
+- The billing and delivery systems may need one full name.
+- MuleSoft combines (enriches/transforms) the data:
 
 ```text
 firstName: "Mahesh"   ┐
@@ -219,7 +249,10 @@ lastName : "Reddy"    ┘ ──►  fullName: "Mahesh Reddy"
 
 ### 5.5 Orchestration (correct order of steps)
 
-MuleSoft does not only pass messages; it **coordinates the sequence**. Stock is checked *before* payment. If payment were taken first and the item turned out to be out of stock, the customer would be charged for nothing. Correct design:
+- MuleSoft does not only pass messages; it **coordinates the sequence**.
+- Stock is checked *before* payment.
+- If payment were taken first and the item turned out to be out of stock, the customer would be charged for nothing.
+- Correct design:
 
 ```text
 Check stock ──► in stock?  ── yes ──► take payment ──► bill ──► delivery
@@ -265,7 +298,9 @@ The repetitive "donkey work" of integration (connecting, converting formats) is 
 
 ### 7.1 Analyst recognition
 
-Research/analyst firms evaluate integration tools every year on parameters such as business volume, number of customers, ability to handle complex projects, and cloud and on-premises support. They publish a yearly report. The instructor states MuleSoft has been named an **industry leader for integration about 9–10 times**.
+- Research/analyst firms evaluate integration tools every year on parameters such as business volume, number of customers, ability to handle complex projects, and cloud and on-premises support.
+- They publish a yearly report.
+- The instructor states MuleSoft has been named an **industry leader for integration about 9–10 times**.
 
 > **Technical clarification:** The firm is not named in the transcript; this most likely refers to reports such as the Gartner Magic Quadrant.
 
@@ -406,7 +441,9 @@ This is normal for every integration professional, including seniors and leads. 
 ## 10. Questions Discussed
 
 ### Q. Do we need to know how to connect to each system?
-Yes. You need to know what details a system requires and how its requests and responses work. You do not memorise every connector; for new ones you use documentation and a POC (see §9.3).
+- Yes.
+- You need to know what details a system requires and how its requests and responses work.
+- You do not memorise every connector; for new ones you use documentation and a POC (see §9.3).
 
 ### Q. Does the course cover publish/subscribe messaging (e.g., ActiveMQ)?
 Yes, messaging is covered.
@@ -424,13 +461,22 @@ Salesforce: order activated ──► notification/trigger
                                     SAP
 ```
 
-If the requirement is real-time, it is usually done as an **asynchronous** process triggered by the update. The exact approach depends on the requirement and on the project's architect. It is similar to database-to-Salesforce or Salesforce-to-database use cases.
+- If the requirement is real-time, it is usually done as an **asynchronous** process triggered by the update.
+- The exact approach depends on the requirement and on the project's architect.
+- It is similar to database-to-Salesforce or Salesforce-to-database use cases.
 
 ### Q. Job postings ask for Salesforce or Dell Boomi integration experience along with MuleSoft. Is that required?
-**Instructor's view:** Not necessary to start. The instructor personally knows only MuleSoft (plus one other automation tool), not Java, and says they are in the higher salary bracket in their company. Advice: enter the market with the easier skill, then add skills over time. If a posting needs a different integration tool, simply don't apply to it — there are many postings that don't.
+**Instructor's view:**
+- Not necessary to start.
+- The instructor personally knows only MuleSoft (plus one other automation tool), not Java, and says they are in the higher salary bracket in their company.
+- Advice: enter the market with the easier skill, then add skills over time.
+- If a posting needs a different integration tool, simply don't apply to it — there are many postings that don't.
 
 ### Q. Is Java required?
-No. MuleSoft is mostly drag-and-drop. The scripting language is **DataWeave**, which is a data-transformation language rather than a general programming language, and is taught from scratch. Java (or another language) is an **advantage**, not a requirement. **Instructor's experience:** in their projects, a Java requirement came up only once, and a Java developer from another team handled it.
+- No. MuleSoft is mostly drag-and-drop.
+- The scripting language is **DataWeave**, which is a data-transformation language rather than a general programming language, and is taught from scratch.
+- Java (or another language) is an **advantage**, not a requirement.
+- **Instructor's experience:** in their projects, a Java requirement came up only once, and a Java developer from another team handled it.
 
 ### Q. I have no programming background. Is that a problem?
 No. 80% drag-and-drop; DataWeave is taught from the basics.
@@ -452,7 +498,10 @@ If you want to move from testing to development, yes. Existing experience with t
 No. **Instructor's view:** MuleSoft is a much smaller tool than Salesforce (which they say takes 4–6 months to learn).
 
 ### Q. Are freshers / non-IT people able to move into MuleSoft?
-**Instructor's view:** Yes. Freshers have opportunities, though fewer than experienced people, and it may take longer to land the first job. No minimum experience is needed for the course.
+**Instructor's view:**
+- Yes.
+- Freshers have opportunities, though fewer than experienced people, and it may take longer to land the first job.
+- No minimum experience is needed for the course.
 
 ### Q. How is the job market?
 **Instructor's view:** When the market is slow, using that time to learn puts you first in line when it picks up. Recent placements of colleagues and former students were cited as evidence.

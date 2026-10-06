@@ -1,6 +1,9 @@
 # Day 24 — RAML Best Practices: Externalising Examples and Data Types
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 9 Dec 2024). File names and RAML marked *screen* are read from the recording. Slide images: [slides/day24](../slides/day24/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 9 Dec 2024).
+> - File names and RAML marked *screen* are read from the recording.
+> - Slide images: [slides/day24](../slides/day24/).
 
 ## 1. Overview
 
@@ -176,7 +179,9 @@ types:
 
 ### 4.5 Result
 
-POST now has: headers, body (`type` + `example`), responses (`type` + `example`). Short and readable — modularity achieved. Same for PATCH and GET (request, response, 400, 500).
+- POST now has: headers, body (`type` + `example`), responses (`type` + `example`).
+- Short and readable — modularity achieved.
+- Same for PATCH and GET (request, response, 400, 500).
 
 ---
 
@@ -200,7 +205,9 @@ Types and examples defined inside this specification can be reused **only within
 
 ### Fragment example — address
 
-Fifty APIs need an `address` field with the same structure (house number, street, …; maybe communication, permanent, billing addresses). Create an `Address` type in a fragment; each API imports it and uses `type: Address` for its address field. The rest of the request stays in the API.
+- Fifty APIs need an `address` field with the same structure (house number, street, …; maybe communication, permanent, billing addresses).
+- Create an `Address` type in a fragment; each API imports it and uses `type: Address` for its address field.
+- The rest of the request stays in the API.
 
 **Common fragment usage:** things that repeat across projects — **headers** and **error responses**. Main requests and success responses usually differ per API.
 
@@ -215,7 +222,9 @@ Two kinds of requirements:
 1. **New API** — create a new specification in Design Center.
 2. **Enhancement** — add a resource or change a request in an existing API: update the spec in Design Center, re-import it into Studio, and update the implementation.
 
-For new APIs, organisations keep a **template** (in Design Center/Exchange) with the folder structure (examples, data types, request/response/error-response folders). **Duplicate** the template, rename it, and fill in the files — saves 10–15 minutes and keeps the whole organisation consistent. Without a template, duplicate an existing project and follow its structure, deleting extras.
+- For new APIs, organisations keep a **template** (in Design Center/Exchange) with the folder structure (examples, data types, request/response/error-response folders).
+- **Duplicate** the template, rename it, and fill in the files — saves 10–15 minutes and keeps the whole organisation consistent.
+- Without a template, duplicate an existing project and follow its structure, deleting extras.
 
 ---
 

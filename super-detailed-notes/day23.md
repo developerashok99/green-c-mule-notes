@@ -1,6 +1,9 @@
 # Day 23 — Writing the Employee API Specification in RAML (Design Center)
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 8 Dec 2024). RAML, errors and documentation-panel screens marked *screen* are read from the recording. Slide images: [slides/day23](../slides/day23/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 8 Dec 2024).
+> - RAML, errors and documentation-panel screens marked *screen* are read from the recording.
+> - Slide images: [slides/day23](../slides/day23/).
 
 ## 1. Overview
 
@@ -23,7 +26,9 @@ Everything needed is ready — request, response, error response, headers — so
 
 ## 2. Opening Design Center
 
-Anypoint Platform home → **Start designing** or **Design Center** (same page). The **Projects** page is empty initially. Click **Create**:
+- Anypoint Platform home → **Start designing** or **Design Center** (same page).
+- The **Projects** page is empty initially.
+- Click **Create**:
 
 | Option | Use |
 |---|---|
@@ -39,7 +44,10 @@ Anypoint Platform home → **Start designing** or **Design Center** (same page).
 
 ## 3. Creating the Project
 
-- **Name:** `hr-employees-sapi` (plus the batch number in class to avoid a clash when importing into Studio). Real projects may also include the target system, e.g. `hr-employees-db-sapi`. Follow the naming convention (Day 22).
+- **Name:**
+  - `hr-employees-sapi` (plus the batch number in class to avoid a clash when importing into Studio).
+  - Real projects may also include the target system, e.g. `hr-employees-db-sapi`.
+  - Follow the naming convention (Day 22).
 - **Guide me through it** gives tips; **I'm comfortable designing it my own way** was chosen.
 - **Specification language:** RAML 1.0 / RAML 0.8 / OAS 2.0 / OAS 3.0 (OAS in JSON or YAML). Chose **RAML 1.0**.
 
@@ -63,12 +71,15 @@ version: v1
 protocols:
   - HTTP
 mediaType:
-- application/json
+- Application/json
 ```
 
 (*Screen* — project `hr-employees-sapi-7303`, root file `hr-employees-sapi-7303.raml`; typos as typed in class.)
 
-- **Version:** `v1`. Minor additions → v1.1, v1.2; major changes → v2. The instructor doesn't suggest "1.0" style.
+- **Version:**
+  - `v1`.
+  - Minor additions → v1.1, v1.2; major changes → v2.
+  - The instructor doesn't suggest "1.0" style.
 - **Protocols** and **mediaType** are good practice. Some fields (e.g. baseUri) are optional.
 
 ---
@@ -151,7 +162,9 @@ enum: [ mobile, web ]
 
 ### Writing faster
 
-Headers have the same shape: copy one header (Ctrl+C), paste (Ctrl+V), then change the name and values. Or type each one. Both are fine.
+- Headers have the same shape: copy one header (Ctrl+C), paste (Ctrl+V), then change the name and values.
+- Or type each one.
+- Both are fine.
 
 ---
 
@@ -200,7 +213,10 @@ Headers have the same shape: copy one header (Ctrl+C), paste (Ctrl+V), then chan
 (*Screen*; descriptions as typed. In this RAML `empId` is a **number** — an example with a string id gave "Error: empId should be number". The Day 22 design document used a string id `"P10300"`; the two differ.)
 
 - Description: writing descriptions is a good practice.
-- **Example errors:** with an example, the editor showed "should have required property active / employeeDesignation / …". All properties are required by default, so the example must contain them. Careful alignment (select lines → Tab) fixed the structure.
+- **Example errors:**
+  - With an example, the editor showed "should have required property active / employeeDesignation / …".
+  - All properties are required by default, so the example must contain them.
+  - Careful alignment (select lines → Tab) fixed the structure.
 - **Fix document typos:** the design document had some inconsistent names (e.g. `EMP status` lower-case). Correct them in the document and RAML — documents aren't always 100% right.
 
 ### `additionalProperties`
@@ -211,7 +227,9 @@ Headers have the same shape: copy one header (Ctrl+C), paste (Ctrl+V), then chan
 
 ### Saving
 
-Design Center **auto-saves**. A **star (*)** on the file name means unsaved; it disappears after saving. If it doesn't save, check.
+- Design Center **auto-saves**.
+- A **star (*)** on the file name means unsaved; it disappears after saving.
+- If it doesn't save, check.
 
 ---
 
@@ -295,7 +313,10 @@ The right panel generates **documentation** automatically: title, version, endpo
 
 ### Error seen
 
-Every attempt returned **400 Bad Request** — "Request validation error … enum value". Removing a mandatory field changed the error to a "Required key … not found" error for the missing field, proving validation works. **The instructor couldn't trace the enum issue** (seen in 2–3 batches); it works without the enum. Testing will be done with a separate **mocking service** instead.
+- Every attempt returned **400 Bad Request** — "Request validation error … enum value".
+- Removing a mandatory field changed the error to a "Required key … not found" error for the missing field, proving validation works.
+- **The instructor couldn't trace the enum issue** (seen in 2–3 batches); it works without the enum.
+- Testing will be done with a separate **mocking service** instead.
 
 ---
 
@@ -309,7 +330,9 @@ It fails — the header expects a string. Allow it with a **default** value (e.g
 
 ## 12. Why Modularise
 
-The specification now has **300+ lines**. Headers are repeated three times. As in any programming language, large repeated code is hard to read and maintain.
+- The specification now has **300+ lines**.
+- Headers are repeated three times.
+- As in any programming language, large repeated code is hard to read and maintain.
 
 Next session — best practices:
 

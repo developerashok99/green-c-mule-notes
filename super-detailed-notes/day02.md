@@ -65,7 +65,10 @@ Mobile / Desktop app   ──request──►   API   ──query──►   Dat
 1. **Different technologies.** The front-end and back-end are built with different technologies and data formats.
 2. **Security.** If the front-end connected directly to the database, an attacker could hit the database directly and steal data. A controlled layer in between is needed.
 
-> **Technical clarification:** The front-end and database are not literally incapable of communicating. The point is that exposing a database directly to client applications is unsafe and tightly couples the two. An API provides a controlled, secure and stable contract.
+> **Technical clarification:**
+> - The front-end and database are not literally incapable of communicating.
+> - The point is that exposing a database directly to client applications is unsafe and tightly couples the two.
+> - An API provides a controlled, secure and stable contract.
 
 ### 3.5 What the API does step by step
 
@@ -253,7 +256,10 @@ This is written in **RAML** (RESTful API Modeling Language), a simple, English-l
 
 ### 9.2 Code repository — why it is needed
 
-When you drag and drop components in Anypoint Studio, **XML code is generated in the background**. If Studio crashes or the local copy is corrupted, that code could be lost. Code repositories (Bitbucket, GitHub, GitLab) store the code in the cloud. The course covers the commands to push code and how repositories connect to CI/CD deployment pipelines.
+- When you drag and drop components in Anypoint Studio, **XML code is generated in the background**.
+- If Studio crashes or the local copy is corrupted, that code could be lost.
+- Code repositories (Bitbucket, GitHub, GitLab) store the code in the cloud.
+- The course covers the commands to push code and how repositories connect to CI/CD deployment pipelines.
 
 ### 9.3 Teaching style
 
@@ -387,7 +393,9 @@ Even for one connector, not every operation is used. **Instructor's example:** t
 Exam analogy: "If there are 10 chapters and 3 chapters give you 70% of the marks, focus on those 3."
 
 ### Q. Do we work with the front-end?
-No. MuleSoft developers do not build the front-end. **Postman** is used in place of a front-end to test the API. Once the front-end team is ready, the two are tested together, or a tester tests through the front-end and reports issues to the responsible team.
+- No. MuleSoft developers do not build the front-end.
+- **Postman** is used in place of a front-end to test the API.
+- Once the front-end team is ready, the two are tested together, or a tester tests through the front-end and reports issues to the responsible team.
 
 ### Q. How should we practise? Are there assignments?
 - Attend the class, then watch the recording again.
@@ -439,7 +447,9 @@ No. MuleSoft developers do not build the front-end. **Postman** is used in place
 ## 15. Interview Questions
 
 ### Q1. What is the difference between an API and an integration?
-An integration is any program that connects systems to move or transform data. An API is a type of integration that is exposed and called on demand, returning a response. A scheduled job that copies Salesforce data into a database every night is an integration but not an API.
+- An integration is any program that connects systems to move or transform data.
+- An API is a type of integration that is exposed and called on demand, returning a response.
+- A scheduled job that copies Salesforce data into a database every night is an integration but not an API.
 
 ### Q2. Why do we need an API between a front-end and a database?
 The two use different technologies and formats, and exposing a database directly to clients is a security risk. The API provides a controlled layer that receives requests, queries the back-end and returns a properly formatted response.

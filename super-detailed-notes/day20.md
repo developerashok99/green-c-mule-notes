@@ -1,6 +1,9 @@
 # Day 20 — Hybrid Deployment, Registering a Server, MuleSoft Community and How to Troubleshoot
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 5 Dec 2024). Drawings and screens marked *drawing* or *screen* are read from the recording; the server-registration token shown in class is not reproduced. Slide images: [slides/day20](../slides/day20/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 5 Dec 2024).
+> - Drawings and screens marked *drawing* or *screen* are read from the recording; the server-registration token shown in class is not reproduced.
+> - Slide images: [slides/day20](../slides/day20/).
 
 ## 1. Overview
 
@@ -99,7 +102,9 @@ Probably you are a victim of a man-in-the-middle attack. Contact support.
 
 **Instructor's habit:** keeps 2–3 lower versions of tools, because industry often uses older versions (e.g., Studio 7.12, runtime 4.5/4.6).
 
-> Who does server registration in real projects? Usually **admins / DevOps / architects** set up environments; developers use them. If you get a chance to do it, take it.
+> - Who does server registration in real projects?
+> - Usually **admins / DevOps / architects** set up environments; developers use them.
+> - If you get a chance to do it, take it.
 
 ---
 
@@ -110,7 +115,9 @@ Probably you are a victim of a man-in-the-middle attack. Contact support.
 3. Upload the JAR, give properties, etc. (same as CloudHub).
 4. **Deploy:** Runtime Manager sends the JAR through the established channel to the registered server's Mule runtime; the runtime deploys it; status (e.g. Running) is reported back.
 
-Afterwards, the application list shows the target as the **hybrid server name** and the status. **Logs** are checked from Runtime Manager too. **Stop / Start / Restart / Delete** work from Runtime Manager — that's why it's called hybrid.
+- Afterwards, the application list shows the target as the **hybrid server name** and the status.
+- **Logs** are checked from Runtime Manager too.
+- **Stop / Start / Restart / Delete** work from Runtime Manager — that's why it's called hybrid.
 
 ### Who can start/stop apps?
 
@@ -147,7 +154,9 @@ Depends on company policy:
 
 **Instructor's estimate:** their own command of the whole MuleSoft portfolio is maybe **20–30%**. MuleSoft has many more tools (e.g., **RPA** — Robotic Process Automation, **IDP** — Intelligent Document Processing).
 
-But the concepts in this course are what's used **80–85% of the time** in real projects. The aim is to share the most useful 80–90% of what's needed day to day, not everything. Keep learning beyond the course.
+- But the concepts in this course are what's used **80–85% of the time** in real projects.
+- The aim is to share the most useful 80–90% of what's needed day to day, not everything.
+- Keep learning beyond the course.
 
 ---
 

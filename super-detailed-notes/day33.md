@@ -1,6 +1,9 @@
 # Day 33 — OAuth 2.0: Authentication vs. Authorization, the Authorization Code Grant, and OAuth Terminology
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 20 Dec 2024). Slide text marked *slide* and diagrams marked *drawing* are read from the instructor's "MuleSoft OAuth 2.0.pptx" in the recording. Slide images: [slides/day33](../slides/day33/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 20 Dec 2024).
+> - Slide text marked *slide* and diagrams marked *drawing* are read from the instructor's "MuleSoft OAuth 2.0.pptx" in the recording.
+> - Slide images: [slides/day33](../slides/day33/).
 
 ## 1. Overview
 
@@ -78,7 +81,10 @@ On apps like Zomato, Swiggy, LinkedIn:
 
 *Screen:* Zomato's own sign-up dialog was also opened (full name, e-mail, or "Sign in as …" with Google) — Zomato is the client in the flow diagram below.
 
-**Key point:** you never gave your Google password to GeeksforGeeks. Giving it would be like handing your account to a friend — a compromise. Instead the site gets **restricted access** to a few details.
+**Key point:**
+- You never gave your Google password to GeeksforGeeks.
+- Giving it would be like handing your account to a friend — a compromise.
+- Instead the site gets **restricted access** to a few details.
 
 We do this daily without noticing the steps.
 
@@ -141,11 +147,15 @@ Zomato has **registered** with Facebook's authorization server beforehand (other
 
 ### 5.3 Why only "get profile"?
 
-Ramesh's consent covered only a few details. Zomato gets **GET** only — no edit, update or delete (POST/PATCH/DELETE), so it can't change Ramesh's phone number or email on Facebook. That's authorization: restricted access.
+- Ramesh's consent covered only a few details.
+- Zomato gets **GET** only — no edit, update or delete (POST/PATCH/DELETE), so it can't change Ramesh's phone number or email on Facebook.
+- That's authorization: restricted access.
 
 ### 5.4 Why not use the code directly as the token?
 
-Up to step 6 everything happens in the **browser**, so the **authorization code is visible**. If it worked as an access token, anyone who intercepted it could call the resource server. So the code is exchanged for the access token **in the backend** (Zomato ↔ Facebook server-to-server), together with the client ID/secret.
+- Up to step 6 everything happens in the **browser**, so the **authorization code is visible**.
+- If it worked as an access token, anyone who intercepted it could call the resource server.
+- So the code is exchanged for the access token **in the backend** (Zomato ↔ Facebook server-to-server), together with the client ID/secret.
 
 > **Technical clarification:** the code by itself is useless to an attacker because exchanging it requires the client secret (and it's short-lived and single-use). This is exactly why the exchange happens in the backend with the secret.
 

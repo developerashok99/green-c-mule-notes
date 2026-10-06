@@ -1,6 +1,9 @@
 # Day 18 — CloudHub in Depth: Worker, vCore, Horizontal and Vertical Scaling, Deploying from Runtime Manager
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 2 Dec 2024). Slide text and Runtime Manager screens marked *slide* or *screen* are read from the recording. Slide images: [slides/day18](../slides/day18/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 2 Dec 2024).
+> - Slide text and Runtime Manager screens marked *slide* or *screen* are read from the recording.
+> - Slide images: [slides/day18](../slides/day18/).
 
 ## 1. Overview
 
@@ -18,7 +21,9 @@
 
 ## 2. Recap — Why Not CloudHub Everywhere?
 
-MuleSoft has no data centres of its own; it prepares AWS/Azure infrastructure for Mule. **Instructor's statement:** there was no MuleSoft-ready CloudHub region in India, so data would be stored in Singapore, London or the US. Organisations with data-residency rules therefore choose other strategies; others use CloudHub.
+- MuleSoft has no data centres of its own; it prepares AWS/Azure infrastructure for Mule.
+- **Instructor's statement:** there was no MuleSoft-ready CloudHub region in India, so data would be stored in Singapore, London or the US.
+- Organisations with data-residency rules therefore choose other strategies; others use CloudHub.
 
 ---
 
@@ -28,7 +33,9 @@ MuleSoft has no data centres of its own; it prepares AWS/Azure infrastructure fo
 
 > **CloudHub is an integration platform as a service (iPaaS)** where you deploy Mule applications in a cloud environment provided by MuleSoft.
 
-To deploy a Mule app on your own server, you'd install and configure Java, Maven and the Mule runtime. With raw AWS you'd still have to prepare everything yourself. MuleSoft takes AWS infrastructure, installs and prepares everything for Mule applications, and offers it as **CloudHub**.
+- To deploy a Mule app on your own server, you'd install and configure Java, Maven and the Mule runtime.
+- With raw AWS you'd still have to prepare everything yourself.
+- MuleSoft takes AWS infrastructure, installs and prepares everything for Mule applications, and offers it as **CloudHub**.
 
 ---
 
@@ -70,7 +77,10 @@ A phone with 2 GB RAM runs 10–15 apps without lag; with 25–30 apps memory is
 
 - **Performance (load) testing** in pre-prod: e.g. 10,000 requests/day → per hour → test a bit above that on one worker; check whether memory/CPU suffices.
 - If traffic is low, teams may not do detailed load testing.
-- **Instructor's experience:** 0.1 vCore handles most applications (80–90%); 500 MB is plenty. Rarely 0.2 or 0.3. But use **multiple workers** for high availability.
+- **Instructor's experience:**
+  - 0.1 vCore handles most applications (80–90%); 500 MB is plenty.
+  - Rarely 0.2 or 0.3.
+  - But use **multiple workers** for high availability.
 
 ### 5.4 Licensing
 
@@ -155,7 +165,9 @@ Why it matters: with round robin, if worker 1 were 0.2 and workers 2–3 were 0.
 
 ### 8.1 Environments
 
-Runtime Manager shows environments. The trial account has **Design** and **Sandbox** (real orgs: Dev, SIT, UAT, Prod — names can be changed). The demo deployed to **Sandbox**.
+- Runtime Manager shows environments.
+- The trial account has **Design** and **Sandbox** (real orgs: Dev, SIT, UAT, Prod — names can be changed).
+- The demo deployed to **Sandbox**.
 
 ### 8.2 Opening Runtime Manager
 
@@ -263,7 +275,10 @@ E.g., built for 4.8 → won't deploy on 4.6. Built for 4.4 → can be deployed o
 
 ### Retention
 
-**Logs are kept up to 30 days or 100 MB** (whichever comes first). Older logs are lost. For longer retention, organisations use a separate logging system (paid). **Instructor's observation:** their current organisation uses only Runtime Manager logs and is discussing a separate system.
+- **Logs are kept up to 30 days or 100 MB** (whichever comes first).
+- Older logs are lost.
+- For longer retention, organisations use a separate logging system (paid).
+- **Instructor's observation:** their current organisation uses only Runtime Manager logs and is discussing a separate system.
 
 ### Why logs matter
 
@@ -273,7 +288,9 @@ When something fails in a deployed app, logs are how you find where. Good logger
 
 ## 11. The Problem After Deployment (Unresolved Here)
 
-- Locally the app worked. On CloudHub 2.0 with runtime **4.8.1**, a request failed. Logs showed a **Mule expression error** at `payload.city` — the payload looked like **binary/base64** content ("expects one of these combinations").
+- Locally the app worked.
+  - On CloudHub 2.0 with runtime **4.8.1**, a request failed.
+  - Logs showed a **Mule expression error** at `payload.city` — the payload looked like **binary/base64** content ("expects one of these combinations").
 - The first logger printed; the next didn't — the failure point was found from logs.
 - **Instructor:** likely a 1.0 vs. 2.0 or version compatibility difference; they hadn't worked practically on CloudHub 2.0 and would investigate and show it next session.
 

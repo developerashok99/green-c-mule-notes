@@ -1,10 +1,15 @@
 # Day 17 — Deployment Strategies: CloudHub, On-Premises, Hybrid, Runtime Fabric; Load Balancing and Scaling
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 28 Nov 2024). This session was taught on the whiteboard; text marked *drawing* is read from it. Slide images: [slides/day17](../slides/day17/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 28 Nov 2024).
+> - This session was taught on the whiteboard; text marked *drawing* is read from it.
+> - Slide images: [slides/day17](../slides/day17/).
 
 ## 1. Overview
 
-So far applications were developed and tested **locally**. A local app works only while your laptop is on, and nobody else can use it. This session covers where and how applications are deployed.
+- So far applications were developed and tested **locally**.
+- A local app works only while your laptop is on, and nobody else can use it.
+- This session covers where and how applications are deployed.
 
 1. Why deployment is needed; environments and servers
 2. Three main strategies — **CloudHub, on-premises, hybrid** (plus **Runtime Fabric**)
@@ -21,9 +26,13 @@ So far applications were developed and tested **locally**. A local app works onl
 
 ## 2. Why Deploy?
 
-Environments: **Dev, SIT/QA/Test, UAT, Pre-prod, Prod, DR**. Each environment has **servers**. Deploying means putting the application on the server of that environment (Dev server, SIT server, …).
+- Environments: **Dev, SIT/QA/Test, UAT, Pre-prod, Prod, DR**.
+- Each environment has **servers**.
+- Deploying means putting the application on the server of that environment (Dev server, SIT server, …).
 
-Who provides the servers? The organisation decides. MuleSoft gives options:
+- Who provides the servers?
+- The organisation decides.
+- MuleSoft gives options:
 
 - Deploy on **your own** servers → **on-premises**
 - Log in and deploy on **MuleSoft's cloud** → **CloudHub**
@@ -162,7 +171,10 @@ Choose the region in Anypoint Platform (e.g., US or Europe/London). MuleSoft has
 
 - **Control plane** from MuleSoft (Runtime Manager etc.), **runtime** on your own servers. When connectivity between them is established, you manage on-premises runtimes from Runtime Manager.
 
-**Question:** can the bank use the cloud for its own runtime? Yes — its **own** AWS/Azure account in an **Indian region**, set up by the bank. That is still **hybrid**, because MuleSoft isn't managing that cloud runtime; it's a third-party service the bank manages itself.
+**Question:**
+- Can the bank use the cloud for its own runtime?
+- Yes — its **own** AWS/Azure account in an **Indian region**, set up by the bank.
+- That is still **hybrid**, because MuleSoft isn't managing that cloud runtime; it's a third-party service the bank manages itself.
 
 > Many people call hybrid "on-premises". If you use MuleSoft's control plane, it's hybrid — whether your runtime is a physical server or your own cloud.
 
@@ -206,7 +218,10 @@ With 1,000 requests a day, each worker handles ~500.
 
 ### 9.3 Why two workers? High availability
 
-**Question:** does processing speed improve? **No.** The main reason is **high availability**: if worker 1 goes down, the load balancer sends all traffic to worker 2. The load balancer handles that automatically.
+**Question:**
+- Does processing speed improve?
+- **No.** The main reason is **high availability**: if worker 1 goes down, the load balancer sends all traffic to worker 2.
+- The load balancer handles that automatically.
 
 If one worker cannot handle the full load alone, it may crash too — that's a capacity question. With 3–4 workers, the application stays available.
 
@@ -220,7 +235,10 @@ If one worker cannot handle the full load alone, it may crash too — that's a c
 | Setup | Provided by default | Premium; created and configured (mapped to your apps) by your team |
 | Guarantees | Not guaranteed | Dedicated |
 
-**Example:** ABC company has an app on 2 workers; XYZ company has an app on 3 workers. Both companies' requests go through the same shared load balancer. With a DLB, only ABC's traffic goes through ABC's DLB.
+**Example:**
+- ABC company has an app on 2 workers; XYZ company has an app on 3 workers.
+- Both companies' requests go through the same shared load balancer.
+- With a DLB, only ABC's traffic goes through ABC's DLB.
 
 ### 9.5 Ports (CloudHub)
 
@@ -356,7 +374,9 @@ Hybrid — the runtime is self-managed even though it's in the cloud.
 A dedicated mini server (instance) in CloudHub running a Mule application.
 
 ### Q6. Why deploy on multiple workers?
-High availability. If one worker fails, the load balancer sends traffic to the others. More workers also add capacity.
+- High availability.
+- If one worker fails, the load balancer sends traffic to the others.
+- More workers also add capacity.
 
 ### Q7. Shared vs. dedicated load balancer?
 Shared is used by many customers and provided by default; dedicated is only for your organisation, configured by you, and costs extra. Ports: SLB 8081/8082, DLB 8091/8092.

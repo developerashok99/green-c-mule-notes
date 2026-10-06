@@ -1,6 +1,9 @@
 # Day 10 — URI Parameters vs. Query Parameters, Pagination, Strict Validation
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 14 Nov 2024). Slide text, drawings and Studio screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day10](../slides/day10/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 14 Nov 2024).
+> - Slide text, drawings and Studio screens marked *slide*, *drawing* or *screen* are read from the recording.
+> - Slide images: [slides/day10](../slides/day10/).
 
 ## 1. Overview
 
@@ -171,7 +174,9 @@ GET /employees?status=active&orderBySalary=asc     (or desc)
 
 #### The problem
 
-A company has **10,000 employees**, of which **8,500 are active**. Loading 8,500 records at once on a UI screen needs a lot of memory and time. Loading **100 at a time** is easy.
+- A company has **10,000 employees**, of which **8,500 are active**.
+- Loading 8,500 records at once on a UI screen needs a lot of memory and time.
+- Loading **100 at a time** is easy.
 
 **Pagination** = sending results in consecutive chunks (pages).
 
@@ -385,11 +390,20 @@ employeeId:
 
 **Student:** these are best practices — why don't teams follow them?
 
-**Instructor's answer:** human nature. Like traffic rules — of 100 rules people follow 50. If the architect is strict, the team must follow. **Instructor's observation:** in the organisations they currently work with, strict validations are not enabled. When their team faced an issue once, they found this option in APIkit Router. It's better to plan these things during architecture.
+**Instructor's answer:**
+- Human nature.
+- Like traffic rules — of 100 rules people follow 50.
+- If the architect is strict, the team must follow.
+- **Instructor's observation:** in the organisations they currently work with, strict validations are not enabled.
+- When their team faced an issue once, they found this option in APIkit Router.
+- It's better to plan these things during architecture.
 
 ### When it really matters — external consumers
 
-**Illustrative example:** ICICI Bank ties up with 10 NBFCs (Non-Banking Financial Companies, e.g. Aditya Birla, Bajaj Finance) to approve and disburse loans for their customers. The bank's API is consumed by its own apps and by those **third parties**. With many external consumers, strict validation is strongly recommended.
+**Illustrative example:**
+- ICICI Bank ties up with 10 NBFCs (Non-Banking Financial Companies, e.g. Aditya Birla, Bajaj Finance) to approve and disburse loans for their customers.
+- The bank's API is consumed by its own apps and by those **third parties**.
+- With many external consumers, strict validation is strongly recommended.
 
 ### Attack scenario — security alone is not enough
 
@@ -458,7 +472,9 @@ When a value uniquely identifies the resource — employee ID, account number, c
 `attributes.uriParams.<name>` and `attributes.queryParams.<name>`.
 
 ### Q5. Explain pagination with offset and limit.
-`limit` = records per page, `offset` = records to skip. Page n with limit L has offset (n−1)×L. Page 3 with limit 100 → offset 200 → records 201–300.
+- `limit` = records per page, `offset` = records to skip.
+- Page n with limit L has offset (n−1)×L.
+- Page 3 with limit 100 → offset 200 → records 201–300.
 
 ### Q6. If RAML declares 5 query parameters and a client sends 10, what happens?
 By default the extra ones are accepted. To reject them, enable **query parameters strict validation** in APIkit Router (and **headers strict validation** for headers).

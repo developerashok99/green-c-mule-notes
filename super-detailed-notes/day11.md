@@ -1,6 +1,9 @@
 # Day 11 — HTTP Request Connector: Consuming a Third-Party REST Service
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 19 Nov 2024). Slide text, drawings and Studio screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day11](../slides/day11/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 19 Nov 2024).
+> - Slide text, drawings and Studio screens marked *slide*, *drawing* or *screen* are read from the recording.
+> - Slide images: [slides/day11](../slides/day11/).
 
 ## 1. Overview
 
@@ -41,7 +44,9 @@ So far, small apps have used the HTTP protocol (Hello World, DB fetch). Full RES
 
 ### 3.1 The new scenario
 
-Previously, the API received a request and fetched data from a **database** using the Database connector. Now the data must come from **another REST service** (third-party or internal). The API calls it, transforms the response, and returns it.
+- Previously, the API received a request and fetched data from a **database** using the Database connector.
+- Now the data must come from **another REST service** (third-party or internal).
+- The API calls it, transforms the response, and returns it.
 
 ```text
 Consumer ──► Our API (Listener) ──► HTTP Request ──► Third-party REST API
@@ -109,11 +114,17 @@ Experience API ──HTTP Request──► Process API
 
 Different teams use different terms; recognise them all.
 
-*Drawing — naming:* type of API → `exp-api` / `eapi`, `papi` / `proc-api`, `sapi` / `sys-api`; source → `SFDC` / `sf` (Salesforce); target → `DB` (database). Example names: `sf-db-cust-eapi`, `sfdc-db-customer-eapi` = **salesforce – database – customer – experience – api**. CloudHub application names are limited to **42 characters**, so short forms are used.
+*Drawing — naming:*
+- Type of API → `exp-api` / `eapi`, `papi` / `proc-api`, `sapi` / `sys-api`; source → `SFDC` / `sf` (Salesforce); target → `DB` (database).
+- Example names: `sf-db-cust-eapi`, `sfdc-db-customer-eapi` = **salesforce – database – customer – experience – api**.
+- CloudHub application names are limited to **42 characters**, so short forms are used.
 
 ### 4.4 A bigger example drawn in class — ICICI personal loan
 
-*Drawing:* a customer applies for a personal loan (PL) of 20,00,000 on the ICICI Bank web app (WA). The API flow: Listener → Transform → **HTTP Request** to the **PAN REST API** (Central Govt / NSDL) → Transform → **Web Service Consumer** to the **Aadhaar SOAP API** (Central Govt / UIDAI) → Transform → **HTTP Request** to the **company name match REST API** → Transform → **HTTP Request** to a REST API → Transform → **SFTP** to a server → Transform. Labelled "orchestration, transformation + enrichment (ESB)"; "3 REST APIs, 1 SOAP, 1 SFTP"; PAN verification, Aadhaar verification, CIBIL score → loan decision OK / not OK.
+*Drawing:*
+- A customer applies for a personal loan (PL) of 20,00,000 on the ICICI Bank web app (WA).
+- The API flow: Listener → Transform → **HTTP Request** to the **PAN REST API** (Central Govt / NSDL) → Transform → **Web Service Consumer** to the **Aadhaar SOAP API** (Central Govt / UIDAI) → Transform → **HTTP Request** to the **company name match REST API** → Transform → **HTTP Request** to a REST API → Transform → **SFTP** to a server → Transform.
+- Labelled "orchestration, transformation + enrichment (ESB)"; "3 REST APIs, 1 SOAP, 1 SFTP"; PAN verification, Aadhaar verification, CIBIL score → loan decision OK / not OK.
 
 ---
 
@@ -139,7 +150,10 @@ Beside it: **Domain → host + port**; **HTTP → 80 (port)**, **HTTPS → 443 (
 
 Not every API needs every item, but you must know exactly what each target API requires.
 
-**Example:** you develop the Process API; developers 1, 2 and 3 develop System APIs 1, 2 and 3. Each System API may need a different request — one has a body, one has query params, one has different security. You need each one's details.
+**Example:**
+- You develop the Process API; developers 1, 2 and 3 develop System APIs 1, 2 and 3.
+- Each System API may need a different request — one has a body, one has query params, one has different security.
+- You need each one's details.
 
 Our own Hello World API worked only when the exact protocol, host, port and path were used; anything wrong and it fails. The same applies when we call others.
 
@@ -158,7 +172,9 @@ If you send a string where they expect a number, they return **400 Bad Request**
 
 ### Where are restrictions defined?
 
-In the provider's **RAML**. **Example:** a weather request with `city`, `minTemp`, `maxTemp`, `tempUnit`; `city` is mandatory with **max length 10**. A longer city name is rejected before processing.
+- In the provider's **RAML**.
+- **Example:** a weather request with `city`, `minTemp`, `maxTemp`, `tempUnit`; `city` is mandatory with **max length 10**.
+- A longer city name is rejected before processing.
 
 Our own demo APIs accept anything (any method, any body) because nothing is restricted yet. That is not the right way — each resource should define allowed methods, etc., in RAML (covered later).
 
@@ -203,13 +219,18 @@ Our response: selected fields (city, min/max temperature, unit …)
 
 Beside it: `"300" → 300 − 273.15` (Kelvin to Celsius) and `"xyz" as Number` (type conversion, next session).
 
-**Temperature unit:** in India temperature is measured in **Celsius**; OpenWeatherMap returns **Kelvin** by default. The response must be converted — like converting weight between kilograms and pounds. Conversion and response shaping are done next session.
+**Temperature unit:**
+- In India temperature is measured in **Celsius**; OpenWeatherMap returns **Kelvin** by default.
+- The response must be converted — like converting weight between kilograms and pounds.
+- Conversion and response shaping are done next session.
 
 Use **Transform Message** for complex transformations; Set Payload for small ones; Set Variable when storing values (also possible inside Transform Message).
 
 ### 7.2 Why do third-party APIs exist?
 
-Many free and paid APIs exist on the internet. Organisations specialise in an area (weather, geocoding), build APIs and expose them to others, often charging for them. If you need weather details, it's easier to call their API than build everything yourself.
+- Many free and paid APIs exist on the internet.
+- Organisations specialise in an area (weather, geocoding), build APIs and expose them to others, often charging for them.
+- If you need weather details, it's easier to call their API than build everything yourself.
 
 ### 7.3 Get access
 
@@ -277,7 +298,10 @@ The request tab showed **hidden auto-generated headers** (click "hide auto-gener
 
 ### 7.7 Building the Mule application
 
-**Naming:** a name should reflect source, target and business process. The instructor's project was **`consume-rest-service-7303`** (*screen* — "consume rest service" + the batch number), workspace `WS APS`. Naming conventions are covered later.
+**Naming:**
+- A name should reflect source, target and business process.
+- The instructor's project was **`consume-rest-service-7303`** (*screen* — "consume rest service" + the batch number), workspace `WS APS`.
+- Naming conventions are covered later.
 
 ```text
 consume-rest-service-7303Flow                                   (screen)
@@ -316,7 +340,10 @@ consume-rest-service-7303Flow                                   (screen)
 
 > **Screen-verified:** the base path is empty and the operation's Path is `/data/2.5/weather`; Studio shows the full URL under Configuration as `http://api.openweathermap.org/data/2.5/weather`. The notes previously said HTTPS/443 — the class app actually used **HTTP on port 80** (the Day 13 error also reads `http://api.openweathermap.org:80/data/2.5/weather`).
 
-**Domain names:** `api.openweathermap.org` (like `www.google.com`) is a **domain name**. Behind it is an IP (e.g. `10.1.25.50`) and a port. The domain name maps to that server and port.
+**Domain names:**
+- `api.openweathermap.org` (like `www.google.com`) is a **domain name**.
+- Behind it is an IP (e.g. `10.1.25.50`) and a port.
+- The domain name maps to that server and port.
 
 ### 7.8 A red mark — error or not?
 
@@ -337,7 +364,10 @@ output application/java
 
 After quoting the key, the error disappeared. Fields can be edited in table form or in fx mode.
 
-**Student question:** is `payload.city` configured in the Listener? No. The Listener just listens and converts the HTTP request to a Mule event; the body becomes the payload. Since the city is sent in the body, it is read as `payload.city`.
+**Student question:**
+- Is `payload.city` configured in the Listener?
+- No. The Listener just listens and converts the HTTP request to a Mule event; the body becomes the payload.
+- Since the city is sent in the body, it is read as `payload.city`.
 
 ### 7.9 Testing and debugging
 
@@ -367,7 +397,10 @@ Request from Postman (body `{"city": "Mumbai"}`) to `http://localhost:8081/weath
 
 *Screen (debugger at the first Logger):* attributes = `HttpRequestAttributes` with request path `/weather`, method GET, listener path `/weather`; vars size 0. At the Request, the evaluated query params showed `q=Mumbai`.
 
-The Logger printed `Mumbai` before the request. After the flow ends, control returns to the Listener, which sends the payload as the HTTP response body. *Screen* — Listener → **Responses**: Response body `payload`; **Error Response** body `output text/plain --- error.description`; status code and reason phrase empty (defaults). Covered next session.
+- The Logger printed `Mumbai` before the request.
+- After the flow ends, control returns to the Listener, which sends the payload as the HTTP response body.
+- *Screen* — Listener → **Responses**: Response body `payload`; **Error Response** body `output text/plain --- error.description`; status code and reason phrase empty (defaults).
+- Covered next session.
 
 ---
 

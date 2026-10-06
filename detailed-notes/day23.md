@@ -51,7 +51,9 @@ flowchart TB
     Employees --> Sub["  /{empid}:<br/>(nested resource)"] --> Get["    get:"]
 ```
 
-A misaligned tab silently changes what's nested under what — exactly the same YAML mechanics from Day 14's property files, now applied to RAML. **Copy-paste-then-edit** is a genuinely efficient, real authoring technique for near-identical blocks (demonstrated directly for the `origin`/`language` headers). The class headers (*screen*): `transaction-id` (string, required, minLength/maxLength 32), `origin` (string, required, `enum: [mobile, web]`), `language` (string, `required: false`, example "english"); body fields `empId` (number), `empName`, `empSalary`, `active`, `empDesignation`.
+- A misaligned tab silently changes what's nested under what — exactly the same YAML mechanics from Day 14's property files, now applied to RAML.
+- **Copy-paste-then-edit** is a genuinely efficient, real authoring technique for near-identical blocks (demonstrated directly for the `origin`/`language` headers).
+- The class headers (*screen*): `transaction-id` (string, required, minLength/maxLength 32), `origin` (string, required, `enum: [mobile, web]`), `language` (string, `required: false`, example "english"); body fields `empId` (number), `empName`, `empSalary`, `active`, `empDesignation`.
 
 ---
 

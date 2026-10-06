@@ -57,7 +57,9 @@ sequenceDiagram
     end
 ```
 
-**Calling flow = parent. Called flow = child** — regardless of how many flows are chained. Error propagation always travels back toward the ultimate source (the Listener) unless intercepted by a matching handler along the way.
+- **Calling flow = parent.
+- Called flow = child** — regardless of how many flows are chained.
+- Error propagation always travels back toward the ultimate source (the Listener) unless intercepted by a matching handler along the way.
 
 ---
 

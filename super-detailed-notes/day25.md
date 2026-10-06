@@ -1,10 +1,15 @@
 # Day 25 — Data Types (Theory), Traits, Fragments, Mocking Service and Sharing
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 11 Dec 2024). Slide text and Design Center/Studio screens marked *slide* or *screen* are read from the recording. Slide images: [slides/day25](../slides/day25/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 11 Dec 2024).
+> - Slide text and Design Center/Studio screens marked *slide* or *screen* are read from the recording.
+> - Slide images: [slides/day25](../slides/day25/).
 
 ## 1. Overview
 
-Examples and data types were externalised on Day 24. Headers were still repeated in every method. This session:
+- Examples and data types were externalised on Day 24.
+- Headers were still repeated in every method.
+- This session:
 
 1. Data types — theory: built-in vs. custom types, `types` vs. `type`
 2. **Traits** — reusable method-level pieces (used here for headers), with `is`
@@ -32,11 +37,15 @@ Examples and data types were externalised on Day 24. Headers were still repeated
 | `date-only` | Date |
 | `time-only` | Time |
 
-These are RAML's types — not all exist in JSON. JSON has no date type, so for a JSON body a date is accepted as a **string**. Use the RAML types that suit JSON.
+- These are RAML's types — not all exist in JSON.
+- JSON has no date type, so for a JSON body a date is accepted as a **string**.
+- Use the RAML types that suit JSON.
 
 ### 2.2 Custom (user-defined) types
 
-RAML supports **custom data types** built from built-in ones — e.g. the employee request type. Data types define the structure of the **request body, response body and error body**. Headers and query params are defined separately in the method.
+- RAML supports **custom data types** built from built-in ones — e.g. the employee request type.
+- Data types define the structure of the **request body, response body and error body**.
+- Headers and query params are defined separately in the method.
 
 ### 2.3 Keywords
 
@@ -139,7 +148,11 @@ The root file went from ~330 lines to ~100 — easy to read: types, traits, then
 
 **Are headers the same for every API?** Most of the time yes — organisations usually standardise headers.
 
-**Who sets this up?** For a new project, architects with a senior developer prepare a **template** (folder structure, traits, resource types). You fill it in. Structures vary (some put all data types directly in one folder). If you are asked to set it up, this approach is fine.
+**Who sets this up?**
+- For a new project, architects with a senior developer prepare a **template** (folder structure, traits, resource types).
+- You fill it in.
+- Structures vary (some put all data types directly in one folder).
+- If you are asked to set it up, this approach is fine.
 
 ---
 
@@ -167,7 +180,9 @@ In Design Center, **Share** the project → choose people from your organisation
 
 ### 6.1 Why
 
-The headers trait is reusable only **within this API**. The experience, process and system APIs of this use case (and other APIs) use the same headers. Copy-pasting repeats code.
+- The headers trait is reusable only **within this API**.
+- The experience, process and system APIs of this use case (and other APIs) use the same headers.
+- Copy-pasting repeats code.
 
 > A **fragment** is a reusable RAML component that can be used **across any API specification in the organisation**. Fragments can hold **security schemes, libraries, resource types, traits, data types**.
 
@@ -240,7 +255,9 @@ Testing the mock URL in Postman:
 ## 8. Postman Collections
 
 - Group requests into a **collection**, **export** it to a file, share it; colleagues **import** it.
-- Newer Postman versions push you to log in. Logged-in data is saved in **Postman's cloud**. With company APIs (sensitive information), especially on a free account, that's a risk.
+- Newer Postman versions push you to log in.
+  - Logged-in data is saved in **Postman's cloud**.
+  - With company APIs (sensitive information), especially on a free account, that's a risk.
 - In an organisation: ask the team how Postman is used — log in with the office email if approved, and follow the company's practice.
 
 ---
@@ -251,7 +268,9 @@ Testing the mock URL in Postman:
 
 **Instructor's observation:** 90–95% use **Postman**; **SoapUI** mostly for SOAP services; other tools exist. The instructor used SoapUI 2–3 years ago and uses Postman now.
 
-Concepts are the same in every tool: create a request, set the path, body, headers, query parameters, send. Only navigation/import/export differ. Knowing one tool makes others easy (ask colleagues or watch a video).
+- Concepts are the same in every tool: create a request, set the path, body, headers, query parameters, send.
+- Only navigation/import/export differ.
+- Knowing one tool makes others easy (ask colleagues or watch a video).
 
 ---
 

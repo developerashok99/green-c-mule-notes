@@ -1,6 +1,9 @@
 # Day 31 — Course Status, API Manager, Gateways, Auto-Discovery and First Policies (Basic Authentication, Client ID Enforcement)
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 18 Dec 2024). Code, configuration and output marked *screen*, and diagrams marked *drawing*, are read from the recording. Slide images: [slides/day31](../slides/day31/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 18 Dec 2024).
+> - Code, configuration and output marked *screen*, and diagrams marked *drawing*, are read from the recording.
+> - Slide images: [slides/day31](../slides/day31/).
 
 ## 1. Overview
 
@@ -38,7 +41,10 @@ if(!isEmpty(payload)) {
 }
 ```
 
-**Low-code loops:** in programming you write a for loop. In Mule you drag in **For Each** and configure it — the looping code runs in the background. For Each, Parallel For Each and Batch processing are covered in later sessions.
+**Low-code loops:**
+- In programming you write a for loop.
+- In Mule you drag in **For Each** and configure it — the looping code runs in the background.
+- For Each, Parallel For Each and Batch processing are covered in later sessions.
 
 ---
 
@@ -219,7 +225,9 @@ Without restrictions, anyone who gets the API URL (e.g., shared by an authorised
 
 *Drawing:* client sends username/password (example `mahesh` / `mahesh@123`) → API gateway (Basic Auth policy from API Manager) → API on the worker (CloudHub/RTM).
 
-The **same** username/password is shared with **all** consumers (consumer 1, 2, 3, and later 4). It's generic, so it can be shared further; you can't tell consumers apart. Less secure.
+- The **same** username/password is shared with **all** consumers (consumer 1, 2, 3, and later 4).
+- It's generic, so it can be shared further; you can't tell consumers apart.
+- Less secure.
 
 ---
 
@@ -268,7 +276,9 @@ Consumer 1 gets CID1/secret1, consumer 2 gets CID2/secret2, … a new consumer 6
 
 ### 13.3 Not for the external layer
 
-The client ID/secret are **static** (same every call). OAuth generates a **new token** each time, so it's more secure. **Instructor's view:** don't use only client ID enforcement on APIs exposed to the external world.
+- The client ID/secret are **static** (same every call).
+- OAuth generates a **new token** each time, so it's more secure.
+- **Instructor's view:** don't use only client ID enforcement on APIs exposed to the external world.
 
 ### 13.4 Internal consumers
 

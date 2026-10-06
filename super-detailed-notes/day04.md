@@ -1,6 +1,10 @@
 # Day 04 — API Lifecycle, Point-to-Point vs. ESB, Monolithic vs. Microservices, API-Led Connectivity
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 4 Nov 2024). The class used two slide decks, "MULESOFT 3rd Day" (lifecycle, point-to-point, ESB) and "MULESOFT 4th Day" (monolithic, microservices, API-led). Text marked *slide* or *drawing* is taken from the screen. Slide images: [slides/day04](../slides/day04/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 4 Nov 2024).
+> - The class used two slide decks, "MULESOFT 3rd Day" (lifecycle, point-to-point, ESB) and "MULESOFT 4th Day" (monolithic, microservices, API-led).
+> - Text marked *slide* or *drawing* is taken from the screen.
+> - Slide images: [slides/day04](../slides/day04/).
 
 ## 1. Overview
 
@@ -71,11 +75,17 @@ Design ──► Implementation ──► Deploy ──► Test ──► Secure
 
 **What:** Build the actual logic.
 
-**Example:** A JSON request arrives. The API sends data to Salesforce, receives the response, modifies it, sends it to a database and receives the database response. All of this — sending requests, receiving responses, transforming data — is development work.
+**Example:**
+- A JSON request arrives.
+- The API sends data to Salesforce, receives the response, modifies it, sends it to a database and receives the database response.
+- All of this — sending requests, receiving responses, transforming data — is development work.
 
 "Development" and "implementation" mean the same thing here.
 
-**Where:** **Anypoint Studio** — an **IDE (Integrated Development Environment)**. In Studio we use connectors and components, drag and drop, and write transformations, enrichments and orchestration. Studio also lets us run (deploy locally) and test the application immediately, as in the Day 01 demo.
+**Where:**
+- **Anypoint Studio** — an **IDE (Integrated Development Environment)**.
+- In Studio we use connectors and components, drag and drop, and write transformations, enrichments and orchestration.
+- Studio also lets us run (deploy locally) and test the application immediately, as in the Day 01 demo.
 
 ### 2.5 Step 3 — Deploy
 
@@ -182,7 +192,9 @@ Before ESB architecture, organisations integrated systems by building a **direct
 
 *Slide diagram:* four languages — **Japanese, Spanish, French, Hindi** — need **six** pairwise translators: J↔S, J↔F, J↔H, S↔H, S↔F, H↔F. The instructor then drew a new language joining (each needing lines to every existing language), and finally the fix: **one "Translator" in the middle** connected to every language — the ESB idea.
 
-Japanese, Spanish, French and Hindi speakers need a translator for each pair. When a **German** delegate joins, new translators are needed for German↔Japanese, German↔Spanish, German↔Hindi and German↔French — four new pairings for one new person. The next new language adds five, and so on.
+- Japanese, Spanish, French and Hindi speakers need a translator for each pair.
+- When a **German** delegate joins, new translators are needed for German↔Japanese, German↔Spanish, German↔Hindi and German↔French — four new pairings for one new person.
+- The next new language adds five, and so on.
 
 ### 3.3 Enterprise version
 
@@ -203,7 +215,10 @@ Japanese, Spanish, French and Hindi speakers need a translator for each pair. Wh
 2. **A change in one system forces changes in every integration connected to it.** If 50 systems are integrated with one system and that system changes, all 50 integrations may need changes. The instructor calls this **the biggest disadvantage**.
 3. Maintainability becomes very hard and complexity grows.
 
-**Instructor's observation:** they have seen almost **4,000 APIs** in one organisation. With that scale, direct connections are unmanageable. This is why most organisations moved to **ESB architecture**. (There was also an intermediate architecture between point-to-point and ESB, which was not sufficient either.)
+**Instructor's observation:**
+- They have seen almost **4,000 APIs** in one organisation.
+- With that scale, direct connections are unmanageable.
+- This is why most organisations moved to **ESB architecture**. (There was also an intermediate architecture between point-to-point and ESB, which was not sufficient either.)
 
 ---
 
@@ -237,7 +252,10 @@ No matter how many systems you have, the architecture is built like a **bus** to
 ### 4.4 When to use an ESB
 
 - **Only two systems?** Not necessary. A simple point-to-point integration is easier.
-- **Many systems?** Use an ESB. An enterprise typically has ERP systems such as SAP, CRM such as Salesforce, multiple databases, front-end and back-end applications. All must communicate, so an ESB tool is good practice.
+- **Many systems?**
+  - Use an ESB.
+  - An enterprise typically has ERP systems such as SAP, CRM such as Salesforce, multiple databases, front-end and back-end applications.
+  - All must communicate, so an ESB tool is good practice.
 
 ### 4.5 The three features that make a tool an ESB tool
 
@@ -267,7 +285,12 @@ The sequence and logic of "first this system, then that one" is orchestration.
 
 Converting data from **one format to another** and setting the fields the target system needs.
 
-**Example:** the mobile app sends **JSON**. SAP needs **XML** with its own structure. MuleSoft converts JSON → XML, sets the required fields and sends it. SAP replies in XML; MuleSoft converts the needed parts back. For the next system (Salesforce), data is converted again — the instructor notes the Salesforce connector accepts **Java** format data.
+**Example:**
+- The mobile app sends **JSON**.
+- SAP needs **XML** with its own structure.
+- MuleSoft converts JSON → XML, sets the required fields and sends it.
+- SAP replies in XML; MuleSoft converts the needed parts back.
+- For the next system (Salesforce), data is converted again — the instructor notes the Salesforce connector accepts **Java** format data.
 
 > **Technical clarification:** "Java format" means MuleSoft's in-memory Java objects (`application/java`, e.g. maps and lists). The Salesforce connector operations take this kind of input, so DataWeave output is set to Java before calling it.
 
@@ -372,7 +395,9 @@ Balance-check service      Fund-transfer service
 
 ### 6.2 Reuse example
 
-The bank plans a new **mutual funds** app (another front-end). Because login is an independent service, the mutual funds app can **reuse** the same login service. In a monolith, login code is bundled with everything else and cannot be reused like this.
+- The bank plans a new **mutual funds** app (another front-end).
+- Because login is an independent service, the mutual funds app can **reuse** the same login service.
+- In a monolith, login code is bundled with everything else and cannot be reused like this.
 
 ### 6.3 Advantages
 
@@ -427,7 +452,10 @@ The bank plans a new **mutual funds** app (another front-end). Because login is 
 - Developers still need enough understanding of the terminology, advantages and disadvantages to follow why a service is or isn't separated.
 - Splitting into meaningless tiny applications is not recommended.
 
-**Travel analogy:** Hyderabad to Vizag — you can walk, drive, take a bus, train or flight. The choice depends on your budget and needs. Enterprises are large organisations that can afford extra cost for better customer experience, so most choose microservices.
+**Travel analogy:**
+- Hyderabad to Vizag — you can walk, drive, take a bus, train or flight.
+- The choice depends on your budget and needs.
+- Enterprises are large organisations that can afford extra cost for better customer experience, so most choose microservices.
 
 **Hybrid in practice:** combining 2–3 related business services into one application saves memory, CPU and servers when there are thousands of services. Organisations weigh advantages and disadvantages and choose.
 
@@ -660,7 +688,9 @@ Keep a balance; apply API-led connectivity according to the requirement.
 Design (Design Center, RAML), Implementation (Anypoint Studio), Deploy (Runtime Manager, to CloudHub or on-premises), Test (Postman/SoapUI; JMeter/LoadRunner for performance), Secure (API Manager), Monitor (Anypoint Monitoring, with basic stats in Runtime Manager).
 
 ### Q2. What is an API specification?
-The design document of an API, also called API spec or API contract. It defines resources, requests, responses (success and error), examples, schemas and security. In MuleSoft it is usually written in RAML in Design Center.
+- The design document of an API, also called API spec or API contract.
+- It defines resources, requests, responses (success and error), examples, schemas and security.
+- In MuleSoft it is usually written in RAML in Design Center.
 
 ### Q3. What is point-to-point integration and what are its disadvantages?
 Direct integrations between each pair of systems. Adding a system adds many integrations, and changing one system forces changes in all integrations connected to it, making maintenance very hard at enterprise scale.
@@ -669,7 +699,9 @@ Direct integrations between each pair of systems. Adding a system adds many inte
 An Enterprise Service Bus is a central architecture to which all systems connect. MuleSoft provides the core ESB capabilities — orchestration, transformation and enrichment — and connects many systems.
 
 ### Q5. Explain orchestration, transformation and enrichment.
-Orchestration: calling systems in the correct sequence (check stock → payment → bill → delivery). Transformation: converting data between formats/structures (JSON → XML for SAP). Enrichment: enhancing data (first + last name → full name).
+- Orchestration: calling systems in the correct sequence (check stock → payment → bill → delivery).
+- Transformation: converting data between formats/structures (JSON → XML for SAP).
+- Enrichment: enhancing data (first + last name → full name).
 
 ### Q6. When is an ESB not needed?
 When only two systems need to be integrated — simple point-to-point is enough.
@@ -678,13 +710,17 @@ When only two systems need to be integrated — simple point-to-point is enough.
 All business services in one application. Complexity and response time increase, any change requires redeploying everything (downtime for all services), and it is not reliable — if it is down, every service is down.
 
 ### Q8. What is microservices architecture? Advantages and disadvantages?
-Splitting an application into meaningful, separately developed and deployed services. Advantages: less complexity, reusability, independent scalability, reliability, faster development in the long run. Disadvantages: more resources and cost, inter-service communication, impact of contract changes on consumers.
+- Splitting an application into meaningful, separately developed and deployed services.
+- Advantages: less complexity, reusability, independent scalability, reliability, faster development in the long run.
+- Disadvantages: more resources and cost, inter-service communication, impact of contract changes on consumers.
 
 ### Q9. What is API-Led Connectivity?
 MuleSoft's strategy for connecting applications through reusable and purposeful APIs organised in three layers: Experience (exposed to consumers), Process (business logic), System (access to back-end systems).
 
 ### Q10. Is it mandatory to have all three layers?
-No. It is a best practice. If no business logic is needed, the Experience API can call the System API directly. The architect decides based on current and future requirements.
+- No. It is a best practice.
+- If no business logic is needed, the Experience API can call the System API directly.
+- The architect decides based on current and future requirements.
 
 ### Q11. Why would mobile and web have different Experience APIs?
 They may need different amounts of data, different response structures or different security. The Process and System APIs are reused.

@@ -6,7 +6,9 @@
 
 ## 1. The Core Problem: Systems Don't Speak the Same Language
 
-Every large organization runs on **many different systems** — a CRM (Salesforce), an ERP (SAP), databases, payment gateways, shipping systems, and so on. Each was built by a different vendor, in a different era, using different data formats and protocols. Left alone, none of them can talk to each other.
+- Every large organization runs on **many different systems** — a CRM (Salesforce), an ERP (SAP), databases, payment gateways, shipping systems, and so on.
+- Each was built by a different vendor, in a different era, using different data formats and protocols.
+- Left alone, none of them can talk to each other.
 
 ```mermaid
 flowchart LR

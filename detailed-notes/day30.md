@@ -2,7 +2,10 @@
 
 > **Watch alongside:** the single most valuable moment in this session is the live router-configuration bug — after bumping the RAML spec's version and updating `pom.xml`, the API Kit Router itself *still* pointed at the old version string in its own config, causing a "resource not found" error that had nothing to do with the actual flow logic. This exact failure mode (two separate places tracking "the current API version," only one of which gets updated) is worth reproducing yourself.
 
-> **Video-verified:** checked against the class recording (17 Dec 2024). Corrected from the screen: column names `emp_id`/`emp_salary`/…, payload keys `empId`/`empSalary`/…, the custom type `DATABASE:NO_DATA_FOUND` (not `DB:`), the GET mapping bug, and the student's build error. Slide images: [slides/day30](../slides/day30/).
+> **Video-verified:**
+> - Checked against the class recording (17 Dec 2024).
+> - Corrected from the screen: column names `emp_id`/`emp_salary`/…, payload keys `empId`/`empSalary`/…, the custom type `DATABASE:NO_DATA_FOUND` (not `DB:`), the GET mapping bug, and the student's build error.
+> - Slide images: [slides/day30](../slides/day30/).
 
 ---
 
@@ -99,7 +102,10 @@ flowchart LR
 
 **Why an array even for one row, explained by direct analogy to a JSON body with multiple employees**: *"is this an array?... this is an object. Is this an array of objects? Yes. Each object is represented by one employee."* A Select scoped to a single ID still returns a one-element array — *"even then, it will come the same. But, only one object will come."*
 
-*Screen:* `select * from EMPLOYEES_INFO where emp_id=:emp_id;` with `emp_id: attributes.uriParams.empid`. The mapping must read the **column** names — `empId: payload[0].emp_id`, …, `active: if(payload[0].emp_status=="active") true else false`. The first try used `payload[0].empId` and returned 200 with all fields `null`.
+*Screen:*
+- `select * from EMPLOYEES_INFO where emp_id=:emp_id;` with `emp_id: attributes.uriParams.empid`.
+- The mapping must read the **column** names — `empId: payload[0].emp_id`, …, `active: if(payload[0].emp_status=="active") true else false`.
+- The first try used `payload[0].empId` and returned 200 with all fields `null`.
 
 ---
 

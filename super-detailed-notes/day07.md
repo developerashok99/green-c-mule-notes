@@ -1,6 +1,9 @@
 # Day 07 — The Mule Event (Payload, Attributes, Variables) and Anypoint Platform Setup
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 7 Nov 2024). Slide text, drawings and Studio/Postman/Anypoint screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day07](../slides/day07/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 7 Nov 2024).
+> - Slide text, drawings and Studio/Postman/Anypoint screens marked *slide*, *drawing* or *screen* are read from the recording.
+> - Slide images: [slides/day07](../slides/day07/).
 
 ## 1. Overview
 
@@ -229,13 +232,18 @@ Transform Message   (can still use vars.employeeID)
 ### 6.2 Configuration
 
 - **Name:** `employeeID` (*screen*)
-- **Value:** click **fx** (expression mode — enables DataWeave) and write the expression reading the query param. The key name must match exactly what was sent (case-sensitive). *Screen:* the flow became Listener → Logger → **Set Variable** → Select → Logger → Transform Message → Logger, with Value `#[ attributes.queryParams.empid ]`. (The audio says "EMPID"; the Postman key was `empid`.)
+- **Value:**
+  - Click **fx** (expression mode — enables DataWeave) and write the expression reading the query param.
+  - The key name must match exactly what was sent (case-sensitive).
+  - *Screen:* the flow became Listener → Logger → **Set Variable** → Select → Logger → Transform Message → Logger, with Value `#[ attributes.queryParams.empid ]`. (The audio says "EMPID"; the Postman key was `empid`.)
 
 ### 6.3 Result
 
 - Saving (Ctrl+S) rebuilds and redeploys automatically.
 - Sent the request again. **Vars** changed from 0 to **1**: `employeeID = "123"` (*screen* — a string, because query parameters always arrive as text).
-- The variable's media type showed **Java** (`application/java`) because no output format was declared. That is fine — it is a single value used internally, not sent to the consumer. Declaring `output application/json` would store it as JSON.
+- The variable's media type showed **Java** (`application/java`) because no output format was declared.
+  - That is fine — it is a single value used internally, not sent to the consumer.
+  - Declaring `output application/json` would store it as JSON.
 - After the Database Select, payload and attributes changed, but **the variable was still there**, all the way to the end.
 
 ### 6.4 Accessing and lifetime
@@ -265,7 +273,9 @@ Transform Message   (can still use vars.employeeID)
 | Set Variable | One variable only |
 | Transform Message | Payload, variables **and** attributes |
 
-There is no "Set Attributes" component; attributes can be created only through Transform Message. In practice you rarely create attributes — attributes hold minimal information (headers, query params, URI params). Transform Message is used mostly for **payload** and **variables**.
+- There is no "Set Attributes" component; attributes can be created only through Transform Message.
+- In practice you rarely create attributes — attributes hold minimal information (headers, query params, URI params).
+- Transform Message is used mostly for **payload** and **variables**.
 
 ### 7.4 When to use which
 
@@ -329,13 +339,19 @@ The keys are the table's column names. The fields could be renamed through trans
 ### 8.3 Questions
 
 **How does the Listener know whether the response is JSON or XML?**
-It sends whatever the payload is. The Transform Message already converted it to JSON, so the body is JSON. The Listener is configured by default to send the payload as the response body with `200 OK`.
+
+- It sends whatever the payload is.
+- The Transform Message already converted it to JSON, so the body is JSON.
+- The Listener is configured by default to send the payload as the response body with `200 OK`.
 
 **How does the Listener know the flow is complete?**
 When there are no more components in the flow, processing ends and the event returns to the source (Listener).
 
 **What if there is no Transform Message?**
-The payload stays in Java format. The Listener cannot send it as a valid HTTP body → error ("invalid data", as seen on Day 05). That's why it is converted to JSON first.
+
+- The payload stays in Java format.
+- The Listener cannot send it as a valid HTTP body → error ("invalid data", as seen on Day 05).
+- That's why it is converted to JSON first.
 
 **Some applications send tokens — how?**
 That belongs to API security. 8–10 policies will be covered later, including one that uses a token and one that uses username/password.
@@ -398,7 +414,9 @@ The two main MuleSoft components: **Anypoint Platform** (web) and **Anypoint Stu
 
 ### 12.1 Anypoint Code Builder
 
-A newer IDE introduced recently. **Instructor's view:** it still needs more capabilities; about 99% of the industry currently uses Anypoint Studio. The course uses Studio.
+- A newer IDE introduced recently.
+- **Instructor's view:** it still needs more capabilities; about 99% of the industry currently uses Anypoint Studio.
+- The course uses Studio.
 
 ### 12.2 Design Center
 
@@ -414,9 +432,16 @@ A newer IDE introduced recently. **Instructor's view:** it still needs more capa
 
 **Language:** **RAML** (RESTful API Modeling Language). Versions **0.8** (old) and **1.0**.
 
-**Alternative:** **OAS** (OpenAPI Specification), formerly called **Swagger**. Design Center supports it too. Non-Mule projects (e.g. Spring Boot) mostly use OAS; MuleSoft projects mostly use RAML.
+**Alternative:**
+- **OAS** (OpenAPI Specification), formerly called **Swagger**.
+- Design Center supports it too.
+- Non-Mule projects (e.g. Spring Boot) mostly use OAS; MuleSoft projects mostly use RAML.
 
-**Instructor's experience:** has worked only with RAML. In one project the APIs were already designed in OAS and no changes were needed. Knowing RAML makes OAS easy to pick up — the concepts are the same with small syntax differences. In an interview, you can say that clearly.
+**Instructor's experience:**
+- Has worked only with RAML.
+- In one project the APIs were already designed in OAS and no changes were needed.
+- Knowing RAML makes OAS easy to pick up — the concepts are the same with small syntax differences.
+- In an interview, you can say that clearly.
 
 Opening it: **Start designing** on the home page, or the menu (☰) → **Design Center**.
 
@@ -574,7 +599,9 @@ A central repository where API specifications, connectors, templates, examples a
 Runtime Manager deploys and manages applications (start/stop/logs). API Manager manages APIs — applying policies, SLAs and alerts.
 
 ### Q12. RAML vs. OAS?
-Both are API specification languages. RAML is most common in MuleSoft projects; OAS (formerly Swagger) is common elsewhere. Design Center supports both.
+- Both are API specification languages.
+- RAML is most common in MuleSoft projects; OAS (formerly Swagger) is common elsewhere.
+- Design Center supports both.
 
 ---
 

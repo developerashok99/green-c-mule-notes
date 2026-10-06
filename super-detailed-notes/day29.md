@@ -1,6 +1,9 @@
 # Day 29 — Masking, Reading Documentation, Creating the MySQL Table, Database Configuration and Testing the POST Flow
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 16 Dec 2024). Code, configuration and output marked *screen* are read from the recording. Slide images: [slides/day29](../slides/day29/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 16 Dec 2024).
+> - Code, configuration and output marked *screen* are read from the recording.
+> - Slide images: [slides/day29](../slides/day29/).
 
 ## 1. Overview
 
@@ -84,7 +87,9 @@ The field name must match the key in the payload exactly; a wrong name doesn't m
 
 ### 2.4 Mask once — JSON Logger global configuration
 
-Writing `mask` in 50 of 100 loggers is repetitive. The **JSON Logger global configuration** has a field for **fields to mask** (comma-separated: `mobileNumber,memberId`). Since every JSON Logger uses that configuration, masking applies everywhere.
+- Writing `mask` in 50 of 100 loggers is repetitive.
+- The **JSON Logger global configuration** has a field for **fields to mask** (comma-separated: `mobileNumber,memberId`).
+- Since every JSON Logger uses that configuration, masking applies everywhere.
 
 > *Screen:* this was explained only; the class project uses the core Logger, where `mask` goes in the message expression.
 
@@ -120,7 +125,11 @@ Search the **DataWeave functions documentation**; the instructor didn't remember
 
 **SQL dialects:** MySQL SQL and Oracle SQL are 90–95% the same with small differences (different vendors) — unlike Java vs. .NET, which differ a lot.
 
-**How much DB knowledge do you need?** Basic commands (create table, insert, select, update, delete). The DB team usually creates users, databases and tables. For a new requirement, search and learn. **Instructor:** "I can manage to a medium level; if interested, learn more."
+**How much DB knowledge do you need?**
+- Basic commands (create table, insert, select, update, delete).
+- The DB team usually creates users, databases and tables.
+- For a new requirement, search and learn.
+- **Instructor:** "I can manage to a medium level; if interested, learn more."
 
 One database **server** can host many logical **databases**.
 
@@ -128,7 +137,9 @@ One database **server** can host many logical **databases**.
 
 ## 5. Creating the Database and Table (MySQL Workbench)
 
-Run a statement: select it → **Execute** (lightning icon). Result panel: green = success; red = error. SQL keywords aren't case-sensitive; table/column names may be.
+- Run a statement: select it → **Execute** (lightning icon).
+- Result panel: green = success; red = error.
+- SQL keywords aren't case-sensitive; table/column names may be.
 
 ### 5.1 Database
 
@@ -206,7 +217,9 @@ DB details must come from **property files** — each environment uses a differe
 |---|---|
 | Dev, SIT, UAT, Prod | Dev, UAT, Prod |
 
-Prod ↔ Prod, UAT ↔ UAT, Dev ↔ Dev — but which DB does Mule SIT use (Dev or UAT)? **Discuss with the teams** and decide. Such mismatches happen in both directions.
+- Prod ↔ Prod, UAT ↔ UAT, Dev ↔ Dev — but which DB does Mule SIT use (Dev or UAT)?
+- **Discuss with the teams** and decide.
+- Such mismatches happen in both directions.
 
 ---
 
@@ -244,7 +257,9 @@ Forever only when nothing depends on the result: the connector is a **source**, 
 
 **Who provides the username and password?** The DB team.
 
-- **Not root.** Root can do everything (create, delete…). The DB team creates a **user** with only the permissions needed (insert, update, select, delete…). Extra permissions (e.g., create table) only if justified.
+- **Not root.** Root can do everything (create, delete…).
+  - The DB team creates a **user** with only the permissions needed (insert, update, select, delete…).
+  - Extra permissions (e.g., create table) only if justified.
 - In practice the class uses `root` — real projects never get root.
 
 **Human vs. service accounts:**
@@ -258,13 +273,18 @@ Forever only when nothing depends on the result: the connector is a **source**, 
 
 ## 10. Global Properties for Local Testing
 
-`mule.env` and `secure.key` are normally passed in the Run Configuration. Alternatively create **Global Property** elements (Global Elements → Create → Global Property) — in class a `secure.key` global property was created (and `mule.env` can be set the same way). They're picked up whether or not a run configuration is used.
+- `mule.env` and `secure.key` are normally passed in the Run Configuration.
+- Alternatively create **Global Property** elements (Global Elements → Create → Global Property) — in class a `secure.key` global property was created (and `mule.env` can be set the same way).
+- They're picked up whether or not a run configuration is used.
 
 **Remove these global properties before pushing code to Bitbucket/GitHub** — they're only for local testing.
 
 **Live issue (screen):** *Test Connection* on the Database Config failed with `Couldn't find configuration property value for key ${mule.env}` — Studio's design-time tooling doesn't see run-configuration arguments. Fix: Global Elements now list **Global Property `mule.env`** and **Global Property `secure.key`**.
 
-The encrypted values had been copied from the sys-app, so the instructor wasn't sure which key encrypted them (*"I think I took it from the Sys app"*). They checked in the **Secure Properties Generator** (`secure-properties-api.us-e1.cloudhub.io`, Operation **Decrypt**, AES, CBC): decrypting with the sys-app key gave back the expected username and password, so the same key went into `secure.key`. The key can also be added under Debug/Run Configurations → Environment → New Environment Variable `secure.key`. Keep track of keys.
+- The encrypted values had been copied from the sys-app, so the instructor wasn't sure which key encrypted them (*"I think I took it from the Sys app"*).
+- They checked in the **Secure Properties Generator** (`secure-properties-api.us-e1.cloudhub.io`, Operation **Decrypt**, AES, CBC): decrypting with the sys-app key gave back the expected username and password, so the same key went into `secure.key`.
+- The key can also be added under Debug/Run Configurations → Environment → New Environment Variable `secure.key`.
+- Keep track of keys.
 
 > **Values as shown on screen** (2024 demo setup, now expired):
 >
@@ -307,7 +327,10 @@ insert into EMPLOYEES_INFO values (:emp_id,:emp_name,:emp_status,:emp_salary,:em
 
 ### A custom error
 
-The reused error handler included an On Error Propagate for type `DATABASE:NO_DATA_FOUND` (to be raised later with Raise Error in the GET flow). *Screen:* the app then **failed to deploy** — `Could not find ErrorType for the given identifier: 'DATABASE:NO_DATA_FOUND'`, status FAILED. A custom type can't be referenced in a handler until something in the app can raise it. The fix in class: comment out that `<on-error-propagate>` block (`<!-- … -->`) in `common-error-handler.xml`; the app then started (plugins Database 1.12.1, Sockets 1.2.2, secure-properties 1.2.7, HTTP 1.6.0, APIKit 1.5.11; `mysql-connector-java-5.1.48.jar`).
+- The reused error handler included an On Error Propagate for type `DATABASE:NO_DATA_FOUND` (to be raised later with Raise Error in the GET flow).
+- *Screen:* the app then **failed to deploy** — `Could not find ErrorType for the given identifier: 'DATABASE:NO_DATA_FOUND'`, status FAILED.
+- A custom type can't be referenced in a handler until something in the app can raise it.
+- The fix in class: comment out that `<on-error-propagate>` block (`<!-- … -->`) in `common-error-handler.xml`; the app then started (plugins Database 1.12.1, Sockets 1.2.2, secure-properties 1.2.7, HTTP 1.6.0, APIKit 1.5.11; `mysql-connector-java-5.1.48.jar`).
 
 ---
 

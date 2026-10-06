@@ -1,6 +1,9 @@
 # Day 14 — Property Files, Externalisation per Environment, Run Configurations and Secure Properties
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 25 Nov 2024; the class used two decks, "13th Day" and "14th Day"). Slide text, drawings and screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day14](../slides/day14/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 25 Nov 2024; the class used two decks, "13th Day" and "14th Day").
+> - Slide text, drawings and screens marked *slide*, *drawing* or *screen* are read from the recording.
+> - Slide images: [slides/day14](../slides/day14/).
 
 ## 1. Overview
 
@@ -50,7 +53,9 @@ Students mentioned other names (Stage, LT for load testing, Post-prod). **Differ
 
 ### 2.5 Third-party environments
 
-Ask the third party, preferably by email, what their Dev/UAT/Prod endpoints and keys are. Sometimes they don't have separate environments, and your UAT may have to use their Dev (or another) environment. Confirm in writing and configure accordingly.
+- Ask the third party, preferably by email, what their Dev/UAT/Prod endpoints and keys are.
+- Sometimes they don't have separate environments, and your UAT may have to use their Dev (or another) environment.
+- Confirm in writing and configure accordingly.
 
 ---
 
@@ -88,7 +93,10 @@ weather:
 
 (The API key was added to the same file during the demo as another `weather` key; its value is not reproduced.)
 
-- `#` = **comment**. Use comment **headings** per configuration (listener, weather request, …). In real projects there are 10–15 configurations; headings make files readable. **Best practice.**
+- `#` = **comment**.
+  - Use comment **headings** per configuration (listener, weather request, …).
+  - In real projects there are 10–15 configurations; headings make files readable.
+  - **Best practice.**
 - Nesting by **indentation**: `http:` → newline → indented `listener:` → indented `host`, `port`, `path`. The full key is `http.listener.host`.
 - Nesting avoids repeating `http.listener.` for every key.
 - Use clear prefixes per system (e.g. `weather.`) — an API may call several services.
@@ -206,7 +214,9 @@ In fx/DataWeave (e.g. the `appid` query parameter, which is an expression):
 
 ### 6.3 Question: is the same host used in test and prod?
 
-The **key** (e.g. `weather.request.host`) is the same in every file. The **value** differs. Code always references the key; the environment's file supplies the value.
+- The **key** (e.g. `weather.request.host`) is the same in every file.
+- The **value** differs.
+- Code always references the key; the environment's file supplies the value.
 
 ---
 
@@ -240,7 +250,9 @@ The instructor copied a folder `config1` containing `dev.properties`, `uat.prope
 
 ### 8.1 Problem
 
-DB username, password, host and port were placed in the property file. Putting a **password** (or secret key) in plain text is **not correct** — anyone reading the file sees it. Sensitive values must be **encrypted**.
+- DB username, password, host and port were placed in the property file.
+- Putting a **password** (or secret key) in plain text is **not correct** — anyone reading the file sees it.
+- Sensitive values must be **encrypted**.
 
 ### 8.2 Encryption and decryption — WhatsApp analogy
 
@@ -303,7 +315,10 @@ MuleSoft provides a **Secure Properties Tool** web page (and a JAR) to encrypt/d
 | Key | Your secret key |
 | Value | e.g. the API key |
 
-**Key length:** with a short key (e.g. `xyz1234`), AES gives "**key length not sufficient**". AES needs **16 bytes** (16 characters), e.g. `xyz1234567890abc`. Blowfish accepted shorter keys.
+**Key length:**
+- With a short key (e.g. `xyz1234`), AES gives "**key length not sufficient**".
+- AES needs **16 bytes** (16 characters), e.g. `xyz1234567890abc`.
+- Blowfish accepted shorter keys.
 
 > **Technical clarification:** AES accepts 16-, 24- or 32-byte keys (AES-128/192/256).
 
@@ -348,7 +363,9 @@ In DataWeave:              p('secure::weather.appid')
 
 ### Mistake in the demo
 
-After encrypting, the request still failed: the reference was still `${weather.appid}` without **`secure::`**. Mule used the **encrypted text as is** and the API rejected it. Adding `secure::` fixed it.
+- After encrypting, the request still failed: the reference was still `${weather.appid}` without **`secure::`**.
+- Mule used the **encrypted text as is** and the API rejected it.
+- Adding `secure::` fixed it.
 
 ### Notes
 

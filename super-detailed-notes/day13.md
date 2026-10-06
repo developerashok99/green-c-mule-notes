@@ -1,6 +1,9 @@
 # Day 13 — Reconnection Strategy, Response Validator and Where HTTPS Is Used
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 21 Nov 2024). Drawings and Studio screens marked *drawing* or *screen* are read from the recording. Slide images: [slides/day13](../slides/day13/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 21 Nov 2024).
+> - Drawings and Studio screens marked *drawing* or *screen* are read from the recording.
+> - Slide images: [slides/day13](../slides/day13/).
 
 ## 1. Overview
 
@@ -15,7 +18,9 @@ Day 12 covered target variable and response timeout. This session completes the 
 
 *Drawing — response timeout recap:* Req → Listener → Log → **HTTP Req** → TM → Log; the weather API responds in ~100 ms; "500 ms — Response Timeout"; **default — 10000 ms — 10 secs**; HTTP Timeout error. Beside it: **Connector config → RT → default**; 1st HTTP Req → 800 ms, 2nd HTTP Req → 500 ms (operation-level overrides); and "RS — try for 3 times with a gap of 1000 ms".
 
-> Target variable and reconnection strategy are **common to most connectors** (Salesforce, Database, HTTP…). Learn them once; apply everywhere. The response validator is specific to HTTP Request.
+> - Target variable and reconnection strategy are **common to most connectors** (Salesforce, Database, HTTP…).
+> - Learn them once; apply everywhere.
+> - The response validator is specific to HTTP Request.
 
 ---
 
@@ -23,9 +28,14 @@ Day 12 covered target variable and response timeout. This session completes the 
 
 ### 2.1 The problem
 
-Our weather API calls OpenWeatherMap with an HTTP Request. That call travels over a **network** (private or internet). Networks can have small **glitches** — a few milliseconds without connectivity.
+- Our weather API calls OpenWeatherMap with an HTTP Request.
+- That call travels over a **network** (private or internet).
+- Networks can have small **glitches** — a few milliseconds without connectivity.
 
-**Mobile signal analogy:** when the signal drops, the phone reconnects automatically in milliseconds. Imagine having to restart the phone every time the signal blinks. Automatic retry is clearly better.
+**Mobile signal analogy:**
+- When the signal drops, the phone reconnects automatically in milliseconds.
+- Imagine having to restart the phone every time the signal blinks.
+- Automatic retry is clearly better.
 
 ### 2.2 Without a reconnection strategy
 
@@ -78,7 +88,9 @@ Frequency is in **milliseconds**.
 
 ### 2.5 Why Forever is wrong in a request–response flow
 
-A consumer is waiting for our API's response. If the network is down for half an hour, "Forever" keeps retrying for half an hour while the consumer waits. Use **Standard** in the middle of a request–response flow, so it eventually returns an error.
+- A consumer is waiting for our API's response.
+- If the network is down for half an hour, "Forever" keeps retrying for half an hour while the consumer waits.
+- Use **Standard** in the middle of a request–response flow, so it eventually returns an error.
 
 ### 2.6 When Forever is acceptable — source connectors
 
@@ -202,13 +214,19 @@ External consumer (internet)
 └────────────────────────────────────────────────────────┘
 ```
 
-**Instructor's example:** the Experience API is exposed to the outside world, so it uses **HTTPS**. Experience → Process and Process → System are inside the enterprise network and use **HTTP** in this scenario. That is why both HTTP and HTTPS appear in real projects.
+**Instructor's example:**
+- The Experience API is exposed to the outside world, so it uses **HTTPS**.
+- Experience → Process and Process → System are inside the enterprise network and use **HTTP** in this scenario.
+- That is why both HTTP and HTTPS appear in real projects.
 
 > **Technical clarification:** this is a common setup, not a rule. As noted on Day 06, many organisations (especially regulated ones) use HTTPS for internal calls too.
 
 ### Why HTTPS (recap)
 
-A request with a name and a credit-card number sent over HTTP travels as plain text — anyone sniffing the internet can read it. With HTTPS it is encrypted; without the key/algorithm the sniffer cannot decrypt it. HTTPS secures data **only while travelling** from consumer to API. APIs also have other security (username/password, policies).
+- A request with a name and a credit-card number sent over HTTP travels as plain text — anyone sniffing the internet can read it.
+- With HTTPS it is encrypted; without the key/algorithm the sniffer cannot decrypt it.
+- HTTPS secures data **only while travelling** from consumer to API.
+- APIs also have other security (username/password, policies).
 
 ---
 

@@ -1,6 +1,9 @@
 # Day 21 — API Lifecycle Revisited, RAML Introduction and the Employee Use Case
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 6 Dec 2024). Slide text and drawings marked *slide* or *drawing* are read from the recording. Slide images: [slides/day21](../slides/day21/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 6 Dec 2024).
+> - Slide text and drawings marked *slide* or *drawing* are read from the recording.
+> - Slide images: [slides/day21](../slides/day21/).
 
 ## 1. Overview
 
@@ -118,7 +121,9 @@ The specification is prepared in **Design Center** using **RAML** (or **OAS**). 
 
 ### 3.4 Schema vs. example — table analogy
 
-A table with four columns: the **columns** (names and types) never change — that's the **schema**. The **rows** (values) change — that's data. A schema defines the structure; an **example** shows sample values.
+- A table with four columns: the **columns** (names and types) never change — that's the **schema**.
+- The **rows** (values) change — that's data.
+- A schema defines the structure; an **example** shows sample values.
 
 ### 3.5 Versions
 
@@ -217,7 +222,11 @@ Experience API ──► Process API ──► System API ──► Employees DB
 
 This use case has little business logic. The architect might still include a Process API for **future** extended functionality if resources allow — otherwise skip it.
 
-**Cost example:** three layers × 0.1 vCore = **0.3 vCore** for a simple requirement; skipping one saves 0.1 vCore. More services → more vCores → more licensing cost. Know when to skip a layer. API-led architecture is **flexible**, not mandatory.
+**Cost example:**
+- Three layers × 0.1 vCore = **0.3 vCore** for a simple requirement; skipping one saves 0.1 vCore.
+- More services → more vCores → more licensing cost.
+- Know when to skip a layer.
+- API-led architecture is **flexible**, not mandatory.
 
 ### 7.3 This is microservices
 
@@ -245,7 +254,9 @@ You may build only the System API, but when explaining your project (e.g., in an
 
 ### Why not just one API between consumer and DB?
 
-For a simple, isolated requirement with no other users of the DB and no complex transformations, a single API is fine. Enterprises have many requirements and many APIs, so the layered design pays off. Decide per requirement.
+- For a simple, isolated requirement with no other users of the DB and no complex transformations, a single API is fine.
+- Enterprises have many requirements and many APIs, so the layered design pays off.
+- Decide per requirement.
 
 ---
 
@@ -293,7 +304,9 @@ RESTful API Modeling Language — a YAML-based language to define RESTful API sp
 RAML 1.0.
 
 ### Q4. RAML vs. OAS?
-Both describe REST APIs. RAML is common in MuleSoft projects; OAS (formerly Swagger, JSON/YAML, v2/v3) is common elsewhere. Design Center supports both.
+- Both describe REST APIs.
+- RAML is common in MuleSoft projects; OAS (formerly Swagger, JSON/YAML, v2/v3) is common elsewhere.
+- Design Center supports both.
 
 ### Q5. What is an API specification?
 A contract between consumer and provider defining resources, methods, request/response/error structures, examples and security.

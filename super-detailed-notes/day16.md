@@ -1,6 +1,9 @@
 # Day 16 — Error Handling (Part 2): ANY Order, Parent/Child Flows, On Error Continue, Error Mapping, Global Handler, Try, Raise Error, Choice
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 27 Nov 2024). Drawings and Studio/Postman screens marked *drawing* or *screen* are read from the recording. Slide images: [slides/day16](../slides/day16/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 27 Nov 2024).
+> - Drawings and Studio/Postman screens marked *drawing* or *screen* are read from the recording.
+> - Slide images: [slides/day16](../slides/day16/).
 
 ## 1. Overview
 
@@ -18,7 +21,9 @@
 
 ## 2. Adding an ANY Handler
 
-Day 15 had two On Error Propagate handlers: `HTTP:NOT_FOUND` and `MULE:EXPRESSION`. Any other error went to Mule's default handler. Instead, add a catch-all:
+- Day 15 had two On Error Propagate handlers: `HTTP:NOT_FOUND` and `MULE:EXPRESSION`.
+- Any other error went to Mule's default handler.
+- Instead, add a catch-all:
 
 - Drag another **On Error Propagate**. Leave **Type empty** (or choose **ANY**) — it matches all errors.
 - It needs the same Logger and Transform Message as the others.
@@ -55,7 +60,9 @@ Using XML: the ANY handler (lines 99–116) was **cut** (Ctrl+X) and **pasted** 
 </error-handler>
 ```
 
-A `MULE:EXPRESSION` error was triggered. It should go to the MULE:EXPRESSION handler — but it went to **ANY**. Handlers are checked in order; ANY matched first.
+- A `MULE:EXPRESSION` error was triggered.
+- It should go to the MULE:EXPRESSION handler — but it went to **ANY**.
+- Handlers are checked in order; ANY matched first.
 
 (The order isn't visible as a "rule" anywhere — it happens in the background based on position.) The instructor also remarked that if the expression type were unticked in that handler's type selection, the error would not go there.
 
@@ -152,7 +159,9 @@ Using On Error Continue for a whole flow, as above, is **not** a real use case. 
 
 A handler with no inner components is a single self-closing tag (`<on-error-continue … />`). That's why the dummy-component trick is needed to paste between tags.
 
-The error handling configured inside a flow is **flow-level** error handling. If flow B is called from flow A via Flow Reference, A's handler also applies to errors propagated from B. Independent flows don't share flow-level handlers.
+- The error handling configured inside a flow is **flow-level** error handling.
+- If flow B is called from flow A via Flow Reference, A's handler also applies to errors propagated from B.
+- Independent flows don't share flow-level handlers.
 
 ---
 
@@ -182,7 +191,9 @@ HTTP Request → **Error Mapping** tab → add a mapping:
 
 ### 7.3 Result
 
-The error object showed **`WEATHER:CONNECTIVITY`**. A handler for `HTTP:CONNECTIVITY` would **no longer** match; handlers must use the new type. In the demo it went to ANY.
+- The error object showed **`WEATHER:CONNECTIVITY`**.
+- A handler for `HTTP:CONNECTIVITY` would **no longer** match; handlers must use the new type.
+- In the demo it went to ANY.
 
 Used in **very rare** instances; asked in certification questions.
 
@@ -223,7 +234,11 @@ Used in **very rare** instances; asked in certification questions.
 
 (The handler name is from the screen; the handler bodies are abbreviated.)
 
-**Result:** `WEATHER:CONNECTIVITY` was handled by the global handler even though the flow had no handler of its own. All flows in the project use the same handler. **Instructor:** in real time, error handling is usually maintained separately like this. Shown again in the end-to-end project.
+**Result:**
+- `WEATHER:CONNECTIVITY` was handled by the global handler even though the flow had no handler of its own.
+- All flows in the project use the same handler.
+- **Instructor:** in real time, error handling is usually maintained separately like this.
+- Shown again in the end-to-end project.
 
 ### 8.2 Component level — Try scope
 
@@ -258,7 +273,9 @@ Better use cases (For Each, Scatter-Gather) come later.
 
 ### 9.1 Why
 
-Technical errors (HTTP connectivity, timeouts, …) are raised **automatically**. Some **business** situations are technically fine but must be rejected. Use **Raise Error** to raise them yourself, with your own error type.
+- Technical errors (HTTP connectivity, timeouts, …) are raised **automatically**.
+- Some **business** situations are technically fine but must be rejected.
+- Use **Raise Error** to raise them yourself, with your own error type.
 
 ### 9.2 Example — loan application age
 
@@ -290,7 +307,10 @@ Choice
 
 ### 9.4 Result
 
-Request body `{ "age": 45 }` → success message. *Screen (Postman):* GET `http://localhost:8081/raiseerror` with `{"name": "Ramesh", "age": 68}` → default route → Raise Error → **500 Server Error**, body (text) `age is not in the specified limits`. The error object had **errorType = BUSINESS:…** and that description. No error handler → default handler.
+- Request body `{ "age": 45 }` → success message.
+- *Screen (Postman):* GET `http://localhost:8081/raiseerror` with `{"name": "Ramesh", "age": 68}` → default route → Raise Error → **500 Server Error**, body (text) `age is not in the specified limits`.
+- The error object had **errorType = BUSINESS:…** and that description.
+- No error handler → default handler.
 
 **Port note:** another app was still running in Studio, so the new one couldn't start (the instructor also noted that Debug mode itself uses port **6666**). Stop the other app first.
 

@@ -1,6 +1,9 @@
 # Day 26 — Publishing the Specification to Exchange, Importing It into Studio, Scaffolding and the APIkit Router
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 12 Dec 2024). Design Center, Exchange, Studio and Postman screens marked *screen* are read from the recording. Slide images: [slides/day26](../slides/day26/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 12 Dec 2024).
+> - Design Center, Exchange, Studio and Postman screens marked *screen* are read from the recording.
+> - Slide images: [slides/day26](../slides/day26/).
 
 ## 1. Overview
 
@@ -144,11 +147,16 @@ The generated flow name (e.g. `post:\employees:application\json:hr-employees-sap
 
 > Change it and the router can't route (requests fail). **Never change these generated flow names.** Other (your own) flows can be named freely.
 
-**Enhancement example:** an API in production has three resources; you must add a fourth. Add the resource (data types, examples) in Design Center → publish a new version → update the dependency in Studio → implement the new flow. Don't touch existing generated flow names.
+**Enhancement example:**
+- An API in production has three resources; you must add a fourth.
+- Add the resource (data types, examples) in Design Center → publish a new version → update the dependency in Studio → implement the new flow.
+- Don't touch existing generated flow names.
 
 ### 6.4 Console flow
 
-A **console flow** (with an APIkit console operation) is also generated — for console-based testing. It is a main flow too. **Instructor:** 90% of the time not used; deleted in real projects.
+- A **console flow** (with an APIkit console operation) is also generated — for console-based testing.
+- It is a main flow too.
+- **Instructor:** 90% of the time not used; deleted in real projects.
 
 ### 6.5 Main, private and sub flows
 
@@ -257,7 +265,10 @@ A slightly wrong body → **400 Bad Request**. The router validated the body aga
 
 ### 8.4 Where the error response comes from
 
-The generated error handler has On Error Propagate blocks for APIkit errors (bad request, not found, method not allowed, …). Each sets a **variable `httpStatus`** (e.g. 400) and a **payload** (message). The Listener's **Error Response** maps body = `payload`, status code = `vars.httpStatus` (**default 500** if not set). All generated automatically; change messages as required.
+- The generated error handler has On Error Propagate blocks for APIkit errors (bad request, not found, method not allowed, …).
+- Each sets a **variable `httpStatus`** (e.g. 400) and a **payload** (message).
+- The Listener's **Error Response** maps body = `payload`, status code = `vars.httpStatus` (**default 500** if not set).
+- All generated automatically; change messages as required.
 
 (A mismatched variable name in the error mapping cost the instructor half an hour of debugging — check names carefully.)
 

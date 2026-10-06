@@ -2,7 +2,10 @@
 
 > **Watch alongside:** the whole session pivots the course from "build the API" to "protect the API" — and the one mental model to hold onto is the **watchman analogy**: a gateway checks every request's credentials/policy compliance *before* it's allowed anywhere near your actual flow logic. Everything else — Flex vs. Mule Gateway, proxy vs. no-proxy, API Instance ID/auto-discovery — is just detail on top of that one idea.
 
-> **Video-verified:** checked against the class recording (18 Dec 2024). Added from the screen: the API Manager steps (Mule Gateway, basic endpoint, asset 1.0.1, instance ID 20120438), the `autodiscovery.id` property and API Autodiscovery global element, and the policy drawings. Slide images: [slides/day31](../slides/day31/).
+> **Video-verified:**
+> - Checked against the class recording (18 Dec 2024).
+> - Added from the screen: the API Manager steps (Mule Gateway, basic endpoint, asset 1.0.1, instance ID 20120438), the `autodiscovery.id` property and API Autodiscovery global element, and the policy drawings.
+> - Slide images: [slides/day31](../slides/day31/).
 
 ---
 

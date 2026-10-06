@@ -1,6 +1,9 @@
 # Day 27 — Implementing the Employee API: Project Structure, Global Config, Reused Error Handler, Database Connector and MySQL Setup
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 13 Dec 2024). Code, configuration and output marked *screen* are read from the recording. Slide images: [slides/day27](../slides/day27/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 13 Dec 2024).
+> - Code, configuration and output marked *screen* are read from the recording.
+> - Slide images: [slides/day27](../slides/day27/).
 
 ## 1. Overview
 
@@ -29,7 +32,9 @@ On Day 26 the scaffolded app was tested as-is. Now the real implementation start
 | GET | Receive the employee ID → **fetch** that employee from the database |
 | PATCH | Receive updated details → **update** the employee in the database |
 
-Implementation is **not** done in the main (scaffolded) file. For each operation, create an implementation file; the scaffolded flow calls it with a **Flow Reference**. The request goes to the implementation flow, and after processing, control returns to the main flow and the Listener sends the response.
+- Implementation is **not** done in the main (scaffolded) file.
+- For each operation, create an implementation file; the scaffolded flow calls it with a **Flow Reference**.
+- The request goes to the implementation flow, and after processing, control returns to the main flow and the Listener sends the response.
 
 ---
 
@@ -53,7 +58,10 @@ src/main/mule/
 
 The instructor's reference project `hr-employees-sys-app` has the same layout (`global-config.xml`, `fetch-/patch-/post-employee-implementation.xml`).
 
-**Why?** With 10 resources and their implementations all mixed together, it becomes unorganised and confusing. Common things in one place, implementations in another. Not mandatory — but it gives clarity.
+**Why?**
+- With 10 resources and their implementations all mixed together, it becomes unorganised and confusing.
+- Common things in one place, implementations in another.
+- Not mandatory — but it gives clarity.
 
 ---
 
@@ -61,7 +69,9 @@ The instructor's reference project `hr-employees-sys-app` has the same layout (`
 
 ### 4.1 Idea
 
-Each time you create a connector configuration (Listener, DB, …) it becomes a global element in whatever XML you're in. Over time they scatter. **Best practice:** keep **all global elements in one XML** — named e.g. `global-config` or `common-config`.
+- Each time you create a connector configuration (Listener, DB, …) it becomes a global element in whatever XML you're in.
+- Over time they scatter.
+- **Best practice:** keep **all global elements in one XML** — named e.g. `global-config` or `common-config`.
 
 ### 4.2 Steps
 
@@ -76,7 +86,9 @@ The Listener still finds its configuration — global elements are available to 
 
 ### 4.3 Studio glitch
 
-After moving, Studio showed "**name must be unique**" (as if the configs existed twice). Saving and refreshing didn't clear it. **Close and reopen the project** → fixed.
+- After moving, Studio showed "**name must be unique**" (as if the configs existed twice).
+- Saving and refreshing didn't clear it.
+- **Close and reopen the project** → fixed.
 
 Also: **Project Explorer** didn't show files properly here; **Package Explorer** did.
 
@@ -171,7 +183,9 @@ Copy-paste builds structure quickly; you still must change names and fill the op
 
 ### 8.1 Property files
 
-`src/main/resources` → folder (e.g. `config`) → environment files. Listener values (host, port, path such as `/api/*`) stay externalised. Response timeout etc. can be set as needed; nothing to change for the APIkit router config.
+- `src/main/resources` → folder (e.g. `config`) → environment files.
+- Listener values (host, port, path such as `/api/*`) stay externalised.
+- Response timeout etc. can be set as needed; nothing to change for the APIkit router config.
 
 ### 8.2 Database configuration — name it well
 
@@ -246,7 +260,10 @@ A **database team** configures the database, creates tables, and emails you host
 
 ### 9.3 Why a UI?
 
-**Analogy:** in Flipkart you use the app (UI) to order; the data sits in back-end systems you never see. **MySQL Workbench** is the UI for MySQL — write select, insert, update, delete, create table. For Oracle, **SQL Developer**.
+**Analogy:**
+- In Flipkart you use the app (UI) to order; the data sits in back-end systems you never see.
+- **MySQL Workbench** is the UI for MySQL — write select, insert, update, delete, create table.
+- For Oracle, **SQL Developer**.
 
 ### 9.4 Database service
 

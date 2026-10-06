@@ -3,7 +3,10 @@
 > **Watch alongside:** the single idea that unlocks this whole session is that **HTTP Request connectors overwrite `attributes`** — everything about capturing headers/URI-params/query-params/correlation-ID into *variables* immediately at flow start exists solely to survive that overwrite. Once that clicks, the four different "how to create variables" methods are just style choices; the `now()`/timezone/asynchronous-logging/masking material builds logging discipline on top of that same foundation.
 
 
-> **Video-verified:** checked against the class recording (14 Dec 2024). Names below are the ones on screen: `initialize-variables-sub-flow`, Transform Message "Create Initial Variables", loggers "Before HR DB"/"After DB" with trace points `START`/`BEFORE_DB`/`AFTER_DB`. Slide images: [slides/day28](../slides/day28/).
+> **Video-verified:**
+> - Checked against the class recording (14 Dec 2024).
+> - Names below are the ones on screen: `initialize-variables-sub-flow`, Transform Message "Create Initial Variables", loggers "Before HR DB"/"After DB" with trace points `START`/`BEFORE_DB`/`AFTER_DB`.
+> - Slide images: [slides/day28](../slides/day28/).
 
 ---
 

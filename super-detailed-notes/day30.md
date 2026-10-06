@@ -1,6 +1,9 @@
 # Day 30 — Remove Variable, Keeping RAML in Sync, PATCH and GET Implementation, Validation Module and Error Mapping
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 17 Dec 2024). Code, configuration and output marked *screen* are read from the recording. Slide images: [slides/day30](../slides/day30/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 17 Dec 2024).
+> - Code, configuration and output marked *screen* are read from the recording.
+> - Slide images: [slides/day30](../slides/day30/).
 
 ## 1. Overview
 
@@ -69,7 +72,9 @@ Returning the transaction ID and employee ID tells the source which request and 
 
 The implementation now returns extra fields that aren't in the RAML. **APIs are permanent; people change.** A new team member checks the RAML first; if it doesn't match the implementation, they're confused, and may give consumers/third parties the wrong structure.
 
-> Keep the specification and implementation **consistent**. Change the spec in **Design Center**, publish, and update Studio. If urgent, change in Studio first, then update Design Center.
+> - Keep the specification and implementation **consistent**.
+> - Change the spec in **Design Center**, publish, and update Studio.
+> - If urgent, change in Studio first, then update Design Center.
 
 (The spec inside `src/main/resources/api` as an Exchange dependency is **read-only** in Studio. Importing the RAML as files into that folder makes it editable, but the normal flow is Design Center.)
 
@@ -148,7 +153,9 @@ Same logging as POST: start/end loggers, before/after DB loggers.
 
 ### 5.4 Test
 
-Employee 1000 → salary 1,00,000, designation "Senior Software Engineer". Response payload: **`affectedRows: 1`**. Verified in Workbench.
+- Employee 1000 → salary 1,00,000, designation "Senior Software Engineer".
+- Response payload: **`affectedRows: 1`**.
+- Verified in Workbench.
 
 *Screen:* `PATCH http://localhost:8081/api/employees` with `{"empId": 1000, "empSalary": 100000, "empDesignation": "senior software engineer"}` → **200** `{"statusCode": 200, "message": "employee details updated successfully in the db"}`.
 
@@ -250,7 +257,10 @@ output application/json
 }
 ```
 
-**Live bug (screen):** the first version used the response names on the right too (`payload[0].empId`, `payload[0].empName` …). GET `/api/employees/1000` returned **200 with every field `null`** except `active`. The debugger's *Evaluate DataWeave expression* with `payload[0].emp_id` … showed the real values — the keys must match the **DB column names**.
+**Live bug (screen):**
+- The first version used the response names on the right too (`payload[0].empId`, `payload[0].empName` …).
+- GET `/api/employees/1000` returned **200 with every field `null`** except `active`.
+- The debugger's *Evaluate DataWeave expression* with `payload[0].emp_id` … showed the real values — the keys must match the **DB column names**.
 
 - **Left side** = our response fields (as per the consumer's contract); **right side** = DB values.
 - `output application/json` converts Java → JSON.
@@ -280,7 +290,9 @@ Choice
 ### Test
 
 - GET `…/employees/1000` (exists) → `size 1` → mapped details → 200. *Screen:* `{"empId": 1000, "empName": "Suresh", "empSalary": 100000.0, "active": true, "empDesignation": "senior software engineer"}`.
-- GET non-existent ID → `size 0` → default route. *Screen:* GET `/api/employees/1000111` → **200** `{"message": "employee details not found in the database"}`. The first try returned Java (no `output application/json` in that Transform Message); after adding it, the JSON message returned.
+- GET non-existent ID → `size 0` → default route.
+  - *Screen:* GET `/api/employees/1000111` → **200** `{"message": "employee details not found in the database"}`.
+  - The first try returned Java (no `output application/json` in that Transform Message); after adding it, the JSON message returned.
 - Port **6666** (debugger) was busy because the app was already running — stop it before debugging again.
 
 > If you know the navigation in the debugger, 50–60% of the work is done.

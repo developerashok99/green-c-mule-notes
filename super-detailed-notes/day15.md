@@ -1,6 +1,9 @@
 # Day 15 — Error Handling (Part 1): Default vs. Custom, the Error Object, On Error Propagate, ANY
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 26 Nov 2024). Slide text, drawings and Studio/Postman screens marked *slide*, *drawing* or *screen* are read from the recording. Slide images: [slides/day15](../slides/day15/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 26 Nov 2024).
+> - Slide text, drawings and Studio/Postman screens marked *slide*, *drawing* or *screen* are read from the recording.
+> - Slide images: [slides/day15](../slides/day15/).
 
 ## 1. Overview
 
@@ -78,7 +81,9 @@ error.description
 
 ### Demo of the default
 
-A wrong city ("Mumbaii") was sent. Because the success status code validator from Day 13 still included 404, the request didn't fail at the HTTP Request; it failed later in the mapping. The default handler returned a **500** with the plain-text description — unstructured, not useful to a consumer.
+- A wrong city ("Mumbaii") was sent.
+- Because the success status code validator from Day 13 still included 404, the request didn't fail at the HTTP Request; it failed later in the mapping.
+- The default handler returned a **500** with the plain-text description — unstructured, not useful to a consumer.
 
 ---
 
@@ -86,7 +91,9 @@ A wrong city ("Mumbaii") was sent. Because the success status code validator fro
 
 ### 5.1 When it exists
 
-The **error object** is created **only when an error is raised**. During successful processing, the Mule Debugger shows no error object. When the error occurs (red dotted outline on the component), it appears.
+- The **error object** is created **only when an error is raised**.
+- During successful processing, the Mule Debugger shows no error object.
+- When the error occurs (red dotted outline on the component), it appears.
 
 ### 5.2 Contents
 
@@ -183,7 +190,9 @@ output application/json
 
 (In class the `statusCode` variable was first set to 404 and later changed to 400 so that it matched the payload's `errorStatusCode`. *Screen:* with the mismatch, Postman showed **"404 Bad Request"** — status code 404 from the variable, reason phrase "Bad Request" — for GET `http://localhost:8081/weather/city` with body `{"city": "M"}`.)
 
-Why 400 when the third party returned 404? The consumer sent a wrong city — a client-side data problem — so 400 Bad Request was chosen. **There is no hard rule** on 400 vs. 500 here; what matters is that the consumer understands the error.
+- Why 400 when the third party returned 404?
+- The consumer sent a wrong city — a client-side data problem — so 400 Bad Request was chosen.
+- **There is no hard rule** on 400 vs. 500 here; what matters is that the consumer understands the error.
 
 **Step 5 — Map the Listener's Error Response section:**
 
@@ -226,7 +235,9 @@ The only handler was for `HTTP:NOT_FOUND` → **no match** → **default error h
 
 ### 8.3 Why the response showed `"city": "Mumbai"`
 
-The Error Response body was `payload`. The error happened **before** the HTTP Request, so the payload was still the original request `{ "city": "Mumbai" }`. Status code and reason phrase variables were never set, so defaults were used.
+- The Error Response body was `payload`.
+- The error happened **before** the HTTP Request, so the payload was still the original request `{ "city": "Mumbai" }`.
+- Status code and reason phrase variables were never set, so defaults were used.
 
 > Map the Error Response carefully; if no handler sets the payload/variables, whatever is currently there is sent.
 

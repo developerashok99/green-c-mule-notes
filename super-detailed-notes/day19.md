@@ -1,6 +1,9 @@
 # Day 19 — CloudHub 2.0 Follow-Up and On-Premises Deployment with Mule Standalone Runtime; Domain Projects
 
-> **Sources:** audio transcript, existing notes, and the class video (recorded 4 Dec 2024). Slide text and command-line/Studio screens marked *slide* or *screen* are read from the recording. Slide images: [slides/day19](../slides/day19/).
+> **Sources:**
+> - Audio transcript, existing notes, and the class video (recorded 4 Dec 2024).
+> - Slide text and command-line/Studio screens marked *slide* or *screen* are read from the recording.
+> - Slide images: [slides/day19](../slides/day19/).
 
 ## 1. Overview
 
@@ -20,7 +23,9 @@
 
 ### 2.1 Recap
 
-The weather app was built in Studio 7.12 (runtime 4.4) and deployed to CloudHub 2.0 on runtime 4.8. In CloudHub, the first logger (`payload.city`) didn't even print — the error happened right after the Listener. The payload arrived in **binary** format, so `payload.city` couldn't be read ("you called the function … expects one of these combinations").
+- The weather app was built in Studio 7.12 (runtime 4.4) and deployed to CloudHub 2.0 on runtime 4.8.
+- In CloudHub, the first logger (`payload.city`) didn't even print — the error happened right after the Listener.
+- The payload arrived in **binary** format, so `payload.city` couldn't be read ("you called the function … expects one of these combinations").
 
 **Instructor's reasoning:** lower versions normally work on higher runtimes (forward compatibility), but minor mismatches can cause issues like this.
 
@@ -34,7 +39,9 @@ The weather app was built in Studio 7.12 (runtime 4.4) and deployed to CloudHub 
 
 ### 2.3 Result
 
-**No change** — the payload still arrived in binary. The instructor suspected the Listener/runtime versions vs. the old Studio version (7.12) and planned to upgrade Studio (to 7.18). **Not resolved in this session.**
+- **No change** — the payload still arrived in binary.
+- The instructor suspected the Listener/runtime versions vs. the old Studio version (7.12) and planned to upgrade Studio (to 7.18).
+- **Not resolved in this session.**
 
 > **Instructor's observation:** in theory migrations are clear; practically there are many challenges. Colleagues who recently migrated to CloudHub 2.0 faced such issues too.
 
@@ -149,7 +156,9 @@ mule restart
 
 ### 6.3 `conf/wrapper.conf` — runtime properties
 
-On CloudHub, `mule.env` and `secure.key` were entered in the deployment's Properties. On a standalone runtime they go in **`conf/wrapper.conf`**. Without them the deployment fails.
+- On CloudHub, `mule.env` and `secure.key` were entered in the deployment's Properties.
+- On a standalone runtime they go in **`conf/wrapper.conf`**.
+- Without them the deployment fails.
 
 The file already has system entries like `wrapper.java.additional.12=…` — **don't change those**. Add yours:
 
@@ -161,7 +170,9 @@ wrapper.java.additional.21=-Dsecure.key=<your key>
 Rules:
 
 - `-D` before the property name is **mandatory** syntax.
-- The **number** must be **unique** in the file. Reusing an existing number confuses the runtime. If unsure, pick an obviously unused number (e.g. 50, 51).
+- The **number** must be **unique** in the file.
+  - Reusing an existing number confuses the runtime.
+  - If unsure, pick an obviously unused number (e.g. 50, 51).
 - After editing, **restart the runtime** — changes aren't picked up while it's running.
 - Memory settings can also be increased/decreased here.
 - Edit with Notepad++.
@@ -188,7 +199,9 @@ API policies applied to apps are downloaded here (covered with API Manager).
 
 ### 6.7 What you use most
 
-**apps** (deploy) and **logs** (monitor). **bin** occasionally (start/restart). The runtime normally runs continuously.
+- **apps** (deploy) and **logs** (monitor).
+- **bin** occasionally (start/restart).
+- The runtime normally runs continuously.
 
 ---
 
@@ -196,7 +209,9 @@ API policies applied to apps are downloaded here (covered with API Manager).
 
 ### 7.1 Problem
 
-Five applications are deployed on the same runtime. Across them there are 10 connector configurations, of which 6 are identical (e.g. the same database). If the DB password changes, you'd update it in all five apps.
+- Five applications are deployed on the same runtime.
+- Across them there are 10 connector configurations, of which 6 are identical (e.g. the same database).
+- If the DB password changes, you'd update it in all five apps.
 
 ### 7.2 Solution
 
@@ -218,7 +233,9 @@ Change the password once in the domain project; all apps use the new value.
 - **Create:** File → New → **Mule Domain Project**.
 - A domain project is **not** a normal project — it only provides shared configurations.
 - **Deploy** it to the runtime's **`domains/`** folder (not `apps/`).
-- Link an app to the domain in the app's project properties (**Properties → Mule Project → Domain**). The instructor opened this screen to show the setting but got side-tracked into updating module versions (§2.4), so the linking step itself wasn't demonstrated. Day 27 only recaps the concept.
+- Link an app to the domain in the app's project properties (**Properties → Mule Project → Domain**).
+  - The instructor opened this screen to show the setting but got side-tracked into updating module versions (§2.4), so the linking step itself wasn't demonstrated.
+  - Day 27 only recaps the concept.
 
 ### 7.4 Only for on-premises
 
@@ -280,13 +297,18 @@ HTTP Listener config on port 8081 … Address already in use
 
 **Cause:** the same app was also running in Studio on the laptop (port 8081). The laptop is acting as the standalone server, so both can't use 8081.
 
-**House-number analogy:** a house number must be unique on a street. On a real server with 10 apps, each needs its own port. **Fix:** stop the Studio app (or use another port).
+**House-number analogy:**
+- A house number must be unique on a street.
+- On a real server with 10 apps, each needs its own port.
+- **Fix:** stop the Studio app (or use another port).
 
 After stopping it: the anchor file was created → deployed.
 
 ### 9.5 Testing
 
-Call `http://<server host>:<port>/<path>`. Here the laptop is the server → `localhost:8081/weather`. On a real server use its IP, e.g. `10.1.25.50:8081`.
+- Call `http://<server host>:<port>/<path>`.
+- Here the laptop is the server → `localhost:8081/weather`.
+- On a real server use its IP, e.g. `10.1.25.50:8081`.
 
 ### 9.6 Why these errors are useful
 
