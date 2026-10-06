@@ -36,5 +36,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 32 — Rate Limiting, Spike Control, Caching and Threat Protection | [day32](day32/) | 14 |
 | Day 33 — OAuth 2.0 Theory | [day33](day33/) | 24 |
 | Day 34 — Client Credentials, Password Grant and JWT | [day34](day34/) | 15 |
+| Day 35 — API Manager Setup and CloudHub 2.0 Deployment | [day35](day35/) | 22 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
