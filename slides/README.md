@@ -41,5 +41,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 37 — IP, Threat Protection, Rate Limiting, SLA and Spike Control | [day37](day37/) | 24 |
 | Day 38 — HTTP Caching and JWT Validation with Auth0 | [day38](day38/) | 30 |
 | Day 39 — MUnit Testing | [day39](day39/) | 27 |
+| Day 40 — MUnit — Flow Tests and Error Handler Tests | [day40](day40/) | 25 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
