@@ -2,6 +2,8 @@
 
 > **Watch alongside:** the single most valuable moment in this session is the live router-configuration bug — after bumping the RAML spec's version and updating `pom.xml`, the API Kit Router itself *still* pointed at the old version string in its own config, causing a "resource not found" error that had nothing to do with the actual flow logic. This exact failure mode (two separate places tracking "the current API version," only one of which gets updated) is worth reproducing yourself.
 
+> **Video-verified:** checked against the class recording (17 Dec 2024). Corrected from the screen: column names `emp_id`/`emp_salary`/…, payload keys `empId`/`empSalary`/…, the custom type `DATABASE:NO_DATA_FOUND` (not `DB:`), the GET mapping bug, and the student's build error. Slide images: [slides/day30](../slides/day30/).
+
 ---
 
 ## 1. Remove Variable — Deliberate Memory Hygiene
@@ -19,10 +21,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    Left["LEFT side = table COLUMN NAMES\n(EMP_ID, employee_salary, employee_designation)"] -->|"maps to"| Right["RIGHT side = VALUES\n(payload.employeeId, payload.salary, ...)"]
+    Left["LEFT side = query placeholders = COLUMN NAMES<br/>(emp_salary, emp_designation, emp_id)"] -->|"maps to"| Right["RIGHT side = VALUES<br/>(payload.empSalary, payload.empDesignation, payload.empId)"]
 ```
 
 **Stated directly, repeatedly, because it's a common confusion**: *"left side should match with these [table columns]... right side are the values we map... many developers get confused about which side to put left and which side to put right."*
+
+*Screen:* `UPDATE EMPLOYEES_INFO SET emp_salary = :emp_salary, emp_designation = :emp_designation WHERE emp_id= :emp_id;` in "Update Employee Details in HR DB". Test: PATCH `{"empId": 1000, "empSalary": 100000, "empDesignation": "senior software engineer"}` → 200 "employee details updated successfully in the db".
 
 **Why not just hardcode values inline?** Valid, but less maintainable: *"it is always a good practice to maintain [column-name mapping] for neat and clean code... since it is SQL code, it needs to be neat and presentable."*
 
@@ -44,6 +48,8 @@ sequenceDiagram
 
 **Why this matters at all, stated directly**: *"RAML thinks the response structure is like this. But when it comes to implementation, if you check here, it is different... they will get confused again."* Any consumer trusting the spec needs the implementation to actually match it.
 
+*Screen:* the pasted example had unquoted keys → Design Center `Syntax error : Expecting '"' but 'statusCode' found`; published as asset **1.0.1** (API version v1, Stable); pom.xml `<artifactId>hr-employees-sapi-7303</artifactId><version>1.0.1</version><classifier>raml</classifier><type>zip</type>`.
+
 **What re-scaffolding does NOT touch**: *"we won't overwrite all our changes? No, we won't... all the old resources already have private flows. We won't change them, they will remain the same."* Only a brand-new resource gets an empty private flow generated.
 
 ---
@@ -60,7 +66,7 @@ flowchart TB
     Fix --> Success["✅ PATCH succeeds"]
 ```
 
-*"The issue came from the global, router configuration... how is the API definition?... this will search for 1.0.0.1. Is it here? We have already updated it with 1.0.1, right?... then change it here."* Two separate places track "current API version" — a pom.xml dependency and the router config's own field — and bumping one does not automatically bump the other.
+*"The issue came from the global, router configuration... how is the API definition?... this will search for 1.0.0.1. Is it here? We have already updated it with 1.0.1, right?... then change it here."* Two separate places track "current API version" — a pom.xml dependency and the router config's own field — and bumping one does not automatically bump the other. *Screen:* API Definition `resource::9756392d-…:hr-employees-sapi-7303:1.0.0:raml:zip:hr-employees-sapi-7303.raml` → console `Raml not found at: resource::…`.
 
 ---
 
@@ -68,14 +74,14 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    IsNumber["isNumber(payload.affectedRows,\nmin: 1, max: 1)"] -->|"fails default check"| DefaultErr["Default error:\nVALIDATION:INVALID_NUMBER"]
-    DefaultErr -->|"Error Mapping\n(remap left→right)"| Custom["Custom error:\nDB:NO_DATA_FOUND"]
-    Custom --> Handler["Existing error handler (Day 27)\nrecognizes DB:NO_DATA_FOUND\n→ sets response + status code"]
+    IsNumber["Is number: #[payload.affectedRows]<br/>min 1, max 1, INTEGER"] -->|"0 rows updated"| DefaultErr["Default error:<br/>VALIDATION:INVALID_NUMBER"]
+    DefaultErr -->|"Error Mapping"| Custom["Custom error:<br/>DATABASE:NO_DATA_FOUND"]
+    Custom --> Handler["common-error-handler (Day 27)<br/>On Error Propagate DATABASE:NO_DATA_FOUND<br/>→ 500 Employee doesn't exist in HR database"]
 ```
 
 **Error Mapping's scope, stated directly**: *"error mapping is for every component... it is not for Logger. It is available for database connector, HTTP request connector, etc. It is very rarely used [elsewhere]. Error mapping is mostly available in [and used with] this validation module."*
 
-**Exact required syntax, given directly**: *"it is similar to `HTTP:CONNECTIVITY` and `DB:CONNECTIVITY`. In the same way, it is enough if the structure is followed"* — `NAMESPACE:IDENTIFIER`, here **`DB:NO_DATA_FOUND`**, directly reusing the same custom error type already present in the Day 27 reused error handler.
+**Exact required syntax, given directly**: *"it is similar to `HTTP:CONNECTIVITY` and `DB:CONNECTIVITY`. In the same way, it is enough if the structure is followed"* — `NAMESPACE:IDENTIFIER`, here **`DATABASE:NO_DATA_FOUND`** (namespace `DATABASE`, identifier `NO_DATA_FOUND`, typed into the picker's "Mapping to custom error" fields), directly reusing the same custom error type already present in the Day 27 reused error handler.
 
 **A live-caught bug — defining ≠ mapping**: deploying before actually wiring the mapping causes the error type to not exist anywhere in the application yet, so the error handler can't catch it. Both steps — define the custom type AND map a component to raise it — are required.
 
@@ -92,6 +98,8 @@ flowchart LR
 ```
 
 **Why an array even for one row, explained by direct analogy to a JSON body with multiple employees**: *"is this an array?... this is an object. Is this an array of objects? Yes. Each object is represented by one employee."* A Select scoped to a single ID still returns a one-element array — *"even then, it will come the same. But, only one object will come."*
+
+*Screen:* `select * from EMPLOYEES_INFO where emp_id=:emp_id;` with `emp_id: attributes.uriParams.empid`. The mapping must read the **column** names — `empId: payload[0].emp_id`, …, `active: if(payload[0].emp_status=="active") true else false`. The first try used `payload[0].empId` and returned 200 with all fields `null`.
 
 ---
 
@@ -116,8 +124,8 @@ flowchart TB
 flowchart LR
     PatchTest["PATCH: salary→1 lakh,\ndesignation→Senior SWE"] --> PatchOK["✅ affectedRows: 1"]
     GetFound["GET existing employee ID"] --> GetOK["✅ full JSON detail returned"]
-    GetMissing["GET non-existent employee ID"] --> GetNF["✅ payload size 0 →\n'not found' 200 response"]
-    Bug["Closing live bug:\n'Error Handler does not provide\nname attribute on error'"] --> BugFix["Fixed: copy the correctly-formed\n'name' attribute from a working\nerror type onto the new one"]
+    GetMissing["GET /employees/1000111"] --> GetNF["✅ payload size 0 →<br/>200 employee details not found in the database"]
+    Bug["Student build failure:<br/>common-error-handling.xml:8 Global element<br/>'error-handler' does not provide a name attribute"] --> BugFix["Fix: the extra top-level error-handler<br/>needs a name (or merge it into the named one)"]
 ```
 
 ---
@@ -126,6 +134,6 @@ flowchart LR
 - **Remove Variable** frees memory for heavy variables no longer needed — a hygiene practice, not a blanket rule.
 - **PATCH's Update query follows the same left(=columns)/right(=values) mapping discipline as POST's Insert** — a genuinely common source of confusion.
 - **RAML and implementation must stay in sync**: Design Center first, publish, then update BOTH the Studio dependency (pom.xml/Manage Modules) AND the API Kit Router's own API Definition reference — these are two separate version pointers.
-- **The Validation module + Error Mapping** lets a generic error (e.g. `VALIDATION:INVALID_NUMBER`) be remapped to a meaningful custom type (`DB:NO_DATA_FOUND`), following the `NAMESPACE:IDENTIFIER` structure — but defining a custom type and actually mapping a component to raise it are two separate required steps.
+- **The Validation module + Error Mapping** lets a generic error (e.g. `VALIDATION:INVALID_NUMBER`) be remapped to a meaningful custom type (`DATABASE:NO_DATA_FOUND`), following the `NAMESPACE:IDENTIFIER` structure — but defining a custom type and actually mapping a component to raise it are two separate required steps.
 - **Select always returns an array of objects**, even for a single matching row — Java format, converted to JSON via Transform Message, accessed via `payload[0]`.
 - **"Not found" is a 200 success response, not an error** — implemented via `!isEmpty(payload)`, which also outperforms `sizeOf(payload) == 0` on large datasets.

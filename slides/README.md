@@ -31,5 +31,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 27 — Implementing the Employee API: Project Structure, Global Config, Error Handler, Database Config, MySQL Setup | [day27](day27/) | 14 |
 | Day 28 — Initial Variables, JSON Logger Messages, now(), Asynchronous Logging | [day28](day28/) | 14 |
 | Day 29 — Masking, Secure Properties and DB Error Handling | [day29](day29/) | 28 |
+| Day 30 — PATCH/GET Implementation, Validation and Error Mapping | [day30](day30/) | 26 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.

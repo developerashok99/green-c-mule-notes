@@ -1,5 +1,7 @@
 # Day 30 — Remove Variable, Keeping RAML in Sync, PATCH and GET Implementation, Validation Module and Error Mapping
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 17 Dec 2024). Code, configuration and output marked *screen* are read from the recording. Slide images: [slides/day30](../slides/day30/).
+
 ## 1. Overview
 
 1. **Remove Variable**
@@ -21,6 +23,8 @@
 - Small variables don't matter much; for **big** variables (e.g. a large saved payload) in long flows, remove them when done.
 - At the end of a flow it isn't needed — everything is cleared anyway.
 
+*Screen:* Remove Variable (Core) was dropped after the APIkit Router in `hr-employees-sapi-7303-main` to show it; its only setting is the variable **Name** (required).
+
 ---
 
 ## 3. Insert Query — Hard-Coded Values vs. Input Parameters
@@ -30,9 +34,10 @@ Values can be written directly in the query text (e.g. `'Active'`, a number) ins
 **Example:** all new employees are **active** at creation; only an update can make them inactive. So status can be hard-coded:
 
 ```sql
-INSERT INTO employees_info (EMP_ID, EMP_NAME, EMP_STATUS, EMP_SALARY, EMP_DESIGNATION)
-VALUES (:EMP_ID, :EMP_NAME, 'Active', :EMP_SALARY, :EMP_DESIGNATION)
+insert into EMPLOYEES_INFO values (:emp_id, :emp_name, 'active', :emp_salary, :emp_designation);
 ```
+
+(*Screen:* the actual query keeps `:emp_status` as an input parameter — `insert into EMPLOYEES_INFO values (:emp_id,:emp_name,:emp_status,:emp_salary,:emp_designation);` — the hard-coded `'active'` version above is the spoken alternative.)
 
 **Why keep other mappings in input parameters?** Neat, presentable code: column names on one side, mappings on the other — clean even for big queries.
 
@@ -42,14 +47,21 @@ VALUES (:EMP_ID, :EMP_NAME, 'Active', :EMP_SALARY, :EMP_DESIGNATION)
 
 ### 4.1 New response
 
-```json
+*Screen — the reference sys-app's "Post Final Response Transformation":*
+
+```dataweave
+%dw 2.0
+output application/json
+---
 {
-  "statusCode": 201,
-  "message": "Employee details created successfully in the DB",
-  "transactionId": "<transaction id from the request>",
-  "employeeId": 1000
+  statusCode: 201,
+  message: "employee details created successfully in the db",
+  transactionId: vars.origAttributes.headers.'transaction-id',
+  employyeId: vars.origPayload.empId      // sic — typo on screen
 }
 ```
+
+The class response uses the same shape with `employeeId` and the initial variables (`vars.headers.'transaction-id'`, `vars.requestPayload.empId`).
 
 Returning the transaction ID and employee ID tells the source which request and which employee were created.
 
@@ -65,15 +77,25 @@ The implementation now returns extra fields that aren't in the RAML. **APIs are 
 
 1. Update the POST **response example** (`examples/responses/...`) with `transactionId` and `employeeId`.
 2. Update the POST **response data type** with the same properties.
-3. Errors like "should have required property transactionId" mean example and type don't match yet. Fix quotes (copied text had different quote characters) and format.
-4. **Publish** → the version becomes **1.0.1** (from 1.0.0).
+3. Errors like "should have required property transactionId" mean example and type don't match yet. *Screen:* the pasted example had **unquoted keys** (copied from DataWeave), so Design Center showed `Syntax error : Expecting '"' but 'statusCode' found` (and for `message`, `transactionId`, `employeeId`) — JSON keys must be in double quotes.
+4. **Publish** → *screen:* Publishing to Exchange with **Asset version 1.0.1** ("1.0.0 published 5 days ago"), **API version v1**, LifeCycle **Stable**.
 
 ### 4.4 Update the dependency in Studio
 
 Studio is **not** updated automatically.
 
 - Right-click the project → **Manage dependencies / modules** → API specs → select it → **Update version** (choose 1.0.1) → Apply and close.
-- If that option doesn't appear: edit the version in **pom.xml** directly (1.0.0 → 1.0.1).
+- If that option doesn't appear: edit the version in **pom.xml** directly (1.0.0 → 1.0.1). *Screen:*
+
+```xml
+<dependency>
+  <groupId>9756392d-0db8-4065-b2c4-989d3e2d4e05</groupId>   <!-- Anypoint org ID -->
+  <artifactId>hr-employees-sapi-7303</artifactId>
+  <version>1.0.1</version>
+  <classifier>raml</classifier>
+  <type>zip</type>
+</dependency>
+```
 
 **Question: will re-scaffolding overwrite implemented flows?** No. For a **new** resource only an empty flow is generated; existing resource flows remain.
 
@@ -81,7 +103,7 @@ Studio is **not** updated automatically.
 
 After updating, a request failed: **"RAML not found / resource not found"**.
 
-**Cause:** the **APIkit router configuration's API definition** (in global-config) referenced the spec **with the version** (`… :1.0.0 …`), so it searched for 1.0.0.
+**Cause:** the **APIkit router configuration's API definition** (in global-config) referenced the spec **with the version**, so it searched for 1.0.0. *Screen:* API Definition `resource::9756392d-0db8-4065-b2c4-989d3e2d4e05:hr-employees-sapi-7303:1.0.0:raml:zip:hr-employees-sapi-7303.raml`; console `Raml not found at: resource::…`.
 
 **Fix:** edit the router configuration → change the API definition to **1.0.1** → save → rebuild. Works.
 
@@ -93,24 +115,21 @@ After updating, a request failed: **"RAML not found / resource not found"**.
 
 ### 5.1 Query
 
+*Screen — Update "Update Employee Details in HR DB"* (connector config `MySQL80_Database_Config`):
+
 ```sql
-UPDATE employees_info
-SET EMP_SALARY = :EMP_SALARY,
-    EMP_DESIGNATION = :EMP_DESIGNATION
-WHERE EMP_ID = :EMP_ID
+UPDATE EMPLOYEES_INFO SET emp_salary = :emp_salary, emp_designation = :emp_designation WHERE emp_id= :emp_id;
 ```
 
 Input parameters (fx):
 
 ```dataweave
 {
-  EMP_SALARY: payload.employeeSalary,
-  EMP_DESIGNATION: payload.employeeDesignation,
-  EMP_ID: payload.employeeId
+  emp_salary: payload.empSalary,
+  emp_designation: payload.empDesignation,
+  emp_id: payload.empId
 }
 ```
-
-(Representative.)
 
 ### 5.2 Left side vs. right side
 
@@ -131,6 +150,8 @@ Same logging as POST: start/end loggers, before/after DB loggers.
 
 Employee 1000 → salary 1,00,000, designation "Senior Software Engineer". Response payload: **`affectedRows: 1`**. Verified in Workbench.
 
+*Screen:* `PATCH http://localhost:8081/api/employees` with `{"empId": 1000, "empSalary": 100000, "empDesignation": "senior software engineer"}` → **200** `{"statusCode": 200, "message": "employee details updated successfully in the db"}`.
+
 ---
 
 ## 6. When No Row Is Updated — Validation Module
@@ -149,11 +170,11 @@ Add it via **Add Modules**.
 
 | Field | Value |
 |---|---|
-| Value | `payload.affectedRows` (fx) |
-| Number type | Integer |
+| Value | `#[payload.affectedRows]` (fx) |
+| Number type | INTEGER (options: DOUBLE, FLOAT, INTEGER, LONG, SHORT) |
 | Minimum value | 1 |
 | Maximum value | 1 |
-| Message | "Employee does not exist in HR database" (or "No data updated for the employee passed in the request") |
+| Message | "Employee doesn't exist in HR database" (*screen*; also suggested: "No data updated for the employee passed in the request") |
 
 If the value isn't exactly 1 → raises **`VALIDATION:INVALID_NUMBER`**.
 
@@ -167,6 +188,7 @@ The error handler has a custom type **`DATABASE:NO_DATA_FOUND`**. Map the valida
 |---|---|
 | `VALIDATION:INVALID_NUMBER` | `DATABASE:NO_DATA_FOUND` |
 
+- *Screen:* the class's Error Mapping picker on Is number offers ANY, VALIDATION:INVALID_NUMBER, EXPRESSION, STREAM_MAXIMUM_SIZE_EXCEEDED, then "Mapping to custom error": Namespace (default `APP`) + Identifier — typed as `DATABASE` / `NO_DATA_FOUND`.
 - Error mapping is available on components that raise errors (DB, HTTP Request, Validation…), not on Logger. **Instructor's observation:** mostly used with the Validation module.
 - Format: **`NAMESPACE:IDENTIFIER`**, like `HTTP:CONNECTIVITY`, `DB:CONNECTIVITY`. Here namespace `DATABASE`, identifier `NO_DATA_FOUND` (names are your choice but must be meaningful).
 - Certification-style question: if a DB connectivity error is mapped to a custom type, the handler must match the **custom** type, not the original.
@@ -181,6 +203,8 @@ When the handler referenced `DATABASE:NO_DATA_FOUND` but nothing raised that typ
 
 PATCH with a non-existent ID → `affectedRows: 0` → `Is number` fails → mapped to `DATABASE:NO_DATA_FOUND` → no handler in the implementation flow → propagated to the main flow → matched → status and payload with `error.description` ("Employee does not exist in HR database"). (Status 500 was used randomly; decide with the team, e.g. 404.)
 
+*Screen:* PATCH with `empId: 10000` → debugger shows `errorType VALIDATION:INVALID_NUMBER`, description "Employee doesn't exist in HR database" → Postman **500** `{"statusCode": 500, "message": "Employee doesn't exist in HR database"}`.
+
 ### 6.7 Alternative
 
 A **Choice** (`payload.affectedRows == 0`) with **Raise Error** in that route works too. Validation also has **Is true / Is false**: e.g. `Is false` on `payload.affectedRows == 0`.
@@ -191,15 +215,17 @@ A **Choice** (`payload.affectedRows == 0`) with **Raise Error** in that route wo
 
 ### 7.1 Query
 
+*Screen* (reference sys-app's `fetch-employee-implementation-flow`, copied into the class `get-employee-implementation-flow`):
+
 ```sql
-SELECT * FROM employees_info WHERE EMP_ID = :EMP_ID
+select * from EMPLOYEES_INFO where emp_id=:emp_id;
 ```
 
 ```dataweave
-{ EMP_ID: attributes.uriParams.employeeId }
+{ emp_id: attributes.uriParams.empid }
 ```
 
-`vars.uriParams.employeeId` (from initial variables) works too.
+`vars.uriParams.empid` (from initial variables) works too.
 
 ### 7.2 Response format
 
@@ -209,20 +235,22 @@ SELECT * FROM employees_info WHERE EMP_ID = :EMP_ID
 
 ### 7.3 Mapping
 
+*Screen — "Get Employee Final Response"* (worked out in the DataWeave Playground first):
+
 ```dataweave
 %dw 2.0
 output application/json
 ---
 {
-  employeeId: payload[0].EMP_ID,
-  employeeName: payload[0].EMP_NAME,
-  employeeSalary: payload[0].EMP_SALARY,
-  employeeDesignation: payload[0].EMP_DESIGNATION,
-  active: payload[0].EMP_STATUS == "Active"
+  empId: payload[0].emp_id,
+  empName: payload[0].emp_name,
+  empSalary: payload[0].emp_salary,
+  active: if(payload[0].emp_status=="active") true else false,
+  empDesignation: payload[0].emp_designation
 }
 ```
 
-(Representative.)
+**Live bug (screen):** the first version used the response names on the right too (`payload[0].empId`, `payload[0].empName` …). GET `/api/employees/1000` returned **200 with every field `null`** except `active`. The debugger's *Evaluate DataWeave expression* with `payload[0].emp_id` … showed the real values — the keys must match the **DB column names**.
 
 - **Left side** = our response fields (as per the consumer's contract); **right side** = DB values.
 - `output application/json` converts Java → JSON.
@@ -251,8 +279,8 @@ Choice
 
 ### Test
 
-- GET `…/employees/1000` (exists) → `size 1` → mapped details → 200.
-- GET non-existent ID → `size 0` → default route. The first try returned Java (no `output application/json` in that Transform Message); after adding it, the JSON message returned.
+- GET `…/employees/1000` (exists) → `size 1` → mapped details → 200. *Screen:* `{"empId": 1000, "empName": "Suresh", "empSalary": 100000.0, "active": true, "empDesignation": "senior software engineer"}`.
+- GET non-existent ID → `size 0` → default route. *Screen:* GET `/api/employees/1000111` → **200** `{"message": "employee details not found in the database"}`. The first try returned Java (no `output application/json` in that Transform Message); after adding it, the JSON message returned.
 - Port **6666** (debugger) was busy because the app was already running — stop it before debugging again.
 
 > If you know the navigation in the debugger, 50–60% of the work is done.
@@ -261,8 +289,9 @@ Choice
 
 ## 9. Student Bug
 
-**Error:** "Error handler does not provide name attribute on error".
-**Fix:** copy the name/type exactly from a working handler and make sure the referenced error handler name matches.
+**Error (screen):** `mvn clean package` → BUILD FAILURE: `[common/common-error-handling.xml:8]: Global element 'error-handler' does not provide a name attribute`.
+**Cause:** the student's file had a second top-level `<error-handler>` with no `name` (the first one, `common-error-handlingError_Handler`, was fine). Every global error handler needs a `name` so flows can reference it.
+**Fix:** give it a name (or merge the On Error Propagate blocks into the named handler) and make sure the referenced error handler name matches.
 
 ---
 
