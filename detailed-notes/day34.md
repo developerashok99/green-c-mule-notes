@@ -2,6 +2,9 @@
 
 > **Watch alongside:** the one decision in this whole session with the highest real-world payoff is **where to cache an OAuth token on the MuleSoft side — Object Store, not a variable, not a database**. Variables die with the request; a database round-trip is needlessly expensive for something this ephemeral. Object Store is purpose-built for exactly this. Everything else (grant type selection, JWT's signature mechanism) is important but more about knowing the right vocabulary than making an architecture call.
 
+
+> **Video-verified:** checked against the class recording (21 Dec 2024): the client-credentials and password-grant flow slides, the jwt.io demo (HS256 header, `sub`/`name`/`iat` payload, "Signature Verified") and the JWT validation drawing (private cert at the auth server, public cert in the JWT policy). Slide images: [slides/day34](../slides/day34/).
+
 ---
 
 ## 1. Client Credentials Grant — Server-to-Server, No Browser

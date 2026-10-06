@@ -1,5 +1,7 @@
 # Day 34 — Client Credentials and Resource Owner Password Grants, Token Caching (Object Store), and JWT Validation
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 21 Dec 2024). Slide text marked *slide*, diagrams marked *drawing* and pages marked *screen* are read from the recording. Slide images: [slides/day34](../slides/day34/).
+
 ## 1. Overview
 
 1. **Client credentials grant** — Zomato ↔ Domino's (server-to-server)
@@ -34,6 +36,8 @@ Zomato server ◄──────── access token ──
 Zomato server ── GET pizza types + token ──► Domino's resource server ──► validate ──► response
 ```
 
+*Slide:* "OAuth 2.0 Flow — Client Credentials Grant" — Zomato → `/token + Client_ID + Client_Secret` → Authorization Server → `accessToken` → `/getPizzaTypes + accessToken` → Resource Server (Pizza Types, Offers, Restaurants) → `/validate + accessToken` → Pizza Types. Summary slide: *access token is generated using the client credentials · no ownership of resources, the data is common to everyone · server-to-server communication.*
+
 ### 2.2 Why fewer steps?
 
 - Authorization code grant: authorization code sent to get the token. Here: **client credentials** sent directly.
@@ -62,6 +66,8 @@ Third-party client ──► [OAuth] Our Experience API (ABC company) ──► 
 - **Client ID / secret** (client registered).
 - **Token endpoint details** — the authorization server exposes an API for token generation: how the request/body/query or URI params should be, how to send authorization.
 - **Our API details** — how to call our resources.
+
+*Drawing:* ABC company's OAuth server (Okta / Auth0, "AS"), registered client with CID/CS, `/token` valid 1 hour ("1 hr → 100 reqs", token valid until 11 am), token kept in an **object store**, then token + API request.
 
 ### 3.3 Token lifetime and reuse
 
@@ -117,6 +123,8 @@ Ramesh already has a Zomato account and places orders. Zomato has its own **auth
 3. Access token returned.
 4. **Get orders** + token → validation → Ramesh's order details.
 
+*Slide:* "OAuth 2.0 Flow — Resource Owner Password Grant" — `/token + Client Credentials + User Credentials` → `accessToken` → `/getOrders + accessToken` → Resource Server (Orders, Memberships, Offers, Favourites) → Orders Details.
+
 **Name:** the **resource owner's** credentials (password) are sent to generate the token → **resource owner password grant**.
 
 **Downside:** less secure — the user's credentials are used as part of the request.
@@ -154,6 +162,7 @@ header . payload . signature
 
 - The encoded token on **jwt.io** is shown in three colours: **red = header**, **purple = payload** (actual body), **blue = signature**.
 - Decoding shows the header and payload as **JSON objects**.
+- *Screen:* decoded header `{"alg": "HS256", "typ": "JWT"}`, payload `{"sub": "1234567890", "name": "John Doe", "iat": 1516239022}`, and VERIFY SIGNATURE `HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), your-256-bit-secret)` → "Signature Verified". The jwt.io home page: "JSON Web Tokens are an open, industry standard RFC 7519 method for representing claims securely between two parties."
 - Signing method shown: **HS256** (to be discussed later).
 - Our tokens will look the same — bigger or smaller depending on the details inside.
 
@@ -177,6 +186,8 @@ A client sends on average **10,000 requests per hour**. It saves the token, so t
 
 HTTP caching doesn't really help — each request still needs validation. Can we remove this step?
 
+*Drawing:* client (CID/CS) → `/token` from the AS; then request + token → gateway (GW) in front of the runtime on the worker (RS) → gateway asks the AS to validate every time (×) — the cost JWT removes.
+
 ### 7.2 Answer — JWT validation
 
 > The **JWT validation policy** is also an OAuth-type policy, but "more intelligent": the API validates the token **itself**, without calling the authorization server for each request.
@@ -189,6 +200,8 @@ Authorization server: holds PRIVATE certificate (never shared)
 Authorization server ── PUBLIC certificate ──► configured in API Manager (JWT validation policy)
 Gateway: verify signature with public certificate → valid: process; invalid: reject
 ```
+
+*Drawing:* "JWT validation policy → Authorization server → Okta, Auth0"; client gets a JWT from `/token` (auth server holds the **private cert**); 1,00,000 requests go to the API with the JWT; the **JWT policy** on the resource server holds the **public cert** and validates without calling the auth server. A separate drawing: sender encrypts with key 1, receiver decrypts with key 2 — **symmetric** (same key) vs **asymmetric** (key pair) encryption.
 
 - The authorization server **signs** the JWT with its **private certificate**.
 - It gives us the matching **public certificate**; we configure it at **API Manager** level.
