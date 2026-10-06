@@ -1,5 +1,7 @@
 # Day 31 — Course Status, API Manager, Gateways, Auto-Discovery and First Policies (Basic Authentication, Client ID Enforcement)
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 18 Dec 2024). Code, configuration and output marked *screen*, and diagrams marked *drawing*, are read from the recording. Slide images: [slides/day31](../slides/day31/).
+
 ## 1. Overview
 
 1. Alternatives for the GET "not found" logic; low-code loops (preview)
@@ -19,7 +21,22 @@
 
 - Implemented with **Choice**; could also be done with the **Validation** module.
 - Whether to return an error or a success with a "not found" message depends on the business requirement.
-- If/else logic can also be written inside Transform Message.
+- If/else logic can also be written inside Transform Message. *Screen:*
+
+```dataweave
+%dw 2.0
+output application/json
+---
+if(!isEmpty(payload)) {
+  empId: payload[0].emp_id,
+  empName: payload[0].emp_name,
+  empSalary: payload[0].emp_salary,
+  active: if(payload[0].emp_status=="active") true else false,
+  empDesignation: payload[0].emp_designation
+} else {
+  "message": "employee details not found in the database"
+}
+```
 
 **Low-code loops:** in programming you write a for loop. In Mule you drag in **For Each** and configure it — the looping code runs in the background. For Each, Parallel For Each and Batch processing are covered in later sessions.
 
@@ -65,7 +82,9 @@ Before deploying, apply **security** through **policies** (client ID/secret, etc
 
 ## 6. API Manager — Creating an API Instance
 
-To apply policies, create an **API** (asset/instance) in **API Manager** for our API (`hr-employees-sapi`). Normally it is taken from **Exchange** (the published spec); you can also create one without Exchange.
+To apply policies, create an **API** (asset/instance) in **API Manager** for our API (`hr-employees-sapi-7303`).
+
+*Drawing — the four steps:* ① publish the API spec to Exchange → ② create an asset in API Manager (gives the **instance ID**) → ③ configure **Autodiscovery** in the API implementation → ④ deploy the app to Runtime Manager. Normally it is taken from **Exchange** (the published spec); you can also create one without Exchange.
 
 **API Manager → Add API → Add new API** → choose gateway → …
 
@@ -98,7 +117,9 @@ The old platform had three options; now two:
 
 **Why it matters:** complete API lifecycle management inside MuleSoft — no third-party gateway needed, lower cost.
 
-The class selects **Mule Gateway** (Mule version 4).
+The class selects **Mule Gateway** (Mule version 4). *Screen:* Runtime step — Flex Gateway ("Ultrafast API gateway designed to manage and secure APIs running anywhere") vs Mule Gateway ("API gateway embedded in Mule runtime"); Proxy type *Connect to existing application (basic endpoint)*; Mule version *Mule 4 (recommended)*.
+
+*Drawing:* Mule gateway protects Mule apps on the worker; Flex Gateway protects Mule, Java and Python apps; alternatives Kong, Apigee (Google), Tyk.
 
 ---
 
@@ -142,18 +163,19 @@ Runtime Manager (deployed app)                         API Manager
 ### 9.2 Creating the API instance — steps
 
 1. Add new API → **Mule Gateway** → Mule 4.
-2. **Select API from Exchange** → `hr-employees-sapi` → **asset version 1.0.1** (latest; 1.0.0 also exists). Fields fill automatically; keep defaults.
+2. **Select API from Exchange** → `hr-employees-sapi-7303` → asset type RAML/OAS, API version v1 (Latest), **asset version 1.0.1** (latest; 1.0.0 also exists). Fields fill automatically; keep defaults.
 3. **Client provider:** default **Anypoint** (it generates client IDs/secrets for Client ID Enforcement). Other providers can be selected.
-4. Save → you get the **API instance ID**; status **Unregistered**.
+4. Review (Runtime type Mule Gateway, Proxy type Basic Endpoint) → Save → you get the **API instance ID**; status **Unregistered**. *Screen:* API Summary — asset version 1.0.1 (Latest), API version v1, **API Instance ID 20120438**, banner "To complete the registration process, you need to connect this API to your Mule application using Autodiscovery".
 
 API Manager → **API administration** lists all APIs (search, status, version, instance ID, request counts).
 
 ### 9.3 Auto-Discovery configuration in the app
 
-1. Put the instance ID in the property file: `api.id: "<instance id>"`.
+1. Put the instance ID in the property file. *Screen:* the class yaml already had a key copied from the sys-app — `autodiscovery.id: "19942054"` under `#### Autodiscovery Details #####` — to be replaced with the new instance ID (20120438).
 2. **Global Elements → Create → API Autodiscovery**:
-   - API ID: `${api.id}`
+   - API ID: `${autodiscovery.id}` (the property key used in this project)
    - Flow name: the **main flow** (with the Listener and router)
+*Screen:* Global Elements in `globall-config.xml` then list **API Autodiscovery** alongside the Listener, Router, `MySQL80_Database_Config`, Configuration properties, `Secure_Properties_Config`, `mule.env` and `secure.key`.
 3. Deploy with the platform client ID/secret properties. Status becomes **Active** — the app and API Manager communicate, and policies are applied.
 
 **Interview question:** "What is the role of auto-discovery / API instance ID?" — Auto-discovery uses the instance ID to link the running app to its API in API Manager so policies are fetched and enforced.
@@ -166,7 +188,7 @@ API Manager → API → **Policies → Add policy**. Categories (as shown):
 
 | Category | Examples |
 |---|---|
-| Security | OAuth 2.0 token enforcement, JWT validation, XML/JSON threat protection, tokenization, Basic authentication (simple, LDAP), IP allowlist / blocklist |
+| Security | OAuth 2.0 access token enforcement (Mule OAuth provider), JWT validation, XML/JSON threat protection, tokenization (*screen:* "You need permissions to apply this policy"), Basic Authentication – Simple, Basic Authentication – LDAP, IP allowlist / blocklist |
 | Quality of service | HTTP caching, Spike control, Rate limiting, Rate limiting – SLA based |
 | Compliance | Client ID enforcement, CORS |
 | Troubleshooting | Message logging |
@@ -194,6 +216,8 @@ Without restrictions, anyone who gets the API URL (e.g., shared by an authorised
 > **Basic authentication:** the consumer sends a **username and password**; the gateway checks them; if correct, the request is processed; otherwise rejected.
 
 ### 11.3 Weakness
+
+*Drawing:* client sends username/password (example `mahesh` / `mahesh@123`) → API gateway (Basic Auth policy from API Manager) → API on the worker (CloudHub/RTM).
 
 The **same** username/password is shared with **all** consumers (consumer 1, 2, 3, and later 4). It's generic, so it can be shared further; you can't tell consumers apart. Less secure.
 
@@ -228,6 +252,8 @@ Client (external) ──► Experience API ──► Process API ──► Syste
 
 > A **client ID and client secret** pair is generated **for each consumer**. The consumer sends them; the gateway validates the pair; if valid, the request is processed.
 
+*Drawing:* C1 sends CID1 + CS1, C2 sends CID2 + CS2 to the internal API; on the layer picture: OAuth on the experience API, basic auth (BA) between process and system, client ID (CID) as an option.
+
 Consumer 1 gets CID1/secret1, consumer 2 gets CID2/secret2, … a new consumer 6 gets new ones. Client ID/secret are like a username/password but look like random strings; generated by the client provider (Anypoint by default) and shared securely (e.g., encrypted email).
 
 ### 13.2 Basic auth vs. client ID enforcement
@@ -247,6 +273,22 @@ The client ID/secret are **static** (same every call). OAuth generates a **new t
 ### 13.4 Internal consumers
 
 If two experience APIs call one process API: each can get its own client ID/secret (traceability — you know which client called), or share one pair internally (then it's effectively like basic auth). The organisation decides; the instructor prefers separate credentials for tracking.
+
+---
+
+
+## 13A. Other Policies — Drawings Previewed Today
+
+*Drawings* (from the instructor's "MULESOFT Policies.pptx"; implemented in later classes):
+
+| Policy | What the drawing shows |
+|---|---|
+| **Spike control** | Sliding-window algorithm — e.g. 5 requests per 5 seconds; requests over the limit are queued/delayed and retried instead of rejected |
+| **Rate limiting** | Fixed-window algorithm — e.g. 100 requests per minute (processing capacity); requests over the limit are rejected with **429 Too Many Requests** |
+| **Rate limiting – SLA based** | Client ID + rate limit per tier — e.g. Silver 1 req/min, Gold 2 req/min, Diamond 5 req/min |
+| **HTTP caching** | Identical repeated requests are answered from the cache (Object Store) instead of calling the back end |
+| **JSON / XML threat protection** | The gateway checks the request structure/size before it reaches the API |
+| **IP allowlist / blocklist** | Only listed IPs (or all except listed IPs) can call the API |
 
 ---
 

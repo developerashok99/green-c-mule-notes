@@ -32,5 +32,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 28 — Initial Variables, JSON Logger Messages, now(), Asynchronous Logging | [day28](day28/) | 14 |
 | Day 29 — Masking, Secure Properties and DB Error Handling | [day29](day29/) | 28 |
 | Day 30 — PATCH/GET Implementation, Validation and Error Mapping | [day30](day30/) | 26 |
+| Day 31 — API Manager, Gateways and Policies | [day31](day31/) | 18 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.

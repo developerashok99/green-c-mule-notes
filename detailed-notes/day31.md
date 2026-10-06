@@ -2,6 +2,8 @@
 
 > **Watch alongside:** the whole session pivots the course from "build the API" to "protect the API" — and the one mental model to hold onto is the **watchman analogy**: a gateway checks every request's credentials/policy compliance *before* it's allowed anywhere near your actual flow logic. Everything else — Flex vs. Mule Gateway, proxy vs. no-proxy, API Instance ID/auto-discovery — is just detail on top of that one idea.
 
+> **Video-verified:** checked against the class recording (18 Dec 2024). Added from the screen: the API Manager steps (Mule Gateway, basic endpoint, asset 1.0.1, instance ID 20120438), the `autodiscovery.id` property and API Autodiscovery global element, and the policy drawings. Slide images: [slides/day31](../slides/day31/).
+
 ---
 
 ## 1. Course Progress Audit — 40+ Hours In
@@ -90,9 +92,11 @@ sequenceDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Unregistered: Asset created\n(Select API from Exchange, choose version, Client Provider)
+    [*] --> Unregistered: Asset created (Exchange, v1, asset 1.0.1) — instance ID 20120438
     Unregistered --> Active: App deployed with matching\nAPI Instance ID via Auto-Discovery
 ```
+
+*Screen:* the class yaml holds the instance ID under `autodiscovery.id` (it still had the sys-app's `"19942054"`, to be replaced with 20120438); the **API Autodiscovery** global element in `globall-config.xml` points at it and at the main flow.
 
 *"This particular API is connected to the main API and the status is active or not. It is still in unregistered. The status will change when we deploy the application."*
 
@@ -108,7 +112,7 @@ flowchart TB
     Trouble["TROUBLESHOOTING\nMessage Logging,\nHeader Injection/Removal"]
 ```
 
-**Two real interview anecdotes, given directly**: an 18-19-year-old candidate only knew rate limiting/OAuth (and couldn't go deep on OAuth); a **~7-year MuleSoft veteran** only knew Client ID Enforcement, and not in depth either. *"Not to degrade them... we are learning better and we are in a better position than them... increasing our confidence."*
+**Two real interview anecdotes, given directly**: a candidate in a recent face-to-face interview only knew rate limiting/OAuth (and couldn't go deep on OAuth); a **~7-year MuleSoft veteran** only knew Client ID Enforcement, and not in depth either. *"Not to degrade them... we are learning better and we are in a better position than them... increasing our confidence."*
 
 ---
 
@@ -134,6 +138,8 @@ flowchart LR
 ```
 
 *"Is there sophisticated security [on Basic Auth]? No. Then does the experience API need more security or less secure policies? More security... less security is enough [for Process/System] because it is within the network."*
+
+*Drawings — policies previewed for later classes:* **Spike control** (sliding window, e.g. 5 req / 5 s, extra requests delayed), **Rate limiting** (fixed window, e.g. 100 req/min, over-limit → 429 Too Many Requests), **Rate limiting SLA** (per-client tiers: Silver 1, Gold 2, Diamond 5 req/min), **HTTP caching** (answer repeats from Object Store), **JSON/XML threat protection**, **IP allow/block list**.
 
 **Regulatory reinforcement, directly named**: *"Reserve Bank of India governs the banks... every quarter or half year, an audit is held... if you don't follow these rules, we will cancel your license"* — the same RBI-audit theme from Day 28's masking discussion, now applied to security-policy compliance.
 
