@@ -222,8 +222,8 @@ database:
   host: "localhost"
   port: "330"
   db: "mule12"          # was "mule8" (copied from the sys-app) until changed in class
-  username: "![...]"    # encrypted
-  password: "![...]"    # encrypted
+  username: "![Xy3dEmOuSeRnAmE1==]"   # encrypted (placeholder)
+  password: "![Pq9dEmOpAsSwOrD2==]"   # encrypted (placeholder)
 ```
 
 *Screen — Database Config (MySQL Connection):* Host `${database.host}`, Port `${database.port}`, User `${secure::database.username}`, Password from the secure property, Database `${database.db}`; config name `MySQL80_Database_Config`.
@@ -265,6 +265,18 @@ Forever only when nothing depends on the result: the connector is a **source**, 
 **Live issue (screen):** *Test Connection* on the Database Config failed with `Couldn't find configuration property value for key ${mule.env}` — Studio's design-time tooling doesn't see run-configuration arguments. Fix: Global Elements now list **Global Property `mule.env`** and **Global Property `secure.key`**.
 
 The encrypted values had been copied from the sys-app, so the instructor wasn't sure which key encrypted them (*"I think I took it from the Sys app"*). They checked in the **Secure Properties Generator** (`secure-properties-api.us-e1.cloudhub.io`, Operation **Decrypt**, AES, CBC): decrypting with the sys-app key gave back the expected username and password, so the same key went into `secure.key`. The key can also be added under Debug/Run Configurations → Environment → New Environment Variable `secure.key`. Keep track of keys.
+
+> **Placeholder values** (fake — the real ones are visible in the recording but are not published here). They show the shape of what was on screen:
+>
+> | Where | Shown on screen as | Placeholder used in these notes |
+> |---|---|---|
+> | Secure key (Global Property / env var `secure.key`) | 16-character AES key | `DEMOKEY123456789` |
+> | `database.username` in yaml | `![<base64 ciphertext>]` | `![Xy3dEmOuSeRnAmE1==]` |
+> | `database.password` in yaml | `![<base64 ciphertext>]` | `![Pq9dEmOpAsSwOrD2==]` |
+> | Decrypted username | DB user | `root` (the class used the MySQL root user — see §9) |
+> | Decrypted password | DB password | `<mysql-root-password>` |
+>
+> Decrypt check in the generator: Operation **Decrypt**, Algorithm **AES**, State **CBC**, Key `DEMOKEY123456789`, Value `Xy3dEmOuSeRnAmE1==` → Result `root`.
 
 ---
 

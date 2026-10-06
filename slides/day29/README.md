@@ -121,3 +121,12 @@ Notes for this day: [detailed-notes/day29.md](../../detailed-notes/day29.md) · 
 ### 28 — MySQL Workbench: `select * from EMPLOYEES_INFO` — rows 120 ravi, 1000 Suresh, 1001 Suresh
 ![workbench-rows](28-workbench-rows.jpg)
 
+---
+
+### Not included — credential screens
+
+Three screens are left out because they show the real encryption key and decrypted DB login. In the notes they're described with **placeholder** values (see [super-detailed-notes/day29.md §10](../../super-detailed-notes/day29.md)):
+
+- 0:36 — `dev.yaml` with encrypted username/password — placeholder `![Xy3dEmOuSeRnAmE1==]` / `![Pq9dEmOpAsSwOrD2==]`
+- 51:14 — Secure Properties Generator, Decrypt username — key `DEMOKEY123456789` → `root`
+- 54:55 — Secure Properties Generator, Decrypt password — same key → `<mysql-root-password>`

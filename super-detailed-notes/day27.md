@@ -200,8 +200,8 @@ database:
   host: "localhost"
   port: "330"
   db: "mule8"          # changed to mule12 on Day 29
-  username: "![...]"   # encrypted
-  password: "![...]"   # encrypted
+  username: "![Xy3dEmOuSeRnAmE1==]"   # encrypted (placeholder, not the class value)
+  password: "![Pq9dEmOpAsSwOrD2==]"   # encrypted (placeholder, not the class value)
 
 #### Autodiscovery Details #####
 autodiscovery.id: "19656048"
