@@ -38,5 +38,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 34 — Client Credentials, Password Grant and JWT | [day34](day34/) | 15 |
 | Day 35 — API Manager Setup and CloudHub 2.0 Deployment | [day35](day35/) | 22 |
 | Day 36 — Basic Authentication and Client ID Enforcement Policies | [day36](day36/) | 28 |
+| Day 37 — IP, Threat Protection, Rate Limiting, SLA and Spike Control | [day37](day37/) | 24 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
