@@ -16,6 +16,8 @@ What was done to each day:
 | 4 | [day04.txt](day04.txt) |
 | 5 | [day05.txt](day05.txt) |
 | 6 | [day06.txt](day06.txt) |
+| 7 | [day07.txt](day07.txt) |
+| 8 | [day08.txt](day08.txt) |
 | 11 | [day11.txt](day11.txt) |
 | 12 | [day12.txt](day12.txt) |
 | 13 | [day13.txt](day13.txt) |
