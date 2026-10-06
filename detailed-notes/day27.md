@@ -2,15 +2,17 @@
 
 > **Watch alongside:** this is the session where the project actually becomes real — a thin routing layer (from Day 26's scaffolding) gets real business logic wired behind it: folders for organization, a reused error handler, and Insert/Update/Select database operations, all externalized through property files. The live copy-paste bugs here (duplicate flow names, blank SQL query) are worth reproducing yourself — they're the exact mistakes this workflow is prone to.
 
+> **Video-verified:** checked against the class recording (13 Dec 2024). Names below are the ones on screen: project `hr-employees-sapi-7303`, `common/globall-config.xml`, `common/common-error-handler.xml`, `implementation/*-employee-implementation.xml`. Slide images: [slides/day27](../slides/day27/).
+
 ---
 
 ## 1. Organizing the Project
 
 ```mermaid
 flowchart TB
-    Root["src/main/mule"] --> Common["common/<br/>global-config.xml (all connector configs)<br/>error-handler.xml (reused, see §3)"]
+    Root["src/main/mule"] --> Common["common/<br/>globall-config.xml (all connector configs)<br/>common-error-handler.xml (reused, see §3)"]
     Root --> Impl["implementation/<br/>post-employee-implementation.xml<br/>patch-employee-implementation.xml<br/>get-employee-implementation.xml"]
-    Root --> Scaffold["(scaffolded) main flows<br/>listener + API Kit Router + resource flows"]
+    Root --> Scaffold["hr-employees-sapi-7303.xml<br/>listener + APIkit Router + resource flows"]
 ```
 
 **Stated explicitly as convention, not platform rule**: *"there is no rule... we kept it so that there would be some clarity."* The motivating problem: with 10 resources, unorganized flows in one place become impossible to navigate.
@@ -30,6 +32,8 @@ flowchart LR
 
 **Why centralize globally at all**: *"if we want to create something new, where should we create it? We should create it globally... if we do it somewhere else, everything will scatter."*
 
+*Screen:* after the move, Global Elements in `globall-config.xml` list `hr-employees-sapi-7303-httpListenerConfig` and the Router `hr-employees-sapi-7303-config`. A separate Studio error, "Widget is disposed", also needed a reopen.
+
 ---
 
 ## 3. Reusing an Existing Error Handler by Copy-Paste
@@ -38,10 +42,12 @@ flowchart LR
 flowchart LR
     Prev["Previous project's<br/>completed error-handler.xml"] -->|"Ctrl+C, minimize,<br/>switch project, Ctrl+V"| This["THIS project's common/ folder"]
     This --> Adapt["Adapt: Transform Message<br/>payload SHAPE per this project's<br/>response contract"]
-    This --> Keep["Keep as-is: error TYPE coverage<br/>(Bad Request, Not Found, Not Allowed,<br/>DB connectivity, DB SQL syntax,<br/>DB no-data-found)"]
+    This --> Keep["Keep as-is: error TYPE coverage<br/>(Bad Request, Not Found, Not Allowed,<br/>DB connectivity, DB SQL syntax,<br/>DATABASE:NO_DATA_FOUND, ANY)"]
 ```
 
 *"I don't want to waste time... I will copy and paste the Error Handler we made for this project."* Once wired in, the now-redundant inline error handler is deleted from the main flow's own XML.
+
+> **Heads-up (Day 29, screen):** the custom `DATABASE:NO_DATA_FOUND` handler made the app fail to deploy ("Could not find ErrorType for the given identifier") until it was commented out — a custom type can only be handled once something raises it.
 
 ---
 
@@ -67,13 +73,14 @@ flowchart LR
 
 ```mermaid
 flowchart TB
-    Public["Public resource flow<br/>(e.g. post:\employee)"] -->|"Flow Reference"| Private["Private implementation flow<br/>(kebab-case name)"]
-    Private --> TM1["Transform Message:<br/>URI parameter mapping"]
+    Public["Public resource flow<br/>(e.g. post:\employees)<br/>URI-param variable stays here"] -->|"Flow Reference"| Private["Private implementation flow<br/>(kebab-case name)"]
     Private --> Logger1["Logger (before external call)"]
     Private --> DB["Database operation:<br/>Insert (POST) / Update (PATCH) / Select (GET)"]
     Private --> Logger2["Logger (after external call)"]
     Private --> TM2["Transform Message:<br/>'final response'"]
 ```
+
+*Screen:* the class `post-employee-implementation-flow` at this point: Logger → Insert → Logger → "Create Employee Final Response". The reference sys-app adds an "initial attributes and payload vars" Transform first and names the steps "Before Create Emp in DB Logger", "Create Emp using DB Insert", "After Create Emp in DB Logger", "Post Final Response Transformation".
 
 **Why isolate logic in a private flow at all**: keeps the public/scaffolded flow thin (routing only); the private flow is independently testable and navigable — *"where is better? It should be in the private flow."*
 
@@ -101,7 +108,7 @@ flowchart LR
 ```mermaid
 flowchart TB
     Config["Database connector configuration"] --> Bad["❌ Vague name (e.g. arbitrary IT/server label)<br/>→ 'database config' vs 'database config 1' confusion"]
-    Config --> Good["✅ Descriptive name<br/>(clearly identifies: THIS is the MySQL config)"]
+    Config --> Good["✅ Descriptive name<br/>(class: MySQL80_Database_Config)"]
 ```
 
 *"Is it wrong to say this is wrong?... whatever we do should be neat... even if a new person comes, it should be understood easily and quickly."*
@@ -114,6 +121,8 @@ flowchart LR
     User["username, password"] --> Secure["Secure Properties<br/>(AES/CBC encrypted)"]
     Secure --> Warn["⚠️ AES key/mode must stay CONSTANT —<br/>changing it breaks decryption<br/>of already-encrypted values"]
 ```
+
+*Screen:* properties are referenced as `${database.host}`, `${database.port}`, `${database.db}`, `${secure::database.username}`, `${secure::database.password}`; `qa.yaml` holds `database: host "localhost", port "330", db "mule8"` plus the encrypted `![...]` username/password and `autodiscovery.id: "19656048"`.
 
 **Required driver library**: three options at connector setup — local file / Maven dependency / **Add Recommended Libraries** (used here). *"It will help to establish the connection with the database."*
 
@@ -138,7 +147,9 @@ flowchart LR
     Workbench["MySQL Workbench<br/>(or Oracle SQL Developer)"] -.is the UI for.-> DB["The database engine"]
 ```
 
-**Managing the MySQL service via `services.msc`**: start / stop / pause / set startup type (automatic vs. manual) — used directly to **live-test Reconnection Strategy** by deliberately stopping the DB service mid-session and observing configured retry attempts (e.g. 3 attempts, succeeding on the 3rd) — the same Reconnection Strategy concept from an earlier session, now demonstrated against a real interrupted connection rather than a simulated one.
+*Screen — installer steps (on a student's machine, MySQL Installer 8.0.19):* Setup Type **Developer Default** → Authentication **Use Strong Password Encryption (RECOMMENDED)** → Windows Service name **MySQL80**, start at system startup, Standard System Account → Workbench shows **Local instance MySQL80**.
+
+**Managing the MySQL service via `services.msc`**: start / stop / pause / set startup type (automatic vs. manual). Today this was only proposed as the way to **test the Reconnection Strategy** (stop the DB service, start it again during the retry attempts); the actual demo happened on Day 29.
 
 **Stated next steps closing the session**: create the database + table(s), map implementation-flow queries to the real table structure, then test **POST → PATCH → GET** end-to-end, success and error scenarios each.
 

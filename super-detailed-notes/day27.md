@@ -1,5 +1,7 @@
 # Day 27 — Implementing the Employee API: Project Structure, Global Config, Reused Error Handler, Database Connector and MySQL Setup
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 13 Dec 2024). Code, configuration and output marked *screen* are read from the recording. Slide images: [slides/day27](../slides/day27/).
+
 ## 1. Overview
 
 On Day 26 the scaffolded app was tested as-is. Now the real implementation starts, following best practices:
@@ -35,17 +37,21 @@ Implementation is **not** done in the main (scaffolded) file. For each operation
 
 Right-click `src/main/mule` → **New → Folder**:
 
+*Screen — the class project `hr-employees-sapi-7303`:*
+
 ```text
 src/main/mule/
-├── hr-employees-sapi.xml        ← main flow + scaffolded resource flows
+├── hr-employees-sapi-7303.xml             ← main flow + scaffolded resource flows
 ├── common/
-│   ├── global-config.xml         ← all global elements
-│   └── common-error-handler.xml  ← shared error handler
+│   ├── globall-config.xml                  ← all global elements (spelt "globall" in class)
+│   └── common-error-handler.xml            ← shared error handler
 └── implementation/
-    ├── post-employee.xml
-    ├── patch-employee.xml
-    └── get-employee.xml
+    ├── post-employee-implementation.xml
+    ├── patch-employee-implementation.xml
+    └── get-employee-implementation.xml
 ```
+
+The instructor's reference project `hr-employees-sys-app` has the same layout (`global-config.xml`, `fetch-/patch-/post-employee-implementation.xml`).
 
 **Why?** With 10 resources and their implementations all mixed together, it becomes unorganised and confusing. Common things in one place, implementations in another. Not mandatory — but it gives clarity.
 
@@ -66,11 +72,15 @@ Each time you create a connector configuration (Listener, DB, …) it becomes a 
 
 The Listener still finds its configuration — global elements are available to the whole project wherever they are.
 
+*Screen:* Global Configuration Elements in `globall-config.xml` then list **HTTP Listener config** `hr-employees-sapi-7303-httpListenerConfig` and **Router** `hr-employees-sapi-7303-config`.
+
 ### 4.3 Studio glitch
 
 After moving, Studio showed "**name must be unique**" (as if the configs existed twice). Saving and refreshing didn't clear it. **Close and reopen the project** → fixed.
 
 Also: **Project Explorer** didn't show files properly here; **Package Explorer** did.
+
+*Screen:* opening the reference project also raised Studio's "Multiple problems have occurred — Widget is disposed" dialog; same cure.
 
 From now on, create new global elements in `global-config`.
 
@@ -83,7 +93,7 @@ Building the error handler again would take 20–30 minutes. Instead **copy** th
 1. In Package Explorer, select the error-handler XML in the old project → **Ctrl+C**.
 2. Collapse all projects (minimise icon), expand the new project, select `common` → **Ctrl+V**.
 
-It already has handlers for: bad request, not found, method not allowed, DB connectivity, DB SQL syntax, and a custom "DB – no data found" type; each with an error logger (`error.description`) and a Transform Message setting the payload and status (and reason phrase if required).
+It already has handlers for: bad request, not found, method not allowed, DB connectivity, DB SQL syntax, and a custom "DB – no data found" type (*screen:* `DATABASE:NO_DATA_FOUND`, followed by a final `ANY` handler; Day 29 shows this custom type stops the app deploying until something can raise it); each with an error logger (`error.description`) and a Transform Message setting the payload and status (and reason phrase if required).
 
 Adjust the error **payload structure** in Transform Message to this project's spec.
 
@@ -134,6 +144,8 @@ post-employee-implementation-flow
   Transform Message  (final response)
 ```
 
+*Screen:* at this stage the class flow is Logger → Insert → Logger → "Create Employee Final Response" (display names filled in on Day 28). The reference sys-app's version: "initial attributes and payload vars" (Transform) → "Before Create Emp in DB Logger" → "Create Emp using DB Insert" → "After Create Emp in DB Logger" → "Post Final Response Transformation".
+
 - A DB call goes **outside** the Mule application — an **external call**. Good practice: a logger **before** and **after** every external call.
 - Plus a **start logger** and an **end logger** for the flow (the transaction starts and ends here).
 - Many loggers for a small flow? Still worth it — logs show exactly where processing stopped.
@@ -165,13 +177,37 @@ Copy-paste builds structure quickly; you still must change names and fill the op
 
 From the implementation flow, click **+** next to the DB connector configuration. It's created as a **global element** — in `global-config`.
 
-- **Name every connector configuration meaningfully**, e.g. `MySQL_HR_Database_Config`. Default names like "Database_Config" and "Database_Config_1" confuse people about which DB is used.
+- **Name every connector configuration meaningfully**, e.g. `MySQL_HR_Database_Config` (*screen:* the class used `MySQL80_Database_Config`; the reference project `MySQL_Database_Config`). Default names like "Database_Config" and "Database_Config_1" confuse people about which DB is used.
 - Goal: neat work — a new person should understand quickly. Same reason for comment headings in property files.
 
 ### 8.3 Values from properties
 
-- Use property keys for host, port, user, password, database: `${db.host}`, `${db.port}`, …
-- Sensitive values (password, and per the instructor even host/port) go in the **secure** section → `${secure::db.password}`.
+- Use property keys for host, port, user, password, database. *Screen:* `${database.host}`, `${database.port}`, `${database.db}`, and `${secure::database.username}` / `${secure::database.password}`.
+- Sensitive values (username and password, and per the instructor even host/port) go in the **secure** section.
+
+*Screen — `config/qa.yaml`* (copied from the reference project):
+
+```yaml
+#### HTTP Listener Config Details #####
+http:
+  listener:
+    host: "0.0.0.0"
+    port: "8081"
+    path: "api/*"
+
+#### MySQL Database Config Details #####
+database:
+  host: "localhost"
+  port: "330"
+  db: "mule8"          # changed to mule12 on Day 29
+  username: "![...]"   # encrypted
+  password: "![...]"   # encrypted
+
+#### Autodiscovery Details #####
+autodiscovery.id: "19656048"
+```
+
+*Screen — the reference project's Global Configuration Elements:* HTTP Listener config, APIkit config, Configuration properties, `Secure_Properties_Config`, `MySQL_Database_Config`, Global Property `mule.env`, Global Property `secure.key`, `Validation_Config`, API Autodiscovery.
 - Secure Properties module added via **Add Modules**; config with **AES / CBC**.
 - **Don't accidentally change AES/CBC** (scrolling the mouse over the drop-down changed it). Algorithm and mode must match what was used to encrypt, or decryption fails.
 
@@ -184,6 +220,8 @@ Required library — three options:
 3. **Add recommended libraries** — used here.
 
 > The driver establishes the connection between Mule and the database.
+
+*Screen:* the new Database Config (Connection **MySQL Connection**) shows "MySQL JDBC Driver — Please add the required driver" with a **Configure…** button. (Day 29's deploy log shows `mysql-connector-java-5.1.48.jar` as the library.)
 
 After configuring, red marks remain until all details are entered. Another import error appeared — **closing and reopening** the project fixed it.
 
@@ -199,6 +237,12 @@ A **database team** configures the database, creates tables, and emails you host
 
 - Run the **MySQL installer** (a downloaded archive) → Next → choose products → **Execute** → accept terms → **Install** (Visual Studio/Excel plugins not needed) → Finish.
 - Installs the **MySQL Server** (database) and **MySQL Workbench** (UI).
+
+*Screen* (installer run on a student's machine, `mysql-installer-community-8.0.19.0`):
+1. **Choosing a Setup Type** → *Developer Default* (MySQL Server, Shell, Router, Workbench …).
+2. **Authentication Method** → *Use Strong Password Encryption for Authentication (RECOMMENDED)*.
+3. **Windows Service** → *Configure MySQL Server as a Windows Service*, service name **MySQL80**, *Start the MySQL Server at System Startup*, run as *Standard System Account*.
+4. Workbench opens with **Local instance MySQL80**.
 
 ### 9.3 Why a UI?
 
