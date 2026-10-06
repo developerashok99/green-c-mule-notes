@@ -1,5 +1,7 @@
 # Day 29 — Masking, Reading Documentation, Creating the MySQL Table, Database Configuration and Testing the POST Flow
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 16 Dec 2024). Code, configuration and output marked *screen* are read from the recording. Slide images: [slides/day29](../slides/day29/).
+
 ## 1. Overview
 
 1. The DataWeave **`mask`** function (import from `dw::util::Values`)
@@ -23,6 +25,24 @@
 
 The request contains a mobile number and a member ID that must not appear in logs.
 
+*Screen — reference project's Start Logger (core Logger, `transaction-sapi`):*
+
+```dataweave
+%dw 2.0
+import * from dw::util::Values
+output application/json indent = false
+---
+{
+  "applicationName": app.name,
+  ...
+  "memberId": vars.requestPayload.memberId,
+  "requestpayload": (vars.requestPayload mask field("mobileNumber") with "********" mask field("memberId") with "********"),
+  "startTime": vars.StartTime,
+  "tracePoint": "START",
+  "message": "post members transactions flow started"
+}
+```
+
 ### 2.2 Import the library
 
 `mask` is not available by default. Like adding a module in Studio, you **import** the DataWeave library that contains it:
@@ -36,6 +56,20 @@ payload mask field("mobileNumber") with "*****"
 ```
 
 > **Technical clarification:** the module is `dw::util::Values` (capital V). Syntax: `<value> mask field("<key>") with <replacement>`.
+
+*Screen — DataWeave Playground:* without the import the output is `Unable to resolve reference of: mask` (and of `field`; `vars` doesn't exist in the Playground either, so the class switched to `payload`). With the import and payload `{"message": "Hello world!", "mobileNumber": "1234567890", "memberId": "1234"}`:
+
+```dataweave
+%dw 2.0
+import * from dw::util::Values
+output application/json
+---
+{
+  "requestpayload": (payload mask field("mobileNumber") with "#####" mask field("memberId") with "#####")
+}
+```
+
+→ `{"requestpayload": {"message": "Hello world!", "mobileNumber": "#####", "memberId": "#####"}}`.
 
 ### 2.3 Masking several fields
 
@@ -51,6 +85,8 @@ The field name must match the key in the payload exactly; a wrong name doesn't m
 ### 2.4 Mask once — JSON Logger global configuration
 
 Writing `mask` in 50 of 100 loggers is repetitive. The **JSON Logger global configuration** has a field for **fields to mask** (comma-separated: `mobileNumber,memberId`). Since every JSON Logger uses that configuration, masking applies everywhere.
+
+> *Screen:* this was explained only; the class project uses the core Logger, where `mask` goes in the message expression.
 
 > Once at global level vs. 50 times in loggers — once is better.
 
@@ -98,32 +134,32 @@ Run a statement: select it → **Execute** (lightning icon). Result panel: green
 
 ```sql
 CREATE DATABASE mule12;      -- "1 row(s) affected"
--- running again → error: "Can't create database; database exists"
+-- running again → error: "Can't create database 'mule12'; database exists"
 USE mule12;
 ```
 
 ### 5.2 Table
 
-```sql
-CREATE TABLE employees_info (
-  EMP_ID          INT          NOT NULL,
-  EMP_NAME        VARCHAR(255),
-  EMP_STATUS      TEXT         NOT NULL,
-  EMP_SALARY      DOUBLE,
-  EMP_DESIGNATION VARCHAR(50)  DEFAULT NULL,
-  PRIMARY KEY (EMP_ID)
-);
-```
+*Screen — the class DDL:*
 
-(Representative of the class table.)
+```sql
+CREATE TABLE `EMPLOYEES_INFO` (
+  `emp_id` int NOT NULL,
+  `emp_name` varchar(255) DEFAULT NULL,
+  `emp_status` varchar(20) NOT NULL,
+  `emp_salary` double DEFAULT NULL,
+  `emp_designation` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`emp_id`)
+)
+```
 
 | Column | Type | Notes |
 |---|---|---|
-| EMP_ID | INT, NOT NULL | **Primary key** — every employee must have one |
-| EMP_NAME | text, up to 255 chars | Left nullable to show the difference (normally mandatory) |
-| EMP_STATUS | text, NOT NULL | |
-| EMP_SALARY | DOUBLE | Accepts decimals (e.g. 20000.20); only numbers |
-| EMP_DESIGNATION | text, max 50 | Default null |
+| emp_id | int, NOT NULL | **Primary key** — every employee must have one |
+| emp_name | varchar(255), default NULL | Left nullable to show the difference (normally mandatory) |
+| emp_status | varchar(20), NOT NULL | |
+| emp_salary | double, default NULL | Accepts decimals (e.g. 20000.20); only numbers |
+| emp_designation | varchar(50), default NULL | |
 
 **Primary key:**
 
@@ -133,15 +169,16 @@ CREATE TABLE employees_info (
 ### 5.3 Insert and select
 
 ```sql
-SELECT * FROM employees_info;     -- empty initially
+SELECT * FROM EMPLOYEES_INFO;     -- empty initially
 
-INSERT INTO employees_info VALUES (120, 'Ravi', 'Active', 80000, 'Software Engineer');
+INSERT INTO EMPLOYEES_INFO VALUES (120, 'ravi', 'active', 80000, 'software engineer');
 
-SELECT * FROM employees_info;     -- 120 | Ravi | Active | 80000 | Software Engineer
+SELECT * FROM EMPLOYEES_INFO;     -- 120 | ravi | active | 80000 | software engineer
 ```
 
-- A value longer than the column's limit → error.
-- A wrong table name (`employee_info` vs `employees_info`) → error.
+*Screen — Workbench output panel:*
+- A very long name (`'ravi qqqq…'`) → `Error Code: 1406. Data too long for column 'emp_name' at row 1`.
+- A wrong table name → `Error Code: 1146. Table 'mule12.employee_info' doesn't exist`.
 
 Without DB access, **ask the DB team** for table name, column names, data types and maximum lengths.
 
@@ -177,6 +214,20 @@ Prod ↔ Prod, UAT ↔ UAT, Dev ↔ Dev — but which DB does Mule SIT use (Dev 
 
 Create it in **global-config**. Values from properties (host `localhost`, port `330` — the instructor's MySQL port, as seen on screen in the Day 05 video; MySQL's default is 3306 — database `mule12`), username and password from **secure properties**.
 
+*Screen — `dev.yaml` / `prod.yaml`:*
+
+```yaml
+#### MySQL Database Config Details #####
+database:
+  host: "localhost"
+  port: "330"
+  db: "mule12"          # was "mule8" (copied from the sys-app) until changed in class
+  username: "![...]"    # encrypted
+  password: "![...]"    # encrypted
+```
+
+*Screen — Database Config (MySQL Connection):* Host `${database.host}`, Port `${database.port}`, User `${secure::database.username}`, Password from the secure property, Database `${database.db}`; config name `MySQL80_Database_Config`.
+
 Select the configuration in the POST Insert operation — it's available to the whole project.
 
 ### Reconnection
@@ -211,30 +262,31 @@ Forever only when nothing depends on the result: the connector is a **source**, 
 
 **Remove these global properties before pushing code to Bitbucket/GitHub** — they're only for local testing.
 
-**Live issue:** the secure key used to encrypt the password wasn't remembered, so decryption failed. The instructor found the key in a run configuration, set it as a global property, and verified by decrypting the value in the Secure Properties tool. Keep track of keys.
+**Live issue (screen):** *Test Connection* on the Database Config failed with `Couldn't find configuration property value for key ${mule.env}` — Studio's design-time tooling doesn't see run-configuration arguments. Fix: Global Elements now list **Global Property `mule.env`** and **Global Property `secure.key`**.
+
+The encrypted values had been copied from the sys-app, so the instructor wasn't sure which key encrypted them (*"I think I took it from the Sys app"*). They checked in the **Secure Properties Generator** (`secure-properties-api.us-e1.cloudhub.io`, Operation **Decrypt**, AES, CBC): decrypting with the sys-app key gave back the expected username and password, so the same key went into `secure.key`. The key can also be added under Debug/Run Configurations → Environment → New Environment Variable `secure.key`. Keep track of keys.
 
 ---
 
 ## 11. Insert Query with Input Parameters
 
+*Screen — Insert "Create Employee Record in HR DB"* (connector config `MySQL80_Database_Config`):
+
 ```sql
-INSERT INTO employees_info (EMP_ID, EMP_NAME, EMP_STATUS, EMP_SALARY, EMP_DESIGNATION)
-VALUES (:EMP_ID, :EMP_NAME, :EMP_STATUS, :EMP_SALARY, :EMP_DESIGNATION)
+insert into EMPLOYEES_INFO values (:emp_id,:emp_name,:emp_status,:emp_salary,:emp_designation);
 ```
 
-**Input parameters** (fx / expression mode):
+**Input parameters** (fx / expression mode), as in the sys-app reference:
 
 ```dataweave
 {
-  EMP_ID: payload.employeeId,
-  EMP_NAME: payload.employeeName,
-  EMP_STATUS: if (payload.active) "Active" else "Inactive",
-  EMP_SALARY: payload.employeeSalary,
-  EMP_DESIGNATION: payload.employeeDesignation
+  "emp_id": payload.empId,
+  "emp_name": payload.empName,
+  "emp_status": if(payload.active == true) "active" else "inactive",
+  "emp_salary": payload.empSalary,
+  "emp_designation": payload.empDesignation
 }
 ```
-
-(Field names representative.)
 
 - The **keys** in input parameters must match the **`:placeholders`** in the query.
 - **Good practice:** use the **same names as the DB columns** — with 50–100 columns, no confusion.
@@ -243,13 +295,19 @@ VALUES (:EMP_ID, :EMP_NAME, :EMP_STATUS, :EMP_SALARY, :EMP_DESIGNATION)
 
 ### A custom error
 
-The reused error handler includes a custom error type (e.g. "DB – no data found"). It doesn't exist until raised; it will be raised (Raise Error) in the GET flow when no record is found.
+The reused error handler included an On Error Propagate for type `DATABASE:NO_DATA_FOUND` (to be raised later with Raise Error in the GET flow). *Screen:* the app then **failed to deploy** — `Could not find ErrorType for the given identifier: 'DATABASE:NO_DATA_FOUND'`, status FAILED. A custom type can't be referenced in a handler until something in the app can raise it. The fix in class: comment out that `<on-error-propagate>` block (`<!-- … -->`) in `common-error-handler.xml`; the app then started (plugins Database 1.12.1, Sockets 1.2.2, secure-properties 1.2.7, HTTP 1.6.0, APIKit 1.5.11; `mysql-connector-java-5.1.48.jar`).
 
 ---
 
 ## 12. Testing the POST Flow (Debug)
 
-Postman: `localhost:8081/api/employees…` with headers and body.
+Postman: `POST http://localhost:8081/api/employees` with headers and body:
+
+```json
+{ "empId": 1000, "empName": "Suresh", "empSalary": 80000, "active": true, "empDesignation": "software engineer" }
+```
+
+*Screen:* **201 Created** — `{"statusCode": 201, "message": "employee details created successfully in the db"}`.
 
 1. Request arrives; variables: headers saved, query params empty, **start time** set.
 2. APIkit Router validates and routes to POST.
@@ -257,19 +315,20 @@ Postman: `localhost:8081/api/employees…` with headers and body.
 
 ### Scenario 1 — duplicate key
 
-EMP_ID 120 already exists:
+The same request again (empId 1000 now exists). *Screen — debugger and console:*
 
 ```text
-Duplicate entry '120' for key 'employees_info.PRIMARY'
+Message    : Duplicate entry '1000' for key 'employees_info.PRIMARY'
+Error type : DB:QUERY_EXECUTION
 ```
 
-Error type **DB:QUERY_EXECUTION** → matched in the common error handler → **400** with `error.description`.
+(exception `MySQLIntegrityConstraintViolationException`). Matched by the **DB:BAD_SQL_SYNTAX, DB:QUERY_EXECUTION** On Error Propagate → **400 Bad Request**, `{"statusCode": 400, "message": "Duplicate entry '1000' for key 'employees_info.PRIMARY'"}`.
 
 If no specific handler matched, **ANY** (at the end) would handle it.
 
 ### Scenario 2 — DB down
 
-MySQL service stopped (services.msc) → **DB:CONNECTIVITY** — "Could not obtain connection from data source" → handled by the DB connectivity handler.
+MySQL80 service stopped (Windows Services) → "Could not obtain connection from data source" → handled by the **DB:CONNECTIVITY** On Error Propagate (Error Logger + Transform `{"statusCode": 500, "message": error.description}`) → *screen:* **500 Server Error**, `{"statusCode": 500, "message": "Could not obtain connection from data source"}`.
 
 ### Scenario 3 — reconnection
 
@@ -277,6 +336,8 @@ MySQL service stopped (services.msc) → **DB:CONNECTIVITY** — "Could not obta
 2. With the DB still down, step to the Insert — reconnection attempts start.
 3. Start the MySQL service during the attempts.
 4. A later attempt connects → the record is **inserted**. No duplicate error, because the earlier failed attempt hadn't inserted anything.
+
+*Screen:* the retried request (empId 1001) went through After HR DB Logger → Create Employee Final Response; Workbench then showed rows 120 ravi, 1000 Suresh, 1001 Suresh.
 
 ### Next
 

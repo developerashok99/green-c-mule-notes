@@ -2,18 +2,30 @@
 
 > **Watch alongside:** this session turns yesterday's masking *cliffhanger* into working code, then pivots to something equally important — actually building the real MySQL database and wiring MuleSoft to it safely. The one rule worth internalizing hardest here: **never use a human account for machine-to-machine communication** — always a dedicated service account, because it must keep working even if the person who owns it resigns.
 
+> **Video-verified:** checked against the class recording (16 Dec 2024). Corrected from the screen: module `dw::util::Values`, `mask field(...) with ...` syntax, the class table `EMPLOYEES_INFO` (`emp_id` …), the input parameters, the `DATABASE:NO_DATA_FOUND` deploy failure, and the 201/400/500 test results. Slide images: [slides/day29](../slides/day29/).
+
 ---
 
 ## 1. The `mask` Function — Import, Then Apply
 
 ```mermaid
 flowchart LR
-    Lib["dw::util::values library<br/>(NOT loaded by default)"] -->|"import * from dw::util::values"| Avail["mask() function now available"]
-    Avail --> Call["mask(payload, {fields: ['mobileNumber','memberId']})"]
-    Call --> Out["Matching fields replaced with **** in log output"]
+    Lib["dw::util::Values library<br/>(NOT loaded by default)"] -->|"import * from dw::util::Values"| Avail["mask now available"]
+    Avail --> Call["payload mask field(#quot;mobileNumber#quot;) with #quot;***#quot;<br/>mask field(#quot;memberId#quot;) with #quot;***#quot;"]
+    Call --> Out["Matching fields replaced in the output"]
 ```
 
-*"This mask function will be in the availability of the data [library]... we have to import the utility from the values library."* Exact syntax: `import * from dw::util::values`.
+*"This mask function will be in the availability of the data [library]... we have to import the utility from the values library."* Exact syntax (*screen*): `import * from dw::util::Values` — capital **V**. In the Playground, without the import the output is `Unable to resolve reference of: mask`. With it:
+
+```dataweave
+%dw 2.0
+import * from dw::util::Values
+output application/json
+---
+{ "requestpayload": (payload mask field("mobileNumber") with "#####" mask field("memberId") with "#####") }
+```
+
+→ `mobileNumber` and `memberId` become `"#####"`; `message` is untouched. The reference Start Logger uses the same expression on `vars.requestPayload` with `"********"`.
 
 ---
 
@@ -26,6 +38,8 @@ flowchart TB
 ```
 
 *"I am using masking around 50 times out of 100 logs. Is it better to do it 50 times or one time? One time."*
+
+> *Screen:* explained only — the class project uses the core Logger, so masking there is the `mask` expression in the message.
 
 ---
 
@@ -46,24 +60,24 @@ flowchart LR
 
 ```mermaid
 flowchart TB
-    C1["CREATE DATABASE mule"] --> C2["USE mule"]
-    C2 --> C3["CREATE TABLE employees_info (...)"]
+    C1["CREATE DATABASE mule12"] --> C2["USE mule12"]
+    C2 --> C3["CREATE TABLE EMPLOYEES_INFO (...)"]
     C3 --> Cols
     subgraph Cols["Column definitions"]
         direction TB
-        A["EMP_ID — INT, NOT NULL, PRIMARY KEY"]
-        B["Employee name — TEXT (nullable, for contrast only)"]
-        C["Employee status — TEXT, NOT NULL"]
-        D["Employee salary — DOUBLE (accepts decimals)"]
-        E["Employee designation — TEXT(50), default NULL"]
+        A["emp_id — int, NOT NULL, PRIMARY KEY"]
+        B["emp_name — varchar(255), default NULL"]
+        C["emp_status — varchar(20), NOT NULL"]
+        D["emp_salary — double, default NULL"]
+        E["emp_designation — varchar(50), default NULL"]
     end
-    C3 --> Insert["INSERT INTO employees_info VALUES (...)"]
-    Insert --> Select["SELECT * FROM employees_info"]
+    C3 --> Insert["INSERT INTO EMPLOYEES_INFO VALUES (120,'ravi','active',80000,'software engineer')"]
+    Insert --> Select["SELECT * FROM EMPLOYEES_INFO"]
 ```
 
 **Primary key's two guarantees, stated directly**: *"if the employee ID is not given when you insert it, it will not get inserted... if you give the same employee ID again, then it will not be inserted. It should be unique."*
 
-**A live length-limit bug**: an employee name value exceeding the 255-character column limit throws a red error — directly illustrating why you must ask the DB team for exact column data types/lengths even without direct database access: *"you don't have access to the database... their team is handling it. Then how do you know? You have to ask him."*
+**A live length-limit bug**: an employee name value exceeding the 255-character column limit throws a red error (*screen:* `Error Code: 1406. Data too long for column 'emp_name' at row 1`; a misspelt table gives `Error Code: 1146. Table 'mule12.employee_info' doesn't exist`) — directly illustrating why you must ask the DB team for exact column data types/lengths even without direct database access: *"you don't have access to the database... their team is handling it. Then how do you know? You have to ask him."*
 
 ---
 
@@ -109,11 +123,14 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    Encrypted["Encrypted DB password\nin Secure Properties"] -->|"decrypt with WRONG/unknown key"| Fail["❌ Decryption fails silently /\nconnection doesn't work"]
-    Fix["Fix: create a FRESH global property\nfor a known secure key,\nre-encrypt the password with it"] --> Works["✅ Works — key is now tracked"]
+    Test["Test Connection on Database Config"] -->|"design time: no run arguments"| Fail["❌ Couldn't find configuration<br/>property value for key mule.env"]
+    Fail --> Fix["Add Global Properties<br/>mule.env and secure.key"]
+    Check["Unsure which key encrypted the values<br/>(copied from the sys-app)"] --> Gen["Secure Properties Generator: Decrypt<br/>with the sys-app key → expected values"]
+    Gen --> Fix
+    Fix --> Works["✅ Connection works — key is tracked"]
 ```
 
-Directly reinforces the Day 27 AES-key warning: lose track of the encryption key, and previously-encrypted values become permanently unreadable — the fix here isn't recovery, it's re-encrypting with a newly-tracked key.
+*Screen:* the encrypted username/password in `dev.yaml`/`prod.yaml` were copied from the sys-app, and the instructor had to work out which key made them (*"I think I took it from the Sys app"*). Decrypting them in the Secure Properties Generator with that key returned the expected username and password, so that key became the `secure.key` global property (it can also go in Debug Configurations → Environment). Reinforces the Day 27 warning: lose track of the key and the encrypted values are unreadable. Remove these global properties before pushing code.
 
 ---
 
@@ -134,13 +151,28 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    Query["INSERT INTO employees_info\nVALUES (:EMP_ID, :EMP_NAME, ...)"] --> Params["Input Parameters mapping"]
-    Params --> P1["EMP_ID → fx payload.employeeId"]
-    Params --> P2["EMP_NAME → fx payload.employeeName"]
-    Params --> P3["... same pattern per column"]
+    Query["insert into EMPLOYEES_INFO<br/>values (:emp_id, :emp_name, ...)"] --> Params["Input Parameters mapping"]
+    Params --> P1["emp_id → payload.empId"]
+    Params --> P2["emp_name → payload.empName"]
+    Params --> P4["emp_status → if(payload.active == true)<br/>active else inactive"]
+    Params --> P3["emp_salary, emp_designation — same pattern"]
 ```
 
 **Naming discipline, stated directly**: *"it is always a good practice to maintain the same column names"* as placeholder keys — scales cleanly even to "50 fields or 100 fields."
+
+*Screen — the input parameters:*
+
+```dataweave
+{
+  "emp_id": payload.empId,
+  "emp_name": payload.empName,
+  "emp_status": if(payload.active == true) "active" else "inactive",
+  "emp_salary": payload.empSalary,
+  "emp_designation": payload.empDesignation
+}
+```
+
+**A deploy failure before the test (screen):** the reused `common-error-handler.xml` had an On Error Propagate for `DATABASE:NO_DATA_FOUND`. Deploy failed — `Could not find ErrorType for the given identifier: 'DATABASE:NO_DATA_FOUND'`. A custom type can't be used in a handler until the app can raise it, so the block was commented out (`<!-- … -->`) for now.
 
 **Live `fx` gotcha**: `payload.employeeId` typed directly (without enabling `fx`/expression mode) fails — *"it is working only in expression mode. `Payload.` is not an expression"* by default; the `fx` toggle must be explicitly turned on.
 
@@ -151,13 +183,13 @@ flowchart LR
 ```mermaid
 flowchart TB
     Req["POST /employees"] --> Router["API Kit Router validates & routes"]
-    Router --> Success["✅ Success: 'Post employees flow started'\nlogged, DB insert succeeds"]
-    Router --> Dup["Re-send SAME employee ID"]
-    Dup --> DupErr["❌ DB Query Execution / SQL syntax\n(duplicate key on EMP_ID)\n→ existing error handler → 400"]
-    Router --> Stop["MySQL service STOPPED mid-test"]
-    Stop --> ConnErr["❌ DB connectivity error:\n'could not obtain connection from data source'"]
+    Router --> Success["✅ empId 1000 inserted<br/>→ 201 created successfully in the db"]
+    Router --> Dup["Re-send SAME empId 1000"]
+    Dup --> DupErr["❌ DB:QUERY_EXECUTION — Duplicate entry 1000<br/>→ DB:BAD_SQL_SYNTAX, DB:QUERY_EXECUTION handler → 400"]
+    Router --> Stop["MySQL80 service STOPPED"]
+    Stop --> ConnErr["❌ Could not obtain connection from data source<br/>→ DB:CONNECTIVITY handler → 500"]
     ConnErr --> Restart["MySQL service restarted,\ndebugger resumed"]
-    Restart --> Retry["✅ Reconnection Strategy retries\nand succeeds — insert completes"]
+    Restart --> Retry["✅ Reconnection Strategy retries<br/>and succeeds — empId 1001 inserted"]
 ```
 
 **The catch-all fallback, reiterated from Day 27's error handler design**: *"if these two types don't match, anything will come down here"* — any unmatched error type falls through to the `ANY` handler.
@@ -165,10 +197,10 @@ flowchart TB
 ---
 
 ## Quick Recap
-- **`mask()` lives in `dw::util::values`** — must be explicitly imported before use, same as any Studio module.
+- **`mask` lives in `dw::util::Values`** (syntax `value mask field("x") with "***"`) — must be explicitly imported before use, same as any Studio module.
 - **Masking is best configured ONCE**, at the JSON Logger's global connector configuration ("masking fields"), rather than repeated per logger.
 - **Learn MuleSoft docs via DZone/YouTube first**, official documentation as a 3-4-month fluency goal, then targeted searches once fluent.
-- **The real Employees database/table exist now**: `EMP_ID INT NOT NULL PRIMARY KEY`, name/status/designation as text, salary as `DOUBLE` — tested with working `INSERT`/`SELECT` and a caught length-limit error.
+- **The real Employees database/table exist now**: `EMPLOYEES_INFO` with `emp_id int NOT NULL` primary key, name/status/designation as varchar, salary as `double` — tested with working `INSERT`/`SELECT` and a caught length-limit error.
 - **A local app only reaches a database it has real network access to** — real orgs bridge CloudHub to remote databases via **private network connections**.
 - **DB config**: host/port in regular properties, username/password in **Secure Properties** — with realistic environment-count mismatches requiring cross-team resolution.
 - **Reconnection Strategy**: Standard for normal request-response DB calls; Forever only when there's no dependency on the outcome.
