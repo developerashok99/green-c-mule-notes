@@ -1,5 +1,7 @@
 # Day 33 — OAuth 2.0: Authentication vs. Authorization, the Authorization Code Grant, and OAuth Terminology
 
+> **Sources:** audio transcript, existing notes, and the class video (recorded 20 Dec 2024). Slide text marked *slide* and diagrams marked *drawing* are read from the instructor's "MuleSoft OAuth 2.0.pptx" in the recording. Slide images: [slides/day33](../slides/day33/).
+
 ## 1. Overview
 
 All other policies have been covered in theory; OAuth is the remaining one. Plan: OAuth theory (this session and the next), then **JWT**, then a practical demo of all policies.
@@ -21,6 +23,8 @@ All other policies have been covered in theory; OAuth is the remaining one. Plan
 - **Why 2.0?** There was an **OAuth 1.0** — less secure and no longer used in the industry. **OAuth 2.0** is more secure, has been around for many years, and is the most widely used API security mechanism.
 
 > **OAuth 2.0 is an authorization framework, not an authentication protocol.**
+
+*Slide (annotated):* "OAuth 2.0 → 1.0 — less secure"; *drawing:* ① Authentication — verify the user's identity, ② Authorization — providing restricted access → OAuth; authentication is handled by OpenID Connect.
 
 Its standard definition: a standard for authorization **where a user allows an application to access their resources hosted on another application, on their behalf, without sharing their credentials.** (The flow in §5 makes this concrete.)
 
@@ -66,11 +70,13 @@ On apps like Zomato, Swiggy, LinkedIn:
 
 ### 4.1 Live demo — GeeksforGeeks sign-up with Google
 
-1. GeeksforGeeks → **Sign up**. Options: email/password/organisation, or Google, Facebook, LinkedIn, GitHub. (Facebook is used in the explanation even though this site didn't show it.)
+1. GeeksforGeeks → **Sign up** ("Please Login To Continue"). *Screen:* options e-mail / password / institution-organisation, or **Google, Facebook, LinkedIn, GitHub**. The class first clicked **Facebook** — consent page: "GeeksforGeeks is requesting access to: Your name and profile picture and email address" (Continue / Cancel) — then repeated it with Google in an incognito window, which is the run below.
 2. Click **Google** → the page moves to **accounts.google.com** (we're on Google now, not GeeksforGeeks).
 3. Enter the Gmail and password **on Google's page**.
 4. **Consent screen:** "By continuing, Google will share your **name, email address, language preference and profile picture** with GeeksforGeeks." Continue (or cancel).
 5. Redirected back to GeeksforGeeks — the **account is created**. Profile → Edit profile shows the **email ID** taken from Google (a profile photo would be imported too, if present).
+
+*Screen:* Zomato's own sign-up dialog was also opened (full name, e-mail, or "Sign in as …" with Google) — Zomato is the client in the flow diagram below.
 
 **Key point:** you never gave your Google password to GeeksforGeeks. Giving it would be like handing your account to a friend — a compromise. Instead the site gets **restricted access** to a few details.
 
@@ -92,6 +98,8 @@ Facebook has:
 Zomato has **registered** with Facebook's authorization server beforehand (otherwise the "Login with Facebook" option couldn't exist). Registration gives Zomato a **client ID and client secret**, and Zomato's **redirect URI** (where to send the code back) is known to the authorization server.
 
 ### 5.2 Steps
+
+*Slide:* "OAuth 2.0 Flow — Authorization Code Grant" — User → Login + User Credentials, Consent Form, /authorize → Authorization Server (Facebook); authCode → /token + authCode + clientCredentials → accessToken → /getProfiles + accessToken → /validate + accessToken → Resource Server (Profile Details, Friends List, Photos, Location Tags) → Profile Details. *Annotations:* Ramesh (FB), redirect URI, browser (front end) vs back end, and get/post/patch/delete next to the resource server.
 
 ```text
  Ramesh (browser)        Zomato (client)        Facebook Auth Server     Facebook Resource Server
@@ -166,6 +174,8 @@ When a user signs up or logs in to a **third-party application** using an accoun
 | **Authorization server** | Facebook auth server (in companies: e.g. **Okta**, **Auth0**) | Handles authentication/authorization and issues access tokens |
 | **Resource server** | Facebook resource server | Hosts the protected resources |
 
+*Drawing — the same roles in a company:* a mobile app (MA) talks to its MA server, which holds a client ID/secret registered with the **OAuth server**; the MA server gets a token and calls the resource server (an API — here "GAPI" — protected by OAuth).
+
 **Mapping to MuleSoft:** our APIs are deployed on CloudHub **workers** — in this context the worker/runtime hosting the API is the **resource server**. The authorization server is a separate identity provider the company chooses (Okta, Auth0, …).
 
 ---
@@ -231,6 +241,12 @@ It travels in the backend request when the Facebook login is opened, so the auth
 - **Authorization:** granting permission to perform specific actions; in OAuth 2.0 it happens **after** authentication, when the user grants the client permission. The **scope** determines the level of access.
 
 **Side discussion — 2-step verification:** a question came up whether Google/Facebook 2-step verification follows the same process. Not answered in detail; noted that 2-step verification is a more secure way of protecting an account.
+
+---
+
+## 8A. Slides Flicked Through at the End
+
+*Screen:* at about 71:30 the instructor scrolled through the rest of the deck — "OAuth 2.0 Flow — Client Credentials Grant", "OAuth 2.0 Flow — Resource Owner Password Grant", the three "Grant type" summary slides, and "JWT — JSON Web Token: compact, self-contained JSON object; three parts header, payload and signature separated by dots". These are taught on Day 34 (see [day34](day34.md)); the authorization-code summary slide reads: *access token is generated using the authorization code · sign up using third-party apps · ownership of resource data lies with the user (resource owner) on the third-party app.*
 
 ---
 

@@ -34,5 +34,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 30 — PATCH/GET Implementation, Validation and Error Mapping | [day30](day30/) | 26 |
 | Day 31 — API Manager, Gateways and Policies | [day31](day31/) | 18 |
 | Day 32 — Rate Limiting, Spike Control, Caching and Threat Protection | [day32](day32/) | 14 |
+| Day 33 — OAuth 2.0 Theory | [day33](day33/) | 20 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.

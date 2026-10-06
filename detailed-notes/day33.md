@@ -2,6 +2,8 @@
 
 > **Watch alongside:** hold onto exactly one distinction as you read this — **authentication is "who are you," authorization is "what are you allowed to touch"** — and everything else (the whole Zomato/Facebook walkthrough, all the OAuth vocabulary) is just that one idea worked out in mechanical detail. The single most important design insight buried in the flow: the authorization code is visible in the browser, so it is deliberately *never* used as the access token itself — the real exchange always happens server-to-server, out of sight.
 
+> **Video-verified:** checked against the class recording (20 Dec 2024). The demo used GeeksforGeeks' sign-up with **Facebook** (consent: name, profile picture, e-mail) and then Google; the flow slide is "OAuth 2.0 Flow — Authorization Code Grant" with Zomato as client and Facebook as authorization/resource server. Slide images: [slides/day33](../slides/day33/).
+
 ---
 
 ## 1. OAuth 2.0's Precise Classification
