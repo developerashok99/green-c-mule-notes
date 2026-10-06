@@ -5,6 +5,8 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 > 📘 Want deeper, example-rich notes with diagrams? See **[detailed-notes/](detailed-notes/)**.
 >
 > 📄 Want the original raw English transcripts these notes were built from? See **[transcripts/](transcripts/)**.
+>
+> 🧹 Cleaned transcripts for Days 11–34 (terms corrected, repetition removed, screen text added): **[transcripts-cleaned/](transcripts-cleaned/)**.
 
 ## Index
 

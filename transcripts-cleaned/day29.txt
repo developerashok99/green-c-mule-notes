@@ -1,0 +1,100 @@
+MuleSoft Telugu Course — Day 29 (cleaned transcript)
+Source: transcripts/day29.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day29 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] marks text read from the video.
+
+---
+
+I wanted to close them, so I closed the tabs to the right. We did the before-request and after-request loggers here too. Three panes are open — 1, 2, 3. If you want a single pane, click this. To make it full screen, double-click the tab.
+
+Look here once. Have you observed anything extra? I masked on line number 12. I have some fields that need to be masked. What's the payload here? There's this message, and in it I also gave a mobile number — 1234567890. Now see here: payload mask field "mobileNumber" with … — and it also gave a member ID, so two fields. Let's mask member ID too. The syntax is correct. The thing is, this mask function is only available from a library: we have to import the utility from the Values library. The mask function is in that library, so we import it — it works only if we import it.
+
+There's no rule that everything is available by default. In Studio, all modules are available and we drag-drop some of them — when we did "add modules", we added that module to our project. The same way in DataWeave: the commonly used functions are there, but some libraries are rarely used, and we have to import them. Where is it? import * from dw::util::Values. We import from here; one of the functions in it is mask. [screen: import * from dw::util::Values] Clear for everyone? The syntax is import star from dw colon colon util colon colon Values.
+
+[screen: Playground without the import — "Unable to resolve reference of: mask"]
+
+Now let's understand the mask function. First we import, then we mask. In the logger, for example, I'm printing the total request payload. If I print it, the sensitive information — mobile number, member ID — gets printed in the logger too. It shouldn't be. So we use mask. We give input to mask — the input is the payload, the total input. What should we mask in that payload? Space, field, and the field name — it must be the same as the key name in the payload. Let's see if it works. It's not working — we have to give the correct name. After the field name we give "with" and the replacement, for example stars. Then this expression becomes the input for the next mask. If you don't put brackets you'll get confused, so we use regular round brackets. If you want, put a bracket around the whole thing and then do the next one. [screen: payload mask field("mobileNumber") with "#####" mask field("memberId") with "#####" → both replaced with "#####"]
+
+Generally, we have JSON loggers. When I add a logger here, there's no connector configuration to select. If I go to a connector — the Database, or for example the Salesforce connector — can I select a connector configuration? Yes. The same way, the JSON Logger has a connector configuration, available globally. At the global level they give a field called masking fields. We copy mobileNumber and memberId and give them comma-separated. Then it applies to that logger configuration wherever it is used — give it once at the application level and it applies everywhere. A connector configuration applies everywhere, right? — Yes. The plain logger has no connector configuration, but if we create a global configuration and select it at the logger level, one configuration at the global level applies to all the loggers. With 100 loggers, wherever you print, those fields are masked. Say I'm using masking in 50 of 100 loggers — is it better to do it 50 times or one time? One time. That's the way.
+
+JSON Logger is a custom logger. In our organization we have an enterprise integration team; they build custom loggers and provide these facilities. What if they don't? Then you do it like this, with mask. Clear to everyone?
+
+— Sir, I have a doubt. When you import mask, you said it's in Values. How do you know it's there?
+
+We look at the DataWeave functions in the documentation. I don't remember everything — but I remembered what I needed, went there, checked and remembered. The problem is, if we read the MuleSoft documentation right at the beginning, it gives a lot of confusion. What I always suggest — how I started: when I didn't understand, I looked at DZone. There are different articles; developers and architects write articles out of interest and make it a little easier compared to the main documentation. Or watch videos on YouTube, or MuleSoft's official YouTube. Inculcate the habit so that within 3-4 months you can understand the MuleSoft documentation. Build up step by step. Finally, this is the official, proper documentation MuleSoft provides — how to read it, why it's given, how the examples are given. Our final goal is to understand this documentation. If 100 people start reading it directly, maybe 5% get it and 95% don't. So the approach is: build step by step, then reach this level. Sometimes I also get confused by this documentation — there's too much in it. When we need another function, we search the official documentation, check the examples, and we'll know which library to import. Any other questions? Clear for everyone?
+
+Next step. We've installed the database but haven't created tables yet. I hope everyone has installed their database; if there are issues we'll discuss.
+
+After installing, I opened MySQL Workbench. Now I'll create a database, create a table and insert data. These are basic SQL commands. Obviously the database people do all this — creating users, configuring the database, creating tables. If it's a small organization without them, how do you create a table? Search online for the create table command, see what our fields are, write it accordingly, execute it and check it. If there's an internal team, check with them once. Most of the time we don't need full knowledge of databases — basic commands like creating a table. This isn't just MuleSoft; it's everywhere. Even me — I know the basics. When a new requirement comes, I go to Google, read and understand, and fulfil it. I may not do complex work, but I can manage up to a medium level. If you have time and interest, learn databases as well — at least to a medium level.
+
+The basics: we created a server and installed a database. In that database server we can create any number of logical databases. A database is a place to store data permanently — whenever we want to store data permanently, we use databases. There are many types. RDBMS — relational database management systems — store structured data. NoSQL databases like MongoDB store unstructured data and objects. Most of the time relational databases are used — Oracle, Microsoft, MySQL and others. MySQL is one. I'm using MySQL's SQL; Oracle's SQL has slight differences, but the concepts are the same. Compare Java and .NET: both are programming languages, the result is the same, but the implementation differs a lot. MySQL vs Oracle SQL: 90-95% the same, slight changes, because different companies provide them.
+
+First we create a database. The command is CREATE DATABASE and the name. I gave CREATE DATABASE mule12. In Workbench, select it and click the Execute (lightning) button. Look down here: "1 row(s) affected" with a green symbol. If I try again: "Can't create database; database exists" — red symbol, because it's already there. After creating the database, we use it: USE mule12. These commands aren't case-sensitive — capital or small letters work. [unclear: about names being case-sensitive] Now this database is ready.
+
+Have we created a table? No. To create a table we need all the details: what are the column names, the data type of each column, the table name. The table name: EMPLOYEES_INFO. The command: CREATE TABLE, then round brackets, then each column name with its data type, separated by commas.
+
+First column: employee ID — emp_id. Data type int. Can it be null? It shouldn't be, because this is the primary key — in an organization there's no employee without an employee ID. So it's compulsory: NOT NULL, meaning it can't be empty; there must be a value.
+
+Next: employee name. Data type varchar. Generally the name would also be compulsory, but I kept it nullable just to show the difference. Employee status, emp_status: we said this is NOT NULL. Employee salary: double — it accepts decimals too, so if the salary is 20,000.20, double works. Only numbers allowed. Clear? — Yes, sir. Employee designation: varchar of 50 characters, default null.
+
+[screen: CREATE TABLE `EMPLOYEES_INFO` (`emp_id` int NOT NULL, `emp_name` varchar(255) DEFAULT NULL, `emp_status` varchar(20) NOT NULL, `emp_salary` double DEFAULT NULL, `emp_designation` varchar(50) DEFAULT NULL, PRIMARY KEY (`emp_id`))]
+
+Next we decide the primary key: employee ID. What does primary key mean? It should be unique. If I insert a record with employee ID 100, and then insert again with employee ID 100 — will it be inserted? No, because the same ID is already there; it won't allow it. So, two things about the primary key. First: if the employee ID isn't given when you insert, the record won't be inserted. Second: if you give the same employee ID again, it won't be inserted — it must be unique. Fine.
+
+Let's check if there's any data. The command to retrieve data: SELECT * FROM table name — EMPLOYEES_INFO. Everything is empty. It's better to follow the same case as the table name. No data, so we insert. The command: INSERT INTO table name VALUES (…) — the values in order: employee ID, name, status, salary, designation. Ravi. How many characters does the name allow? 255. If I give more than 255, will it work? No — see, a red error came. [screen: Error Code: 1406. Data too long for column 'emp_name' at row 1] So it's very important to collect these details. I have the whole database in my hands, so I know. But if you don't have access and their team handles it, how do you know? You ask them: the table name, the data types, the maximum lengths. Take all these details and work on it. Salary is a number — double.
+
+I execute the insert: "1 row(s) affected". Now SELECT * FROM employees info — nothing happened? I typed employee_info instead of EMPLOYEES_INFO. [screen: Error Code: 1146. Table 'mule12.employee_info' doesn't exist] Now see: 120, ravi, active, 80000, software engineer. Correct.
+
+To connect to the database, I need the host, port, username, password and the database (service) name. I'm using mule12. Now I've given you these details — can your MuleSoft application connect to my database? No. Why? It's on my local machine; there's no network connection between your system and mine. Now if I deploy the same application on CloudHub, will it work with this database? It won't — the database is still on my local machine. So how do organizations do it? Database servers are placed in a shared location, and they give connectivity between the database location and CloudHub — for example through a private network connection. Then, whenever a request comes into the CloudHub MuleSoft application and it has to talk to the database, it goes through that channel. Since mine is local and not connected to the cloud, it won't work.
+
+Now let's configure it in the MuleSoft application. With property files or directly? Property files. Why? Because the connection details differ per environment. You deploy to Dev first with values hardcoded — then for SIT you'd have to change them, and for UAT, and Prod.
+
+One more question. In MuleSoft we have Dev, SIT, UAT and Prod — four environments. The database has Dev, UAT and Prod — three. Will that happen in real time? Yes, it will. Don't get confused. Prod matches Prod, UAT matches UAT, Dev matches Dev — for SIT, should we take Dev or UAT? Clarify with the database team and decide. Before taking a decision, discuss with the other teams too. Sometimes our environments are more, sometimes theirs. Plan and use it correctly. Now you understand why we use property files.
+
+Next step: create the configuration. Here or globally? Globally — if I create it here, I'd have to cut and paste it later. I'll go to global config and create it there. The host and port are already prepared in the properties; only the username and password are secured. [screen: Database Config — host ${database.host}, port ${database.port}, user ${secure::database.username}]
+
+Can I go to the POST flow and select this configuration? Yes — it's available to the entire project.
+
+Reconnection: standard or forever? Standard. What happens with forever? The application takes time to respond. So when a transaction is in the middle — when the request is waiting — it's better to use standard. When do we use forever? When there's no dependency: the connector is the source, or we're doing something at the end, asynchronously. Then forever is fine. I'll use standard. Will industries customise these values? Yes. The usual suggestion is 3 attempts every 2 seconds — that's standard. Otherwise our architect may say 5 attempts.
+
+It's not working. [screen: Test Connection — "Couldn't find configuration property value for key ${mule.env}"] The global property — we haven't configured it. What else do we need? The secure key. And we don't know which key we used. Let's create another global property: secure.key. I save it.
+
+Now my question: this username, password and DB — the DB is basically the service name. Who gives all these? The database team. Will they give the root username and password? No — root has too many permissions: create, delete, almost everything. They create a user for us and give us the user details. I'm using root here for practice. In a real project they create a separate user for the MuleSoft application and give us the username, password, host, port and database name. Host, port and service name stay the same; username and password change. They will never give root details. Remember this. They give only as much as we need — for example, if you need permission to create a table, they won't give it unless you justify why. Most of the time we don't need to create tables; we insert, update and delete records. They create a user with those permissions and give us the details. Very clear.
+
+Now, we encrypted this user. How do I remember the secure key I used to encrypt it? Where did I take it from? I think I took it from the sys app. Let me check its run configuration.
+
+For example, in Prod, will they create a username for Mahesh? Say they create a separate DB user for Mahesh. What's the problem? It's accessible only to you — and if you resign, it gets removed. So they create a non-human user — a service user — and give us those details. If I resign now, will that service account still work? Yes. That's the very, very important thing: when we connect programmatically — machine to machine, application to application — you should never use human accounts. Always use service users or service accounts. Clear to everyone? — Yes, sir.
+
+Let's decrypt this and check. I think "Vision@2022" should come. Yes, it's working. [screen: Secure Properties Generator — Decrypt, AES, CBC, key ABCD1234DEFG5678 → root, and → Vision@2022] See here: localhost, port 330, DB mule12, username root and the password.
+
+Where is it normally given? In the run configuration — when the application runs, those run parameters are passed. But if you give global properties here, they're picked up whether the run configuration is used or not. But these two global properties — whenever you push the code to Bitbucket or GitHub, remove them. They're only for local testing.
+
+Now we have to write the insert query. We've done the database configuration and given the reconnection strategy. Here's the query. We could give the values directly in INSERT INTO table — the same query as in Workbench, with Ravi's values. Or we use input parameters, which pass values dynamically. [screen: insert into EMPLOYEES_INFO values (:emp_id,:emp_name,:emp_status,:emp_salary,:emp_designation);]
+
+It's always good practice to keep the same names as the columns. I gave :emp_id in the query — what do I give as the left-side key in the input parameters? Exactly what I gave here. If they don't match, it shows an error. Clear to everyone? — Yes, sir.
+
+Look: all the left keys here match the query — emp_id, and so on. For employee name, I take it directly from the payload: payload.empName. Employee status I changed: if active is true, "active", else "inactive". [screen: "emp_status": if(payload.active == true) "active" else "inactive"] If I gave :emp_id in the query, can I give something else on the left? No. If I gave :eid, then here I'd give eid. Why do I suggest the column names? It keeps the mapping correct. With 10 fields it's fine, but with 50 or 100 fields it stays neat, without confusion. That's how input parameters pass values dynamically.
+
+Should fx (expression mode) be on? Yes. Why? payload.empId is an expression; it works only in expression mode.
+
+Let's delete it and add it again — see if there are any errors. Since there were lingering errors, I deleted and re-added the component, and now I'm able to deploy. Run configurations or debug configurations.
+
+It failed. This is a custom error — [screen: "Could not find ErrorType for the given identifier: 'DATABASE:NO_DATA_FOUND'"] — it tells us this type isn't there. Understood? This "no data found" — we'll raise it later, in the GET flow, with a custom error. We've already put it in the error handler, but the error type doesn't exist yet. So — Ctrl+Shift+/ — comment it out for now.
+
+localhost:8081/api/employees, POST, headers and body ready. Can I send the data? I'll trigger it. The request came. What's the payload? The body we sent. The variables: headers saved, query params saved — empty — and the start time. Since everything is correct, the APIkit Router validates and routes to the right resource. Look at the logger print — the info logger: "post employees flow started", trace point START, start time. [screen: 201 "employee details created successfully in the db"]
+
+Now the same request again — it's a duplicate. Where does it go? The main flow. Does it have an error handler? Yes. Does this error match? DB:QUERY_EXECUTION — here we have DB:BAD_SQL_SYNTAX and DB:QUERY_EXECUTION. [screen: "Duplicate entry '1000' for key 'employees_info.PRIMARY'"] The info logger printed. The final error response: statusCode 400, message error.description, and the status code is 400. Did you see how the error flows properly? If no handler matches the error type, what happens? The generic error — ANY is at the end, so it goes to ANY.
+
+— I didn't understand. You put ANY at the end?
+
+Yes — if these two types don't match, anything else comes down here, to ANY.
+
+[unclear: long repetition loop]
+
+Now the DB can't be reached — I stopped the MySQL service. Do we have this error type? DB:CONNECTIVITY is for when the DB can't be reached. It went there: "Could not obtain connection from data source". [screen: 500 Server Error]
+
+Now I'll hit the request again. I put a breakpoint at the start of the POST flow. I hit POST, click Resume — it goes to the next breakpoint, skipping everything in the middle. Now I go to services.msc and start the MySQL service. See what happened — does the reconnection work? It works — now we're able to connect. If we check our database in Workbench, the record is there.
+
+— Why was the record inserted, and not a duplicate, when you sent the same request before?
+
+The earlier attempt didn't work — the database was down — so nothing was inserted, and there was no duplicate issue.
+
+After this we do HTTPS, consuming services, and applying policies — one by one. Clear? Any questions?

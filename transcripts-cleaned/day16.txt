@@ -1,0 +1,130 @@
+MuleSoft Telugu Course — Day 16 (cleaned transcript)
+Source: transcripts/day16.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day16 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] marks a value read from the video.
+
+---
+
+Good morning once again. In this session we will continue with error handling.
+
+What did we do in the previous session? We matched two error types, and for each we set the status code, the reason phrase and the error payload. We also saw in detail how the error handling relates to the Listener's Responses section. Now the next issue: if an error comes other than these two, how is it handled? Since it isn't matched here, it obviously goes to Mule's default error handler. Instead of the default error handler, we want to plan an error type called ANY and bring everything else into it.
+
+Again, drag and drop an On Error Propagate. If we leave the type blank, it becomes ANY — it automatically takes all the error types available. Now let's copy and paste these two as well: the Error Logger and the Transform Message. From here we have to print with the error logger and set these variables and the payload.
+
+What did we do in the previous session? We copied it, pasted it here and removed "Copy of". That is one way. There is another way: right-click here and choose "Go to XML". It goes to the code we made. In the XML, look at line 82 — that is the code for this logger. Then from line 83 there is the Transform Message. If you look, on line 83 there is a small minimise icon; click it to see where the block ends. From 83 to 97 is the Transform Message. So the code I need is from 82 to 97. That's the clarity. I copy it with Ctrl+C.
+
+Now I have to paste it inside the next On Error Propagate. How? If needed, simply drag a dummy Logger in and drop it. Then Go to XML again. The On Error Propagate opening tag starts here and the closing tag ends here; our code should be between the opening and closing tags. Press Enter and paste the copied code. Studio says a duplicate doc:id has been detected — click Yes and the document ID changes. Now go and check: we can delete the dummy logger and save. The Error Logger has come, and the Transform Message has come.
+
+Now we can plan it as we want. There is no need to change the error logger — we want to print error.description. After that we can decide whether we want 500 server error or something else. I'm keeping it as it is: since it's a server-related error, most errors coming here should be 500. If required, we change it based on the requirement. Generally the configuration will differ by project — the description and error status stay the same, the payload structure doesn't change; maybe the status codes or reason phrases are set differently, and that will be mentioned in the design document. Otherwise our team or others will have done error handling in their projects and we can refer to it. Error handling is very, very important, but most of the time it is re-used.
+
+So that's another way of copying and pasting code: go to XML and select the whole block from there. Since the On Error Propagate didn't have separate opening and closing tags, I dragged and dropped a dummy logger to get them, pasted the code in between and deleted the dummy logger.
+
+Now we have an ANY handler. In the previous session we got an expression error. Where does the expression error go? Here — to the EXPRESSION handler, if ANY is at the bottom. Will the error type match? Yes. But if ANY is at the top, will it go to EXPRESSION or to ANY? Let's see.
+
+To move ANY to the top, again Go to XML. Where does each On Error Propagate start? The first one starts at 81 and ends at 98 — I clicked the minimise icon on 81. From 99 another one starts. I want the ANY one, not the expression one: it starts at 99 and ends at 116. Also notice how the whole Error Handler looks in XML: the error-handler tag opens here and closes at the end; the flow tag opens and closes; everything we did — every drag and drop — is in the Configuration XML. As we discussed with the project structure, whatever we do, XML is generated in the background. I'm showing you how to copy and paste with that XML so you can use it well in real time.
+
+So it starts at 99 and ends at 116. I cut from 99 to 116 with Ctrl+X — removing it from here. Where do I want it? At the top. Go to XML; the error handling starts at line 63. Put the cursor on line 63 and paste. Now if you look, ANY comes first, then HTTP:NOT_FOUND, then EXPRESSION.
+
+Why am I doing this? It checks the handlers in order; if an error type matches, that component executes; if none match, it goes to the default handler. This is not visually represented anywhere — it happens in the background. Now let's debug. We will get an expression error. Honestly, where should it go? To the EXPRESSION handler. But it won't — it will be caught in ANY, because ANY covers expression errors. Whether I write ANY or leave it empty, the behaviour is the same. That's why ANY should always be at the bottom; otherwise you'll get confused. (If I unchecked EXPRESSION from what ANY covers, it would not go into it.)
+
+I hit the request. We got MULE:EXPRESSION. Where should it go? To EXPRESSION. Where does it go? To ANY. Why? Because that error type already matches — ANY came first, it checked, matched, and went there. If ANY is at the bottom, it goes to EXPRESSION. Is that clear to everyone? Did you understand why it should be at the bottom? First we handle all the error types we know we need; anything we can't cover, we put in ANY. If ANY is at the bottom, it executes only when nothing above matches. Any questions so far?
+
+Now let's put it back. I stop the process, go to XML, cut the code starting at line 63 again with Ctrl+X, go back and paste it at the end — between 82 and 99. Now it has come correctly. You have to paste carefully; if not, the XML won't be in the proper format. Look at the error-handler end tag: a flow has a source, a process and error handling, and the handlers must be inside the error-handler tags. Copy everything properly and it will be easy for you.
+
+Now ANY is at the bottom. I don't want the expression error now — I want a different error to check the behaviour. Yesterday we kept an extra "K" in the value; let's correct that. Instead, let's give a wrong host — say "Org1" — and see what error we get. It's deployed. I hit the request. What is the error type? HTTP:CONNECTIVITY. Are we handling HTTP:CONNECTIVITY anywhere? No. So it checks the first handler — no match; the next — no match; then ANY matches every error type, so it goes there. If there were no ANY, it would go to the default error handler. That's what you have to understand.
+
+What are the generic errors? Generally we mention the main ones in the error handler — about 5–6 types: Bad Gateway, Bad Request, Unauthorized, HTTP Not Found, Method Not Allowed and so on. We mention the important ones; the rare ones go to ANY. Let's check where it goes: next, next — it came to ANY, and we got the response. That's how On Error Propagate and error types work.
+
+Overall, we have completed a part of error handling. What is On Error Propagate?
+1. It is a component used to handle errors in MuleSoft.
+2. It catches the error based on the error type mentioned in it, and then propagates the error to the next level.
+
+What happens in this flow? It catches the error and does the necessary processing — here it sets all the variables and the payload required. Then it propagates back to the source. Who is the source of this flow? The Listener. The Listener sends the response — it goes to the Error Response section and leaves from there.
+
+To explain this simply — just give me a second — this is the actual flow. In real time there will be multiple flows, and to call one flow from another we use Flow Reference. Here is the Listener; in its Responses section there are two parts: success response and error response. The request came and went through the components; they executed and sent the response — that's the success case. After everything executes, it goes to the success Response section, applies any mapping there and sends the response. That's the normal case.
+
+Now say we get an error here. In the error handling, the error type matches, so the On Error Propagate executes. Then it goes to the Listener — to the Error Response section, not the success section — and that error response is sent. So it catches the error, processes what's inside that component, and passes the response to the Listener's error section. It is propagating the error to the next level, and the next level is the source.
+
+Now two flows: flow 1 and flow 2. Flow 1 gets the request; a Flow Reference in flow 1 calls flow 2. (Flow Reference is how one flow calls another.) An error comes in flow 2. How is it handled if flow 2 has no error handling? Flow 2 is the child flow, since it's called from flow 1, the parent. With no error handling in the child, the same error comes up to the parent. In the parent I have error handling; if the error type matches, it executes and again propagates to the source. That's one use case.
+
+The other use case: the child flow also has error handling — I'm talking about On Error Propagate. If the type matches in the child, it executes there; the error goes up to the parent; there's an error there again; if the type matches in the parent, it executes there and then goes to the Listener. So On Error Propagate propagates the error response from one level to the level above.
+
+So we can do a lot — orchestration, logic and so on. If there is a lot, we split it into flows: the parent flow takes the request and passes it to the child flow. On success, the response comes back through the child to the parent — that's common. On an error in the child: with no handling in the child, the child propagates the error to the parent; in the parent the error type matches, it executes, and the Listener sends the error response. If there's handling in the child too, the child executes its handler, propagates, and the parent executes its handler and sends it to the Listener. Is it clear now?
+
+Student: Even if there are many child flows, is it the same?
+
+Say there are three flows. Compare any two: the calling flow is the parent and the called flow is the child. So it's the same — calling flow and called flow. We will take a use case and do it end to end later. Right now we are learning things individually: MuleSoft has many pieces, we can't do everything at once. We learned the HTTP Request module, then properties, now error handling — component by component, module by module. When we start a use case, we'll use all of them together.
+
+Now On Error Continue. Until now we haven't used it. Why is it given? Most of the time we use On Error Propagate, because when an error comes we have to propagate the error. But a second component is given: On Error Continue. The "continue" might suggest the flow continues even after the error — when do we get such situations? On Error Continue sends a success response to the next level, even though there is an error. It also stops the process there.
+
+[screen/drawing: "On Error Propagate — it will stop the process and propagate the error response to next level"; "On Error Continue — it will stop the process and propagate the success response to next level".]
+
+On Error Propagate stops the process here, enters the error handling, and propagates the error response to the next level. On Error Continue stops the process and propagates the success response — it goes to the Listener's success Response section and the response is sent from there.
+
+Do we use it like this, at flow level? Not usually. How do we use it? In a flow, if we get an error in a particular component or group of components and we still have to move forward, we use the Try scope — it's a scope used to handle errors for a trial section. When an error comes in one section and we want the flow to continue, we use On Error Continue inside Try. What happens if we put On Error Continue on the whole flow we built? It behaves as I showed — but in real time we don't use it that way, and in general we use On Error Continue maybe 10–20% of the time.
+
+The difference: On Error Propagate propagates the error to the next level; On Error Continue propagates a success response to the next level, not the error response. The error stops there and goes to the Listener's success Response section, not the Error Response section.
+
+Example: in our flow, with the HTTP connectivity error, it currently goes to ANY in On Error Propagate. I want to try On Error Continue — let's see what happens. On Error Continue is in the Error Handling section of Core. I copy the logger and transform into it and delete the old On Error Propagate. Even with a blank type, the connectivity error should come here. This isn't the real use case — I'll show where it's used — but you need to know this to understand the use case.
+
+There will be an HTTP connectivity error. Next, next, next — the error came; does the connectivity error match? Yes. Let's see the response: 200 OK. Did you see? Which part of the Responses section did it go to? We set the status code to 500 in the variables, but it went to the success part — the status is 200 and the reason phrase is the default. Is it clear for everyone? Is it propagating a success response or an error response? A success response.
+
+This handling is flow level. It's for the consume-rest-service-7303 flow, so it works for this flow. If I call this flow with Flow Reference from another flow — the parent/child concept — the error propagates up, and if it matches, it's handled. But if the flows are independent of each other, this handler doesn't apply to the other flow. That's why it's called flow-level error handling.
+
+Look at the XML: the error-handler tag opens here and ends at line 119. Now I drag and drop a new flow and check: is there an error-handler tag in it? The flow opens, the Flow Reference is there — no error-handler tag. Now I drag and drop an On Error Propagate or On Error Continue into it — now the error-handler tag opens and closes, with On Error Continue in between. So the error-handler tags appear only when you add something; by default a flow has no error-handler tag. Is that clear?
+
+Why did I use a dummy logger? Look — the On Error Continue has no separate end tag; it's self-closing on one line. For example, a flow normally has an opening tag <flow> and a closing tag </flow> — in XML every opening tag needs a closing tag, and we put things in between. The other form is <flow … /> on one line, which closes itself. Since we want to paste between tags, we drag in a dummy logger to split it into opening and closing tags, paste in the middle, then delete the dummy. That's the easiest way I know; different people do it differently. Is that clear? Fine — let me delete this.
+
+[drawing: "<flow> → opening tag, </flow> → closing tag, <flow … /> (self-closing)".]
+
+Now, levels of error handling. So far I've done flow-level error handling in this section. What do we call consume-rest-service-7303 — project, application, API? Any of these. Can we do error handling at the overall project level? Yes. With which component? The Error Handler component: drag it into an XML file and put On Error Propagate / On Error Continue inside. That is project-level error handling. How is it referenced? Either reference the Error Handler's name from the flow, or go to Global Elements and set it there.
+
+Someone asked a day or two ago about a configuration in Global Elements — the Configuration element. There is a "Default Error Handler" setting there. If we set it, this error handler works for any flow — application level.
+
+There is one more level: component level. If an error occurs in one component, or in a group of two components, and I want to handle it separately — can I? Yes, with the Try scope. So: flow-level error handling; project-level, using an Error Handler with a global setting so every flow in the project uses it; and component level — a single component or a group — with Try. As I said, 4–5 components help with error handling in MuleSoft: On Error Propagate, On Error Continue, Raise Error, the Error Handler block and the Try scope. Using these five we do error handling in MuleSoft.
+
+[drawing: "OEP, OEC, RE, EH, Try scope → EH in MuleSoft"; "Try scope → component or group of components EH".]
+
+Next, error mapping. Sometimes the type should be changed. For example, instead of HTTP:CONNECTIVITY we want WEATHER:CONNECTIVITY. In the Request component there is an Error Mapping section: map HTTP:CONNECTIVITY to WEATHER:CONNECTIVITY. They ask about this in certifications. In the XML it shows the mapping. Now when I hit the request — the error should have been HTTP:CONNECTIVITY, but look: it's WEATHER:CONNECTIVITY. Where will it go? It won't match HTTP:NOT_FOUND or EXPRESSION, so it goes to ANY. We map errors like this only in very rare instances. You also have to see Raise Error and Try.
+
+Now the Error Handler at application level. Right-click → New → Mule Configuration File; name it "common-error-handler". In the Error Handling section of the palette there is Error Handler. If I drag an On Error Propagate directly into the file, will it work? No. First drag the Error Handler — it's a scope, like a box — and put the handlers inside that box.
+
+[screen — Studio's description of Error Handler: "This component executes when an error is raised and routes it to the first matching handler. It can contain any number of internal handlers — On Error Continue, On Error Propagate, etc. — and supports handler matching by error type or with a DataWeave expression."]
+
+I copy the whole set of handlers. In the XML they are between lines 63 and 120 — from the first On Error Propagate to line 118. Ctrl+X. Go to the new file's XML. Is there an opening tag yet? No — so I put a dummy On Error Continue in to get the error-handler opening and closing tags, paste in between, save, then delete the dummy. Now the error handler is ready [screen: <error-handler name="common-error-handlerError_Handler">].
+
+Back in the flow: we cut the handling from it, so there's no error-handler tag in the flow any more. Now I can reference the common error handler — that's one way. Or configure it in Global Elements. For now I give the reference in the flow. Now when there's an error here, it uses that handler, then goes to the Listener. Like this, you create a separate configuration XML, put the Error Handler in it with On Error Continue / On Error Propagate as needed, and use it from any number of flows. Create another flow — it can use it too, flow by flow. In real time it's mostly like this. When we implement the project we'll see it clearly.
+
+If there are many flows and I want them all to use it without giving a reference in each, I remove the reference, go to Global Elements → Configuration and set the Default Error Handler. Then it works at project level, globally: any error from any flow is matched against these handlers. I didn't give a reference in this flow — let's see if it goes there. This is called global-level error handling: in this 7303 project, a global error handler was created and is used by all flows. Deployed; hit the request; next — WEATHER:CONNECTIVITY — it went there. It works.
+
+So, three levels: flow level, project level, and component or group-of-components level with the Try scope.
+
+Now Try. Say I have this Request, and even if it gives an error, the flow should continue. You might ask: there's a success status code validator — why not use that? It works only for the Request component. If I want two components combined — the Request and the Transform Message — the validator doesn't cover the Transform Message. In such scenarios we use Try with On Error Continue. I'll show a proper use case when we do For Each — the loop scope, like loops in programming languages — and in Scatter-Gather; there, Try with On Error Continue is very useful. That's why I said On Error Continue is used maybe 10–25% of the time; the rest of the time it's On Error Propagate.
+
+Student: Do we always have to use On Error Continue inside Try?
+
+No — we can use On Error Propagate too. Here I'm showing that I want it to continue. I print error.description in the logger. Where will we get an error? WEATHER:CONNECTIVITY. It comes into Try, stops there, goes to On Error Continue, and then continues from there to the next components and the response goes out. If there's a mapping issue in the Transform Message inside Try, it stops there, the logger prints, and the success response comes again. In some cases, even if a process or a group of actions fails, we continue further — such scenarios happen often, and this is how we handle them.
+
+Another way to create a Try: instead of dragging Try in, select the components — click the first, Shift-click the second — right-click → Wrap in → Try. If we don't put a logger in the On Error Continue, nothing happens; it just goes to the next one. That also works. The response is the same. So Try is a scope, and one of its uses is error handling at component level or group-of-components level.
+
+Now Raise Error. Errors are raised automatically when something goes wrong — why raise one separately? We raise it when the response is technically fine but a business rule fails. Small use case: a person applies for a loan. One of the bank's rules (there are many): age must be greater than 18 and less than 65. A 40-year-old applies — will they repay? Assume all other conditions are met. A 67-year-old applies — he's above the bracket, so we must raise an error and send an error response to the source: "this applicant is not in the age bracket, we can't process this application". How do we send an error response? Raise Error. Whenever you want to raise business errors, Raise Error is used.
+
+Technical errors like HTTP:CONNECTIVITY are raised automatically — we don't need to raise those. But for business scenarios, Raise Error helps, and you can define your own error type. HTTP:CONNECTIVITY was generated by the system; for this one we define the error type and message ourselves. Is it clear?
+
+Small application: File → New → Mule Project [screen: raise-error-demo]. A Listener with default configuration [screen: path /raiseerror]. A Logger. Then we need a condition — a Choice router.
+
+[Choice] You can drag components into it to create more routes — as many conditions as you want. If condition 1, the first route; if condition 2, the second; if condition 3, the third; if none match, the Default route. So Choice is used to route a request based on conditions. We use the Choice router regularly.
+
+Our condition: age greater than 17 and less than 66 [screen: #[payload.age > 17 and payload.age < 66]] — "less than 66" means 65 works but 66 gives an error. If the condition matches, we set the payload: "loan application is successful" — simplified, there would be much more in reality. If it doesn't match, the Default route: Raise Error.
+
+In Raise Error we give the Type and a Description. How is the type given? namespace:identifier. The main category is the namespace — since it's a business error, say BUSINESS; and the identifier, e.g. age not in bracket [unclear: exact identifier]. Description: "age is not in the specified limits".
+
+I debug the project, add a breakpoint, and form the request: localhost:8081/raiseerror, with age in the body since we use payload.age. First 45. It was already running in another project, so the port wasn't available — and debug uses port 6666 — so I stopped it and deployed this one.
+
+Request received. Age 45 matches — greater than 17, less than 66 — and the success response came. Now age 68. The condition doesn't match, so it goes to Default; the error is raised. Look at the error type — the BUSINESS type we gave came. Look at the description — the message from Raise Error. The error object was created as soon as Raise Error ran: the description and detailed description show our message, and our error type. There's no error handler in this app, so the default error handler sent error.description with 500 Server Error [screen: Postman 500 — "age is not in the specified limits"]. That's how we use Raise Error: whenever you need to raise an error based on a business scenario. Any doubts?
+
+Now more conditions in Choice. Take any component — say a Logger — and drag it onto the Choice; when the black line appears, drop it and another route is created, and you write another condition there. For example: 17 to 30 processed one way, 30 to 40 another, 40 to 65 another, and above 65 Raise Error. Each route can have any number of components and any processing. For the second route I put a Set Payload: "loan process is successful but different for 30 to 65 people" — in real time the response would be different, but this makes clear which route it came from. The first route covers 18 to 29.
+
+For yet another condition, drag again to the black line and release. Did you get clarity on Choice? We use it regularly whenever something is conditional.
+
+I send 35. Choice checks conditions in sequence: first the first condition — 35 doesn't match; then the second — it matches. If the first had matched, the second wouldn't be checked. Look at the response: it came from that route [screen: 200 OK — "loan process is successful but different for 30 to 65 people"].
+
+So we covered error handling, Raise Error and the Choice router. Is that clear? Any questions for everyone?

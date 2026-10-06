@@ -1,0 +1,108 @@
+MuleSoft Telugu Course — Day 26 (cleaned transcript)
+Source: transcripts/day26.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day26 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] marks text read from the video.
+
+---
+
+In the previous session we published the fragment, imported it and completed the entire API specification. Now we have to publish the API specification as well. Where do we publish it? To Exchange. Can we work without publishing it? We can. But what is the normal way of working in the industry? As soon as our API specification is ready, we immediately publish it to Exchange.
+
+Why do we publish it to Exchange? One, we need to import it into Anypoint Studio — and we import it from Exchange. Two, when we apply policies, we create an asset in API Manager for this API, and again we take that from Exchange. That's why publishing the specification to Exchange is compulsory. I said it's a repository that is shared — not only by developers; even the modules of the Anypoint Platform share the API specification. That's why it's necessary.
+
+I don't want to change anything. The root file is published. [screen: Publishing to Exchange — asset version 1.0.0, API version v1, lifecycle Stable]
+
+Now this is the Exchange part of our Anypoint Platform. See here: All assets. What are all assets? MuleSoft provides some, and our company also develops some — both together are "all assets". Then there is EPAM — what is EPAM? When we created this account we gave an organization name. Let's see how many assets there are in EPAM: the API specification and the fragment. If we have 100 APIs, where will those 100 API specifications be? They will be classified under EPAM. "Provided by MuleSoft" has their connectors and everything. If someone has shared something with us, it comes under "Shared with me". When we apply policies I will tell you the significance of "My applications". What does the public portal do? Whenever we want to share our API specification for testing with people outside our organization, there is an option called public portal. I'll show you how to use it.
+
+Now we have published our asset. What is this asset type? I have selected EPAM — how many types are there? Only two. Why? Because this is a REST API; this is the API specification. If I filter by type, only this one comes. So when we publish a regular API specification, the type is REST API. Keep that in mind. Now if I go to all assets — what MuleSoft provides plus what our organization has — see what types there are: connectors, custom things, DataWeave libraries, examples, policies, fragments, REST APIs, SOAP APIs, templates. There are many types. In Exchange we can save many types of assets; it's not only API specifications. For example, if I created a template project and wanted to save it in Exchange, I could publish it.
+
+From Design Center we just clicked Publish. If we want to publish from Studio, we click "publish new asset", give a name and select the asset type. For an API specification or fragment from Design Center we didn't select the type, because Design Center and Exchange already know it — that classification is automatic. But whenever you do it from scratch, you have to mention everything: the name, the asset type — is it an example project, an API, a SOAP API, a REST API, an Async API? — and whether the lifecycle status is development or stable. Then publish, and it will be available.
+
+Now MuleSoft-related assets: for example, is the Salesforce connector there? I clicked "Provided by MuleSoft" and selected the connector type. Look — Salesforce connector is here. They're in alphabetical order. S4 HANA connector, Salesforce connector, SAP connector, Amazon S3 connector, Twilio, MongoDB, Einstein Analytics, Workday connector — there are many connectors to connect to different systems. If you remember, in Studio, if a module is not in our project, where do we import it from? From Exchange — we connect that account and import it. The Secure Properties module wasn't in the palette earlier either; we logged in with this account and imported it into our project. That is the way it works. To sum up: Exchange is a central repository where all MuleSoft assets are saved and published.
+
+Now let's go to our API specification. There is another way of sharing. There's download, and view. We can test it here too: on the left side there is employees; open it, there is the POST, and here also there is Send — we can test it in Exchange as well. If you want the endpoint information, you can check it in Design Center, or here: employees, POST, and so on. Why am I telling you this? Design Center is open, Exchange is open — you can check either.
+
+Here is the Share option. There are two options: share with collaborators, and public. If someone in our team has an email, we can invite them by email; it then appears under "Shared with me" for them, and they can check and test the API specification. To publish it to the public portal: select the public option, select the version, and save. Now if I go back to the assets list, there is the public portal here. Did you see where I came? [screen: "Welcome to your developer portal!"] If I share this URL with the person who wants to test it, anyone can test it — it's a public portal; we are giving them access to use and test it. I can test it from here. These are the different ways, Anwar. And if I remove a comma here — invalid schema.
+
+As soon as we publish, it is accessible to all developers who are part of that organization. If we search for it directly, that's enough.
+
+What next? We have to import it into a project and work on it in Studio. So let's import it first, then discuss. What I import is the API specification. And the project — is it new, or a Mule project? We create a Mule project first: File → New → Mule Project. You can also right-click and do it. What's the name of my project? HR employees.
+
+Runtimes: I have installed this already. If we want other runtimes, there is "Install runtimes" — server runtimes, Studio enterprise runtimes, all the versions [unclear: list of version numbers]. If you select one and click Next and Finish it takes some time, so I won't do it. Once installed, it shows up here automatically when you create a project. I'll use 4.4.0. Next.
+
+Now see here: API implementation. "Add an API implementation to your project to automatically set up an APIkit Router and create placeholder flows for each resource method." There are three options: import a published API, import RAML from local file, download RAML from Design Center.
+
+The first option, import a published API, imports the API specification that is published in Exchange. The second, import RAML from local file: if we go to Design Center and open our API specification, there is a Download option. If we click download, a zip file is downloaded — hr-employees-sapi-7303.zip — with all the files in the proper structure. With the local option you select that zip file and do the same. Do they do this in real time? Most of the time, no — they publish and import. When is the local option used? If the connection from the local Studio to the Anypoint Platform can't be established — sometimes because of SSL issues, or organizations don't allow it. In such situations you can use it locally. But most of the time there's no such issue.
+
+The third, download RAML from Design Center, means Studio connects directly to Design Center and gets it from there, using your Anypoint Platform credentials. What's the difference between getting it from Design Center and getting it from Exchange? You may think both are the same. We use import a published API — why? Whenever we make changes in Design Center, we immediately click Publish and publish the latest version — yesterday we published fragment version 1.0.1. To reflect all that in Studio, there is a seamless connection between Exchange and Studio, and the latest versions are available there. From Design Center there isn't that seamless integration [unclear]. So most of the time we use import a published API. Is that clear to everyone? — Okay, sir. I told you all three, but import a published API is the one widely used: an API specification published in Exchange, imported into Studio.
+
+How do we import it? First we click the plus sign and add it as a dependency. Where is the dependency added? In the pom file, as a snippet. And the project shows it on the left side. We get all other connectors the same way.
+
+So I click plus → from Exchange. Here we have to give the username and password — Add account. I was using an old account, and it has expired; trial accounts expire after a few days. So I'm adding a new account. All this is very important — understand it and practice it multiple times. Are we using a regular trial account or an organization account? In a company, the organization has a custom domain — for example they've set an ICICI-Bank domain. If I give that here and click Continue, it automatically connects to SSO. For that I need to select "custom domain". Where do you get the custom domain? From your colleagues, or in Access Management if you have permission. Ask your colleagues for the organization's domain name, select it here, click Continue, and it takes you to the login page directly. Back to sign in. Now we give the username and password. I'm going slowly here on purpose — configure your credentials exactly, no spelling mistakes. Add.
+
+We are importing from Exchange. Next time, when we implement the project, I'll make a small change and publish it, and then I'll show you what to do for the latest version. Don't worry, it will come later. Look here — 1.0.0 has come. It's been imported.
+
+Has the project been created yet? Not yet. So far we've named the project, selected the runtime, selected where to import the API specification from, and given all the details for it. Now we can click Finish. But before that there are two more options below: "Scaffold flows from these API specifications" and "Use default location".
+
+What's the location? Where the project folder structure is created — the workspace. What's a workspace? All projects you work on in Anypoint Studio are in the workspace. If you remember, I created a folder called WS APS (Anypoint Studio) in D drive. You can use this, or browse and give a new workspace. I'm using the default workspace.
+
+What's the scaffold option? When I create a project in Studio, do I create an empty project or with flows? Usually we create an empty project and build the structure; XML files get created in folders. But here it says scaffold flows from the API specification. We're importing an API specification; using it, Studio generates flows. How? There are resources and methods: a flow is generated for each resource method, plus a main flow.
+
+Think about it: to handle the POST method I'd need a POST listener and a flow for it; one for PATCH, one for GET — three listeners. Right? — Yes. But what scaffolding does is create one listener flow with a component called the APIkit Router, and a structure so that each request is navigated from the APIkit Router to the proper flow. That's called scaffolding. It uses the API specification: all requests come to the listener flow; the APIkit Router validates every request — is it a POST, a PATCH or a GET — validates the whole structure, and if it's proper, sends it to that particular flow. The process that generates all these flows is called scaffolding.
+
+If it fails, we see it in red. Even if there are some issues in the API specification it may not fail — that's why we test properly in Design Center first and make sure there are no project errors. Okay?
+
+Let's see if the project is created. With the name we gave — yes, it is. Normally src/main should be at the top; the structure looks a bit different here — nothing to worry about. Is src/main/mule there? Yes.
+
+[unclear passage]
+
+The router checks: in the API specification we gave, does the request meet all the standards we mentioned? If it does, it directs it to the POST flow. Where's the POST flow? Down there. It diverts to it. Have we done the implementation yet? Not yet.
+
+Now look at the flow name. [screen: post:\employees:application\json:hr-employees-sapi-7303-config] This configuration is how it knows: POST should be sent to this flow. If the name is in this order, it understands. If I change this, the APIkit Router gets confused and won't know where to send it. That's the golden rule — the POST request will stop at the APIkit Router with an error. So the method, the resource, the media type and the config name must stay in this same order. Same for every resource, every flow — these three flows too. Don't change them.
+
+Next question: the request comes to the listener — how does the APIkit Router know all this? You should get this doubt. I clicked on the APIkit Router. When scaffolding is done, a configuration called the router configuration is created automatically, with a name: hr-employees-sapi-7303-config. What's the API definition? Our API specification. All its folders are imported — the common headers fragment is imported, the hr-employees-sapi-7303 files, all the data types and examples, the main root file. So does the router have all the information? Yes. What does it do with it? A POST request has come; it checks the data type — does the request have all the data as per the type? If yes, it sends it to the POST flow; otherwise it rejects it. Got it? — Yes, sir.
+
+[unclear: about a URI parameter] These are the minute differences you have to understand; then you'll get more confidence. Sometimes the software doesn't give us the right error, and that's very dangerous — it takes a lot of time. If it gives the right error, we go directly to the right place and check. But many times we don't get the right errors. So we have to be very careful.
+
+An enhancement scenario: we have three resources and a fourth resource is added. A developer already built the API with three resources, published it and took it to production. Now they assign us the API and we have to add a fourth resource. What do we do? Go to Design Center, add the fourth resource with its data types and examples, publish it — a new version, 1.0.x — and use it in the project. Before we go to production we decide the resource name. Don't touch the order or combination in these flow names. You can change other flow names, no problem, but not these. Any other questions?
+
+The APIkit Console flow is also created. Is it a main flow? Yes — it has a source, a process and error handling. But in real time we delete it. I'll tell you what it is later; keep that aside.
+
+What's this? — Process. If there's no source, we call it a private flow. A sub flow has no source and no error handling option. Clear? So: one main flow and three private flows. The request comes to the listener, goes to the APIkit Router; the APIkit Router uses the API specification to validate the request, then routes it. What's the functionality of the APIkit Router? It validates the request against the designed API specification and then routes it to the right resource. Did I say that correctly? — Correct.
+
+To read the flows easily: right-click → Collapse all; right-click → Expand all.
+
+Next. How did this import happen? It added a dependency in the pom. Go to the dependencies section — this dependency didn't exist before. If you update the version here, it reflects automatically, if that version exists in Exchange. The connection to Exchange is already established; if the account expires it becomes difficult again, so it should not expire — it needs connectivity.
+
+Another dependency was also added: a mule-plugin — the APIkit module, 1.5.11. If we want to change to the latest version, we can change it here. It's for the APIkit Router. Before we had only these two; now this has been added automatically. Did you see? — Yes.
+
+APIkit has operations: Router and Console. We always use the router. Console isn't required — you can keep it for some time or delete it; it's just for console-based testing. 90% of the time we won't use it. If you ask me, I delete it.
+
+So we've seen the pom file, and the project libraries.
+
+Let's put a common error handler in a common folder and refer to it from here. Is this flow small? Okay. Now look at the PATCH flow in the reference project: it gives a flow reference. The main implementation is in a separate implementation folder; the PATCH implementation is done in that patch flow, and here we just give a reference — it isn't implemented directly here.
+
+So there's an implementation folder and a common folder. In actual business processing, we create XMLs for all the implementation flows — different XMLs and flows in folders. What's common for this project? The common error handler, and global config — connector configurations, component configurations. We created an XML and moved all the global elements there; since it's common, it's in the common folder. Implementation things are in the implementation folder. Will every project follow this? There's no rule. We kept it like this for clarity, nothing more. How to create a folder? Right-click → New → Folder.
+
+What do we do in src/main/resources? Create all the property files — this is regular, we know this.
+
+In common we have the error handler, with all the information sent to it; logging and messaging are done in the error handler. Then if we check the implementation, see how well the logging is done — there's a logger; if there's sensitive information we can do masking. Since this one is database related, we can add the database. One by one.
+
+What's in the POST flow after scaffolding? A Transform Message with the example response. [screen: statusCode 201, "employee details created successfully in the db"] How did all this come? Scaffolding created it with the help of the API specification — the transform message, what payload it should return, the flow name. In the GET and PATCH flows there's an extra Transform Message that creates a variable for the URI parameter, so there are two transform messages: one for the URI parameter and one for the final response. For POST there's only the final response. We've observed all this.
+
+What if we run it now and hit it? A response will come. I want to show it in debug mode, not run mode — why? To know whether the data is flowing properly, whether it's routing properly, who does what — you'll get a clear idea. Before that I'll add two loggers just for demonstration, so you can see how the flow navigates. (I forgot my mouse at the office — I can't use any mouse at home.)
+
+localhost:8081/api/employees. [The instructor first tries a wrong path, employees1.] The main file checks the API specification: is there a resource called employees1? No. So where does it route? It doesn't — it's an error. [screen: 404 "Resource not found"] Earlier, when we gave a path in the listener itself, the listener rejected it — remember? That's the difference.
+
+Now employees is fine. The employee ID — I'll get it the easy way. Headers: from the earlier mocking-service test the headers were already formed. Click there, Ctrl+A, Ctrl+C; come here, Headers section, Bulk edit, Ctrl+V. Easy or difficult? Very easy. As a developer you should know how to reuse existing data instead of redoing work. The other option is to type each key and value — that takes longer. This is smarter.
+
+If I hit now, will the request go? Let's see. It worked. How? Using the configuration. [unclear: about the URI parameter employee ID] If we resume — did you see? From the main flow it first routed to the flow reference, the processing happened there, then the flow came back. The final payload is sent as the response. In GET the final payload is the employee information — the example in our response section — so the response is the same. See the response now — did it go properly? Yes.
+
+Is this useful for those who are already working? Some people in our group are already working in real time — 3-4 people. Is it useful for them? — It is useful.
+
+Now I'll hit the POST request. Should it route to POST correctly? Yes — POST routed. [screen: 201 Created] How did the router do this? It used this API specification; the configuration had the schema, data types, examples, everything — so it checked and routed.
+
+Do we get any benefit from the APIkit Console? No. Right.
+
+Next, the error handler. Error response: how did it go? Bad request. Did we set the error response for the listener? No — it's the default. Just like success, the error response sends the final payload, and the status code is vars.httpStatus, default 500. See here: 400 Bad Request came. There's a variable and a payload — see what variable it sets. Did we create these, or were they created automatically? Automatically. We can change them as needed — that's a different scenario — but by default there's a variable called httpStatus and the payload. When the error type matches, the variable and payload are set, and that mapping should match the error response mapping section of the listener. Okay? — Yes, sir.
+
+That was the change here. We searched everything and it didn't strike us for half an hour; finally we saw there was a name change here. Fine.
+
+Now let's correct this too — it had this error before it went through, so it showed the error. [screen: 501 "Not Implemented"] Why did this error come now? That's fine — that's the API. [unclear end]

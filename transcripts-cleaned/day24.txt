@@ -1,0 +1,82 @@
+MuleSoft Telugu Course — Day 24 (cleaned transcript)
+Source: transcripts/day24.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day24 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [drawing: …] mark text read from the video.
+
+---
+
+What did we do in the previous session? We prepared the whole API specification but didn't apply any best practices. Now we'll apply best practices one by one and then go ahead. Fine.
+
+[Agenda slide: Applying best practices in RAML · Q&A session.]
+
+What's the first best practice? Look at all the examples here. The advantage of best practices, first, is readability. There are almost 300 lines now. Instead of putting everything in one file, let's externalise some parts and refer to them from there. If there's a change, we can easily make it there. First point: the main, important lines of code are easily visible. If we go to Anypoint Studio and look at the old API specification [the reference project], the examples are in separate files and some schemas are defined separately; in the main file there's one line for the schema and one or two for the examples, and the rest is defined elsewhere, in a properly organised structure. So the main code gets shorter and easily readable. With best practices we achieve modularity and readability.
+
+How? By following a few best practices. First, create an examples folder, with the examples related to requests, responses and error responses — say three categories. Then everything example-related goes there. We'll do that first.
+
+How do I create a folder here? Click + → New folder [screen: Design Center — Add new folder]. Folder name: examples. I want subfolders inside it — click it and choose New folder. Will everyone follow this exact way? No — some put all examples directly in the examples folder; naming conventions differ. We'll maintain it a bit differently so it's easy to identify. With many resources — say 25 — it's better to separate requests, responses and error responses. So: a subfolder for requests, one for responses, one for error responses [screen: examples/requests, examples/responses, examples/errorResponses].
+
+One by one. This is the POST request example. I cut it from here — Ctrl+X — and put it in the requests folder. What file? It's data in JSON format, so as an example we create a JSON file [screen: Add new file — API format: Other]. Naming convention [screen: postRequestExample.json]. Is it a RAML file? No — it's an "other" file, an example file. Paste, right-click → Format.
+
+Now refer to it from the main file. Next to the file there are three dots — click → Copy path. Go to the main file, to the example. The keyword to include is: exclamation mark include — !include — then a space and the path: examples/requests/postRequestExample.json. Now, if the example doesn't match the format we defined [the type] — say I make the salary a string — is there an error? "empSalary should be number" [unclear]. So it's still validated against the type. We completed the examples correctly. Now 5–6 lines have become one line.
+
+Same for the response section: take the response example, New file → Other → [screen: postResponseExample.json]; follow the naming convention uniformly; Copy path; back to the main file; !include. Then the error response — this is 400: New file → Other [screen: 400ErrorResponseExample.json]; right-click → Format; Copy path. It's the same steps every time — nothing new. The only things to learn: create a folder, create a file, add it with !include. That's all.
+
+I duplicate this one and name it 500 [screen: 500ErrorResponseExample.json]; open it, right-click → Format — easy with these techniques; Copy path; done. Can you reuse the examples for all error responses? Yes — they're the same. Generally we have a template and use it. If there's already a template, use it; if not, duplicate an existing project under a different name, change the resources one by one, and keep the same error responses — no need to fill everything again. Most of the time in real time we change it like that.
+
+So the examples for post are done, including all the error responses. Naming should be easily readable — understood as soon as you see it. Copy the path; go to the main file — the root file. What's the root file? The main, important file. How do we identify it? It's marked "Root file" [screen]. The other files we created have the .json extension.
+
+POST done; then PATCH: the PATCH request example, then its response [screen: patchRequestExample.json, patchResponseExample.json] — create it like this, or duplicate. The error responses are already done — no problem.
+
+Now data types. Data types are used for requests and responses. [The raw transcript loops "This is the data type, right?"] A request can be any type — an object, an array, with many different properties or items. What we've done here is define a data type for the request: "this request will be like this". That's the data type — we can also call it the request schema. Is it clear? This is an object; it has these properties; in these properties this one should be a string, this one a number. In the example, instead of 80,000 salary, can I send 1 lakh? Yes, values are allowed. But instead of 80,000 or 1 lakh, if a string comes, is it allowed? No — because the schema defined for that data type doesn't accept it. That's why we define custom data types using standard (built-in) data types, and we externalise the request and response types and refer to them here. Is that clear?
+
+We externalised the examples with !include directly; for types the process is different. Create a folder — in the API specification, + → New folder — "dataTypes". Again separate requests, responses and error responses. Can you create files directly in dataTypes without subfolders? Yes — no problem, depending on naming conventions. But I'm segregating them.
+
+Student: All these examples and data types are in the API, so they should all be in that structure, right? And you're referring to the copy in Studio?
+
+Yes, that's the [reference] project, imported. This is Design Center; when we import it into Studio, the structure looks like this — see: dataTypes.errorResponses, dataTypes.requests and so on [screen: Studio Package Explorer]. Not relevant to our project otherwise.
+
+Student: If we create another API, can we reuse these data types and examples?
+
+You created them inside this API, and they're used inside this API. You can't reuse them from another API now. To reuse them, you have to use a Fragment. A fragment isn't a full-fledged API specification. How to create a fragment and refer to it each time — that's the next level; there's an option for it. Within this API, there's reusability: define a type here once and refer to it in multiple places. For example, these error responses can be defined once and referred to three times — but only within this API. To use the error response in other APIs, create a separate fragment.
+
+Now the data types. I create a file in dataTypes/requests with the data type and refer to it from the main file. It's like the examples — but for examples we used !include, which imports directly. For types it's a little different. First I cut the type from the main file. Then dataTypes → requests → New file — a RAML file — type: Data Type [screen: Add new file — file type options: Specification, Trait, Resource Type, Library, Overlay, Data Type …]. The header is "#%RAML 1.0 DataType". I'm creating postRequestDataType — note the .raml extension; that's the header that came [screen: #%RAML 1.0 DataType].
+
+Go to the main file: from "type: object" down to the end of the properties — Ctrl+X; paste into postRequestDataType. What happened? Alignment. [screen: "Syntax error in the following text: ' properties: …'".] Select all the properties to fix the indentation. So far we've done forward indentation. What's the shortcut for backward indentation — one by one, or all together? All together: Shift+Tab. One step back; Shift+Tab again; again. Is it enough? Okay.
+
+In the main RAML file, how is it referred to? Not with !include at the place of use. We declare it under "types:" — "types:" imports it, with an alias name — then use the alias with "type" where needed. [screen: types: postRequestDataType: !include /dataTypes/requests/postRequestDataType.raml; body: application/json: type: postRequestDataType.] Clear to everyone? After importing data types under "types" with an alias name, give the alias as the type of the particular resource that needs it.
+
+Next, the POST response data type. Don't forget the header — it's compulsory. Select from the properties to the bottom: Shift+Tab, Shift+Tab… now the properties are correct for the object. Post response data type — copy the path — main RAML file — at the top, under types. You can select it like that, or copy and paste from there.
+
+Errors: imagine there are errors now — we made mistakes in this project, we didn't correct a reference, and errors came. That's why be careful in the first place. In RAML, if there's an error once, it sometimes shows somewhere else rather than where it is. So check everything carefully; if you overlook an error, you'll have issues.
+
+Data type for the success response of create employee: it's an object with status and message. The error response is also an object with status and message — the schema is the same, right? I could refer to all of them with the same type. I'm not doing it, honestly — but observe it: is there reusability? If there is, use it. In real time they're usually separate, because the error response schema differs — 4–5 extra fields, an event ID and so on. But don't develop blindly; if there's any possibility of reuse, use it. Can we here? I've made one reference already — if the schema is the same, you can use it. Instead of creating a 400 error response data type, I could use the post response data type I already imported. You understand the idea: the skeleton of your request or response. This should be an object with two properties, status code and message — the create-employee response. Now the error response — I'll define a skeleton data type for it.
+
+See, we shouldn't develop blindly. When developing anything — not just API specs — is there a possibility of reuse? If we think like this, we become good developers. A piece of code used in multiple places, written in each place — is it better to define it once and reuse it, or keep copying? Better to reuse. That's how a developer should think. Yes.
+
+When you copy and paste or cut, be careful where you start and stop — be clear, don't mess it up. I keep the examples the same way: Ctrl+X, go to the error response data type, Enter, paste; the alignment is wrong — select from properties to the end and Shift+Tab until done. Copy the path; go to types.
+
+Then the PATCH error response. From "type: object" to where? After the bad-request one. It's confusing until you practise it 3–4 times — you'll get it too. 400 done. Now 500 — duplicate; from here to here; Ctrl+X; to the 500 error response type; Enter; remove it completely; the properties issue again — Shift+Tab — gone. Copy the path; main RAML file; top; paste. In the post, select 500, set the type, paste — done. If there are mismatches, errors show here. In the patch, delete from "type: object" to here and give the type. Then the get, 500.
+
+[screen: types: postRequestDataType, postResponseDataType, patchRequestDataType, patchResponseDataType, getResponseDataType, 400errorResponseDataType, 500errorResponseDataType — each !include /dataTypes/….]
+
+We still need request and response types for patch and get. Patch: look how simple the post is now — except headers, there's nothing much: body; responses with the success response and error responses. Simple and easy — modularity has come; very small and compact. Now the patch request: Ctrl+X; dataTypes/requests; from additionalProperties select to the bottom and Shift+Tab — solved. Copy the path of the patch request; go to the main RAML file, to the top; I'll keep the error responses at the bottom and put the patch request here. Then go to the patch — minimise the post to go straight to the patch; minimise the patch headers; put it in "type". Not mismatched; no project errors.
+
+Responses: select this response, Ctrl+X; duplicate as the patch response data type; select from "type" and delete; repeat the same steps — there's nothing more to observe. You might think I'm doing it fast, but it's the same step multiple times — we have multiple methods, that's all. Copy and paste; back to the main RAML file; top; patch response type include.
+
+Now let's see what happens if I make a mistake. Post — save (auto-save). Patch → minimise headers → 200 → cut the type — see, an error came, because my type isn't there. Where should it refer? It suggests: select from these four — which matches for us? I selected it. Is that enough? Okay. Copy the path; back to the main RAML file. Is that clear?
+
+[Discussion of fragments:] In the same fragment, multiple projects [unclear] — 100 APIs. If you want to add something extra, you can customise. Mostly less. What do we use fragments for? Repeated things. Not usually the main request and success response — each API's request and response differ; they're dynamic; the requirements aren't the same for all APIs. But headers and error responses are almost the same for all projects.
+
+Student: Fragments can only be used for headers?
+
+No — not only headers. In real time headers are the common usage, but you can use them for a request too, or a data type. For example, a communication address, a permanent address, a billing address — three can be the same [shape]. Under it: house number, street number and so on — or one string altogether. This address field is in the request among other fields; if 50 APIs need this address, I create a fragment with an address type. In our POST request there's an address field; instead of type string, I import the fragment and give that type name. The whole request is defined here; only the repeated part is imported from the fragment. Is that clear for everyone? That's the main point.
+
+[drawing: address → {"communicationAddress", "permanentAddress", "billingAddress"}; ① scratch → API spec → (✗) DC; ② enhancement → API spec → ✓ DC; template.]
+
+There's nothing like this in Design Center for our project yet. Two kinds of requirement: one, from scratch — go to Design Center, create an API specification and start. Two, enhancement — add a resource to an existing API, or change a request in an existing resource: go to Design Center, take the API specification, change it, take it back to Studio, import the changes and update the implementation properly.
+
+When doing it from scratch, we can do what we did, or use a common template already in Exchange — folders for requests, responses and all, like a template. If there's a template in Design Center, copy it and fill it in easily. Is that clear? Yes. Every time I'd otherwise create all these folders. Better to have a template: put it in Design Center, duplicate it [screen: Duplicate project], change the name, and since the data-type folders are there, just create the files — no need to create dataTypes and errorResponses folders, which would take 10–15 minutes. The whole organisation follows the same structure. If there's no template, take an existing project, duplicate it and follow their structure; delete what's extra. That's the way to work.
+
+Like data types, there's a section for headers called traits. What are traits and how do we use them? First we create traits in the same project and see how they're used; then we separate them into an API fragment and import from there. That starts tomorrow. Any questions?
+
+Student: About data types — [unclear].
+
+Let me tell you why I'm using best practices: without them I prepared one big file, and I've sorted it out one by one here. In real time we shouldn't do that: we create folders and data types up front. For each resource, we create three data types: request, success response and error response. Thank you.

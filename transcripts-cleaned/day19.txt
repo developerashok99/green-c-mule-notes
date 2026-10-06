@@ -1,0 +1,102 @@
+MuleSoft Telugu Course — Day 19 (cleaned transcript)
+Source: transcripts/day19.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day19 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] marks text read from the video.
+
+---
+
+[Continuing the CloudHub 2.0 issue from Day 18] I'm using CloudHub 2.0 with runtime 4.8 there. Normally higher versions work — there is forward compatibility: lower-version applications work in higher runtimes, but higher-version applications won't work in lower runtimes (no backward compatibility). Still, if there's a mismatch in some versions, issues like this can occur.
+
+Look — the issue comes right here; even this logger isn't printed. So where's the problem? Here. I suspect the Listener is keeping the payload in binary format when it converts it.
+
+What if we change the dependencies? The latest HTTP connector version is maybe 1.10.0, from 8 August [screen: HTTP Connector Release Notes — Mule 4: 1.10.3 / 1.10.0, compatibility]. Where do I change it? In pom.xml — this dependency, org.mule.connectors… — the import is done; the HTTP module is there. Now let's deploy.
+
+[Announcement about class days — "I will post it in the group"; it won't always be Thursday — details unclear.]
+
+Export done. Now redeploy: go to the application's Settings, choose the JAR file; no replica change; Apply Changes. See "Applying configuration" — it happens in the background; you can check in the logs: "last deployed a few seconds ago". This is called zero downtime — the application keeps running and the new version comes in with no downtime. But the same issue is coming again.
+
+Is the deployment complete? The log shows "started server connection" and the listener on the flow — a little different from 1.0. I'll check this too. Recently colleagues migrated a project; theoretically we know it, but practically there are many challenges — once we hit them all, we'll have clarity. Even so, no change: the payload comes in binary format.
+
+What's happening: this is the payload we send — it's going in almost like a string. If I take it to the DataWeave Playground — why is it getting this? We need to check. That's the problem: payload.city can't be read; it isn't expected here. "You called the function…" means the input payload is coming in as binary. Why? The request comes from the Listener — maybe Listener versions. We're developing in Studio 7.12; something needs to be done. We could use a compatible version, 7.18. I'll upgrade my version too. In real time, what I've mostly seen is 7.12, 7.13, 7.14 and so on, upgrading to the latest. That's one thing to correct.
+
+How do we deploy in real time? Through a CI/CD pipeline. Then we don't directly see where it went in CloudHub; in Runtime Manager → Applications we see the target type: CloudHub 2.0, Shared Space. Shared space vs private space is like a hotel: sharing a room with other visitors, or taking a separate dedicated room.
+
+In CloudHub 2.0, I heard there are fractions below 0.1. In 1.0 the minimum was 0.1. Here there's 0.1 and 0.05 — maybe in the enterprise version. With 0.1 you can do 10 applications per vCore; in 2.0 the fraction is smaller, so you can deploy more applications per vCore. Why 0.05? Because the memory for 0.1 vCore is now 1.2 GB [unclear], versus 500 MB in CloudHub 1.0. With more memory, even 0.05 can process requests. With 0.05 you can deploy 10–20 applications per vCore — we have to check. Here I can only see 0.1 as the minimum.
+
+[Agenda slide: CloudHub demonstration · Deployment strategies continuation · Mule Runtime · On-premise (standalone) demonstration · Hybrid demonstration · Q&A session.]
+
+Next, on-premises. What we need to know here is the Mule runtime. In CloudHub we say worker or replica, and we deploy the application into it. On-premises: this is our server, in our data centre. Do I deploy the application directly onto this server? No — you have to set up software: Java, Maven and so on. Is it ready then? Not yet. We need the Mule runtime — we bring the runtime onto the server and configure it. Then we deploy our applications — our JAR files — into this Mule runtime.
+
+How many applications? Multiple, based on your requirement. In CloudHub each application gets a predefined size like 0.1 vCore; here it's not like that. If we have 100 applications on one server, we can add multiple runtimes — runtime 1 and runtime 2 on the same server, 25 applications each, and increase the count.
+
+[slide — Mule Runtime: A Mule Runtime is a runtime engine to host and run Mule applications/projects – similar to an application server · Mule Runtimes can be provisioned on-premises or in the cloud.]
+
+The Mule runtime is a runtime engine to host and run Mule applications — like an application server; a Mule application server. It's a provision to deploy Mule applications on, and you can see the logs as well.
+
+[drawing: Hybrid — Anypoint Platform → Mumbai data centre runtime.]
+
+Where do we get it? We can download it directly from the website [screen: "Downloading Mule Runtime", "Mule EE or CE Runtime", Mule Kernel 4.5.0 and previous versions]. "Mule 4.x developer" refers to these runtime versions; previous versions include 3.9.0, 3.8.1. Select the operating system — Windows, Linux or Mac — give your details (name; Gmail works) and download. You get a ZIP file. I won't download now because it takes time; I already have an older one. Similarly, Anypoint Studio comes as a ZIP of around 2.5–3 GB; this runtime is around 340 MB [transcript says "GB"], so it won't take long. After downloading, unzip it — right-click → Extract. It's also a one-month trial version. Mine is 4.4.0. The folder name was long, so I gave a short name — long names can cause issues with files in the folders, so keep names as short as possible. Remove the double folder that extraction creates. This is the runtime; let's understand its structure.
+
+Java and Maven must be configured on the machine. Check in the command prompt: java -version. If it doesn't work, download Java — a straightforward installer, next, next, finish — and check again. I have version 11 here; the latest Java 17/18 also exists [unclear]. I'm using Java 11 and Apache Maven 3.8.6 [screen: java -version, mvn -version]. Both Java and Maven must be available on your system to run the Mule runtime.
+
+Now the folders in the Mule runtime and the significance of each.
+
+apps folder — empty now. This is where we deploy applications: bring the JAR file and drop it here, and deployment starts; you'll see the logs. In real time you log into the server, open this folder and drop your JAR there.
+
+bin folder — our server is set up, but can we deploy without starting the runtime? No. How do we start it? In bin, mule.bat — double-click it and the Mule runtime starts; then you can deploy applications.
+
+conf folder — remember in CloudHub we provided runtime properties — mule.env and secure.key — in the Properties tab when deploying in Anypoint Platform. If we don't provide them, deployment fails. For the standalone runtime we pass them in the conf folder, in wrapper.conf. In wrapper.conf you see parameters like wrapper.java.additional.12 — these are system-configured properties; don't touch or change them. We add our own extra properties — the environment property and the key property — and they're supplied from this file. How? wrapper.java.additional.<number>=-D<key>=<value>. That's the syntax; the -D is compulsory. Be careful with the number: it must not conflict. If I copy-paste and use 17 twice, the system gets confused about which to take. So the next one is 19, and so on. Do we have the values? Not here, but in Studio — paste them from there. If you need more or less memory, you can change that in wrapper.conf too — open it in Notepad++. In real time they'll already have set this up; mostly we just deploy our application.
+
+So far: apps folder — deploy applications; bin folder — the batch file to start and stop the server (the server is the Mule runtime); conf folder — wrapper.conf to pass runtime properties and change memory settings.
+
+domains folder — every time you deploy, you notice "default" is deployed first and then the actual application. That's this. Say we have five applications deployed in this Mule runtime, and their connector configurations are mostly the same — say of 10 connectors, 6 are common, and 3–4 differ per application. I create one project with those common connector configurations and refer to it from all the projects. Instead of configuring it in every project, we configure it once and refer to it in many places. That's a domain project.
+
+Example: one of the common connectors is the DB connector, and the DB password changes. Without a domain project, I'd change the DB password in all 5 applications. With a domain project — not an actual application, only connector configurations — the applications refer to it. Now the password changed: do I change it once or in every application? Once — in the domain project's DB connector — and it's picked up from there. It's like inheritance: we inherit some characteristics from our parents without knowing; the applications inherit connector configurations, port configurations and so on from this project. It's called a domain project. It doesn't work like a main project; it only holds configuration.
+
+[drawing: Mule runtime with a domain project shared by apps.]
+
+Where do we create it? In Studio: File → New → Mule Domain Project. It has connector details and common configuration like port details; give it a project name. Where is it deployed — apps folder or domains folder? The domains folder. Then the domain project in the domains folder and the main projects in the apps folder can share the common configurations, inherited from there.
+
+How is the connection made? In the main project there's a small setting. Right-click the project → Properties → Mule Project. [Side note while there:] Under Modules, a blue symbol means a newer version is available — you can update it. I clicked Update and it went to 1.10.3. Do you remember changing it in the POM? You can do it either way. If you check the POM now, it shows 1.10.3. No rule that it must be done in the POM.
+
+[Studio hangs] It's not responding for a long time. Can we restart something here? No. Restart the whole system? Better: open Task Manager — there's a task for this. Ending the Studio task alone isn't enough; there's also OpenJDK — end that, and it closes; then open Studio again. These are small things, but once you're inside a project you'll struggle with them, and asking people can be awkward — they may think, "what experience do you have if you don't know this?" Now if you check the POM: Salesforce was correct, 10.20.4 — automatically reflected.
+
+Back to the setting: right-click the project name → Properties → Mule Project (click directly, don't expand) — there's the domain setting: default. That's how the main project refers to a domain.
+
+Can this connector configuration be shared in CloudHub? No. The domain project applies only to on-premises, not CloudHub; even in the RTF deployment model, domain projects are not supported. Is that clear? Only on-premises. Why not cloud? Each application is deployed in an isolated container; there's nothing extra alongside it, so where would it get the domain from? There's no scope. A domain is a special type of project that provides configurations; it doesn't work like a main project. For domain projects to work, the deployment model must be on-premises. And it's deployed in the domains folder.
+
+lib folder — not much significance; leave it.
+
+logs folder — important. Logs are printed here. I haven't started or deployed anything yet, so there are no logs. How are logs printed? A file is generated at the Mule runtime level, and one file per application. Deploy 10 applications and 10 application log files are generated, plus one log file for the whole Mule runtime — the system log. We'll see, after deploying, which logs come and when the system log is used.
+
+policies folder — to protect an API we apply policies; all the policies are downloaded into this folder.
+
+services, tools and the rest — you can ignore them; nothing to be done.
+
+So the major ones: apps, bin, conf, domains, logs. Most used: apps and logs. The server is always running, so we rarely use bin — only to restart. We use apps to deploy, and logs for monitoring after deploying. Is that clear to everyone?
+
+Then a doubt: I'm working from our Hyderabad office on my laptop and deploying from here. Where's the on-premises server? Say our data centre is in Bombay, and our Mule runtime is on that server. How do I get the logs? I log into that particular server, open the logs folder, copy the files and paste them locally. Likewise, to deploy, we log into the server and deploy.
+
+There are 100 servers in this data centre — do you need access to all 100? No. Say server 1 and server 2 are MuleSoft-related; only MuleSoft developers get access to those two. The rest are for database developers, Salesforce or other developers, each with access to their own servers. To get access, we raise a ticket, get permissions and approvals, and then use it. Is that clear? You'll experience all this only once you're inside a company. With this idea, when you go in and face such a situation, you can ask what the process is. If they name a tool, you'll at least recall it; if you've never heard it, treat it as a different tool — when they do it, you'll see it and then be able to do the same.
+
+Also: your laptop is in the enterprise network — a private channel — with virtual machines. You work on a remote desktop from the laptop; from that remote desktop you connect to your servers. You'll mostly be working on a remote desktop, not directly on your laptop. That's how on-premises works.
+
+Now we're ready to deploy. Back to the apps folder — empty. [Deploying the JAR] I paste the JAR. If an anchor file is not generated — <app>-anchor.txt — it's not deployed. How do we know it failed? It converted to a folder but didn't deploy successfully. Check the logs folder: a log was generated with my API name; mule_ee.log is the log for the entire runtime; and for the domain, the domain project's log. Earlier there was only readme.txt; now they're created separately. Since the application failed, it's in both the enterprise system log and our own log.
+
+What does it say? "Could not find configuration property value for key ${mule.env}" [screen]. We gave it, right? We saved the file. It doesn't reflect just because I saved it. I re-apply the application: back to apps, paste the JAR again — look at the time, 8:51. It failed again. Why? We have to restart the runtime; until we restart, the properties aren't reflected in the Mule runtime. Is that clear?
+
+This time again the same. I closed the mule.bat window directly. There are commands like mule start, mule restart, etc. — the MuleSoft documentation explains how to start and stop the runtime [screen: "Start and Stop Mule", "Start Mule as a Windows Service"]. It failed automatically again — it retried the existing application. Let me check: 19 — mule.env is correct; if the name were wrong, there'd be a problem. Is 18 given multiple times? Hash-commented lines aren't identified. The problem: there's another property already numbered 18 in this file. Earlier I copied, pasted and checked whether the numbers were unique, but 18 is already defined elsewhere, so it got confused. What to do? Find the maximum and change the numbers. 19 is used too; is there a 20? No. So use 20 and 21 for these two. Be careful — it's even better to pick something like 50 and 51 that surely isn't used.
+
+The restart command: mule restart; mule start; mule stop — on Windows it's the same commands [screen: docs]. Ctrl+C stops it. To start again, go to the bin folder, or run "mule start" in the command prompt — both work. Since the application folder is already there, it tries to deploy it automatically.
+
+Now: "HTTP Listener config on port 8081 — address already in use". Why is 8081 in use? Because I already have the application running locally in Studio. One port on one machine can be used once. Like house numbers: 10 houses on a street, each with a unique number 1 to 10. If I give number 1 to two houses, how will the postman find the right one? Same here: on my local machine 8081 is used by the Studio app, so deploying another app on 8081 in the standalone runtime fails. One option: give another port. Here our laptop is acting as the standalone server, so I'll just stop the Studio app; then 8081 is free and it should deploy.
+
+Back to the apps folder — is everyone following? I delete this and give the JAR again. Any doubts, tell me. Now an anchor file has been generated. Only when the anchor file is generated is the application successfully deployed on-premises. And to remove the application from the runtime, delete the anchor file. What's in it? [screen: "Delete this file while the Mule Runtime is running to remove the artifact in a clean way."] So it's created when deployment succeeds, and deleting it undeploys the application.
+
+[screen: standalone console — consume-rest-service-7303 … DEPLOYED.]
+
+Now test it. Where is it deployed? On my local machine, so localhost, port 8081, and the same path. On a real server, there'd be the server's host — say 10.1.25.50 — so you hit the server's IP address and the port.
+
+[Log files] In Anypoint Studio, log4j2.xml sets the log file name and size — if printing up to 50 MB or 100 MB is fine, set that [screen: RollingFile appender].
+
+Is it clear? Any questions, or are you feeling dull? Hello, can you hear me? … I'll repeat it if you need. Why? Because you get so many errors — let's go one by one. The port issue: if 10 applications are deployed and you deploy one with an already-used port, it fails with the error I showed. Then the wrapper.conf property issue we just saw. When such issues come, you'll be able to work in real time.
+
+All the logs and connector configurations stay on our own premises. [rest unclear]

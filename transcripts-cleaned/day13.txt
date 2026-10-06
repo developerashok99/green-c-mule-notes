@@ -1,0 +1,104 @@
+MuleSoft Telugu Course — Day 13 (cleaned transcript)
+Source: transcripts/day13.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day13 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [drawing: …] mark text read from the video.
+
+---
+
+In the previous session we saw target variables and response timeout. Target variables are common to almost all connectors — the Salesforce connector, the Database connector — all have them; go to the Advanced section and you'll find them. Whether to define them is up to us. Learn it once and it applies to many connectors. Target variable, response timeout and reconnection strategy are almost the same everywhere; the response validator is a bit different — specific to the HTTP connector.
+
+[Agenda slide: target variable, response timeout, response validator and reconnection strategy.]
+
+[drawing — Response Timeout: Req → Listener → Log → HTTP Req → TM → Log; weather API ~100 ms; "500 ms — Response Timeout"; "default — 10000 ms — 10 secs"; "Connector config → RT → default; 1st HTTP Req → 800 ms; 2nd HTTP Req → 500 ms"; "RS — try for 3 times with a gap of 1000 ms".]
+
+That round is over. Now the reconnection strategy, and then back to the response validator.
+
+Reconnection strategy. What is our application doing? Our API consumes the weather API and takes the response. How do we connect to the weather API? With an HTTP Request. And we definitely communicate through a network — a private network or the internet. Is that clear? So I send a request and the response comes. Is there scope for this network to be unreliable? Can there be a glitch once in a while? Exactly — even for milliseconds, if the network doesn't work, the request fails.
+
+Take a mobile phone: when the signal drops, it automatically refreshes in a matter of milliseconds. Suppose there were no auto-refresh — every time the signal dropped, you had to restart the phone. Annoying, right? If the signal is lost and it checks and refreshes itself, that's convenient. Which option is better? Obviously the first. The same applies here.
+
+What happens without it? Because of the connectivity issue, the network gives a connectivity-related error. Yesterday we saw response timeout — what error was that? HTTP:TIMEOUT. There are different errors for different things. Now a connectivity error has come — a matter of milliseconds — but as soon as it's triggered, the error is sent straight back in the response.
+
+If the network is down for half an hour, nothing can be done — even if we keep pinging for half an hour, it won't come. That's fine — that's a different situation. But for intermittent problems — frequent failures of a few milliseconds — they introduced the reconnection strategy.
+
+[drawing: Req → API → … → HTTP request ✗ (network → internet) → weather API; "HTTP Connectivity Error"; normal response 150 ms; "General: ① connectivity error ② ″ ③ connectivity ✓ (response) ④ ″ → error"; "Reconnection Strategy → 2000 ms, 3 times"; "RC: ① Standard ② None ③ Forever".]
+
+If I don't configure a reconnection strategy, the HTTP:CONNECTIVITY error comes and we immediately send the error response. If I configure one, when a connectivity error comes, it reconnects. What I'm saying in this strategy: if a connectivity error happens, try 3 times, every 2,000 milliseconds. So: the first attempt — connectivity error. Then I tell the connector: every 2 seconds, try 3 times; don't raise an error yet — try, and only if it still doesn't work, raise the error. Second attempt — error. Third — error. Fourth — error. The first is the general attempt; then reconnection, with a gap of 2 seconds each time.
+
+Say on the third attempt the connection is formed. What happens? No error — the response is sent. So with this strategy, when there are frequent small connection errors, the HTTP Request connector automatically retries and sends. If none of the retries work, the error is raised. If one connects, it gets the response and works as usual.
+
+Will there be a delay? Yes. Normally the response comes in 150 milliseconds. Now it's 150 ms + 2 seconds + 2 seconds — about 4 seconds. Even so: whenever you see such frequent, short-duration connectivity errors, use the reconnection strategy. It's compulsory — mandatory — one of the best practices when you go into a project. And it's a general concept: for the Salesforce connector, the Database connector, the HTTP Request connector. Why do connectivity errors happen? To connect from your application to another system, the request goes over a network, and there's scope for network issues. That's why we use a reconnection strategy.
+
+Is "2,000 ms, 3 times" the only option? There are three options in reconnection strategy: Standard, None and Forever.
+
+Standard: I specify how often to retry and how many times. I said 2,000 milliseconds, 3 times; you could do 1,000 milliseconds, 5 times — our choice, custom. In industry, 2,000 milliseconds, 3 times is used most with Standard, but your architect [decides; unclear]. Remember: the first attempt is the general attempt — it isn't counted in the reconnection attempts.
+
+None: nothing — if nothing is configured, it's None.
+
+Forever: keeps trying continuously until it connects. Is that correct or wrong here? Wrong. That's why, in the middle of a process, we mostly use Standard: if it doesn't connect, we get an error; if it does, great.
+
+So why did they give Forever? When is it used? To keep the connection — correct. But in what situations? Let me explain. In our API so far we use the HTTP Listener: when a consumer triggers it, the API is hit, the Listener listens, the request is processed and the response goes back. But there are also connectors that connect to a system automatically. For example, Salesforce. In a database we save data in tables; in Salesforce, data is saved in objects — for example a Customer object that stores customer details.
+
+My requirement: if a new customer is inserted into this object, or a customer's details are updated, I immediately process it in our API. How? The Salesforce connector has an operation called On New Object. If a new record comes into the object, it immediately picks it up: Salesforce is connected, and it brings that record into Mule. On New Object goes in the source. We give the details; it connects; when the object gets new data, it picks it up and processes it automatically. For example, I enter a customer "Mahesh" — it checks every few milliseconds, picks up the details and inserts them into a database.
+
+[drawing: Salesforce → On New Object (source) → flow → DB; standard vs forever reconnection, every 2000 ms.]
+
+This is also a connector — used to connect to the Salesforce system. I can give it Standard or Forever. Suppose there's a network connectivity issue. With Standard it tries 3–4 times and stops. Forever means it keeps trying until the network connects. In the first case — request/response — I said don't use Forever. Why? It would stop there and keep trying and not respond. Say a request comes and the network comes back in half an hour: it keeps trying for half an hour while the consumer waits for a response or an error. But here there's no request or response — it connects to a system automatically, gets the data and dumps it into another system. So for a source connector like this, I can use Forever — even then it depends. What I've seen is Forever used in cases like this; in regular request processing, nobody uses Forever. There's no loss in using Forever here: try every 2,000 milliseconds — every 2 seconds — until it connects. Even if it tries until it connects, nobody is impacted. So this option can be used here.
+
+Many people have a doubt here — those in IT may know, but those from non-IT backgrounds may not. It's not that an API gets one request and handles them one by one. An API has a capacity — it can process 500, 100, 50, 10 requests and so on, by creating instances, each processing a request. So even with many requests at the same time, it processes them. If requests exceed capacity, it rejects them with an error response. Keep that aside. With enough capacity, it processes them at the same time. Clear? Fine.
+
+Student (Mr. Mani): In this request–reply pattern, what happens then?
+
+This instance got a request. The HTTP Request connector calls the weather API, and there's a reconnection strategy. It applies per request: if a connectivity error occurs for a particular request, that instance retries. Another request at the same moment might not get a connectivity error — a gap of 1 millisecond — so it doesn't need to use the reconnection strategy; it's configured, but not used; it succeeded on the first attempt. One that hit the issue: not on the first attempt, not on the second, on the third — it takes the response from the third attempt and processes and sends it. Any other questions?
+
+Say my API can process five requests at a time. The API code has your reconnection strategy and HTTP connectors; every request uses the same code. When a request comes and a connectivity error occurs, it uses the strategy; otherwise not. Clear? What's the confusion? We think that with 5 requests we get the 1st, then the 2nd, 3rd, 4th. But say I'm using the Swiggy app to order food, and 1 lakh people across India are ordering. If it processed the 1st request, then the 2nd, when would the 1-lakh-th person get a response? Very late. Suppose each server has a capacity of 5,000 per minute. They deploy it on 30–40 servers and put a load balancer in front; whichever server is free gets the request. That's how it works in real time. When we test in Postman, we send a request, the response comes, then the next request. In production it's not like that: requests come from one area at a time, or 500 from multiple cities at once. To have the capacity, it's deployed on multiple servers, plus each API can process multiple requests at the same time.
+
+You could ask: why so many servers — why not put it in one place? If there's an issue with that one server and it goes down, the whole application stops. That's why they follow this mechanism.
+
+Now, where is the reconnection strategy in Studio? I'll show the practical implementation with the database later, but let me show where it is for the HTTP connector — same concept for the Database connector. It's in two places, the same concept again: to use it across multiple operations, set it at the global connector level; otherwise, here on the operation.
+
+Another suggestion: practise every day. Don't keep things pending. Practise, practise, practise. If you ask someone running a successful restaurant business, they'll say: location, location, location. To succeed with software tools or languages, the key is practice, practice, practice. Simple.
+
+Request → Advanced → Reconnection strategy — let me maximise. Options: Standard, None [and Forever]. Select Standard and you see Frequency and Reconnection attempts. By default: 2,000 milliseconds and 2 attempts. You can change it to 3, 5, 10 — but discuss it in team meetings and decide. My suggestion: 2,000 and 3 times — every 2 seconds, 3 times. You could try every 1,000 or every 3,000 milliseconds. MuleSoft's default for Standard is 2,000 ms and 2 attempts — meaning the general attempt plus 2 more. That's the understanding.
+
+[screen: Request → Advanced — Target Variable weatherResponse, Target Value payload; Reconnection strategy None.]
+
+Is it only in seconds or minutes? It's in milliseconds — it's already defined here.
+
+At global level: the HTTP Request connector configuration → Connection → "Use reconnection" → reconnection strategy Standard / Forever. Same options. Set there, it applies to multiple operations; set below, it applies to that particular operation. If three or four operations share one Request configuration and should all be the same, set it once there.
+
+Standard for steps in the middle of the process; at the source level, Forever, as I said. For example, Salesforce as a source: I'll add the Salesforce module and show the connection [screen: Salesforce v10.14.2 module added]. On New Object — if a new customer comes, our flow triggers automatically. It's an inbound endpoint of the connector, so it goes in the source; it won't work in the process. What does it do? It connects to the source every few milliseconds and gets the details. If there's an issue, where can we put the reconnection strategy?
+
+If we want to create a record in Salesforce, there's an operation called Create. I'm using the same Salesforce configuration for both. Here I created a configuration with random details — not correct ones — say "salesforce config". [On Modified Object:] when there's a change in the Customer object — say I change my mobile number — my details are updated in Salesforce, and this triggers. For this one I'd use Forever. Both use the same Salesforce connector configuration. Can you set it at global level? Yes — but since they need different strategies, set them per operation. Understand that the reconnection strategy is a generic concept that applies to different connectors. If you know the option exists but don't remember where, check the operation's tabs and the configuration. Fine.
+
+Student: What do you call On New Object, On Modified Object — those are operations too?
+
+They're source endpoints. What matters is where they are and what they do — they're in the source. How Salesforce objects work and why we need it, we'll discuss there.
+
+Next: the response validator. What happens in general? We send a request with HTTP Request; when the response comes, we convert it and send it on. If it's a success, it goes to the next component. Who checks that? In the Request connector's Response section there's the Response validator. Its job is to decide what's a success response and what's an error response. Is anything configured? No. What happens then? If the status code is in the 200 series, it's treated as success and goes to the next component. If it's not the 200 series — 300, 400, 500, whatever — it's treated as an error. Success in HTTP should be the 200 series. 300 is a redirection error, 400 bad request, 500 server error. It treats them automatically: the 200 series passes; everything else raises an error. That's when it's not configured.
+
+[drawing: REST service ↔ HTTP Req in the flow; "200 → series — success; 400 → client-side error; 500 → server-side error"; "Success status code validator → 200 (201, 205, 206) → error".]
+
+But if I want a 4xx not to be treated as an error, can I? You have to define it — add a response validator here with conditions. Then not only 200 — even a 400-series code can be treated as success and passed on. Such situations exist. They rarely come, but when they do, use this option.
+
+[screen: Response validator — None / Expression or Bean reference / Failure status code validator / Success status code validator.]
+
+There are two: Failure status code validator and Success status code validator. With the Success status code validator, whatever I list is treated as success; by default it's the 200 series. Now I put "200,400" [screen: Values 200,400]. What happens? Whether it's 200 or 400, it's treated as success and passed on. And "400..499" gives the whole 400 series — for a range, put two dots in the middle: everything from 400 to 499. That's why the option exists. That's success.
+
+The Failure status code validator is the opposite: the codes you list are treated as failure; the rest as success. Both are in the Response section, and also at the connector configuration level.
+
+Let's give 400 to 499. When does a 400 Bad Request come here? Let's open the API directly: with q we get a response; without q, a bad request. And a wrong city gives 404 Not Found. So we're asking it to treat 404 as success too. With 200 it's normal: 200 comes and it's treated as success. When I send a wrong city name, I get a 404 error — and that also should be treated as success, not an error.
+
+First, without configuring it [unclear]. And we're discussing very, very valuable information — you'll shine in this career with it.
+
+I trigger it after it's deployed. The request came; we sent a correct request. How do we know the status? In the attributes there's the status code. We used the target variable, so the attributes weren't overwritten [the response's attributes — status code 200]. If it fails, the status code will be different — 400, 404, whatever. We send the right city name in the body and hit it. Then it errors here — why? Attributes status code 200 — it succeeded, so it came to the next step. It fails here because the mapping is wrong: vars.weatherResponse was given wrong, so null comes, null minus [273.15] — an issue. That's fine.
+
+Now I check whether the success code validator works. I send the wrong city — instead of Mumbai [screen: {"city": "M"}]. See what happens [screen: HTTP:NOT_FOUND — "HTTP GET on resource 'http://api.openweathermap.org:80/data/2.5/weather' failed: not found (404)"]. [After setting the validator to accept the 4xx range:] success — it came to the next step [screen: then "You called the function '-' with these arguments: Null, Number (273.15)"]. We know we can do it; how is the next thing. It passed as success and came here, but it fails here — that's a different scenario and expected. Leave it.
+
+So now you can check the Failure status code validator too. You can add multiple codes in success, change requests, plan and test. Practise it. Yes, sir. These are all the important parameters to configure on a Request.
+
+[drawing: Details required for configuring HTTP Requestor — recap: HTTP or HTTPS, port 80/443.]
+
+Now, HTTP vs HTTPS. If you look, is this an HTTP or HTTPS service? [The weather API config is HTTP.] Let's consider the weather API as an HTTPS service: to consume an HTTPS service there are a few extra parameters — details like trust store and key store. Don't change it now; in a separate session our API will be HTTPS. Till now, how did we build our APIs? Check the Listeners — HTTP. And how do we hit them from Postman? HTTP [unclear].
+
+Why discuss this? This can come up. Say this is our organisation, with its own network, and an external endpoint outside. A request comes from outside to our Experience API, which calls the Process API, which calls the System API. I build only this one — the Experience API — with HTTPS, because I'm exposing it to the external world; when they call, they use our API over HTTPS. From the Experience API to the Process API, which do we use? HTTP. From Process to System? HTTP. There's a chance of such a scenario, so we discuss it. We need some time for that topic.
+
+What's the difference between HTTP and HTTPS? We discussed it — do you remember? More secure. How? A username and password on our API is a different kind of security. With HTTP, a request comes to our API — say name "Mahesh" and a credit card number 1,2,3,4,5 — and it travels as a plain request. Whoever is on the internet can sniff it. With HTTPS it's encrypted in travel; to decrypt the message you need information like the key and algorithm. Without those, even if someone sniffs it, they can't extract it. That's why requests on the internet are mostly HTTPS — it's one of the secure methods. It helps only while travelling: from the consumer until it reaches our API. We also have other security for our API; HTTPS is one of the secure methods. Yeah.

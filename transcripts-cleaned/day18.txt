@@ -1,0 +1,137 @@
+MuleSoft Telugu Course — Day 18 (cleaned transcript)
+Source: transcripts/day18.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day18 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] marks text read from the video. Secret values spoken or shown in class are not reproduced.
+
+---
+
+[Recap of deployment strategies] MuleSoft doesn't have its own data centres; it uses AWS and Azure. Even though AWS and Azure have data centres in India, MuleSoft hasn't prepared a CloudHub environment there. With no such data centres in India, the data would have to go to Singapore, London or US data centres — that's why some organisations didn't choose the CloudHub deployment strategy. Organisations without such restrictions and regulations go for the cloud deployment strategy. The cloud deployment strategy provided by MuleSoft is called CloudHub.
+
+What will we do today? The definition of CloudHub, then horizontal scaling and vertical scaling, and then a demonstration.
+
+[Agenda slide: CloudHub demonstration · Horizontal Scaling · Vertical Scaling · Q&A session.]
+
+We need to know some CloudHub terms. First, what is CloudHub? CloudHub is an integration platform as a service (iPaaS). Say I need to deploy a MuleSoft application to a server. I'd have to set up the whole thing — Java, Maven, whatever is needed — configure and install all those services, and then it works; otherwise it won't. What does MuleSoft do? It takes the cloud environment and gets it ready for us — all the infrastructure — so we can deploy our application. CloudHub is such an environment.
+
+Take an entire AWS server — since MuleSoft uses AWS a lot, they took the AWS cloud platform and installed everything properly — Java and whatever we need — ready to deploy MuleSoft applications. That's an integration platform as a service.
+
+[slide — What is CloudHub? · CloudHub is an integration platform as a service (iPaaS) where you can deploy Mule applications in the cloud environment provided by MuleSoft · Worker is a dedicated Mule instance that runs your Mule application · vCore – worker sizes are measured in vCores (0.1 vCores – 500 MB, 0.2 vCores – 1 GB, 1 vCore – 1.5 GB).]
+
+Could we take an AWS cloud and deploy a MuleSoft application to it directly? No — we'd have to prepare everything and set up the environment properly. Here they've done it all for us, and it's called CloudHub — an iPaaS platform provided by MuleSoft for cloud deployment.
+
+When we deploy, where does it go? Into the CloudHub environment. How? Onto a worker. When I deploy the application, a worker is created in this environment, like a container, and our application is deployed in that worker. Compare with Anypoint Studio: where is our application deployed locally? In the Package Explorer, along with the dependencies, you'll find the server — Mule Server 4.4 (and 4.3). It's deployed inside that server, which has Java, Maven and everything ready. Same here: everything is ready, a worker is created, and our application is deployed in it.
+
+A worker is a dedicated Mule instance that runs your Mule application. Think of it as a mini server — a dedicated, separate mini server capable of running that Mule application. Can you deploy multiple applications on a single worker? No. One worker runs one application; you cannot deploy a second application on it. That's why it's a dedicated Mule instance — a mini server that handles only one application.
+
+As developers we have to decide on memory and workers — how much memory and CPU to give. In CloudHub that's called vCore: worker sizes are measured in vCores. Just as we measure distance in metres, kilometres and centimetres, they measure the size of workers in vCores.
+
+How does MuleSoft licensing work? They charge based on how many vCores you've taken — one, two, three. Something like 25,000 dollars for one vCore, for maybe two or three years — I'm not sure exactly. There's a minimum number of vCores you have to take; in the beginning it comes to almost 70–80 lakhs, as far as I know, and it increases from there. So it's not that small organisations can't bear it, but it suits enterprise-level integrations — enterprise organisations.
+
+When the application is deployed: 0.1 vCore, 0.2 vCore, 1 vCore and so on. 0.1 vCore means 500 MB of memory. Compare a phone with 2 GB of memory: with 10–15 apps it works normally without lag. With 25–30 apps, memory can't be assigned properly and the whole phone lags. In the same way, when we deploy an application to a worker, we have to give the right CPU and memory.
+
+How do we know? We do performance testing in pre-prod — load testing. For this application we get 10,000 requests a day; how much per hour? We test a bit above that on one worker: can it handle it? Is the memory and CPU of one worker sufficient? We finalise it with the performance test. If it isn't done separately, the application just has to handle normal traffic, and since regular traffic isn't high, they aren't too concerned about load testing.
+
+0.1 vCore is the minimum, with 500 MB, and it handles most applications. Very rarely we increase to 0.2 or 0.3. But there will be multiple workers everywhere, for high availability, as we discussed — if one worker crashes another is available, based on traffic. So: 0.1 vCore = 500 MB, 0.2 vCore = 1 GB, 1 vCore = 1.5 GB. The minimum is 0.1 vCore, by default — not less than that.
+
+How many applications can be deployed with one vCore? If each is 0.1 — one-tenth — then 10 applications: 10 × 0.1 = 1. Can you hear everything? Yes. If I have 100 applications, I need vCores based on that. Enterprise architects check how many applications are coming and decide — there's a minimum of 2 or 3 vCores, how much extra, how much for production and non-production.
+
+Student: Can the 10 applications be different sizes — small and big?
+
+Say six applications need 0.1, one needs 0.2 and one needs 0.3: 6 × 0.1 = 0.6, plus 0.2 is 0.8, plus 0.3 is 1.1 — more than 1, so one application can't be deployed. I'm assuming 0.1 for all, because in my experience that handles most real-time cases. If some need more, the number of applications decreases. With the minimum configuration, the maximum number of applications per vCore is 10. Clear?
+
+These are the terms: CloudHub, worker, vCore. Whenever you're going for the CloudHub deployment model, you need to be aware of these.
+
+Horizontal scaling. Small example: the Flipkart application. The consumer sends requests to the load balancer. Our application is deployed on three workers — worker 1, 2, 3. Per day about 1 lakh requests come and these three handle them — a random example, not an exact calculation. The load balancer distributes requests from the front end.
+
+Now they announce a festive-season sale and traffic becomes around 3 lakh a day. Say each worker can handle at most 40,000 requests a day [unclear: figures]. With three workers that's only 1,20,000. What happens with 3 lakh? It crashes. So we increase the number of workers. As we know the festival season is coming, we change the setting — the number of workers — in the configuration and deploy. The load balancer distributes even the heavy traffic.
+
+[drawing: Flipkart sale — LB → workers; 1,00,000 → 3,40,000 requests.]
+
+In real time the maximum number of workers is 8; we assign up to that per application, minimum 1. Needing more than 8 is very rare — I've never faced it.
+
+The process of increasing the number of workers and deploying the application on multiple workers is horizontal scaling. When do we do it? When you want to process high-frequency, small-payload requests — the number of requests increases. It gives high availability, and the load is distributed uniformly. In interviews you may be asked when to go for horizontal scaling: whenever you need to process high frequency — a high number of requests — with the same payload size. In the festive example, did the payload size change? No — the same requests, just more of them. In such situations, horizontal scaling. Clear? Any questions?
+
+[slide — Horizontal Scaling: The process of increasing number of workers and deploy application on multiple workers · If you want to process high frequency small payload requests, then go for HS · It provides high-availability.]
+
+Next, vertical scaling: the process of increasing the vCore size of a worker. vCore size is basically memory. Say I gave 0.1 vCore and the memory isn't enough to handle the requests. Then we make it 0.2 — extra memory — and it can process. When does that happen? Say the payload is initially 200 KB, and we've been handling it fine. For some reason the payload size increases about 10 times. Can the same memory handle it? Only if there's capacity. If the requirement exceeds the capacity, it can't — the application crashes with out-of-memory issues. In such situations we go for vertical scaling. You should understand when to go for horizontal and when for vertical.
+
+[slide — Vertical Scaling: The process of increasing the vCore size of a worker · If you want to process large payload requests with less frequency, then go for VS.]
+[drawing: payload 200 KB → 2000 KB; 0.1 vCore → 0.2 vCore.]
+
+What did I do? Every worker becomes 0.2 vCore. Then even at 2,000 KB it can handle requests with its memory. If I made only one worker 0.2 and kept the others at 0.1, what's the problem? With round robin, the first request is handled, the second goes out of memory, the third out of memory, the fourth fine, and so on. That's why the size must be increased for all workers, not just one. Clear?
+
+Student: Is there an option to set the size per worker?
+
+No. You give one size and it applies to all of them — if 0.2, all workers are 0.2. I'll show you when I deploy in a moment; there's no option to select each one.
+
+So the CloudHub terms we need: horizontal scaling, vertical scaling, worker, vCore, CloudHub deployment strategy. Knowing these is very useful.
+
+Now I've logged in to Anypoint Platform. Which module do we use to deploy a CloudHub application? Runtime Manager. We discussed environments — Dev, SIT, UAT and so on; here they give Design and Sandbox, and we can rename environments (Sandbox is generally the development environment). Because this is a trial version, we can't deploy in Design.
+
+First, the ecosystem. In Runtime Manager there are many options. Deploy Application: first the application name; then where to deploy; then the JAR file; then some settings; then deploy. Deployment targets: CloudHub 2.0, CloudHub and Hybrid. We'll discuss hybrid with the hybrid model. CloudHub vs CloudHub 2.0: 2.0 is the latest version with some extra features; there aren't many technical differences — small differences in performance and terminology. I'll tell you the exact differences when I have time. Many applications are still on 1.0.
+
+I select CloudHub, give the application name, select the JAR file we developed. Then which runtime version, which Java version — 8 or 17 — and the vCore size: minimum 0.1 vCore, maximum 16 vCores. 0.1 vCore = 500 MB; 0.2 = 1 GB. We decide by testing. 0.1 is enough for almost 80–90% of applications — 500 MB is honestly huge; if it can't handle it, we go to 0.2.
+
+Since this is a trial version, we can deploy on only one worker. In the licensed version, up to 8 workers. Say in an enterprise you select two: the application is deployed on two workers with 0.1 vCore each. There's no option to choose 0.1 for one and 0.2 for the other — whatever you select applies to both. Then click Deploy Application; it deploys, and we check in Runtime Manager.
+
+[Account access is shared among students; a verification code is read out — not reproduced.]
+
+How do you get to Runtime Manager? One way: click the menu button, Runtimes section → Runtime Manager. Another: on the Anypoint Platform home screen there's Runtime Manager. To open multiple tabs — say API Manager is already open — duplicate the tab, then use the menu to choose Runtime Manager. Or simpler: on the menu item, right-click → Open in new tab. That's a small trick; Runtime Manager loads directly.
+
+Which application is ready? The weather API — we have everything set. Since we don't have load balancing in the trial, we won't see it in action. In Runtime Manager there's a Load Balancers section — select it to create one. Load-balancer activity is mostly done by admins, DevOps or senior architects; after we deploy, we tell them the application and they link it. As developers we mostly don't have that access.
+
+In the Applications section we deploy. In the property file: with a dedicated load balancer, HTTP 8091 and HTTPS 8092. I changed the property file and saved — is it auto-deploying? No. When you change the property file, it doesn't auto-deploy; you have to redeploy. Auto-deploy works when you change regular code — it's built and deployed automatically — but not for property-file changes; stop and deploy again.
+
+Student: How did it deploy when I got the host wrong?
+
+The host is only used at runtime, when the request is made. There's nothing wrong with the code — you only missed the host — so it deploys.
+
+Student: The app ID — that's the API key?
+
+Yes, the API key is correct. The other day I put an extra "k" and it didn't work. There's another "app ID"/client ID thing when we apply policies; I'll come to that when we design with RAML and apply policies.
+
+Now I need the JAR. Right-click → Export; the JAR is generated directly in the location I choose — say Downloads. Another way: right-click → Show In → System Explorer → the target folder. Here's the workspace, our project folder, the project files, and generally a target folder containing a JAR with the same name. Let's see why it didn't appear in Downloads — I won't stop for it now. Check Downloads: consume-rest-service-7303 — I right-clicked and exported, so it was generated.
+
+In the POM there's a name and an artifact ID. The artifact ID is fine if all the names are the same — 90% of the time they keep them the same, but each architect designs differently. The artifact ID is used when we save JARs in a repository. I suggest the same name, but plan accordingly.
+
+I gave the application name and selected the JAR. Next to the name we got a green tick — the name is acceptable. There are mandatory rules for the application name: only lowercase letters, numbers and dashes; it must not start with a number or dash; the name must be available — we can't deploy two applications with the same name; minimum length 3 characters; maximum length 42. If it's more than 42, you can't deploy. So when naming, abbreviate — for example "conn" instead of "consume", "svc" instead of "service". Recently in our project we had a very long application name; deploying through the pipeline, it failed, and when we decoded it, the length was 47 or 48. So remember: the application name must not exceed 42 characters. Clear?
+
+Deployment target. CloudHub 1.0 — have you seen it in the dropdown before? It's not there now. Officially discontinued [for new deployments in this account]. Now CloudHub 2.0, Shared Space — US East (Ohio). We're deploying to a US data centre. To change the region — say London in the UK — that's in Access Management, where the region is set per profile/business group; if there's an option, you select it there and it reflects here. Runtime Manager has no option for it, probably because it's an admin activity taken care of by DevOps.
+
+Notice: earlier it said "worker", now it says "replica". That's one change between CloudHub 1.0 and 2.0: there it's worker and vCore; here, replica count and replica size. Replica count means number of workers — maximum 8 here.
+
+[screen: Replicas — replica count 1, replica size 0.1 vCores; Deployment model — Rolling update.]
+
+Student: Is this the enterprise version, Mr. Mani? — It's a trial; the account was created in the US, so this option is given in the new one.
+
+Runtime versions: an application built in a lower version can be deployed to a higher version, but a higher version won't run on a lower one — it's not backward compatible. An application developed in 4.8 won't deploy in 4.6 [the transcript also says the reverse; the rule stated is: lower → higher works, higher → lower doesn't]. In real time, 4.4 ran the most; now most are on 4.6 or 4.7. The differences are small. Big differences come when it goes from 4.x to 5.x. MuleSoft 3.x had many differences from 4.x: error handling, the Mule event and message structure were different, fewer components and connectors, no target variables, and a lot of performance changes. Major changes change the first number — 3.x to 4.x. 4.1, 4.2, 4.3, 4.4 are minor upgrades as the product evolves.
+
+Now we developed in 4.4 and are deploying to 4.8. In real time you'd upgrade the application from 4.4 to 4.8. How? In the POM there's app.runtime — change it to the version you want. That's the patch version; when deploying, it's better to remove the patch part and keep the main version: 4.4.0 → 4.8.1. And in mule-artifact.json, change minMuleVersion to 4.8.1. Then test all the connectors — check the connector versions are compatible. If not, upgrade them. E.g. this application uses HTTP 1.6.0; if 1.6.0 isn't compatible with 4.8.1, it may not deploy or may error. Then change it to the latest — say 1.8.0 — by changing the dependency version in the POM; it updates automatically. And remember the server inside the application: when we deploy locally, the app goes into that embedded server. Here I'll deploy to 4.8.1 and see how it works.
+
+Release channel: the Edge channel releases a new version every month with the latest features and shorter support [unclear]. I don't have much info on it.
+
+Properties tab: enter the key and value; the key must be exactly the same as in the app. Check Run Configurations: mule.env and secure.key. First mule.env — value prod. Then secure.key — [value not reproduced]. There's also an option here to protect a value: once protected, it can't be viewed or retrieved by any user, and the action can't be undone [screen: "Protect value?"]. I didn't see this in our regular accounts.
+
+There are many more properties we have to provide — key and value. Where do we provide them in real projects? In the CI/CD pipeline: when we deploy through the pipeline, these values are supplied in the background. Who builds the CI/CD pipeline? 90% of the time, DevOps. In an interview, if asked whether you built a pipeline, you can say: "I never got an opportunity to build a pipeline, but I've deployed my applications through CI/CD pipelines; I know how to use them and what changes are required in the application." We'll see CI/CD deployment at the end.
+
+Now I deploy. Uploaded successfully, and it's deploying. Where did it go? The Logs section — log printing starts. We went to Applications, clicked Deploy Application, and did it on that screen; now it's deploying. To check logs, go to Applications with the right environment selected — Sandbox here; if someone deployed to Design, switch to Design. Click the application; there's a Logs section, and the logs print there. First it shows it's gone into the pipeline, then the worker is created, then it's running — all shown here. The screen differs slightly from the console, maybe due to 2.0. Now it's green — deployed and successfully started.
+
+[screen: Runtime Manager — consume-rest-service-7303, running.]
+
+Postman: in Applications, the app shows its public endpoint URL — in 1.0 it shows differently; in real time it's under settings. I take it and call it.
+
+The response shows an error: "You called the function 'Value Selector' with these arguments … Binary … base64 … but it expects one of these combinations: (Array, Name), (Object, Name) …" around payload.city. Let's see what happens — the structure changed. Sometimes the order in the project changes (Secure Properties should be at the bottom, src at the top) — nothing to worry about.
+
+Let's put a breakpoint here. First, remember: always test locally. Even for a small change, don't deploy straight to higher environments — Dev, SIT or UAT. We think it's small, but there will be a problem somewhere and double the time is wasted. If I have to change something, I develop and test locally first; if someone changes something meanwhile, I test again, then deploy. Some people are overconfident, but deployment takes at least 15–20 minutes, and then it fails there. Always test locally first.
+
+Now check the logs. We hit it — payload.city has some problem. Maybe something changed in 2.0. We made a request; there's a mapping issue. You can see where the issue came from: the request came, the first logger printed — "7 minutes ago, INFO". This is a compatibility issue: when moving from one version to another, we have to act accordingly. There's a Mule expression error from payload.city. Why? We should check — maybe it should be something like payload.message.city [unclear]. I'll check it, make the change, redeploy and test. What's the issue? We're deploying to 2.0 with a 1.0-compatible setup; there's a small difference somewhere, and because of it it's not working. Otherwise everything is proper. I'll test it and show you in tomorrow's session.
+
+Summary of this CloudHub deployment: deployed in the US East region data centre; one worker; CloudHub 2.0, Shared Space, runtime 4.8.1; and when it was deployed — we can see all of this in Applications. If we deploy 100 applications, all 100 are listed; click one for its details. On the left, Logs shows that application's logs. We can filter to errors only, select a time range, and see the last successful logs.
+
+Logs are generally retained for up to 30 days, or up to 100 MB. If you need more, they may go for a paid service or a separate logging system. In my current organisation they're not using anything else — they don't need logs older than a month. Now there's a discussion about a separate logging system because of this limitation: logs are only available for 30 days, and if I crossed 100 MB or needed logs from two months ago, they wouldn't be here. That's why you need to understand this.
+
+Checking logs is very important. If there's an issue in real time, we check the loggers. Design applications with loggers from beginning to end — best practice: a logger at the start and a logger at the end; if this log printed and that one didn't, there's an error in between.
+
+Student: We sent multiple requests — how do we find the log for a specific request?
+
+Generally we send a unique ID called a correlation ID in the headers, and filter or search the logs with it.
+
+Here payload.city doesn't even print — there's an issue with evaluating payload.city in CloudHub 2.0. Maybe payload.message is needed. I don't have practical experience with CloudHub 2.0 — I haven't migrated yet. Let's check the difference. In CloudHub 1.0 it would deploy and work. Tomorrow: if anyone has an account in India, share it with me separately, and we'll deploy there. If it works there, the difference is only this. Thank you.

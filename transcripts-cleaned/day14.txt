@@ -1,0 +1,136 @@
+MuleSoft Telugu Course — Day 14 (cleaned transcript)
+Source: transcripts/day14.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day14 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [drawing: …] mark text read from the video. The real API key, encrypted values and secure key used in class are not reproduced.
+
+---
+
+Good morning once again. Today's agenda is externalisation of properties. There are fewer interview questions on it, but we use it compulsorily in real-time work, so this concept is very important. Externalising properties, creating property files for different environments, and deploying the application using a Run Configuration. Till now I've been right-clicking the application to run it; there are other options and we'll see them today. Along with that, securing properties is also a concept — we'll see how to secure them.
+
+[Agenda slide: externalizing properties · property files per environment · deploy using Run Configuration.]
+
+First: what exactly are these properties, and why externalise them? We developed this application. Remember the environments we discussed for real time? Say I take this code and test it in UAT with the dev details — fine, nothing wrong; we used one set of details for Dev, SIT and UAT. But if I take the same application and deploy it to production, will the production details be used? No. Why not? Because the hard-coded details are UAT's — so production would use the UAT system's details. Do you have the original live details in UAT, or test details? Test details. So it's a wrong mapping. Is that correct or wrong? Wrong.
+
+What should I do? Externalise these details and create a property file for each environment, fill in that environment's details and map them dynamically. That's externalisation of properties. A property called host, one called port, one called path, one called secret key — I externalise them to a property file, a separate property file per environment with the respective details. Any doubts?
+
+Ideally the environments are Dev, SIT, UAT, Pre-prod, Prod, DR. For this application we have only three: Dev, UAT, Prod.
+
+Student: In our project we have integration testing, UAT, then stage — is stage enough? Then LT?
+
+What's stage? Before production, anything is "stage". After performance testing, the next step is stage; in stage the tester tests after UAT; LT — load testing — is pre-prod. Then prod. It's what we discussed — just different names. Some call it post-prod: something that happens after prod. Different terminologies, but ideally it's like this.
+
+[drawing: "Importance of externalizing properties" — Req → flow (S … P, EH) → HTTP Req, DB; Dev, SIT, UAT, preprod, prod, DR; ① REST service — HTTP Req: Dev – dev.api…, UAT – uat.api.openweathermap.org, Prod – api.openweathermap.org; ② Database: Dev → 10.1.25.50 330, UAT → 10.1.25.51 330, Prod → 10.1.25.52 330.]
+
+I'm developing this application, to be deployed in Dev, UAT and Prod. Say I use two connectors: a third-party REST service and our database. The database has three environments' details; the REST service has three. Take this weather API: for Dev the host is dev.api.openweathermap.org; for UAT, uat.api.openweathermap.org; for production, api.openweathermap.org. And the secret key changes for each. For the database: Dev host 10.1.25.50, port 330; UAT 10.1.25.51; production 10.1.25.52. If I go to the configuration and hard-code these details, wherever I deploy it, it uses only the hard-coded details. That's wrong. So I create a property file: one for Dev, one for UAT, one for production. In the Dev file, the Dev request details and the Dev database details; in UAT, the UAT details. Then when I deploy in Dev, it should refer to the Dev file; in UAT, the UAT file; in production, the production file. I set a configuration so the same application deployed in Dev picks Dev, and in production picks production. The mapping stays as it is; deployed in production, it takes the production property file and its values. Does the application work properly? Yes. We have to do this for every application.
+
+Properties can be in two types: .yaml and .properties. It's a simple syntax change — both are the same. I'll show both. One organisation uses YAML, another uses .properties. There's no significance — no performance difference; you can use either. It depends on the architect. There are no technical performance issues. We'll do the YAML syntax first, then .properties; the steps are the same.
+
+[slide — Properties Implementation Steps: Prepare property file for each environment · Configure configuration property global element · Configure the properties in components ( ${key} ) and Dataweave ( Mule::p('key') ) · Pass the runtime arguments and deploy.]
+
+The steps. First: prepare a property file for each environment. If my organisation has 6 environments, how many property files? 6. If 2, 2. If 4, 4 — based on the number of environments. Clear.
+
+Second: configure the configuration properties global element.
+
+Third: configure the properties in components. Generally only the host changes; the port and path stay. Should I make the host dynamic in the HTTP Request configuration? Yes. In the property file we assigned a value to "host" — this is the key and this is the value. How do we refer to it? Dollar, curly braces, the key name: ${host}. That's the standard syntax. In the Request configuration's host, I refer to it like that. Then, because of the configuration property, deploying to UAT picks the UAT property file, and the Request configuration picks the host from the UAT file. Is it clear for everyone? Any confusion? Tell me.
+
+So: Dev, UAT, Prod property files. I'm deploying in Dev — which should it pick? Dev. What decides that? The configuration property element. In our application, calling the weather API, when I put the host in curly braces it goes to the property file, searches for the host key, takes its value and puts it here.
+
+Student: Do we give the same host even in test and prod? It changes, right?
+
+The keyword "host" is the same, but the value changes. In Dev it's dev.api.openweathermap.org; in UAT, uat.… — the value changes; the key is the same. Clear? Yes.
+
+Another thing: when we write DataWeave expressions, this ${ } syntax won't work. Instead, a small p with normal brackets and the key name in single quotes: p('key'). That's the syntax; there's no particular rule why. When you want a property-file value in a DataWeave expression, use small p and the key in single quotes.
+
+Fourth: pass the runtime arguments. Run application has a feature for this; just right-clicking won't do it. There's a small setting. Fine — four steps. We'll implement them for the application from the previous session. Any more theory doubts? No.
+
+Where do we create property files? Remember the project structure: src/main/mule has the main Mule files; resources needed to run the project go in src/main/resources. Isn't a property file a resource needed to run this project? Yes, so it goes there. Generally we create a folder and organise the files in it. Some create them directly in resources, but the best way is a folder with all the environments' property files. Right-click → New → Folder; most of the time name it "config" — the configuration properties are then clear. You can name it as you wish.
+
+The file name follows the environment: our first is dev.yaml. What is a YAML file? A type of text file with a slightly different syntax — I'll show you. Click Finish — the file is created and opened. I need two more. Right-click → New → File, or copy and paste: Ctrl+C, Ctrl+V, then rename. Your convenience. Can you have both .yaml and .properties in one config folder? You can, but it's not required. So dev, uat, and a new one for prod — three files.
+
+What should we externalise in general? Not only this — everything related to the Listener too. In YAML the format is like this. First, everything for the Listener. I put a heading. Why a hash in the heading? In YAML, hash means comment — it treats that line as a comment. Why separate them? Here we're configuring just two things, but in real time there are 10–15 configurations. How will you know which is where? Put headings: this is the listener configuration, this is the request configuration; if there are five request configurations, "weather request configuration", "second request configuration", and so on. This is the best practice. Many people don't do it and make a mess. Don't do that. Name each configuration, then the details below it.
+
+[slide: "#### HTTP Listener Config Details ####" … "#### Weather REST Service Config Details ####".]
+
+Student: The Listener host stays the same wherever we deploy, right? This is local. When uploaded to the cloud, it changes automatically?
+
+[unclear] The difference: generally you don't change the host, but the port is compulsory. Why? When deployed in CloudHub, an HTTP service uses 8081 and HTTPS 8082 with the shared load balancer; with a dedicated load balancer it has to be 8091 and 8092. That's why the Listener configuration must be fully externalised. I'll tell you when that comes. In real time, the Listener configuration and all other connector configurations are compulsorily externalised and defined in a property file.
+
+Now the Listener. Naming convention: "http:" — put a colon, press Enter, give a tab — "listener:" — inside the listener, host, port and path. So: HTTP; inside it a listener; inside the listener, these three details. The colon, space and tab indentation is YAML syntax: since I indented under the colon, listener is inside http. You might ask: why not write http.listener.host, http.listener.port each time? You could — but then for every key I'd repeat the prefix. Writing it nested is the better way. Is it clear for everyone? Yes.
+
+Then weather: a heading, and again weather-related. An API may call multiple request services, so it's better to name them clearly: host, port, path and the app ID related to weather. Who gives these details for Dev? The third party — the weather API people. You put them in Dev and in UAT. We have three property files, so three sets. If they have Dev, UAT and Prod, they'll give all three. Don't get confused — nobody tells you all these points; I'm discussing more here because I faced these things and needed time to understand. Sometimes they have only prod, and even our UAT has to use their Dev. Here I separated Dev, UAT and Prod just to show the difference [the Dev/UAT hosts are not real]. In real time, we contact the third-party REST API team: what are your configurations for Dev, for UAT, for Prod — if you have three environments? If only two, should we use your Dev for UAT as well? Confirm these in mail communication, then configure the respective details.
+
+[slide: weather: request: host "api.openweathermap.org", port "80", path "/data/2.5/weather"; reconnection: frequency "2000", attempts "3".]
+
+For weather: weather.request.host, port, path [the raw transcript says "weather.host, weather.port, weather.path"]. Do I have to put "http" in front of this? You can, but you don't need to — "http" for the listener and start from "weather" here. I just wanted to show a single-level and a double-level example. Since this is separate, I don't want to mix it with the listener configuration, so I added a heading here. Many people don't add headings — be careful.
+
+I copy the keys and save them in Notepad because they'll be useful when writing the ${ } references. Then copy the same into production: the same keys, but the values change. In real time you fill in the details the third-party API gives you; I filled them randomly here. See how the values change — the port might be the same for Dev and UAT, etc.
+
+A shortcut many people don't know — very useful when you have a lot of lines: select them all and press Ctrl + forward slash to comment; select again and Ctrl + forward slash to uncomment. Not Ctrl+Shift — just Ctrl and the forward-slash key (the key with the question mark). That's a shortcut for us. Save.
+
+First step done: a property file for each environment. Next: the configuration properties global element. Global Elements is in the flow file. We don't need the Salesforce configuration here, so I delete it. Click Create. Which element? Configuration properties — under Global Configurations (there are four categories), or just search "configuration properties". Now which file? It should be dynamic. Click the three dots and select dev.yaml. Notice it shows "config/dev.yaml" — does it take the whole path? It doesn't include src/main/resources. Why? Studio knows: it checks resources first, and in resources, the config folder, it finds the file. But that's hard-coded — it would always pick Dev. So I make it dynamic [screen: file config/${mule.env}.yaml]. It may show a backslash automatically; that's not a problem. If you ever have a problem, use a forward slash — backslash also works, but if there's an issue, switch.
+
+Where do we pass the environment name? Not inside the file — in the configuration for whichever environment we're deploying to: deploying to UAT, give "uat"; in prod, "prod". What's the parameter name? It's decided by the organisation — the architect — an environment-level property: mule.env, or env. I used mule.env. This is very important. Saved — second step done.
+
+Third step: the Listener configuration. I'd hard-coded everything — that won't do; take the details from the property file. The syntax is ${…}. I'm lazy because typing is my passion — so I copy and paste; I use Ctrl+C, Ctrl+V a lot. Listener configuration → Edit: select the value, delete, and put ${http.listener.host}; same for port and path. Then the Request configuration: change the host, port, path [and reconnection frequency and attempts] the same way.
+
+[screen: Global Configuration Elements — HTTP Listener config, HTTP Request configuration, Configuration properties.]
+
+What about the app ID query parameter? It's a DataWeave expression — click fx and you'll see; in the XML in the background it looks like this. Do I use a dollar or p? The p function: p('…').
+
+Fourth step: how do we deploy this? Run → Run Configurations, or Debug Configurations — whichever you want; both are available. Here we give the details related to the API — environment variables or arguments — and it takes them and deploys. Run → Run Configurations — "run, but with some configurations". Simple.
+
+Our application name appears here. If it doesn't, create one — I create a new configuration named prod-configuration [one already existed]. All the applications I have open are listed — which do I deploy? Our 7303 application, so I select it; this configuration applies only to that. Then the Environment tab: which variable? The same name — the organisation's architect decides it, mule.env or env. I gave mule.env. What value? Not dev but prod — the dummy Dev/UAT details won't work; prod will. Save.
+
+Close the other projects: Close Unrelated Projects; close tabs to the right. Since we've configured the production details properly, it should work. Hit it. Why isn't it working? Remember the Listener path: we gave /weather, but earlier it was /weather/city. Now /weather/city won't work. Did you understand? Yes.
+
+After redeploying, I hit it again — another error: "You called the function '-' with these arguments: null and Number". Let's see if I wrote anything wrong — weatherResponse is correct; this is correct. Go to the console. A null again — why? Let's debug. You can use the same configuration for debug; after setting it up, right-click and the same setting applies. Breakpoint, hit, Next, Next, Next. The response came — look at the variable: "city not found". That's the problem: we're sending the wrong city in the body. The weatherResponse shows 404. Remember the success status code validator we added? Otherwise it would have errored right here. [Then with the UAT file:] "could not resolve the address".
+
+Student: Here we get "could not resolve the address" — what should we change?
+
+We don't have their real UAT — I put it randomly because I wanted something for UAT. We'd have to tell them; if they give the correct value, it works. Yes, the host has to change — if they give a different one, put that. But validate everything correctly.
+
+Now the .properties syntax: dev.properties and prod.properties have a different extension and different syntax inside — that's the only difference. I have a folder config1 — I copy it and paste it into our project's src/main/resources. Why config1? Because there's already a config folder — to show both in the same project.
+
+Student: Can we add these .properties files in the same config folder?
+
+Yes. Now it's still referring to the YAML; it should refer to config1. Where do I change it? The global element: it was picking .yaml; now pick config1/${mule.env}.properties. Debug with the prod configuration — the variable is still mule.env; we supply mule.env and it checks the value in that environment's property file.
+
+[slide: http.listener.host= 0.0.0.0, http.listener.port= 8081, http.listener.path= /weather; weather.request.host= api.openweathermap.org, weather.request.port= 80, weather.request.path= /data/2.5/weather, weather.reconnection.frequency= 2000, weather.reconnection.attempts= 3.]
+
+This configuration and externalisation of property files is something you do every day in a project — through the dollar syntax or the p function, creating all the property files here. That's why it's very important to practise it multiple times — even if it isn't asked in interviews, you'll be comfortable. Deployed; I hit the request — this property file doesn't have the address issue. [Brief exchange — "clear and understood"; "silence will be taken as understood".]
+
+Now a small thing. Remember, we'd put the DB connection details — username, password, all of it — in the property file. Can we keep it like that? No. We have to encrypt it. What's encryption? We've seen it. Two systems — say my WhatsApp and my friend Ramesh's WhatsApp. I send "Hi Ramesh, how are you?". If it went as is, it'd go exactly like that. But WhatsApp conversations are end-to-end encrypted. Encrypting means converting from a readable format — which anyone who hacks it can read easily: "Hi Ramesh", sent by Mahesh — to an unreadable format. Converting readable to unreadable is encryption. It becomes random strings like x, y, z, 1, 2, 3, 4. It's sent in that unreadable format, and converting unreadable back to readable is decryption. The other side has the algorithm and key, so it converts it and reads it — all automatically.
+
+[drawing: "Encryption — readable format → algorithm + key → unreadable format; E → RF→URF; D → URF→RF".]
+
+Encryption and decryption come in two types: symmetric and asymmetric. Symmetric: the same key encrypts and decrypts. Asymmetric: one key encrypts and a different key decrypts. We don't need to be experts on this. Simply: converting readable to unreadable is encryption, using an algorithm and a key; using the same key to decrypt is symmetric; a different key is asymmetric, which is more secure. In most conversations a different key is used for decrypting, so it's more secure. Any questions?
+
+Why am I saying this? We gave the database username, host, port and password. Is it correct to put the password here? No. We should encrypt such secured information in real time. How? If I put an encrypted value here and consume the property, the encrypted value won't work directly — so how does it get decrypted? That's the process. For example, I encrypt and put the value — .yaml or .properties — say this app ID value becomes an encrypted value. We call these secure properties. It's not that simple — there's an extra step.
+
+[slide — Secure Properties Implementation Steps: Add secure properties module from Exchange to Studio · Encrypt the sensitive data in property files · Configure secure configuration property global element · Configure the properties in components ( ${secure::key} ) and Dataweave ( Mule::p('secure::key') ) · Pass the runtime arguments and deploy.]
+
+Step 1: add the Secure Properties module from Exchange to Studio. I'm using version 7.12; you may be using 7.17 or whatever. In the latest versions it's directly in the palette: Mule Palette → Add Modules → Secure Properties. In previous versions we had to go to Exchange and import it. How do I know I'm on an old version? Help → About Anypoint Studio: 7.12.0. Now see Add Modules — Secure Properties is there, because I imported it from Exchange. Add it to the project — first step done.
+
+Why add it? Go to Global Elements → Create → search "secure": the Secure Properties configuration appears. Now if I remove the module and search again — does it come? No. That's why we add it: so that configuration is available in the project's Global Elements. I add it back and create a Secure Properties Config. It asks: which file, what key, what algorithm, what mode. We decide all these and tell it; then it takes that file and decrypts in the background. Which file? Production — but not always production; the same dynamic way as configuration properties. The key — I haven't decided it yet. We'll come back to this step.
+
+Step 2: encrypt the sensitive data in the property file. What's sensitive here? Only the app ID. There's a website — Secure Properties [screen: Secure Properties Generator]. You can encrypt and decrypt there; it's provided by MuleSoft. [Aside: if we use prod.properties it won't work yet — we used UAT; that's why it worked.] This is the correct prod value; I need it encrypted in prod.properties. I copy it and go to the website.
+
+Operation: encrypt. Algorithm: there are several; AES and Blowfish are used a lot. What's an algorithm? A method or process to encrypt — we're not bothered about the details. Use AES. Mode: CBC — used most, default. Key: which key do we encrypt with? Say randomly "xyz1234" [example]. Click Generate. It says "AES key length is not sufficient". With AES you need 16 bytes; that was 7. So make it 16 characters [e.g. extending the example]. Now this algorithm uses the key to encrypt. To decrypt, I need the same key and algorithm — if I have them, I can decrypt. Clear? Yes. And notice: if I remove one letter with Blowfish, it still works — Blowfish accepts any length; AES requires 16 characters. This key is very important — don't share it with anyone.
+
+[slide — the JAR way: "Encrypt a string: java -cp secure-properties-tool.jar com.mulesoft.tools.SecurePropertiesTool string encrypt Blowfish CBC MyMuleSoftKey mahesh → dTiMggBF7rw=; Decrypt a string: … string decrypt Blowfish CBC MyMuleSoftKey dTiMggBF7rw= → mahesh".]
+
+Do I put the encrypted value in the property file directly? Not quite. The application has to know it's an encrypted value: exclamation mark, square bracket open, the value, square bracket close: ![…]. Then the application understands this one is encrypted and decrypts it. That's the syntax.
+
+Step 3: the secure configuration properties global element. Same file — dynamic again: config/${mule.env}.yaml; if not, it'd go to the wrong environment's file. The key: don't hard-code it here — pass it from the environment as well: ${secure.key}. What happens now? Configuration properties loads all the properties from the prod file. The Secure Properties config checks for the exclamation-mark values, and with this key, algorithm and mode, decrypts them from the prod property file and provides them to the configuration. All in the background. Is it clear? Yes.
+
+Student: What about multiple secure properties?
+
+In real time there's sometimes a need, with a separate procedure — and another problem to explain — so I won't discuss it now. Most of the time it's 3–4 properties, done this way. There's also a way to do it in bulk — put them in a file — but that's not required for you right now; projects mostly have few. I could cover it for another half hour, but I won't.
+
+There's one secure file — the property file. You can put five such keys in it: encrypt each, wrap it in the exclamation-mark syntax, and all are processed automatically.
+
+Student: Is the secure key different per environment?
+
+Yes — where do we pass it? In that environment's configuration. So it's different for UAT and prod: for UAT we provide UAT's key, for prod, prod's — automatically and dynamically. That's why it's a separate variable.
+
+Will it work? [Result:] 500 server error. We need to see the value, so we debug. Why is it wrong? A small mistake: we encrypted it, gave it — and forgot this step. We referenced it as ${key} — so it took the encrypted value directly from the configuration properties file. It must be secure::, for example ${secure::…}, and in DataWeave p('secure::…'). I forgot that step; that's why we had the problem.
+
+Another small thing about Run and Debug: see the toolbar — Debug has a shortcut and Run has a shortcut. Even without opening Run Configurations, you can use these: open the dropdown and pick a configuration, or click the button and it automatically uses the first one listed. Play is Run; the bug is Debug. Whichever configuration is in the first place is used when you click directly. I'll use both and explain again. We're getting it, right? Fine — any questions? No. Then we'll connect tomorrow. Thanks, everyone.

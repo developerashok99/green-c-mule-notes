@@ -1,0 +1,158 @@
+MuleSoft Telugu Course — Day 11 (cleaned transcript)
+Source: transcripts/day11.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day11 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [drawing: …] mark text read from the video. The OpenWeather API key shown in class is not reproduced.
+
+---
+
+What have we done so far? We've covered almost all the fundamentals — the prerequisites. We create REST services in MuleSoft, which depend on the HTTP protocol: how an HTTP request looks, JSON, how a request triggered from outside invokes an API, how it's converted to a Mule event and travels inside, and what Studio looks like overall. Now we've reached the development tasks in Studio. [Someone, please mute.]
+
+[Agenda slide: Consume REST Service · Demonstration of consume REST service in APS · Q&A session.]
+
+Remember the "80% requirements" — the requirements that come up in integration projects 80% of the time. Every project is different, but 80% of the time it's these, so we focus on them:
+1. Consume and create REST services.
+2. SOAP — only consume. Why? Creating SOAP has become very rare because it's complex and tedious.
+3. JMS — Java Message Service.
+4. Database.
+5. System connectors — Salesforce, and maybe something else for your batch, like AWS; I'll see and tell you.
+6. FTP, SFTP and so on.
+
+If we learn JMS, VM is almost the same — or Anypoint MQ is almost the same. If you learn FTP and SFTP together, it helps with other connectors too. The advantage: when you go into a project, you immediately understand 70–80% of the requirements. Even with a lot of experience, nobody understands 100% of a project at first. We learn, explore, ask people who've done it before, accumulate that knowledge, and then start.
+
+We've already started. What have we done so far? We haven't created a pure REST service yet, but when we built the Hello World application and the database fetch application, we used the HTTP protocol, sent requests and got responses — 2–3 small applications. Next: how to create REST services fully, in the coming sessions. After 5–6 sessions we'll take a use case and do everything from beginning to end.
+
+Before that: there's another service that's been exposed to us. I have my API. How do we consume that service from our API? When we built the sample application, we connected to a database with the Database connector, got the employee details and gave the response. Now, instead of a database, there's a third-party REST service; I have to connect to it, manipulate the response and send it back. Which connector? HTTP Request. The Request sends a request to that REST service and passes the response to the next component, and we send the final response to our consumer.
+
+Is there direct communication between two APIs? No — there's no scope for that. One API calls another API using a Request. Whenever you want to connect to a REST service outside your application, the connector is Request.
+
+And the Listener? We use the Listener to expose our API — our application. Where is the Listener? In the source. If I put the Listener in the process block, will it work? No. If I put the HTTP Request in the source, will it work? No. The Listener is a source component and the Request is a process component — a process component can go in the process section, including error handling, but not in the source. If you want requests to come to you, put the Listener in the source and expose it. One second — is it clear for everyone? Yes, sir.
+
+You have to interact and answer when asked — not just me talking. If you don't, I'll think you haven't understood. So be interactive, and stop me if you have questions.
+
+In Studio, the HTTP module is added to every project by default — I created a new project and HTTP is in the Mule Palette on the right. What operations are in it? Listener, Request and a couple more — four. Which do we use most? 99% of the time, Listener and Request. We use the Listener to expose an API, and the Request whenever we want to consume a service.
+
+[drawing: "REST APIs → Create REST services → HTTP → Listener (inbound endpoint); → Consume REST services → HTTP → Request (outbound endpoint)".]
+
+The Listener is called an inbound endpoint — it accepts incoming requests. The HTTP Request connects outward — it communicates with the outside world — so it's an outbound endpoint. This terminology is used in projects: "inbound calls" and "outbound calls". Inbound: whoever comes to us. Outbound: whatever our application calls in the outside world. So: to create REST services we use the HTTP Listener; to consume REST or HTTP services we use HTTP Request. I haven't used the other two operations so far; you don't need to learn everything — focus on what's important.
+
+I drag a Request in here. Now I can call a third-party or other service and use it.
+
+Remember API-led architecture — who'll tell me what it is? Experience layer, process layer, system layer — three layers. Look at my screen — visible, right? Take a mobile application. The request comes from the mobile app to the Experience API. The Experience API is a REST API. Does it do business or data processing? No — that happens in the Process API. How does the Experience API send a request to the Process API? Using HTTP Request. Why? Because the Experience API is a REST service and the Process API is a REST service. Yes or no? Yes, sir.
+
+[drawing: Exp → Proc → Sys layers, each calling the next with HTTP Request; target systems REST API, SFDC, DB.]
+
+So, from morning onward, a MuleSoft developer uses the HTTP Request module every day in development. That's how important it is. The Request module has a lot of scope: say we have to consume multiple APIs and build one response — we send requests to 2–3 applications, take their responses, manipulate and send. Then we use three Request modules. It's very highly used, so understand it deeply.
+
+If you have to call Salesforce or a database? Then the Salesforce connector and the Database connector. From Experience to Process and from Process to System, we use HTTP Requests most of the time — there are other ways, but 99.9% of the time it's this.
+
+Then each system is designed with its own System API: Salesforce has a System API, the DB has a System API, and any third-party REST service — a bit more complex — has a System API too. So there are multiple System APIs, and the Process API calls them to get the work done.
+
+Say our architect asks us to design three System APIs: one calls the third-party REST API, one connects to the Salesforce system, one to the database. The request comes from the mobile app to the Experience API, then to the Process API. The Process API first calls the REST-API System API, then the Salesforce System API, then the DB System API, and sends the response to the Experience API, which sends it to the mobile app — whoever triggered our application. How many HTTP Requests are used in the Process API here? Three — because it connects to three System APIs, and they're REST APIs.
+
+Who is the consumer of these System APIs? The Process API. The consumer of the Process API? The Experience API. The consumer of the Experience API? The front-end mobile app. For the mobile app, the Experience API is the service provider: one is the consumer, the other the producer or service provider. "Client" is also used: the client of our Experience API is the mobile app. These are terminologies — once you go inside an organisation, don't get confused by other people's terms. So: the Process API is the service provider for the Experience API, and the three System APIs are service providers for the Process API. The consumer is also called the source — where the request gets triggered. And Salesforce and the others are target systems.
+
+[drawing: type of API → exp-api / eapi; papi, proc-api; sapi, sys-api. Source → SFDC / sf / salesforce. Target → DB → database. "sf-db-cust-eapi", "sfdc-db-customer-eapi" = salesforce-database-customer-experience-api. CloudHub → 42 characters.]
+
+[drawing: ICICI Bank personal loan (PL) 20,00,000 — web app request → Listener → T → HTTP Request (PAN REST API, Central Govt NSDL) → T → Web Service Consumer (Aadhaar SOAP API, Central Govt UIDAI) → T → HTTP Request (company name match REST API) → T → HTTP Request (REST API) → T → SFTP (server) → T; "orchestration, transformation + enrichment (ESB)"; "3 REST APIs, 1 SOAP, 1 SFTP"; PAN verification, Aadhaar verification, CIBIL score → loan decision OK / not OK.]
+
+HTTP Request is very, very important. Think of Postman: to call a REST service, what do we need? What's the method? The protocol? The host? The port? The path? Should we send query parameters, URI parameters, security/authorisation information, headers? Should we send a body — JSON or XML? All these questions should come to mind. Yes or no? Yes, sir. To call a REST service we need all this information.
+
+Now, say I'm developing this Process API — Mahesh is the developer. Developers 1, 2 and 3 are developing the three System APIs. What's my job? To invoke each of them I need: where it's deployed — host, port, path — the security information, and how to send the request. Can I send the same request to system 1, 2 and 3? No. Is security applied the same way to all three? I have to collect all those details. Some may have query parameters, some not; some a body, some not. But you must be very sure what information you need to pass to invoke that particular API.
+
+For example, our Hello World application: how did we invoke it? HTTP, localhost, 8081, and the path we gave the Listener. Trigger it and it works. For a real REST API, the method, the body and everything else are defined and configured. Send everything properly and it works; otherwise it rejects the request in the first place.
+
+So to invoke another API through HTTP Request you need: method, protocol, host, port, base path, path, body, query params, URI params, authorization, headers. Only with all of these can we communicate. Some may be present, some not, but check them all and keep them in mind. Without the information, we can't form the call — that's why we need clarity.
+
+Student: They gave us an endpoint but not the mandatory fields to send in the body. If we don't send them, we won't get a proper response. Is the client wrong or the producer?
+
+There's a mandatory field and we're not sending it — so the client is wrong; it's a 400-series error, 400 Bad Request: you're sending the request the wrong way. Now, say ABC organisation exposed a REST service for us. We ask ABC organisation: what are the mandatory fields, what's your request structure — share it all with us. Or ask them to share the Postman collection — an API can have multiple services; ask for the Postman collection for them. Then check the collection: is it working properly? If you get a bad request with what they gave, tell them by mail: "the Postman collection you gave isn't working; this is the error; please find the reason and tell me immediately." That's why we consume the third-party service in Postman first, test it, and go further in development only if we have all the details.
+
+There will be clarity in the response. If you don't send a field, you get a bad request and it clearly says you're not sending this parameter — add it and it works. Or: you have to send a number and you're sending a string — they don't accept the string — again a bad request, and the response clearly says "expected number". That's error handling.
+
+Student: Some field has a fixed format — if we send a dummy value, will it accept it?
+
+No. For example, when I design my REST API — say the request should have city, minimum temperature, maximum temperature and temperature unit. It goes in the body, as a JSON object. I first define how this JSON object should look: there must be a property called city — mandatory — and a string. I configure all this in RAML. If I set no other restriction, a 10- or 20-character string is accepted. But I also set another restriction: maximum 10 characters. Will it accept more? No. Depending on how we define and configure it, the request is processed or rejected right there. Where do we define it? In RAML, in Design Center. We haven't gone there yet, so I won't discuss it now.
+
+What happens right now? Our API accepts whatever we send. That's why, with the Listener we have, GET or POST both worked — we didn't restrict any method. Is that the right way to develop an API? No. We have to specify, for each resource, which methods and so on. Is your question answered? Any others?
+
+Say this third-party REST API belongs to ABC organisation, and the Experience, Process and System APIs belong to XYZ organisation. Developer 1 has to interact with ABC and collect the details. Developer 2 interacts with the Salesforce team — we discussed the Salesforce connector. Developer 3 with the database team. Now we're looking at how to consume an HTTP service, so we'll learn the HTTP Request connector in depth.
+
+[drawing: "Requirement — develop an HTTP service that consumes a weather REST API (city name) provided by an external org".]
+
+The requirement: if I send the city name Hyderabad, I get its weather details; if Bombay, Bombay's. There's a free REST API from a third party; I call it and pass the result to our consumer, because we don't have the data ourselves. Let's see what needs preparing. I'm not configuring resources, methods, protocols and resource paths yet — just a simple HTTP service.
+
+When building the HTTP service: first, a Listener. Then print a log. Then send a request to the third-party REST API — collect all the parameters for this request, form them properly and send. We get the response. Is it what we need? No. Then use Transform Message, transform it, and send the response to our consumer. Is this clear? Couldn't we use the third-party service directly? Its response isn't what we want — so who changes it? Transformation.
+
+First, define our API's request and response. Our request: the city name, in the body, as a JSON object.
+
+[drawing: request {"city": "Mumbai"} → response {"city": "Mumbai", "minTemp": 35, "maxTemp": 45, "tempUnit": "celcius"}; "300" → 300 − 273.15; "xyz" as Number.]
+
+Another thing: in India we measure minimum and maximum temperatures in Celsius. But that API gives them in Kelvin — another temperature unit. Like weight: we measure in kg or grams, others in pounds. In India we use kg. So after receiving the third-party response, I transform it as we need — in Set Payload, a variable or Transform Message. When to use which? For complex transformations, Transform Message. For small ones, Set Payload is fine. Set Variable is for storing a value in a variable — also for low complexity; otherwise you can create a variable inside Transform Message too. I'll show that.
+
+So we know our request and response and can build the API. But where's the third-party API and how do we consume it? Many APIs are available on the internet, many free. This is OpenWeatherMap — openweathermap.org. First create an account; if you have one, sign in. Creating an account is simple: username, email, password, repeat password, accept, Create Account. I already have one, so I sign in.
+
+After signing in, there are multiple APIs. Since it's hard to connect with the public individually, they give all the details in the API documentation: how to consume, how to send requests, what the host and port are. Road Risk — select a destination and get the risk. Some are paid and some free. Why paid? It's a business. If I need weather details for a small part of my organisation, it's hard to prepare everything myself, so I call their API, get the information and fulfil the requirement. They specialise in their area, create APIs, expose them to other organisations and charge for them; some are free. Air pollution, fire weather, geocoding — each has its importance.
+
+Look at the documentation [screen: "Call current weather data" — lat, lon, appid]. Copy this. In Postman, click + (new HTTP request). What does it ask us to pass? Protocol: HTTPS. Host: this one — you used localhost before; this is the host for the third-party REST API. Port? It's not shown — how does it work without a port? The default port. HTTPS defaults to 443. If they'd set a specific port it would be shown; since it isn't, it's 443. Giving api.openweathermap.org:443 works the same.
+
+Path: data/2.5/weather. Then the question mark — those are query parameters. Which? lat (latitude), lon (longitude), appid — look here — the API key. How to get the key and pass these parameters is all in the documentation, step by step; read it and do it. Generally APIs provide a Postman collection you can import and test directly — we're doing it manually now, to be honest.
+
+Where do we send the security? This key. The braces are placeholders — we remove them and hard-code values. What if we don't send latitude and longitude? First I send a random API key — "Invalid API key". The key is on the account page: click my name → My API keys. There's a key; if not, generate one. Each account gets an API key, and we only get information if we send it. Next: "Bad request — wrong latitude". They suggest using their Geocoding API to get coordinates. They gave an example: lat 44.34, lon 10.99. Let's use those and see the response.
+
+Ctrl+A, Ctrl+C into Notepad. The response: coord (lon, lat), weather (id, main "Clouds", description "broken clouds", icon), base "stations", main — temp 278. 278 degrees Celsius? That would be very hot. It's not Celsius — it's a different unit; the documentation mentions the temperature unit somewhere. We have to remember such things. Then feels_like — how hot it feels — temp_min, temp_max, pressure, humidity, sea_level, grnd_level, visibility, wind. Which details do we need? Only a few. Sending all of them would be sending unnecessary details to the consumer. So we take what we want, convert the temperature unit and send the response. Clear? From the REST API this much comes, but I send only this much. It's already JSON.
+
+I'm doing this in API-led terms: this is the Process API, Mahesh. If those three System API teams don't give me details, how can I work? I can't.
+
+Student: What if they developed it and left, and nobody knows these APIs?
+
+Get the details. These three APIs are already developed and deployed — find where, and get the code from Bitbucket or GitHub. Import it into your local Studio. Look at the RAML for how to send requests and what the responses are, and start from there. Most of the time other developers are available — we can't do anything without them. But since it's internal, we have some scope.
+
+Student: Same scenario — they told us to call through the gateway, but there's no gateway contact. They said copy the existing API's configuration and trigger it the same way. The endpoint is ready, but I don't know if it goes through that gateway, and in the request they didn't even give the field names. I'm confused — how do I do this?
+
+Find the right SPOC — single point of contact — for that service, and escalate. They have to be responsible. They give documentation along with contact persons. Often documentation is in Confluence [transcript: "in the jungle, in the page" — unclear], and documentation is always unclear. If we read this documentation, some will understand and some won't — even some senior people. Get used to it slowly. What I do with juniors: I help them in advance, get them ready and tell them what to do. Minimum-experience developers should spend half an hour to an hour studying the documentation, understand it, note things down, and if they have doubts, approach the organisation, find the right people and get the details. It's a common problem: whenever there's a different service provider, you almost always face trouble. Very few organisations give complete details and respond quickly.
+
+Back to the demo. There's also an option to send the city name: a query parameter called q with the city name. Send it and the weather for that city comes — minimum temperature, maximum temperature and all the details. So this API works for me. Now I can develop the REST service in Anypoint Studio.
+
+In Postman you can see the default headers: click "hide auto-generated headers" to hide them, click again to show them. Some of you knew this; I'm telling those completely new. If some of you are bored, bear with me — these minute details matter once you go inside.
+
+New project. How names should be given in real time — I'll give a short introduction; in 5 minutes you'll have clarity. If we think in terms of source, target and business process, we can easily plan names. What did I do? Our functionality is consuming a REST service — the weather — so "consume rest service", plus our batch: 7303 — the third batch of 730 [screen: consume-rest-service-7303]. To keep it simple. Then directly click Finish; what's on that screen I'll explain in coming sessions — just follow me for now.
+
+First job: a Listener — the source endpoint that listens for the request and converts it into a Mule event. HTTP. I created the Listener configuration by clicking + — where is it stored? In Global Elements; it's accessible from other XML files too, as I showed before. Path: anything — "/weather" or "/weatherOfCity" [screen: path /weather]. Then a Logger printing the city — from the payload. Then the Request, then later a Transform.
+
+[drawing: "Details required for configuring HTTP Requestor: ① HTTP method — GET ② protocol — HTTP ③ host — api.openweathermap.org ④ port — 80 ⑤ base path — ✗ ⑥ path — /data/2.5/weather ⑦ body — ✗ ⑧ query params — 2 ⑨ URI params — ✗ ⑩ authorization ⑪ headers — ✗"; "Domain → host + port; HTTP → 80 (port); HTTPS → 443 (port)"; {"city": "Hyderabad"}.]
+
+What's the host? This is the domain name. In the background it has an IP and a port mapped to it. Do you understand? Generally we see www.google.com — that's the domain name. In the background it's an IP — say host 10.1.25.50 — and a port, say 80 or 90. The domain name maps to that server and port. So when you see api.openweathermap.org, the port is linked in the background. That's called a domain name.
+
+The URL: host:port / base path / path, then the query parameters. Base path — I kept it empty [transcript: "a single slash"; screen: empty]. Path: /data/2.5/weather. Request configuration: + under Global Elements [screen: HTTP_Request_configuration_openweather — protocol HTTP, host api.openweathermap.org; Studio shows http://api.openweathermap.org/data/2.5/weather].
+
+[A test returned "not found" until the configuration was corrected — details unclear.]
+
+We send two query parameters. One is appid — it's always the same; it doesn't change per request, so I hard-coded it. And q — at first I hard-coded Hyderabad. If it were always Hyderabad, I'd hard-code it. But which city should I use? Whatever comes in the payload's city — I map that to q. I hope everyone's clear.
+
+What to remember: there's a third-party API and our API. For our API, the city comes in the body. For the third-party API, we send it in query params. URI parameters? None — no need to define any. Authorisation information? Yes, we've given it — the key.
+
+Student: We configured payload.city in the Listener as a variable, right?
+
+We haven't configured anything in the Listener. It listens for the incoming HTTP request, converts it into a Mule event, the Mule event is processed, and it collects the response and sends an HTTP response to the consumer. We send city in the request body; since the body becomes the payload, we read it as payload.city. Please go through the previous sessions; you'll understand. I'll explain those things neatly again.
+
+Let's validate one small thing. A red dot appeared. Is it an error? How do we decide? Look at the Configuration XML. If it's red there too, we've made an issue. If the dot is there but nothing in the configuration, it's not an error — such situations happen. Here, in query params: it converted it to fx automatically. In an expression, the value must be in double quotes — that's the problem. Now the error's gone. The other one, q, is an expression — payload.city — so no quotes needed. Ctrl+S. If I switch to fx mode, see how it shows — it's sent as Java [screen: %dw 2.0 output application/java --- { q : payload.city, appid : "<key>" }]. Double-click to make it small again. You can enter values in table format or fx mode. No error now. payload.city is fine.
+
+Debug. Breakpoint. Postman request — localhost, because my laptop is acting as the server; change it however you like. JSON body [with a city — e.g. Punjab, then Mumbai].
+
+[At the first Logger, in the debugger] Query params empty — did you send any? No. URI params empty. Did you send headers? No. Then why are there headers? Defaults. Whatever headers I send, it also gets default headers. These are the other details — the paths. Very clear.
+
+In the Mule Debugger, click Next. Will the logger print? Yes — payload.city: Mumbai. Printed. Next, the request should go out properly. To check, look here: what is it sending? Is it sending a body? Yes — city Mumbai — but the API ignores it. We kept the body as the default payload; that's why it's going. Leave it, no problem. What's important: the method; the path — /data/2.5/weather; the query params [screen: q=Mumbai]; headers — none. Correlation, override path, URL settings — in the config, the host and port. Open these and check all of it in detail.
+
+The attributes are also overwritten. What were the attributes before? Headers, query params, URI params, etc. Now this HTTP Request overwrote them. If we need important information from attributes later, save it in variables first. In a big application, if I need headers from attributes or the city from the payload later for mapping, I store them in variables. A variable doesn't change unless you change it. The payload is overwritten by default; the attributes are overwritten. Exactly. The payload before the HTTP Request was replaced with the response. Remember that — it's very, very important.
+
+What was the payload before this HTTP Request? City — Hyderabad, now Mumbai. Attributes — only headers. Are they available after the HTTP Request module? No. But I need them for my requirement — how? We've seen variables. Define a variable before the HTTP Request and save these values in it; after the HTTP Request the variables are still there.
+
+Student: The payload we sent in the request was overwritten too, right? What if we need it?
+
+Save it in a variable and access it through the variable. For example, I create a variable called originalPayload and assign payload to it. Then originalPayload holds the city in JSON format. To access it: vars.originalPayload.city — not payload.city. Then you can use it.
+
+Now the response has come — where? In the payload. The attributes changed too: whenever an HTTP Request runs, it overwrites your payload and your attributes. If you need them again, save them in variables before it overwrites them. Look at the attributes now: some headers, the status code — 200 — and the reason phrase OK: the response was successful.
+
+The second logger — has it printed? Not yet; it prints only when I click Next. One logger printed: Mumbai. Then the response goes to the consumer: since the flow ends here, it goes back to the Listener, which sends the response. How? Click the Listener → Responses section. There are two: Response and Error Response. The Listener converts the payload into the HTTP body.
+
+[screen: Listener Responses — Response body: payload; Error Response body: output text/plain --- error.description.]
+
+Tomorrow: we'll put a Transform Message and map the response; set the status code and reason phrase; and see how to avoid overwriting without creating variables — there's another option (target variable). After that, Request-module best practices: reconnection strategy and the success status code validator, and the Responses section.

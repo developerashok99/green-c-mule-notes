@@ -1,0 +1,145 @@
+MuleSoft Telugu Course — Day 17 (cleaned transcript)
+Source: transcripts/day17.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class whiteboard (slides/day17 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [drawing: …] marks text read from the whiteboard.
+
+---
+
+What did we see in the previous session? How to handle errors in an application. What are we going to see today? The different deployment strategies available in MuleSoft: on-premises, hybrid and CloudHub — three strategies. Apart from these there is also Runtime Fabric. But there is no rule that you have to work in all deployment models. What we use the most is CloudHub, compared to hybrid or on-premises. We will discuss the significance of these three models and how to decide the deployment strategy — CloudHub, hybrid or on-premises.
+
+[Agenda slide: Deployment Strategies in MuleSoft · On-premise, Hybrid and CloudHub · Q&A session.]
+
+What have we done so far? We developed applications and tested them locally. Did we deploy them anywhere? No. If I deploy locally, will this application work live for everyone — can others consume it? When I close the laptop, the application goes down, right? So after an application is ready and tested locally, we deploy it to an environment. How many environments do we have? Dev, SIT (also called QA or test), UAT, pre-prod, prod, DR. Ideally we have these environments. We take our application and deploy it to the development server; for SIT, the SIT server — the application is deployed on a server. Simple as that.
+
+Who should provide the server — cloud, or the company's own server? The company decides. MuleSoft has provided different provisions: you can deploy on your own server; or you just log in and deploy to the cloud; or a combination — some activities on your own server and some on MuleSoft-provided services. That combination is called hybrid.
+
+Put simply, take ICICI Bank. We develop the application for them. They procure their own servers, install the software and deploy the MuleSoft application there. That is called on-premises: the bank buys its own servers, installs the software, configures all the networking and deploys the application, which is then exposed to internal people or external networks.
+
+Another company says: I don't want this tension and maintenance; I'll go to a cloud-based solution completely managed by MuleSoft. I get my application ready locally, log in with a username and password, and deploy it in the CloudHub environment. A cloud-based solution provided completely by MuleSoft — that is CloudHub.
+
+The other strategy: we deploy the application on our own servers, but some services — we'll see which — are provided by MuleSoft in a cloud environment; most things, including the deployed apps and logs, stay on our own servers. The combination of the two is called hybrid.
+
+Why three models? Each organisation has its own requirements. ICICI Bank needs a lot of data security — it's a financial institution. In the CloudHub model, MuleSoft takes a cloud environment and sets up MuleSoft on it, and we deploy our application there. Where is that cloud? For Asia, mostly Singapore; for the US, the US; for the UK, the UK. Suppose ICICI went to the cloud — all its data would be stored in the Singapore cloud environment. If we store all our data there, the RBI won't agree. The Reserve Bank of India has a rule: our data should not go out; it should be stored in India. We have to follow the rules. And if MuleSoft had no option for such customers, it would lose business — hence the options.
+
+Another organisation is medium-sized. Owning servers, setting them up and maintaining them needs a separate team working 24×7 — they don't have that budget. Their data isn't a big concern; no country rule worries them. Say we started a small e-commerce site with 1,000 customers a day. Would I be bothered about going to the cloud? No — there are no strict rules for me; I can choose any place. In that situation I can go for CloudHub. The advantage: it's very easy. We just log in, develop our application and deploy. No server maintenance, software patches or networking teams. That's the CloudHub environment.
+
+What is CloudHub? AWS or Azure provide cloud. But to deploy MuleSoft applications properly on that cloud, MuleSoft prepares it and calls it CloudHub. CloudHub is a solution provided by MuleSoft with the help of AWS and Azure. In the background MuleSoft takes AWS or Azure cloud and prepares all the software on top of it so we can just upload our application. At first only AWS was used; later [unclear — after an acquisition] Azure is also used for some services. Will AWS or Azure on their own run a MuleSoft application? No — the environment has to be prepared for MuleSoft, and MuleSoft prepares that infrastructure. We just log in and start.
+
+So, three deployment strategies: on-premises, hybrid and cloud. At a high level, after the application is prepared it is deployed to an environment, and the organisation decides the strategy. As a developer we need to know which model we're following. Many people are confused about whether they're on on-premises or hybrid — people working in real time often think they're on-premises when they're mostly on hybrid. We need to know the clear line of difference.
+
+How do we decide? There are two factors: the control plane and the runtime plane. These are generic concepts; let's see how they apply to MuleSoft.
+
+[drawing: "The components which are used to control the aspects of Mule apps will fall under control plane: ① Runtime Manager ② API Manager ③ Exchange — Management Center → Anypoint Platform — hosted by (MuleSoft) / (own)".]
+
+Control plane: the components used to control the aspects of Mule apps. In Anypoint Platform, 5–6 sub-modules are important to us.
+- Runtime Manager: to deploy applications, start, stop, restart, and check logs in some situations.
+- API Manager: we have to protect our API — we apply policies in API Manager to protect it.
+- Exchange: for MuleSoft assets — an application spec or a connector — a storage location whose advantage is that it can be shared with everyone in the organisation. Exchange is a centralised repository where you publish MuleSoft assets.
+
+Where are all these? In Anypoint Platform. We created an Anypoint Platform account and used them. Who provides them — MuleSoft or us? MuleSoft. These modules together are called Management Center. MuleSoft provides them, and we access them with a username and password. What are they used for? To control our applications. If MuleSoft provides it, it falls under cloud.
+
+We could also run this on our own servers. But then we need servers: check capacity — hardware, CPU, memory; install all the related software; set up all the networking and configure it; configure the MuleSoft software; then deploy applications; upgrade software patches; and maintain it 24×7 with staff. Is it possible? Yes — but it's a huge cost and huge maintenance. If MuleSoft provides it, you're tension-free. Both options exist. What matters is who provides these Anypoint Platform modules — the control plane — MuleSoft or us.
+
+[drawing: "The components which are used while runtime aspects of MuleSoft app fall under runtime plane: ① Mule runtime ② connectors & components ③ logging → MuleSoft / own".]
+
+Runtime plane: the components used during the runtime of a MuleSoft application. Where do we deploy any application — Java, Python, anything? On a server. For a Java app, the server has Java set up. In the same way, a MuleSoft application needs Mule software on the server, and we deploy into it — that is called the Mule runtime. Then the connectors and components we use: locally they're in Studio, but when deployed they run in the Mule runtime. And logging: logs are wherever the application is deployed. All of these can be provided by MuleSoft or by our own servers. We decide based on that. Is the control plane and runtime plane clear?
+
+So how do we decide the strategy? By who provides the control plane and the runtime plane.
+
+[drawing — table: Deployment model | Control plane | Runtime plane — CloudHub: MuleSoft | MuleSoft; On-premises: own | own; Hybrid: MuleSoft | own; RTF.]
+
+CloudHub: everything in the cloud, provided by MuleSoft — control plane by MuleSoft, runtime plane by MuleSoft. This is widely used in the industry. If rules and regulations don't block it, an organisation can use it. For example, a bank in the US: the US has a central bank like the RBI with its own rules — you can go to the cloud, but the cloud data centre must be in the country. Can a US bank use CloudHub? Yes, because AWS and Azure, used in the background, have many data centres in the US, so the data doesn't leave the country. It depends on rules and on preference.
+
+Why can't ICICI do this in India? AWS and Azure have data centres in India, but there are no MuleSoft CloudHub regions there [drawing: CloudHub regions US East, UK, Singapore vs AWS Mumbai]. So they have to go for their own setup.
+
+In the CloudHub environment, where MuleSoft provides both planes: first we develop the application locally and test it; it works. Then we create a JAR file — export the JAR — and go to Runtime Manager, give some settings, and deploy. Where is it deployed? In the CloudHub environment provided by MuleSoft. Say my account is in the US region — MuleSoft has the environment ready in an AWS or Azure data centre there, so it creates a mini server called a worker, deploys the application on it, and it runs. Then I can test it directly. A worker is just a mini server where your MuleSoft application runs; it's called a worker in CloudHub. We'll see more about workers in the next session.
+
+If I select the London (Europe) region in my Anypoint Platform account, it's deployed there. MuleSoft has some number of regions — 5 or 10 [unclear]; I'll show after creating the account. Here, where does the application run? In the environment provided by MuleSoft. Where did we deploy from? Runtime Manager, also provided by MuleSoft. So MuleSoft provides both the control plane and the runtime plane — that's why it's the CloudHub environment. Is it clear to everyone?
+
+Next, on-premises: our own servers. Runtime Manager, API Manager — all of these on our own servers; we set up the infrastructure and maintain it. MuleSoft gives us the runtime software and we deploy our applications on it. Both planes are ours — that's on-premises. We set up and maintain everything. Who goes for on-premises? Highly regulated industries — maybe healthcare, banks, financial institutions.
+
+Next, hybrid: the control plane is provided by MuleSoft and the runtime plane is our own. Runtime Manager and everything in it is from MuleSoft; the application is deployed on our own server. If we establish a connection between the two, it works. So some cloud services come from MuleSoft and the runtime is our own setup — that combination is hybrid.
+
+You may ask: must the "own server" be physical, or can it be cloud? If ICICI could, it would go to the cloud — and it can, to an AWS region in India. But is there a MuleSoft-provided AWS or Azure region in India? No. So we can set up our own private cloud on AWS or Azure in India and deploy our applications there. Even then we call it hybrid. Why? Because that is a third-party service without MuleSoft's involvement. Is it clear? If you have doubts, ask.
+
+There is a lot of confusion here: many people call hybrid models on-premises. Understand that if you're using the platform provided by MuleSoft, it's hybrid — whether your runtime is in a cloud or on a physical server.
+
+What are "our servers"? Say my organisation is developing APIs. I took a place, procured servers, configured them, installed the required software, set everything up and deployed the applications. That's a data centre. Big organisations have their own data centres. Others run data centres as a business: thousands of servers — 50 go to ICICI, 50 to HDFC, 50 to another organisation — and they charge rent and maintain the physical servers. Like co-working and office spaces: a big building is leased to multiple companies; the building company handles cleaning, coffee, meeting rooms; the tenant companies use the services and pay rent. Same here: if a company can't set up its own data centre, it leases servers from a data-centre company. That's how it happens in the industry. This is generic information, but as a developer having this idea lets you work confidently and speak confidently in meetings — that's why I'm explaining it.
+
+So the deployment strategy depends on who provides the control plane and the runtime plane. I think everyone is clear.
+
+Student: What process do we follow to deploy — create a JAR file?
+
+Exactly. Create the JAR, go to Runtime Manager, set the parameters and deploy. It's deployed in CloudHub.
+
+[drawing: "① Create jar file ② Configure RTM with parameters req to deploy app ③ Deploy".]
+
+Now, CloudHub and load. We deployed the application — on how many servers? One or two? Say I deployed on one server and it has an issue for one hour. Will requests get responses during that hour? We send requests but get error responses. If the business is down for an hour — say an e-commerce platform with no orders for an hour — huge business loss, and customer experience is affected.
+
+So there will be a layer: the load balancer. It decides whether traffic goes to server 1 or server 2. You have a backup — but it's not used only when one is down; traffic is distributed. Say we get 1,000 requests a day. There are different ways to distribute. One way: first request to server 1, second to server 2, third to server 1, fourth to server 2, and so on — so about 500 go to each. When load is distributed equally like this, it's the round-robin method, and it's the most used. Round robin: first server, second server, …, then back to the first.
+
+[drawing: "Distribute traffic (round robin method)" — LB → W1, W2; "high availability, less downtime".]
+
+Who does the load balancing? The load balancer. Say I deployed a MuleSoft application on two workers. How is it decided which worker gets a request? The load balancer in between. Request 1 comes; the load balancer sends it to worker 1; response 1 comes back. Request 2 comes; it goes to worker 2; response 2 goes back to the consumer. That's how load balancing works.
+
+Do we set it up ourselves? In CloudHub, MuleSoft provides one by default: the Shared Load Balancer. It's used by others in the cloud environment too — that's why it's "shared". Say company 1, ABC, deployed its app on two workers, and company 2, XYZ, deployed its app on three workers. The load balancer sits in the middle. Consumer 1 of company 1 sends a request — the shared load balancer sends it to worker 1; the second request goes to worker 2. At the same time consumer 2 of XYZ sends a request — the same load balancer distributes it too. The same load balancer is used by multiple companies, so it's called the shared load balancer, and guaranteed service is not given.
+
+That's why they also provide a Dedicated Load Balancer (DLB). As company ABC, I set up a load balancer just for ABC — in the cloud environment. Will this DLB handle other companies' traffic? No — it's specific to me. No other company's traffic is received by this DLB. Clear? Shared load balancer and dedicated load balancer.
+
+[drawing: "LB → Load balancer: SLB (shared), DLB (dedicated)"; CloudHub (US east) with 0.1 vCore workers.]
+
+Student: Why deploy on two workers — does processing speed improve?
+
+Processing speed doesn't improve. There's one answer: high availability. If worker 1 is down, worker 2 handles it — so more availability. If worker 2 is down, all traffic goes to worker 1. Who takes care of that? The load balancer — not our concern. With two, it distributes to two; if one is down, it sends everything to the other. If the one can't handle the load, it may crash again — that's a different scenario. With three or four, your application is highly available for consumers. That's the reason we deploy on multiple servers — high availability. For critical applications we do it; if not critical, one is OK.
+
+Another question: say two workers handle about 5,000 requests a day, and normally traffic is at most 8,000. Think of an e-commerce application: the festive season comes and for one week 20,000 a day come. Can these two handle it? No. What do you do? Increase the servers — that's scaling: scaling up and scaling down. To handle 20,000 I assign three more workers — since each handles about 5,000, I keep five in total. With five workers, the load balancer distributes the traffic. When traffic decreases, can I bring it down again to two or three? Yes. That's easy in the cloud. With your own servers, even if you reduce it, you've already bought and are maintaining the servers. In the cloud, if you don't use it you don't pay for it. So scaling up and down is very easy in a cloud environment; on-premises it's a process.
+
+Autoscaling is a premium feature provided by MuleSoft: it senses that traffic is increasing and adds workers, and as traffic decreases it reduces the workers. That's autoscaling. These are generic concepts — load balancing, multiple replicas for high availability, compulsory for critical apps.
+
+Student: Is autoscaling included in CloudHub?
+
+Not by default — it needs separate licensing; some take it separately. Without it, you go to Runtime Manager, select workers and increase the number, and it applies automatically. Simple.
+
+We don't always know production traffic in advance. Say I know it won't exceed 8,000 and suddenly 15,000 comes — the system can crash. That's unexpected. But for Dussehra [the festive example] I know 20,000 a day for a week, so I keep five. How many servers? The architect estimates based on the traffic the business team expects. These are non-functional requirements: which policies to apply, how much traffic per day, per hour or per minute. If they're not specified, they monitor, check whether one or two workers are sufficient and increase slowly. That's decided in performance testing — e.g. knowing 8,000 a day, decide whether you need one, two or three workers. It's best to have at least two: if one goes down, the other immediately handles the traffic. For applications that aren't very important — if being down for half an hour is fine — one worker is OK. Every worker consumes CPU and memory, and MuleSoft charges based on that — it's measured in vCores. So decide accordingly. Any other questions?
+
+Now, on our own servers: how do we set up MuleSoft and deploy? Here's server 1. MuleSoft needs Java to run, plus the Mule runtime. We install Java, configure Maven, and run the Mule runtime. Then we deploy our JAR into the Mule runtime; it runs. That's one server. Server 2 — same, and we deploy there too. Who distributes the traffic? In the cloud MuleSoft provided that; on-premises we must set up a load balancer ourselves — basically another server with a load-balancing tool installed, mapped to both. That's a headache. That's why people go to CloudHub: log in and make small changes. You do configure things there too, but the process and maintenance are easier — the setup is already ready.
+
+On-premises, who upgrades the Mule runtime version? You. Java upgrades? You. The Linux system upgrade? Your company — not you as a MuleSoft developer; if the Mule runtime or Java needs changing, we tell that team. But at any point, your company has to do all of this. That's why cloud-based systems are becoming so popular. You need a server-maintenance team, a network team, and for a 24×7 business, employees in three shifts. A team with load-balancer expertise. For a critical business, a second location. And for each environment — Dev, SIT, UAT, Prod, say four — you set up and maintain all of this. It's a headache. That's why organisations are moving to the cloud; over the last 5–10 years these tools have become famous. Focus on your business: developing applications is my job, and I spend very little time on infrastructure. Cost-wise they may say it's low cost — whatever it is, a lot of headache is reduced. My time goes to core activities.
+
+Simple example: a husband and wife are both working; chores take their time and their relationship suffers. They outsource house and clothes cleaning to maids for 3,000–4,000 rupees each. With 6,000 rupees, how peaceful they are — they can plan their careers and their relationship improves. What matters is for each family or company to decide. If someone has no problem doing everything themselves, that's up to them. But most organisations decide to spend more time on their core business. The same applies here. Is it clear to everyone?
+
+When we deploy in CloudHub, remember some things. Do you create the shared load balancer? No — it's automatic. A dedicated load balancer we have to create and configure: in the premium version we create a load balancer and map it to this application, that application and so on. Architects and team leads do this; after we deploy, they map it and check it.
+
+Ports: with the shared load balancer, if the app is HTTP, the Listener port should be 8081 by default; if HTTPS, 8082. With a dedicated load balancer: HTTP 8091, HTTPS 8092. When deploying an API to CloudHub, set http.listener.port accordingly, or it won't work properly.
+
+[drawing: "SLB: HTTP — 8081 (port), HTTPS — 8082; DLB: HTTP — 8091, HTTPS — 8092".]
+
+Student: When practising, can we deploy to multiple workers?
+
+No — it's a trial version, so it deploys on one worker. In real time they won't deploy on one — they need high availability — unless the application has no significance.
+
+So why doesn't ICICI go to CloudHub? Security. All the log data would be in the cloud, outside the country — that violates the rules. So it keeps both the control plane and the runtime plane on its own premises: more secure, more maintenance, higher cost. Customer credit-card numbers, account numbers, balances — that's sensitive data, and the RBI has set rules, so they set up their own premises.
+
+[drawing: "ICICI Bank → CloudHub ✗; on-premises → more secure, more maintenance, high cost"; "MuleSoft (cloud) → sensitive data on cloud, managed by MuleSoft".]
+
+Hybrid: the control plane is from MuleSoft's cloud platform; the runtime plane is on ICICI's own network — cloud or physical. Physical: they use their data centre and procure everything. Or they use Azure or AWS services in India to set up a cloud. You might wonder what the difference is from CloudHub: CloudHub means AWS or Azure already prepared as a MuleSoft environment by MuleSoft. Here we take AWS or Azure ourselves — it isn't MuleSoft-ready; we have to make it MuleSoft-ready. That's the difference.
+
+[drawing: "Hybrid — on-premise + cloud: runtime plane + control plane".]
+
+We've discussed the three strategies. Next sessions: how to deploy to CloudHub, then on-premises, then hybrid, one by one. Any questions?
+
+Student: I heard about Runtime Fabric — what is it? Why aren't you covering everything?
+
+Why did I mention only these three? I use them regularly. And there's no rule that everyone works in every model; a minimum idea is enough. Most of the industry uses CloudHub. If you were asked about everything it would be difficult. Even I never got to work on complete on-premises until now — I did hybrid, CloudHub and RTF. Our clients were on on-premises until recently [unclear] and moved to CloudHub in the 2024–25 financial year.
+
+Say you have three years of MuleSoft experience across two projects, both on CloudHub — no other deployment experience. That can happen. You can say clearly in the interview: "I worked completely in CloudHub; I never got the opportunity to work on on-premises or hybrid." No problem. And don't bluff in interviews — "I know this, I know that, I worked on it" — that's not good.
+
+What is RTF — Runtime Fabric? It's also a deployment strategy. On our own on-premises server, MuleSoft gives software — RTF — that runs a container. In it, MuleSoft does the software patches and MuleSoft-related updates automatically; we don't have to do them every time. We deploy applications into it. Normally with the plain Mule runtime we do everything ourselves; with RTF it's connected to the MuleSoft network and MuleSoft takes care of some activities, reducing our burden. It's a container-based deployment model, called Runtime Fabric.
+
+Student: Is deployment faster than CloudHub?
+
+Not necessarily — it depends on the network: the CloudHub network versus your own network and infrastructure. In the current situation everything is fast; if it weren't, the business would be affected.
+
+Student: So the major difference from CloudHub is that this is on your server?
+
+Yes. CloudHub is all in the cloud, totally in their control. RTF is in your control — they only give you patches automatically; they don't control your data or your logs. Any other questions?
+
+[Discussion of a crash] It was down — it crashed. It took around 5–10 minutes to recover and be assigned to another worker; it all happened in the background. It was the third worker; meanwhile the other two handled the traffic, so it worked. In another situation — I'm saying this randomly — we have two workers that normally deal with 5,000; suddenly 25,000 comes at once. There's scope for a crash. If it can't handle the traffic, nothing can be done — it goes up and down and may crash again. But it automatically assigns another worker. Any other questions?

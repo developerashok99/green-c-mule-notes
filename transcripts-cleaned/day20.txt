@@ -1,0 +1,95 @@
+MuleSoft Telugu Course — Day 20 (cleaned transcript)
+Source: transcripts/day20.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day20 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] marks text read from the video. The server registration command/token shown in class is not reproduced.
+
+---
+
+In the previous sessions we saw the CloudHub deployment model and then on-premises. Today we look at the hybrid model.
+
+First, recall the runtime plane and control plane. How did on-premises work? We deployed the application directly into the runtime and checked the logs there; there was nothing like a Runtime Manager. In real time it's almost like that. Another option is that Anypoint Platform itself is set up on our servers by the MuleSoft team, but most of the time what I see on-premises is: log in to the Mule runtime box directly to check logs, and start, stop and restart there.
+
+Now the hybrid model: a combination of on-premises plus MuleSoft-provided services. Which part is on-premises and which is MuleSoft's? The services provided by MuleSoft — the control plane — come from MuleSoft. The runtime — where we deploy applications — is the client's. The Mule runtime sits on the client's server. For example, ICICI Bank uses the MuleSoft platform for integration: the server with the Mule runtime is in the ICICI data centre. Then Anypoint Platform — Runtime Manager, API Manager and so on — we use in the cloud provided by MuleSoft.
+
+You may ask: this is on-premises and that's in MuleSoft's cloud — how do the two connect and communicate? There are a few steps.
+
+[drawing: Hybrid — runtime on-premises (client) ↔ control plane in the cloud (MuleSoft), connected by two-way SSL through the runtime agent: ① Register the server in RTM ② Install the runtime agent in the server ③ Deploy the app.]
+
+We have Mule runtimes on our servers. We register them in the control plane — Anypoint Platform activities are the control plane; where the application runs is the runtime plane.
+
+1. Register the server. When we click register, we get a small command; we take it to that server and run it.
+2. Install the runtime agent in the server. Running that command installs the runtime agent into this Mule runtime. It establishes a connection between our runtime server and the control plane for communication.
+
+If that communication isn't secure, it causes trouble. So it uses two-way SSL. Think of WhatsApp: when a message goes to your friend it's encrypted, and decrypted on the other side — the communication is secure. Similarly here, communication happens in the most secure way, two-way SSL, via the runtime agent.
+
+3. Then you can deploy applications.
+
+That's the hybrid model. Applications are deployed here; all the logs are here; all the connectors and configurations are here; all the code is here. Only the control is through the control plane — Runtime Manager. From Runtime Manager we can start the application, stop it, restart the server — all from there. On plain on-premises, we'd have to log in directly and do everything there; we couldn't do it from MuleSoft's control plane. Is that clear to everyone? Yes, sir.
+
+For us, how do we try this? Do we have an on-premises server? We have the Mule runtime we configured yesterday. Do we have a MuleSoft account? Yes, the one I already shared — Anypoint Platform. We'll register this Mule runtime server there and establish communication; then if I upload a JAR in Runtime Manager, it will be deployed here. Small demonstration.
+
+First, log in to Anypoint Platform. Where do we register the server? In Runtime Manager → Servers → Add Server. Give a name — say "mule4"; any name is fine. Next: "execute this command from your server's bin directory" [the amc_setup command with a registration token]. I open a command prompt in the bin folder and run the command.
+
+We're trying to connect my local runtime to the Runtime Manager of Mani's account for deploying applications. The output: "Communication between Anypoint Management Center and the Mule Agent is authorized by using two-way SSL… going to create a keystore and request Anypoint Management Center to sign it…" and then: "ERROR: The certificate provided by the Anypoint Management Center is not valid. Probably you are a victim of a man-in-the-middle attack. Contact support." [screen]
+
+Let's see if it's something account-related. Normally the agent configures successfully — check whether it works when you configure it. The main point: communication is established securely with two-way SSL.
+
+Is the server running? Not yet. In the bin folder there's mule.bat — double-click it to start the Mule runtime. Is there no option in the settings to stop it? After it starts once, the restart, start and stop options are enabled from Runtime Manager. It has started, and there's already an application deploying.
+
+Who does all this generally? Not us, mostly — the admin or DevOps team; a separate team. Architects set everything up and get it ready; we just use the environment. But whenever you get an option to do something, use it — in real time you mostly won't get the chance.
+
+The application has started here, but it isn't reflected in Runtime Manager — there's no start or stop yet. I know the problem: the error — "The certificate provided by the Anypoint Management Center is not valid." Generally this doesn't occur. [screen: "Mule agent configured successfully … java.security.SignatureException: Signature does not match".]
+
+I deleted the server [screen: Delete mule4] and added it again. If you change the name here, the command changes accordingly. Copy the command, go to the bin folder and run it. "'.' is not recognised as a command" — so I removed the "./" prefix. Then "Unable to delete file … being used by another process" [screen]. [Several retries.] I renamed the runtime folder to mule4.4.0 — apps and everything empty; we don't need anything. Go to bin, give the command again. I think we're getting the same problem — because it's an old version, it might be the same — let's try again.
+
+Now it's created [screen: Servers — mule4, status Created], and in Manage Server only the delete option is available; we can't start or stop because we haven't started it. I start the server here; it should show Running. If Running doesn't come, the problem is in this communication. Maybe it's a recent 2.0-related upgrade — we've been using this for a long time. Does anyone have another account? I haven't faced this error before; this is the first time: "The certificate provided by the Anypoint Management Center is not valid. Probably you are a victim of a man-in-the-middle attack." That's why it isn't establishing communication.
+
+How it works when it succeeds: deploy applications from here; you can check the logs from here. In Applications, the application is visible; the deployment target shows "Hybrid server" with our server's name; status Running. From there you can stop or start the application, just like in CloudHub. There's a restart option; you can delete it.
+
+In real time, will developers get these options? In lower environments, yes. In higher environments — production, DR — only the respective teams, like production support, have access. In UAT too, most probably. It depends on company policy and structure. For example, I stop this application — it stops. The control aspects of the application in the runtime can be controlled from here — that's why we call it hybrid. Then I can start it again. I showed this on CloudHub, but the same works for hybrid; instead of CloudHub 2.0, there's the hybrid option. Can everyone see CloudHub 2.0? Yes. I'll find out why the hybrid server isn't registering — the certificate error — and tell you.
+
+Deploying to hybrid is simple: Deploy Application, select the hybrid target (our server), provide the properties as before — it's the same; nothing changes — and deploy. What does it do? It takes the JAR from here and deploys it into the Mule runtime of the registered server, then gets the status from there and shows whether it's running. Look at the diagram: I deploy here, it goes through this channel into the Mule runtime; after it runs, its status shows here; I can start, stop and manage the application from here. That's how the hybrid model works.
+
+[drawing: "① CloudHub 2.0 app → error while testing; ② Hybrid model → server not getting registered (error) — certificate".]
+
+I'll check these two issues and confirm next week — we'll get some time at the weekend. I think there's a change related to 4.4.0. If we use the latest version, we can do it now. Downloading the Mule runtime won't take much time; Studio would take longer. In industry most of the time I use Studio 7.12, with runtime 4.5 or 4.6 at most — that's why I keep 2–3 lower versions and use them. Until the previous batch this worked fine; maybe now there are compatibility mismatches. Let's clear that. Let's see which version downloads.
+
+[MuleSoft community] Before the download finishes, some information: there are MuleSoft Meetup Groups. The MuleSoft community is very strong. If you go to the MuleSoft community for help, they help a lot: ask one question and multiple people answer, and some people officially answer all the time. There's a group for each city or activity — meetup groups. Select Asia → India and there are many: Ahmedabad, Bangalore and so on [screen: MuleSoft Meetup Groups — Hyderabad, Explore by region]. Recently I've spoken in 5–6 different communities — the advantage is your credibility increases and your subject knowledge grows. Recently I spoke at the Goa meetup. These are upcoming events — others are presenting on December 7th, 8th and 14th. I did two sessions here — part two [screen: "OAuth 2.0 Implementation of JWT Policy in MuleSoft – Part 2"]. I took a topic and spoke on it. You can join a meetup group by clicking here and you'll get notifications of meetings and offline events. You learn different topics and your knowledge increases. When you complete the course and get a job, this is one thing you should do.
+
+Apart from this there are help communities. If you ask a question, there are multiple answers. For example, I have an issue — I search for it [screen: Google "mulesoft deployment failed bind issue port"]. This is the Help Center: "Getting port binding error and MuleRuntimeException…" — MuleSoft tech experts with good experience, interested in serving the community, reply to the error. About 60–70% of the time that solves the problem. If there's a known issue in a patch, the site tells you: "there's an issue in this patch; MuleSoft has fixed it in that version; try this solution." There are multiple ways to find solutions. You're not alone — the MuleSoft community is very strong, and that's one reason I always encourage people to learn MuleSoft. If you're somewhere with no help, you can't learn. We have MuleSoft content on the internet, official content — documentation website, help website, meetup groups — so much information. Very, very helpful.
+
+[screen: Help article — "BindException: Address already in use" — cause: another process, Mule application or domain on the same machine is using the port; solution: check the port, or check which process is using it.]
+
+Back to Downloads — which version downloaded? 4.8.1. I'll copy it and keep it in D:.
+
+At the meetups there are good experts — 10–12 years overall experience, 4–5 years in MuleSoft — and people who learn over time. Everyone can attend.
+
+Student: Is the meetup group free?
+
+Yes, completely free — no charges to join, register or attend. MuleSoft officially assigns interested people as group leaders — MuleSoft Meetup Leaders. They form groups, manage the events, bring speakers and talk to them. You can apply; the MuleSoft community reviews it and assigns a group. That can take you to the next level. But first, at least join the groups and participate in events. Once you've learned the subject, you'll understand what's discussed.
+
+How much of MuleSoft do we learn? If you ask me — maybe 20–25%. MuleSoft has many more tools, such as RPA (Robotic Process Automation), IDP and so on. But what we learn in this course is what's used 80–85% of the time in real time; that's why we discuss it. There's still a lot to learn and we can go deep; I'm doing it slowly, and you can follow the same path. If you ask what my level in MuleSoft is right now — hardly 20–25, 30% max.
+
+Student: How much time do you get for one topic at a meetup?
+
+One and a half hours for some, one hour for some. Mostly one-hour sessions — that's why I did it in two parts, since one hour wasn't enough. What I say in our sessions, I say there — but the questions are high-level, because they already know the concepts. Good experienced people come, so the questions are more qualitative; some have worked on that policy before, some come to learn it — so there's good interaction.
+
+Now 4.8.1. Let's try once; if it doesn't work, I'll check and let you know. Servers → Add Server → copy command → bin folder. The error came — a compatibility issue with 4.4 — and now there's a problem with Anypoint Management Center. Let's check — "Created" comes. I close this. 4.8.1 created.
+
+[Windows warning: "… put your PC at risk".] The more we practise, the more challenges we face. In the office too: the more we work, the more quality work and the more challenges, and we automatically check new issues against previous knowledge. Read the error properly and check what's connected to it. If that doesn't work, take the error and search Google. Since it's MuleSoft-related, the community will have it — thousands of developers, so someone has had the issue and there's a reply. Apply the steps from the solutions and most problems get solved. If not, post your own question, or reach out to colleagues in your office. But going straight to a colleague without checking Google or anything isn't the right strategy — first try to solve it yourself; otherwise your dependency on others keeps increasing. People already in IT apply this; my suggestion for those entering the industry: follow this approach and you'll succeed faster, and within one to two years your dependence on others reduces.
+
+Still facing the issue — one is solved and another came. With 4.8, which Java version is compatible? 8 should work, 11 should work, 17. I just went to Google and checked — this is the official MuleSoft documentation page [screen: Java Support — Mule Runtime Java support]. MuleSoft documentation is very powerful, but it takes time to understand — slowly, step by step. When I first entered MuleSoft it took me a long time. If we keep reading, we can easily find what we want. For 4.8 Edge, Java 8, Java 11 and Java 17 all work. Ours is 11 — no compatibility issue. Clear.
+
+Next, where are we setting the environment variables?
+
+Student (Mahesh): Aren't all these — Maven, Java — built into Studio?
+
+Yes, in the latest Studio. But I'm running the runtime, not Studio — I just download it and work with it. With older Studio versions like 7.7, even in Studio you had to configure Java, Maven and set up the environment variables I'm talking about.
+
+What are we checking? In C:, software — it's already in the path; in the bin files. Let's see — if it doesn't work, I'll check and come back to you. Bin — there are no files there? There's a compatibility issue here and there.
+
+When deploying an application you'll see multiple runtime versions here; if the organisation uses two versions, you'll see both. Another thing: the problem is with the agent we put. [unclear]
+
+When you practise: deploy the application, the server registers, it comes to Running, then deploy — it hardly takes 2–3 minutes, and we've understood the concepts.
+
+I think the time has come to move to CloudHub 2.0 properly — we'll have to upgrade the whole Studio version; we're on 7.12 now.
+
+One more thing: I'll have sessions on Friday, Saturday and Sunday — three days. Please be available, same timings: 7:30 to 9 in the morning. I won't change the timings and I'll post it in the group. Tomorrow we start a new topic.

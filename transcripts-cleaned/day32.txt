@@ -1,0 +1,102 @@
+MuleSoft Telugu Course — Day 32 (cleaned transcript)
+Source: transcripts/day32.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class drawings (slides/day32 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [drawing: …] marks text read from the instructor's drawings in the video.
+
+---
+
+[Recording starts mid-sentence.] … then we get invalid credentials, a 401 Unauthorized error. If the user gives the username correctly and the password wrong — 401 Unauthorized. If the username is wrong and the password right — also 401. If the user doesn't send the username and password at all — 400 Bad Request, because the required field is compulsory and it isn't being sent. What's the advantage of knowing this? From the error we can guess what mistake was made and where to check. So always keep in mind what kind of errors come. That's one thing I wanted to add from the previous session.
+
+Now, the Rate Limiting policy. Do you have any idea about it? If not, I'll go ahead — no problem.
+
+Rate limiting means limiting — limiting the number of requests. For example, there's an API with five consumers sending us requests. We can handle 100 requests per minute. Say these consumers send more than 100 requests per minute — what happens? If you open the app, it says it has crashed. There are situations like "WhatsApp crashed", "Facebook crashed". One reason is more traffic than expected, which the servers can't handle — and the app crashes. In such situations, I apply a rate limiting policy: in a minute, no more requests than this.
+
+What does it do if more requests come? Put them in a queue? No — it rejects them, directly. That's rate limiting. There's another policy that queues — a different one; I'll come to it later. Rate limiting: once it exceeds the limit per minute, it automatically rejects.
+
+For example, our server capacity is 100. I set a rate limit policy of 95 per minute. If the 96th request comes within that minute, it rejects it — 96, 97, 98 are rejected. [drawing: Rate limiting — fixed window algorithm, 100 reqs/min processing capacity, 95/min]
+
+Now, I said per minute. Which minute? We should have that doubt. [unclear] Say the first 95 requests come between 10:01:00 and 10:01:30 — that's the quota. In the next 30 seconds, another 95 or 100 come. What happens to those? Do you understand the question? — Please repeat it.
+
+In the first 30 seconds, 95 came. In the next 30 seconds, another 100 come. The first 95 are processed. The next 100, in the remaining 30 seconds of that minute, are all rejected. How? With 429 — Too Many Requests. Why a 400-series error? Did we lack capacity? No — we already informed them not to send more than this. Rate limiting is a policy, a contract between the consumers and us: we won't process more than this. That's why it's 400 series. We're fine; our application is fine; after the limit, it's their problem.
+
+When does our application accept new requests again? After 10:02 — from 10:02 to 10:03, 95 requests; 10:03 to 10:04 and so on. Now say I redeployed the application in the middle — at 10:05 — and the first request came at 10:06. Then the window starts at 10:06, the time of the first request. This clarity — 99.99% of people don't have it. Please understand it, repeat it to yourself: where does the window start? That's called the fixed window algorithm. Is 10:01–10:02 a fixed window? Yes; 10:02–10:03 again fixed. So which algorithm does the rate limiting policy follow? The fixed window algorithm. [drawing: deploy at 10:00 am, first request at 10:10 am → windows 10:10–10:11, 10:11–10:12, 10:12–10:13; over the limit → "reject the request with 429 error — too many requests"] Observe it — is anything missing? Check once.
+
+Another question: three consumers — consumer 1, 2 and 3. Is it 95 for each, or 95 for all? — For each? — It's for all of them. Because it protects our application, and our application handles only 95. That's why it's 95 for all. Say consumer 1 sent 30, consumer 2 sent 40 and consumer 3 sent 60 within one minute — according to timing and availability, 95 are processed and the rest rejected, whether they all arrive within 30 seconds or 40-45 seconds.
+
+— How do you decide this limit?
+
+We do load testing when we do performance testing. But this policy is applied less in real time. Why? On CloudHub the app can handle more requests too, so such situations are less common. When would such situations arise — any idea? A small example: in our application I have to use a third-party API. Their capacity is 10,000 requests per minute or per hour — there's a limitation in their API. We shouldn't send 11,000. So we design ours that way. [drawing: our API → Okta API, 10,000 reqs/hour] Clear? — Yes, sir.
+
+Or our own capacity: there's a risk of unexpected traffic, so let's apply the rate limit. In maximum-capacity performance testing — first 500 requests per hour, then 1,000, 2,000 — it works well up to 2,000; beyond that the system with 3 workers crashes. That's our capacity for 3 workers, so above it we reject. In such situations we use the rate limiting policy.
+
+So: it follows the fixed window algorithm; the time slot starts from the first request; once the application is redeployed or restarted, the window is fixed afresh. The error is 429. Once a window finishes, the next window processes up to the specified limit.
+
+Are policies important or not? I said in real time this one isn't used much — so why spend so much time? Because interviews ask about policies. They'll ask which policies you worked on. If you say only basic authentication, with 3-5 years of MuleSoft experience — that won't look good. Whether or not you get the opportunity in real time, at least present yourself as having experience with these policies, and know the minimum depth: fixed window algorithm, where the time slot starts, and that once you cross the limit — reach the quota — you get 429 errors. Any doubts on rate limiting? No.
+
+Real-time examples: Prime Video, Netflix, Aha. The correlation? For example, with a free account you can access some things; with premium, many things. Premium may have two levels: level 1 allows 5 devices — more than 5 gives an error; level 2 is unlimited — no error even above 5 devices. They do this with limits — like rate limiting. Antivirus is another example: limited number of devices. So we can quickly correlate — subscription plans. We meet it daily but don't know the terminology. Here it's called the rate limiting policy.
+
+Is rate limiting specific to MuleSoft? No — it's a common term applicable to almost all API levels. We're looking at how to implement it in MuleSoft and where. Where do we apply it? In API Manager. When a request comes, the gateway checks whether it's within the limit and rejects it right there — the request doesn't even reach our application. If it's within the quota, it's allowed, processed, and the response sent. Clear to everyone?
+
+Next, Rate Limiting SLA. Now I want a type for each consumer. Before, I mixed everyone together. Now I have silver, gold and diamond members for my API — for my subscription. Do you always give your APIs for free? Sometimes we expose our API to outside parties and charge them, because we provide API services. (Using our own mobile or web app is a different scenario.) I'm commercializing it with 3 membership levels, accepting one range of requests per minute for gold, one for silver, one for diamond. Can I implement this with the rate limiting policy? No — everything is common there. For this, there's the Rate Limiting SLA policy.
+
+What's SLA? Service Level Agreement. How do we tell each consumer apart? Remember client ID enforcement — we generate a client ID and secret for each client. Now we have silver, gold and diamond. Silver: 1 request per minute; more than that, rejected. I'm taking these numbers randomly to make it easy — it could be 5, 10, 15 per minute. Silver 1, gold 2, diamond 5 per minute. A gold member sending 2 is fine; more than 2 — error. Silver — 1 is okay; more than 1 — error. Clear? Any doubts? [drawing: Rate limiting SLA = CID + RL — Silver 1 req/min, Gold 2 req/min, Diamond 5 req/min]
+
+How to implement it I'll show you practically. The implementation is slightly different: a separate policy, Rate Limiting SLA; we create SLA tiers and reference them. I'll show the difference. Don't worry.
+
+An interview question: "I have multiple consumers and have to apply rate limiting differently for each — which policy?" Rate Limiting SLA: we create SLA tiers for different consumer levels and rates, then apply the policy. The difference between rate limiting and rate limiting SLA: the Rate Limiting policy is for the entire API; with multiple consumers it counts the total requests from all consumers in that time frame and rejects irrespective of consumer. In Rate Limiting SLA the limit is specific to each consumer or client; only the consumer who exceeds their limit gets rejected with 429. [drawing: second example — API 100/min; Gold C1 50 req/min, Silver C2 25 req/min, Bronze C3 10 req/min]
+
+— Is there a limit on how many it rejects?
+
+No. We decided the limit beforehand. It rejects everything beyond it. Say we set 95 and 500 come in one minute — it processes 95 and rejects the other 405. We do nothing. One option is to increase the capacity of our APIs and raise the limit, if consumers complain too much.
+
+— But how many were rejected — is that visible?
+
+We don't have that anywhere — it doesn't even show in monitoring, as I said. We'll be within the limits; there won't be overload, but we should be aware of it.
+
+If you ask me, I've never implemented rate limiting SLA in my total experience. But in interviews you'll get these questions. We need to know rate limiting, rate limiting SLA and all these policies. We're discussing 8-9 policies commonly used in the market. The most common: basic auth, client ID enforcement, rate limiting, spike control and OAuth. I'll tell you 3-4 more if we get time. Rate limiting SLA is used less, but once you know rate limiting, there's scope for questions on rate limiting plus SLA — at least know the difference. Spike control is used fairly well too — less in real time, but asked more in interviews.
+
+Next, Spike Control. Some call it throttling — throttling is a generic name — but in MuleSoft it's the Spike Control policy. What does it do? It puts the request in a queue. With rate limiting, extra requests are rejected. Spike control shouldn't reject: if the window's limit is exceeded, the request is placed in the queue. This happens in the background — we don't do anything manually. After the window opens again, it tries to process the message from the queue. Is this a good policy?
+
+What pattern is this? Request-reply. If I keep the request in the queue, can I still give them a response? They get a delayed response — but it's in the queue, I process it after the window and send the response. It takes more time than normal.
+
+Next question: in spike control, can I set the time frame to half an hour — 30 minutes? Then messages sit in the queue, and after half an hour it processes them again. Or a doubt: 100 requests per 5 minutes, and all 100 come in the first minute — will it accept anything in the next 4 minutes? So the extra ones would be processed after the 3rd, 4th, 5th minute. Can I make the consumer wait 3 minutes? No. So is that policy setting right or wrong? Wrong. It was designed for short time frames. How much queue capacity can you give? Think about it: no response even after 3 minutes — would the user experience be good? No. In the request-reply pattern the user experience shouldn't stretch that far. That's why it keeps a short time frame. [drawing: Spike control (Throttling) — 5 reqs / 5 sec]
+
+Spike control follows the sliding window algorithm. What's that? I told you the fixed window algorithm: 10:01 to 10:02, then 10:02 to 10:03 — starts at 10:01 per minute, next window at 10:02… [unclear: repetition loop]
+
+What the sliding window does — say 5 seconds, 5 requests in the first 5 seconds — it looks at the first, second, third… and from the latest request it looks 5 seconds back. The window slides. First the window is here; from the 5th request it moves. The advantage of the sliding window is scope to handle more requests in less time.
+
+With 5 seconds it gets confusing, so I'll take liberty and explain with a longer time: 5 requests in 5 minutes. A fixed window would be 10:00–10:05, then 10:05–10:10. Requests came at 10:01 (30 seconds), 10:02 (20 seconds), … — 1, 2, 3, 4, 5 — five requests. The sliding window looks back from the latest request by the duration we specified — 5 seconds or 5 minutes. Say a 6th request comes at 10:25 [unclear: times as drawn]. From that moment it checks the quota — it slides back over the window; in that range there's only one request, so 4 are available. In a fixed window it wouldn't be available, but here it is. This window was here first and moves from there to here — that's the sliding window algorithm: the window is fixed on a sliding basis, automatically in the background. [drawing: requests numbered along a timeline 10:01 … 10:16 with the window sliding; "Rate limiting → fixed window (10:00 to 11:00, 1000 reqs/hour)"; "Spike control → sliding window algorithm"]
+
+Because of that, we keep it in a short time frame — less than 5 seconds — and within that, configure how many requests can be queued; there's a limit there too. In the request-reply pattern, since it shouldn't take long, plan to respond within 5-10 seconds overall. If it takes longer, the timeout is over and we reject it, even if queued. That's why spike control uses the sliding window algorithm and the queue to handle extra requests.
+
+The question: difference between rate limiting and spike control? Spike control keeps the extra requests in a queue and processes them; it uses the sliding window. And "throttling" isn't the word used in MuleSoft — it's Spike Control. Clear? Any questions?
+
+Which policies have we covered? Basic authentication, client ID enforcement, rate limiting, spike control — so far theoretically. Applying them is very easy — a matter of minutes, even seconds. That's why I'm discussing everything theoretically first and explaining how to implement it.
+
+Now, HTTP Caching. Any idea about caching? Caching means storing resources. This is a Mule API; this is the consumer. In it I call a third-party API — for example, a PAN verification API. In India, PAN is issued by NSDL; like UIDAI for Aadhaar, there's an organization that does PAN verification, maintaining a third-party system with an API. Now a bank: someone applies for a loan and gives a PAN number. How do I verify whether that PAN is genuine? By consuming this API. It may be genuine but disabled — not active. Where do I get all this? From this API that NSDL exposes, under an agreement — it's chargeable. [drawing: HTTP caching — TL/HL/PL loan apps → Mule API → cache → PAN verification API (NSDL)]
+
+So a person applies for a loan; our Mule API gets the request, takes the PAN number — among many steps, one is PAN verification. I send the PAN number, they give me its details, I verify and move on (or reject). Now the same person, on the same day, applies for a two-wheeler loan, a home loan and another — we verify three times. The PAN service is ₹10 per call — they charged ₹30. But it's the same thing — will a PAN's details change within a day? Generally not. So he applied a policy called caching: however many times a PAN number comes in a day, I pay once.
+
+What happens? The first request goes to the API, collects all the details, and saves them in the cache — temporary memory — at the API level, and responds. The second request comes with the same PAN number. The response for it is already in the cache, so it's returned from the cache. Can I do this for frequently changing data? No — for data that doesn't change frequently. I apply caching at this API level. That's the HTTP caching policy: whenever there's frequently requested, non-changing data, we can use HTTP caching.
+
+Another perfect example: the HR database we talked about. Employees who resigned: in November 25 employees resigned, in October 50. This count keeps changing for the current month — December. [drawing: HR1/HR2/HR3 → API → HR DB; Nov → 25, Oct → 50, Dec → 10+] HR is a consumer sending a request: HR1 wants the list of employees who resigned in November. We respond with those 25. HR2 asks for the same list again — served from the cache.
+
+How many days do we keep it? We mention that in the cache. We can't give too much. Say 15 days — in 15 days thousands and thousands of requests come; if we save all those responses, the cache memory gets disturbed. That's why we keep it 1-2 days. So for frequently requested data: the first request does the actual processing and stores the response in the cache; within that time frame, the same request is served from the cache; when the cache time expires, the next request processes it fully again, and so on. Clear? That's our HTTP caching policy.
+
+— A quick question: we can store the November response, and October's too?
+
+Yes, we can store October's in the cache too. [unclear] Even if we don't apply it ourselves, since others have, we have clarity on how it should be — otherwise we're always confused. That's why we discuss it. In interviews, I'd ask HTTP caching based on seniority — for 5 to 8 years. Below 5 years I'd ask about rate limiting, spike control, OAuth, basic auth, client ID.
+
+Next, JSON Threat Protection. The request comes in JSON. In our body, the APIkit Router validates the type — say I set a field as string. How big a string will it allow? We took an example on the Anypoint Platform. The request comes, the router passes it to the API, and the API can't handle the memory because the message they sent is huge. What happens? Our API crashes. And if it crashes, they can send it again and again. How to restrict it? The JSON Threat Protection policy.
+
+Could we implement it in the APIkit Router? Yes. But then: first the listener, then the APIkit Router — has the request entered the API? Yes. I want it stopped before it enters the API. Where? Apply the policy — at the gateway. [drawing: JSON threat protection — gateway checks the JSON before the API; same for XML]
+
+There are different combinations in JSON Threat Protection: for example, an object shouldn't have more than 20 properties; an array shouldn't exceed a size. All these restrictions can be set. — We can define it in RAML as well? — Yes. But in RAML, the request comes in through the listener and gets validated by the APIkit Router — it has entered the API. Here it's stopped before entering — at the gateway itself. That's more secure. That's why many people use this policy. I prefer it — if someone gives me a free hand, I love to use this. We can protect APIs that are vulnerable to attacks. I'll show two or three examples when we practise.
+
+One example: we should get only five properties — one, two, three, four, five. additionalProperties is true by default, and we handle it in the APIkit Router. What if they send one lakh properties?
+
+Next, IP allowlisting and blocklisting. By the name: I'll process requests only from these IPs — for example 10.1.25.1, 10.1.25.2, 10.1.25.3. I accept only requests from these three. If a request comes from 10.1.25.50, will the API accept it? No. What does the gateway do? Checks where the request came from — its IP, 10.1.25.50 — is it in our list? No — reject.
+
+The blocklist: requests from the IPs we put in the block list are blocked; everything else is accepted. [drawing: API IPW — 10.1.25.1 / .2 / .3 allowed, request from 10.1.25.25 rejected; API IPB — 10.1.25.100 / .101 / .102 blocked] [unclear: long repetition loop]
+
+[unclear: repetition] … OAuth is compulsory more — they mostly use OAuth on the experience layer, and client ID enforcement or basic authentication for internal communication. These three are used the most.
+
+Next we apply these and check them. After that, OAuth — I need an entire session, 1.5 hours, to explain the whole policy. I'll explain it fully and then we'll apply it. Only POST work remains — deploy it and keep it ready for tomorrow's session. Sorry, today is Thursday, right? Let me stop here.

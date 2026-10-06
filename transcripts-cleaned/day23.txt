@@ -1,0 +1,88 @@
+MuleSoft Telugu Course — Day 23 (cleaned transcript)
+Source: transcripts/day23.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day23 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. Parts of this recording's transcript are fragmentary; they are marked [unclear]. [screen: …] marks text read from the video.
+
+---
+
+In this session we implement RAML — we use RAML to create the API specification. We start now, because everything is ready: request, response, error response, headers. No need to wait for anything else.
+
+After logging in to Anypoint Platform, from the home page go to Design Center — two ways: "Start designing" here, or "Design Center" here; both go to the same page. Design Center looks like this: a Projects screen — you don't have any projects yet — and a Create option. Click Create and there are multiple options, which can be confusing: New API Specification, New Fragment, New AsyncAPI, Import from file, Sync from existing GitHub repo. Each is for a different purpose. We need an API specification, so New API Specification.
+
+What is an API specification? A blueprint consisting of all the resources — all requests, responses, error responses, schemas and examples. We'll discuss fragments in later classes. The others: if we already have a RAML, we import the file — that option. If our RAML is in a GitHub repo, we import it directly with GitHub login — used in rare instances. AsyncAPI is for asynchronous APIs — recently introduced; you can specify asynchronous APIs with it. Fragments we'll understand in the next few classes, when we implement them.
+
+New API specification. First the project name. We know how it should be: HR employees — "hr-employees-sapi", SAPI as the shortcut. We've already created that one, and importing it into Studio would clash, so we add our batch number [screen: hr-employees-sapi-7303]. In real time, this much is enough; if you need more, add the target system — "…-db-sapi" — or "sys-app". We discussed naming conventions; we follow them.
+
+[screen: New API specification — Project name; "I'm comfortable designing it on my own" / "Guide me through it"; Specification language RAML 1.0.]
+
+Two ways: "Guide me through it" or "I'm comfortable designing it my own way". "Guide me" gives simple guidance tips. We're already pros, so we can do it from scratch — this option. Importing through GitHub needs authorisation — not needed now. So "my own way".
+
+Specification language: we discussed RAML 1.0 and RAML 0.8. OAS has two formats, JSON and YAML — OAS is another language like RAML for designing API specifications; whichever you use, there are syntax differences, like .yaml vs .properties property files. OAS has versions 2.0 and 3.0 — 3.0 is the latest, 2.0 a little older. We already have an idea of RAML 1.0, so we choose that.
+
+The API is created. On the left, all the files. In the middle we fill in the API specification. On the right, documentation is created automatically. Auto-suggestions come up: I clicked here and pressed Enter — typing "desc" offered the keyword description; even without typing, pressing Enter offers suggestions of whatever's possible.
+
+[screen: #%RAML 1.0 · title: hr-employees-sapi-7303 · description: This API will faciliate creating, updating and fetching employee details using HR database · version: v1 · protocols: - HTTP · mediaType: - application/json.]
+
+Description: "This API will facilitate creating, updating and fetching employee details using HR database." There are only three kinds of operations on the employees resource: POST, PATCH and GET — create is POST, update is PATCH. So we're doing all three here? Yes. [unclear] The database is the system.
+
+Protocols: HTTP or HTTPS. Media type: what data type do we send to this API — application/json, application/xml, etc. We note these one by one — these are best practices. Will we follow best practices now? Now we'll do it plain — I won't apply the [modularisation] best practices yet.
+
+Student: V1 is the version?
+
+Yes, v1. If you want 1.0, it's up to you, but I don't suggest it. If you add features: v1.1, v1.2. For major changes, version 2.0.
+
+Student: What's this field? [unclear]
+
+Those are all optional fields.
+
+Employees. A resource name should be a noun — plural. A noun represents a thing or person; "employee" represents a person; "employees" is plural. Remember: it should be plural, and the action shouldn't be in it. For example, how do we create an employee — "createEmployee"? That's an action. Per the rules we shouldn't, but in real time teams use it differently — unless there's a very strict architect, they keep names as they like. Why shouldn't we? There's a POST — what does POST indicate? Creating a resource — already.
+
+[Explaining the sub-resource style:] Here, "add" under employees is a sub-resource — employees/add; similarly update and fetch — employees/fetch, employees/update, employees/add — written with a slash; the minimise icon collapses add, update and fetch, and since each has a tab space, they fall under employees. [screen: the reference project from an earlier batch, hr-employees-sapi-7302, opened in Studio, uses /employees: /add: post: …. The class's own RAML in Design Center kept post and patch directly under /employees and added /{empid} for get — see the documentation panel later.]
+
+[screen: /employees: post: description: This endpoint will help to create a new employee in HR databse.]
+
+This endpoint will help to create a new employee in the HR database.
+
+Headers. First, transaction-id. How should the field be? Our consumer must send it exactly as defined here. If they send a capital T or a capital I, it won't work — we throw a bad request. The field name must be the same. Is that clear to everyone?
+
+[screen: transaction-id: description: tranaction-id is useful to track the journey of a request in Mulesoft layers · type: string · required: true · minLength: 32 · maxLength: 32 · example: "abcdefgh-jxbv8599-sjdf762-3746bb".]
+
+If you don't want it mandatory, say required: false. There's a parameter called required, true or false; by default required is true. Look — alignment is very, very important: by giving a tab space under transaction-id, I'm defining all its parameters. required — boolean — true. If we want it mandatory, true. If you don't mention it at all, it's still required by default — true — and if not sent, you get an error. To make it optional: required: false.
+
+Next: I said it has 32 characters. What do we mention for that? minLength and maxLength — 32 and 32. [An example shorter than that gave "Error: should NOT be shorter than 32 characters".]
+
+We have 3 headers. Add the next one — here or at the same level? At the same level — backspace. Next: origin. "This header will help us to understand from where the request is initiated." You can select from the suggestions below. The keyword: enum. What goes in the enum? Our two values [screen: enum: - mobile - web; example: "mobile"]. If three values are needed — IoT, for example — add IoT. If you don't add it and IoT is sent, an error comes. The example must be one of these values — when sending, send one of these two. Then consumers will send bad requests — say "M" in caps in the header. Who identifies the error and sends the details? They'll say they sent everything correctly — "mobile". Then we check against our validation, trace the error and tell them. Is origin done? It's required by default; we gave required.
+
+Next header: language. Do I have to type it all each time? Another technique: the headers have the same shape, so place the cursor here, copy (Ctrl+C), Enter, Backspace, Ctrl+V — everything's ready; then change it. Language — description "language used by the user", type string, required false. Does it need an enum? No. Alignment must be correct. Example: English or Telugu — most websites are in English [screen: example "english"].
+
+So, two techniques: write one by one, or copy-paste one and change its values. Minimise the headers — all minimised. Click the icon on the left to see how many headers there are; minimise and maximise like this. Are the headers ready? Keep the same format in each; required and the rest can be in any order, but the alignment must be the same.
+
+Body: application/json, type object, properties — one, two, three, four, five. [screen: empId, empName, empSalary, active, empDesignation — each with description, type, required, example.] Even if you don't write "employee" in full — just "emp" — it's fine. It's always good practice to write a description. Employee ID … copy, Enter … to the employee … active: boolean. That's what I wanted to show.
+
+[Fixing the document:] "EMP status" was lower-case in the document — some were correct, some wrong. Don't just copy blindly; correct it in the document and here. Work intelligently. There's no rule that the document is 100% right; if there's a small thing, fix it — it's technical.
+
+[screen: errors — "should have required property active", "… empDesignation", "… empId", "… empSalary", "… empName"; later "empId should be number".] Errors: should have required property active, employee designation, ID, salary, name — all required. But even after giving everything, it didn't work. Why? I have to fix the alignment from here. It auto-saves — "Saved a few seconds ago"; I'm not pressing Ctrl+S. Is it the double quotes? No — "Suresh" is correct; salary, active true, designation software engineer — all correct. Select all these lines and press Tab — now it looks neat and the example is valid. Easy for reference. See the star mark — not saved yet; now it's gone — saved. If it doesn't save automatically, check and change it again. Keep observing that.
+
+Responses, one by one: response code, then body — statusCode and message, with descriptions [screen: statusCode — description: this field defines the stataus code of the response · type: number · required: true · example: 500; message — type: string · required: true · example: "internal server error"]. Even done properly, the alignment is off: the properties should be inside. What do I do? Select these two lines and press Tab — one step, then one more step. You should know this: for forward indentation of multiple lines, select them and press Tab; many people indent one line at a time.
+
+Error responses — 400 and 500 series. Here it's the same structure as success — status code and message; only values differ. Will it be like that in all cases? No — error responses usually have a different structure. Since it's the same here, copy and paste: I need two — Ctrl+C, Ctrl+V, Enter, Ctrl+V. Minimise. This one: 400 — "bad request" [201 is not an error]. Next: 500 — "internal server error". Is everything created? Did we give examples? Yes. What did we do: first the method, the headers, the body; then in responses, the success response and error responses. This resource is done. Next resource.
+
+Documentation: someone clicked documentation here. Look — title, version, endpoints — created automatically. The employees endpoint has a post; click it and we can test it here. There's a small issue I'm unable to trace. You click Send and it tests like Postman. This is the body. But a bad request comes: "Request validation error … enum value". Even if you fix it, the issue always appears.
+
+After hitting, a URL is automatically formed — a dummy [mock]. Design Center works like Postman. Headers: transaction-id — the information for the header; origin — mandatory values; language I set optional — did it come? No. Click "Show optional" and it appears. Body: JSON — all the body details we gave. It forms a request and hits a mocking service. Here too, a bad request — related to the enum. We selected "mobile"; it happens with "web" too. In the dropdown you can only select these two — nothing else. That's how documentation is formed. It's still an issue; I'll show another way to test it — how to test properly and ask properly.
+
+In Documentation → Endpoints → /employees → POST → Try it → Send. "Optional" shows optional headers; "Format" pretty-prints; "Minify" puts it in a single line. The response should be 201 Created. But there's an error — a bad request — the enum problem. Now I remove one field and send: "Required key … not found" — the error changed. So validation is tested properly — this option exists. Documentation is created automatically.
+
+Update. To do it faster: this is almost the same as the POST — only the examples change; the structure is the same. Observe and reuse. I copied the first one from the first line and pasted it.
+
+[screen: additionalProperties: false — errors "Syntax error in the following text: 'false'", "Expecting !!bool, !!null provided", "should NOT have additional properties".]
+
+additionalProperties: false — what am I saying? The error: "Syntax error … false … Expecting boolean, null provided … should NOT have additional properties". It shouldn't be placed there. What's its importance? Additional properties in our object are allowed by default [true]. This placement is wrong. I had a small doubt where to put it. One second — it should go before properties, after type: object. It's not alignment — it's an order issue. By default it's true, so we have to set it explicitly to false; then extra properties are rejected. Remove the wrong one and set additionalProperties: false in the right place. Fine.
+
+[Patch body] type number done; example. Response 200 — "employee details updated successfully in the db".
+
+Get: employee ID as a URI parameter [screen: documentation endpoints /employees and /{empid}; mock URL …/employees/{empid}].
+
+Post request — go back, Try it, Send: the error still comes. I still can't spot why; it's been coming for 2–3 batches — there's a small issue somewhere. It works if we remove the enum, but we have to show the enum, so I keep it. I'll show you how to test it another way — a mocking service; we'll create it and test accordingly. Finally we have to test whether it's working as expected.
+
+Another question about headers: we set language as optional. It's a string — what if they send null? Will it work? No — it expects a string. Say instead of English they send it empty, or null — there'd be an issue. How do I accept it? A default — "default: null" — in the RAML. Clear? Yes.
+
+We're done with the resources — the API specification is complete in RAML. How many lines? 300-plus. Next we modularise: apply the best practices one by one — create a folder structure, reduce it step by step, improve modularity and readability, so it's simple to read. In any programming language, many lines of code are hard to manage; reusability helps. The headers are repeated three times; if I write them once and refer to them, it's easier and the lines decrease. We'll see these best practices next session.

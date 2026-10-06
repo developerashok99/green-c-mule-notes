@@ -1,0 +1,96 @@
+MuleSoft Telugu Course — Day 22 (cleaned transcript)
+Source: transcripts/day22.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class slides and screens (slides/day22 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. This recording's transcript is badly garbled in places (long repetition loops and dropped passages); those parts are marked [unclear] rather than reconstructed. [slide: …] / [drawing: …] / [screen: …] mark text read from the video.
+
+---
+
+[Continuing from the previous session] The request comes from the front end — mobile, web, any application. We process it and connect to the database. Where the request is initiated, we call the source. Where is our application initiated from? Here — the HR application, this front-end application. It can be mobile or web.
+
+[drawing: API specification — /employees: POST → create, PATCH → update, GET → fetch; request/response JSON, schema and example.]
+
+This Experience API is for mobile; that one for web. How many experience systems and how many Experience APIs? An interview-style situation: there are two front ends — a mobile application and a web application — and two different back-end systems. How many APIs are required? Two experience systems → two Experience APIs, per requirement. Two systems — the database system and the Salesforce system — one System API for each. And the functionality is simple — one Process API. Overall: 5 APIs. We also asked about the situation and scope: with two Experience APIs, can we reuse the Process API? Yes.
+
+When we explain a project: "What source systems and target systems have you worked on?" — we can answer these. And it's not just these front-end systems: other companies can call our APIs from their APIs; in our company we call other APIs from our APIs — Experience to Process, Process to System. Internally, another department's API can call our Experience API. Say there's a finance department and a marketing department, each with APIs developed by their teams; a business need can connect them [unclear] — other systems as well.
+
+The mobile and web applications may need different data: the web application has more screen space for presentation, so more data is expected. The Process API has the same data for both Experience APIs, but each Experience API trims it per its consumer [unclear].
+
+So we have four applications [unclear]. We discussed source and target. What's the context — the business functionality? Creating employee details — centred on the employee. What types of API: experience, process, system. That's how we understand source, target and the API types through API-led architecture.
+
+Now, say I'm on the web application and I have to develop the Experience API, the normal Process API and the System API — three APIs. How do I decide their names? Based on these details: source, target, context, type.
+
+[drawing — API-led architecture: source → HR app (web or mobile); target → HR database (Oracle or MySQL); context → employee details; type of API → system, process or exp. hr-employees-sys-api → kebab case; hr-employees-sys-app; hr-employees-sapi; dbGetResponse → camel case; mobile-hr-employees-db-sapi → mob-hr-emp-db-sapi; ~42 characters.]
+
+[unclear] It isn't allowed beyond the length, so it's always advisable to keep the name as short as possible. Each organisation follows a different structure, but most of the time this is the way, and most of the time kebab case is followed: every word separated by a hyphen — not an underscore; it can look like an underscore here, but it's a hyphen. For the System API, some organisations do "hr-sapi" (sapi = system API). That's not wrong — you can put any name; everything works. Some follow a standard practice like "…-sys-api". [unclear]
+
+Validating JSON: some organisations allow online validators like jsonlint.com — search "json validator online" and many tools come up. But if your company restricts them, how do you check? At least understand the minimum: an object is in curly braces; keys must be in double quotes. Many people don't notice that sometimes the double quotes are printed differently — copied from Word or slides they look the same but are different characters — and that causes errors. Observe them.
+
+Another way: validate in Postman — Body → raw → JSON. Even if there's an error it shows clearly. [screen: JSON validator — "Invalid JSON"] "Error: Parse error … employeeSalary … active: true … Expecting 'EOF'". If you read it 4–5 times you'll understand: is there a mistake at the end? Yes — I'd given a comma. Now it's solved. Then a bad-string error: is it JSON or something else? To format and validate, copy and paste. I write one directly — name "Mahesh", designation — validate: valid. Why did the pasted one fail? A format difference: copying from there, the double quotes had an issue, but the JSON structure is correct. So understand how such issues come: paste it into the validator or retype it manually. Postman accepted it. [unclear]
+
+Who decides whether a field is mandatory — us or the team leads? The leads, most of the time, because it's said in the initial business discussion. [unclear] Number one — the employee ID — has to be sent compulsorily.
+
+[slide: request {"empId": "P10300", "empName": "Suresh", "empSalary": 80000, "active": true, "empDesignation": "software engineer"}; success {"statusCode": 201, "message": "employee details created successfully in the db"}; error {"statusCode": 400, "message": "bad request"}.]
+
+The response is in the format of a JSON object.
+
+Why is JSON popular? Easy to understand and used by multiple programming languages. One: is it human-readable? Yes. Two: is it lightweight? Yes. Three: can it be easily used in programming languages? Yes. That's why it's widely popular, compared to other data formats.
+
+Student: How do you know which language an application's front end is written in?
+
+The developers would know, but we can't go and see it. Even inspecting the application — I don't know; I have no front-end experience either, so I don't know if there's an option. What matters: they use HTML, CSS, JavaScript and so on, and they have the capacity to call our API — to invoke it. Clear?
+
+Error responses. How do I send them? Simple: a status code and a message. If they send wrong data: status code 400, bad request. If our database is down: status code 500. The error responses send different codes and messages, so it's very important to set proper errors. This is called the API blueprint — an understanding between your consumer and service provider.
+
+[drawing: Create emp — JSON data types; date as string "25-01-2025" (no date datatype in JSON); hobbies array ["reading books", …]; HRMS → API.]
+
+[unclear: discussion of hobbies, date of joining and data types] Boolean data types are accepted.
+
+If you have 100 fields — 100 or 200 keys — in a new API request, say 120 fields, you'll get scared. What should you do instead? Break them down one by one: this is the employee ID — string; this — string; this is mandatory, as written there; this is optional. Note them one by one; if something isn't written, discuss it clearly with the team lead. Why discuss mandatory and optional? Say I said the employee ID is mandatory: the front end must send it; it's the primary key — it must be compulsory; otherwise we can't insert the record.
+
+We call it schema. What is a schema? It'll be clearer when we do it. In the example we just saw, the body: first I define that it's an object; this is a key in the object; this key should be a string, maximum length 20 characters; then this key, employee salary — a number; and so on. [unclear]
+
+[unclear: discussion of unique IDs / traceability and the correlation ID] The correlation ID is for traceability — a unique ID — not the main important information for processing.
+
+Student: Can I send the token in the body?
+
+Good question — many people have this doubt. Honestly, you can send it in the body; nothing breaks. But it doesn't look right. Like traffic rules: we should drive on the left; if I go on the right, on the wrong route — nothing happens until there's an accident. It's not a rule; it's a standard. The body carries the data for processing. Say there's a token and I've set a policy: only with the right token do I accept the request. How is the token sent? There's an authorisation server — explained later — but remember the basics: first the HR application gets a token from it, then sends the request with the token to API Manager [the gateway]. If API Manager checks and everything is correct, the request goes to the Experience API. If the token is wrong, does the request reach the Experience API? No — API Manager rejects it. So the architecture isn't as simple as it looks here; the gateway sits in front. Remember the gateway and policies I mentioned? I'm trying my level best.
+
+[drawing — POST: QP ✗ · URI P ✗ · body ✓ → schema/example · headers ✓ · method ✓ · protocol ✓ · DF — JSON · response — success/error → schema, example; headers: ① source → HR web app ② correlation id ③ transaction id ④ …]
+
+Headers: source, correlation ID — a unique ID — transaction ID, and origin [unclear].
+
+[drawing — Update emp: PATCH → partial update; response {"statusCode": 200, "message": "employee details updated successfully in the db"}.]
+
+For the update resource: no query or URI params; body; the same headers; method PATCH; protocol HTTP or HTTPS; data format JSON; success response; error response.
+
+Another doubt: so far we've been designing "an API", but haven't decided whether it's a System, Process or Experience API. Ideally all three: Experience, Process and System. Given the time we have, we'll build one API that covers the concepts. In this use case the System API is simple. What does the database need? What's the System API request and response? The Process API request and response? The Experience API request and response? It depends. For example, a different, random use case: an Oracle database and a MySQL database. The Experience API comes in — how many System APIs does it communicate with? Two: one for each database's information. [unclear]
+
+[drawing — GET: body ✗ · headers ✓ · QP ✗ (empId) · URI params ✓; response {"empId": "P10300", "empName": "Suresh", "empSalary": 80000, "active": true, "empDesignation": "software engineer"}.]
+
+You should know this: copy-paste is common outside [in the industry]. Say you sit 8 hours to do one thing; if you finish it in 4, you spend the other 4 with your family, or on learning something new — or 2 hours with family and a movie, whatever. The less time we take to work, the better, because the remaining time goes to useful things. Copy and paste isn't wrong in my opinion — but you should know what to copy, where to paste and how to make the minimal changes; you should be able to check how it suits you and set it properly. An exact copy-paste is fine; if there's a small difference, take it carefully and make the small changes. That's why practice is key. Many people do everything from scratch; I don't suggest that. Even if you do it from scratch for 2–3 months, from the 3rd or 4th month slowly reuse what exists and add to it. That's a very smart move and saves a lot of time in the industry.
+
+For each: what's the request body, the headers, the query parameters, the URI parameters? We have to send everything. Remember we sent everything for the weather API? Similarly here, from the Experience to the Process API [unclear].
+
+[The raw transcript is a long loop of "employee ID" here.] Employee ID — a unique resource [identifier], for the GET employee response. Yes.
+
+So the Experience, Process and System APIs are done; then there's the sequence diagram. What does each do — experience, process, system. Now these are the System API's details: these resources should be in the System API; this method; this endpoint; these headers in the request details; no query params, no URI params; this body. Is the developer's job easy or difficult? Easy.
+
+[screen — sample design document from another project, "Functional Specification Document for Transaction Management": System API — Version 1.0.0, Resource /members/transactions, Method POST, Endpoint Function "This endpoint will receive the request from upstream APIs and create a transaction in the SFDC CRM system." Headers — x-transaction-id: "Transaction ID is used for logging and tracking purposes of a transaction in all layers", example abcdefgh-jxbv859-sjd76432-3746bb, Minimum Length 32, Maximum Length 32, Mandatory Y, String; x-channel: "Channel is used to identify the transaction whether it is received from a mobile or web application", Enum: mobile/webApp; x-origin-language: "Origin Language is used to specify the language used by the user", example English; x-origin-market: "The origin market is used to identify the country from which the transaction is initiated", example IND; client ID header.]
+
+Transaction ID: string — a different data type; "string 32" means 32 characters, a combination of characters; a string means double quotes — see the example. How do we put that in RAML? minLength and maxLength; type string; mandatory — it's required by default, true by default if not stated. The origin market identifies the country from which the transaction is initiated. Client ID enforcement policy is enforced on the System API: as this API is consumed for internal purposes, the client ID should be passed as a header by the consumer of this API — string, mandatory.
+
+What else do we need? We have everything; we just sit and develop it. Simple. You may ask: why do you make it sound so easy — will it be like this in real time? It will. Then why would they pay us lakhs and lakhs? [Because] if you follow the structure, understand the systems and the documents, and talk to your leads and peer developers, within 1–2 months it becomes easy for you. That's what I'm saying.
+
+The document: no query parameters — it isn't written, which means it isn't there. Look at the body and its example. There's a field rule: level. Fields directly in the object are level 1 — all at the same level — with details for each field: string, integer, etc. Then the response body field rules: there's an object called data in the response — fields inside it are at the next level [unclear].
+
+What are we mapping in the System API? From the System API we communicate with the database, so the System API needs a mapping sheet. What's a mapping sheet? All the request fields mapped to the database columns.
+
+[drawing — Mapping sheet: ⓐ empId → ① employee_ID; ⓑ empDes → ② employee_designation; ⓒ empSal → ③ employee_salary; ⓓ empName → ④ employee_name; ⓔ active → ⑤ employee_status.]
+
+Salary, name, designation, and these five fields. Here: employee_ID — I'm writing them all in one style because it's easier; it could be different. Then employee_salary, employee_name and employee_status. There'd be a few more fields. This field maps to this one — correct? Yes. And this to this. Here the names match well, so it's easy. In real time, do all names match like this? No — the mappings differ. That's where you put your brain in. If unclear, tell the business: "Please arrange a call and let's have a discussion." That's how it happens.
+
+We also have to do documentation. What? Our API's request, response, Postman collection, data types, schema, the Dev, UAT and Prod details and so on. Where? In Confluence. There's already a structure: like you did in WordPad, you copy and paste everything there; there's an existing API page — use it as a template and fill in the details.
+
+Design document diagrams: there's a high-level diagram of the entire project [screen: "Transaction and Loyalty Management – Banking" flowchart]. If we get a skeleton, it's easy to modify. Then an API landscape diagram — how many APIs there are for that business functionality [screen: "API Landscape for Transaction and Loyalty Management" — experience, process and system layers]. Then a sequence diagram [screen: "Transaction Management Sequence Diagram" — Transaction Experience API → Transaction Process API → Transaction System API]. These are the documents: functional specification or technical specification documents. What the request and response will be — we can do that, but it's not enough: say I have an Experience API, two Process APIs, and four System APIs from the Process APIs — there should be an explanation of which sequence it goes in and how — a proper diagram. As a developer you wouldn't otherwise have that idea.
+
+[screen — design document: 404 error response example with errorType RESOURCE_NOT_FOUND.]
+
+[Example from the instructor's project:] We have to send a sys token. In this API there are 4 endpoints. checkUserExistence is one endpoint — it goes to the system layer called "cprv". The other three go to the process endpoints. Token validation is only in that System API — only cprv. So should I implement the sys token for only one, or all four? The validation is only for the one — cprv. Yes, obviously.
