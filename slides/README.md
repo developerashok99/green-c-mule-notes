@@ -42,5 +42,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 38 — HTTP Caching and JWT Validation with Auth0 | [day38](day38/) | 30 |
 | Day 39 — MUnit Testing | [day39](day39/) | 27 |
 | Day 40 — MUnit — Flow Tests and Error Handler Tests | [day40](day40/) | 25 |
+| Day 41 — Consuming a SOAP Service | [day41](day41/) | 20 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
