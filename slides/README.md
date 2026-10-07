@@ -46,5 +46,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 42 — Scatter-Gather | [day42](day42/) | 26 |
 | Day 43 — Async Scope and DataWeave Basics | [day43](day43/) | 28 |
 | Day 44 — DataWeave — Variables, Operators, Flow Control and Filter | [day44](day44/) | 26 |
+| Day 45 — DataWeave — map, mapObject, groupBy, reduce, orderBy, pluck | [day45](day45/) | 26 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
