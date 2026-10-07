@@ -54,5 +54,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 51 — JMS and ActiveMQ | [day51](day51/) | 31 |
 | Day 52 — Object Store and Watermarking (Theory) | [day52](day52/) | 5 |
 | Day 53 — Object Store Watermarking Demo | [day53](day53/) | 14 |
+| Day 54 — FTP, SFTP and File Connectors | [day54](day54/) | 28 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
