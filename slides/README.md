@@ -57,5 +57,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 53 — Object Store Watermarking Demo | [day53](day53/) | 14 |
 | Day 54 — FTP, SFTP and File Connectors | [day54](day54/) | 28 |
 | Day 55 — CI/CD with Jenkins — Setup | [day55](day55/) | 21 |
+| Day 57 — AWS S3 Connector | [day57](day57/) | 31 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
