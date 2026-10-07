@@ -58,5 +58,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 54 — FTP, SFTP and File Connectors | [day54](day54/) | 28 |
 | Day 55 — CI/CD with Jenkins — Setup | [day55](day55/) | 21 |
 | Day 57 — AWS S3 Connector | [day57](day57/) | 31 |
+| Day 58 — Logging Levels and DataWeave flatten, flatMap, XML/JSON/CSV | [day58](day58/) | 28 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
