@@ -51,5 +51,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 47 — Salesforce Create, On New / On Modified Object, Scheduler | [day47](day47/) | 28 |
 | Day 49 — For Each, Bulk Insert and Parallel For Each | [day49](day49/) | 29 |
 | Day 50 — Batch Processing | [day50](day50/) | 24 |
+| Day 51 — JMS and ActiveMQ | [day51](day51/) | 31 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
