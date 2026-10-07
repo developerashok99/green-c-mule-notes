@@ -52,5 +52,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 49 — For Each, Bulk Insert and Parallel For Each | [day49](day49/) | 29 |
 | Day 50 — Batch Processing | [day50](day50/) | 24 |
 | Day 51 — JMS and ActiveMQ | [day51](day51/) | 31 |
+| Day 52 — Object Store and Watermarking (Theory) | [day52](day52/) | 5 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
