@@ -49,6 +49,7 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 45 — DataWeave — map, mapObject, groupBy, reduce, orderBy, pluck | [day45](day45/) | 26 |
 | Day 46 — Salesforce Connector — Setup and Query | [day46](day46/) | 26 |
 | Day 47 — Salesforce Create, On New / On Modified Object, Scheduler | [day47](day47/) | 28 |
+| Day 48 — For Each Scope | [day48](day48/) | 22 |
 | Day 49 — For Each, Bulk Insert and Parallel For Each | [day49](day49/) | 29 |
 | Day 50 — Batch Processing | [day50](day50/) | 24 |
 | Day 51 — JMS and ActiveMQ | [day51](day51/) | 31 |
