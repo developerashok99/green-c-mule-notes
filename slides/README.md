@@ -62,5 +62,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 57 — AWS S3 Connector | [day57](day57/) | 31 |
 | Day 58 — Logging Levels and DataWeave flatten, flatMap, XML/JSON/CSV | [day58](day58/) | 28 |
 | Interview Prep Part 1 — Résumé, Cover Letter, Web Services and RAML Q&A | [interview-part1](interview-part1/) | 20 |
+| Interview Prep Part 2 — RAML, API Manager, OAuth/JWT, Error Handling and DataWeave Q&A | [interview-part2](interview-part2/) | 33 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
