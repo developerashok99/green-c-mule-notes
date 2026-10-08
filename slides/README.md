@@ -1,6 +1,6 @@
 # Slides
 
-Slides and on-screen drawings captured from the class recordings, one folder per day. Each folder's README lists the frames with their time in the video and links to that day's notes.
+Slides and on-screen drawings captured from the class recordings, one folder per day, plus the three interview-preparation sessions at the end. Each folder's README lists the frames with their time in the video and links to that day's notes.
 
 | Day | Folder | Frames |
 |---|---|---|
@@ -63,5 +63,6 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day 58 — Logging Levels and DataWeave flatten, flatMap, XML/JSON/CSV | [day58](day58/) | 28 |
 | Interview Prep Part 1 — Résumé, Cover Letter, Web Services and RAML Q&A | [interview-part1](interview-part1/) | 20 |
 | Interview Prep Part 2 — RAML, API Manager, OAuth/JWT, Error Handling and DataWeave Q&A | [interview-part2](interview-part2/) | 33 |
+| Interview Prep Part 3 — DataWeave, API-Led, Runtime Manager, Deployment and TLS Q&A | [interview-part3](interview-part3/) | 27 |
 
 Frames are extracted automatically whenever the screen changes; repeated and blank frames are removed.
