@@ -5,6 +5,7 @@ Slides and on-screen drawings captured from the class recordings, one folder per
 | Day | Folder | Frames |
 |---|---|---|
 | Day 01 — Introduction and Demo | [day01](day01/) | 26 |
+| Day 02 — Prerequisites, Requirements and Developer Role | [day02](day02/) | 27 |
 | Day 03 — APIs, Web Services, REST vs SOAP, Environments | [day03](day03/) | 15 |
 | Day 04 — API Lifecycle, Point-to-Point vs ESB, Monolithic vs Microservices, API-Led Connectivity | [day04](day04/) | 28 |
 | Day 05 — First Mule App: Listener, Database Select, Transform, Debugging | [day05](day05/) | 14 |
