@@ -42,5 +42,6 @@ Every file includes: plain-English explanations with analogies, worked examples 
 | [day32.md](day32.md) | Rate Limiting, Spike Control, caching, and JSON Threat Protection |
 | [day33.md](day33.md) | OAuth 2.0, Authentication vs. Authorization, and the Authorization Code Grant |
 | [day34.md](day34.md) | Client Credentials, Resource Owner Password, Object Store caching, and JWT |
+| [day36.md](day36.md) | Fixing the CloudHub 2.0 deployment, Basic Authentication and Client ID Enforcement |
 
 > 💡 GitHub renders the Mermaid diagrams in these files natively — just view them on github.com (diagrams won't render in a plain text editor or terminal `cat`).
