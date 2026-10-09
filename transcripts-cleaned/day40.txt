@@ -1,0 +1,220 @@
+MuleSoft Telugu Course — Day 40 (cleaned transcript)
+Source: transcripts/day40.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day40 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+[screen: A student's Studio (Mule 4.8.0): test recording fails — "Cannot load class 'javax.activation.MimeTypeParseException'" (classloader issue)]
+
+— Yeah, it will be helpful for others. "Cannot load class javax.activation.MimeTypeParseException."
+
+Okay, it has been deployed. This is the first logger that was printed, right?
+
+— Yes.
+
+Then the warning came. Okay, go down — MimeTypeParseException. What is the MIME type issue? Normally, if you deploy and hit it regularly, does the response come?
+
+— Yes, it comes. I have done that too. I stopped the MUnit recording, ran it normally and triggered it from Postman, and we got a response.
+
+Okay. Go to Studio normally. Go to the run configuration once. There is a test recording entry on the left — click on that. [unclear] Okay, we will go on with the session.
+
+[screen: get-employee-implementation-flow (Before DB Logger → Select → After DB Logger → Choice) — starting point for more MUnit tests]
+
+In the previous session we created MUnit tests and observed them. We discussed in detail how to do the basics. If you observe src/test/resources, a small folder is created for each test, with the mock variables in it. Since it is the recording option, it records all the variables and payloads. If we do it manually, we can do it properly too — that is fine. But the system is doing the entire work for us, so we are not bothered how many variables or events it creates. Don't get scared seeing how much it records, thinking we have to do it manually. That is one point I wanted to mention.
+
+[screen: mock_payload.dwl recorded for the GET test — employee 1000 details]
+
+What next? We have done GET: two scenarios for the GET implementation — the default scenario and the regular scenario — and the main GET method flow. So three tests for GET. What did we create next?
+
+— PATCH.
+
+[screen: patch-employee-implementation-flow: Logger → Update Employee Details in HR DB → Logger → Is number → Update Employee Final Response → Logger]
+
+Let's create PATCH: src/main/mule → implementation → patch. We should understand things and be properly prepared; that's what I wanted to say. This is the implementation flow. In the main XML file there is a PATCH flow; we record the test for that one first, then the actual implementation flow.
+
+I have to keep the data ready, right? In the previous session I did only GET and created the separate local folder. Do I have PATCH there? No. So I go to the PATCH request and Save As → 7303 → local folder, change the URL to localhost the same way as GET. [unclear] Okay — recording is done. Configure test. This test is created in the same suite as the main XML file; I'm OK with that. I'm not changing the test name or the suite name. Next. I mock the flow reference here. Why? Because I don't want it to go into the actual call. Finish. This test is created.
+
+[screen: Record test for patch-employee-implementation-flow — Set input and assert output (payload, attributes, variables)]
+
+Now the PATCH implementation flow. Same again: right-click → MUnit → Record test for this flow. I hit the same request. Mock the "Update employee details in HR DB" processor. Next, Finish. The test for this is created too. Since this is a separate XML file, a separate suite file was created and the test was created in it.
+
+[screen: Generated PATCH test: Mock when (Update) + Set Input → Flow-ref → Assert payload]
+
+[screen: post-employee-implementation-flow: Before HR DB Logger → Create Employee Record in HR DB → After HR DB Logger → Create Employee Final Response]
+
+Now POST. Just observe this once. When we insert, the same request can't be used twice. When recording the main-flow test one input should be used, and when creating the test for the implementation flow another input should be used separately.
+
+[screen: MySQL Workbench: EMPLOYEES_INFO rows used for the POST test]
+
+I save the POST request as well into the local folder. You can check the data in the database, or you can use GET and check.
+
+— Using GET is good.
+
+Yes, we can use GET to check. Let's keep the ID as 1050. This is the insert. Now record the test for this flow. I hit the request. Recording done. Configure test. Mock the flow reference here. Finish.
+
+[screen: Record test for post-employee-implementation-flow]
+
+Now the POST implementation. If I hit the same request a second time, it would insert again — that's why it would give an error. So it will be 1051.
+
+— Honestly, what happens with the recording? We mocked it — so next time won't it be mocked?
+
+They are mocked, but why? The recording only records what actually ran successfully, overall. What the request and result were — it records only if it actually happens. During recording, internally this flow is also called and executed. When the actual test is run, it will not go there.
+
+Now right-click POST implementation → MUnit → Record test for this flow. We change the request here to 1051 — otherwise it errors again and we have to record again. Here we are mocking this — what does it mean? It does not go to the actual database call. That's it. Configure test, keep the names, mock the Create DB processor, Next, Finish.
+
+Now we have created everything. Is anything pending? Error handling is there — the main one. Will error handling be recorded? We already said it won't. So it will be done manually. I will go to the error handler.
+
+— A quick question: how does the mock work for the database?
+
+During recording, it records the response from the database and puts it in the test. So from then on, it uses that response. Go to the mock in this test: in the payload section — the payload is the response. Since this is a mock of the database, the payload is the response that came back from the database connector. The connector's response has already been saved. So there is no need to go to the database for this test.
+
+It goes to the flow reference first, executes, and when it reaches the database connector — where is that? In the behaviour section: "don't actually call it; use the mock when". What is the response in the mock when? I go there and check: classpath → post-employees-implementation-flow-test → mock_payload loaded from src/test/resources. That is it, instead of the actual database.
+
+[screen: New MUnit suite hr-employees-sapi-7303-error-test-suite for the error handler]
+
+Now the error handler. First we go to our main XML file and create a blank test for this flow. What is a blank test? A separate XML is created. See what was created: the behaviour section is empty, the validation section is empty, and only a flow reference to this main flow is created.
+
+What is the other way? There is already an MUnit "Test" component in the MUnit palette — like we drag-drop a flow, we can drag-drop a test, then drag-drop a flow reference into the execution. They can do it in different ways; don't worry. But this is the easiest way we discussed. From an interview point of view you will have few questions on this; this is more than enough to work in real time. When I say create blank test, a small structure is already created; I will use it, so I delete the extra one.
+
+What am I creating this test for? An error. Which error? First, APIkit bad request. So if I name the test like that, it is clear: I named it apikit-bad-request-test. And it would be nice to rename this suite to error test suite — Rename. Why? Better understanding and organizing. When I see the suite, I know clearly it is the error test suite. In it we create everything related to errors, with a name for each test. This first one is bad request.
+
+— A small question: to create an empty test we can start anywhere? You were already in this flow, so you dragged and dropped.
+
+Yes — in the palette, do we have MUnit? Yes. If you start with an empty one, it asks what you want: you can create a new test file name. But most of the time we use this "create blank test" way, because otherwise I have to drag-drop the test, drag-drop the flow reference, set the flow and change the name — those three or four steps are reduced automatically. One more thing: only when there is an MUnit test are these two visible — MUnit and MUnit Tools. Otherwise they are not.
+
+[screen: Error test: Execution → Flow-ref to hr-employees-sapi-7303-main]
+
+Now this flow reference — when it goes to the main flow, does it go to the listener? When a flow reference calls another flow that has a source, does it go to the source or to the process section? It goes to the first component of the process block, not the source. Even if a source exists, it won't go to it. Otherwise I would have to hit the request to the listener. What is a flow reference? Calling internally, from one flow to another. When it goes to the flow, the process needs to start, so it goes to the first component in the process. So it comes here, to the APIkit router.
+
+Now, how do I create an error test scenario? An error should be raised — I can't create the test without raising it. So when the flow comes to the APIkit router, I will raise what I want there. How? There is a component called Mock when, in MUnit Tools. I take this Mock when and drag it here. When I recorded earlier, everything was picked automatically; now I am drag-dropping manually.
+
+[screen: Mock when → Pick a target processor from the flow (e.g. the APIkit Router / DB operation)]
+
+In Mock when, first we pick the processor. Which processor? The APIkit router. How? It shows all the flows; I don't want all of them, so I minimize them and go directly to the main flow: 7303 — the listener and the APIkit router. I am going to mock this component. Here it asks what attribute to select — doc ID, or the config reference name. You can select everything too, but here I select the config reference. OK.
+
+[screen: common-error-handler: On Error Propagate DATABASE:NO_DATA_FOUND and ANY (Error Logger → Final Error Response); Transform {message: "Bad request"}]
+
+This processor should raise an error. How? See: payload, attributes and error — three sections. If I mention an error type ID in the error section, it raises that error itself. Which error first? Bad request — APIKIT:BAD_REQUEST, from the common error handler. I copy this error type and go to the Mock when. Since I didn't save, the picked processor is gone, so I pick the processor again — APIkit router, double-click, select. Back to the error section: there is a type ID; paste the same error type. Save.
+
+[screen: Mock when → Then return an error of type APIKIT:BAD_REQUEST (simulate the router error)]
+
+So the config reference is done, and the error is done. Now what am I saying? The test goes to the main flow, comes to the APIkit router, and raises the APIKIT:BAD_REQUEST error. After raising, where does the flow go? Is there an error handler there? [unclear] It goes to the common error handler.
+
+In the validation section, what should I say? Since it is an error test, even if you get an error, it is no problem: if you get the same error, pass the test. Right?
+
+— Yes.
+
+To write all of that, I have a simple hack. Click on this test: there is "Expected error type". If you want to check the error message, you can use the validation module, but you don't need to. Okay, I'll do one test like that and show you too. But this is very easy: a simple test with two components.
+
+[screen: The error test in XML — munit-tools:mock-when … then-return error typeId="APIKIT:BAD_REQUEST", flow-ref to the main flow]
+
+Now let's debug this test to check it works. I put a breakpoint here — without one it would just run. Everyone is following, right? Why am I explaining the error test again? Because we are creating it manually.
+
+It came. Next step: first the main flow — fine. Next, here is the main important thing. I said raise an error, with the mock. See which error was raised: APIKIT:BAD_REQUEST. Is there an error handler for this? Now it goes to the error handler. There is a matching error type for APIKIT:BAD_REQUEST, so it went there and executed. Since this test executed, the result came back to the test. Did the test succeed? Why? The error type that came is APIKIT:BAD_REQUEST, and I already set the expected error type for this test to the same. Both match, so the test is successful. Now observe the error handler: it executed, and it is covered here too. So now the error handlers are also covered?
+
+— Yes sir.
+
+Now which errors should we do? Almost all the error types that are here. I have to do the same for all of them — only the error types change, and the names. Can I copy and paste the same test multiple times, then change the name and error types? Will that be enough?
+
+— Yes.
+
+How many times? One, two, three … nine — I should copy it nine times. I right-click and go to the XML. How do I identify where this test is? It is from line 11 to 25 — the munit:test and its end tag. I copy from here to here, Ctrl+C, and paste nine times. It asks whether to create new doc IDs — yes. But see — you get errors. Why? Same names. Even with flows, the same name is confusing; that is why issues arise.
+
+I have brought the common error handler here too, so it is easier. What is the next error in the common error handler? APIKIT:NOT_FOUND. I copy this error type and come here. First I change the test name from bad request — one error is gone. Then I change the error type in the Mock when — this is not bad request now, we have to give this error. Then the expected error type also. Now where does this test go? To the flow reference, the APIkit router, raises APIKIT:NOT_FOUND, goes to the common error handler and executes there, and when it comes back with the error, since the expected error is the same, the test succeeds. Any doubt, everyone?
+
+I repeat the same process for the other errors. Change the expected error type, and the error type in Mock when → error. Save. If you look at the configuration XML, you can see the errors decreasing.
+
+— Did you set it at the flow level?
+
+Yes, I gave it there only; it changes when I change it here. It is easier for me to do it here — it's difficult to search in the XML, and the configuration XML can't be changed all at once either; everything has to be done one by one there too, and you have to check all the brackets and double quotes. Doing it this way is easier — that's my suggestion. Use the XML only for copying.
+
+Unsupported media type is done. Next APIKIT:NOT_IMPLEMENTED. Then the DB ones — I removed APIKIT and changed it to DB. Go to Mock when → error section → change the error type. Next. I have given two here — if I give one, it will be enough. Next, Mock when → error section. Next is ANY; we have an idea for ANY, so we do that.
+
+Now we have done a lot of error tests. I have to check whether everything is correct in this error suite. How? Right-click → Run MUnit suite, and see whether the error handler is covered.
+
+In this suite, if I have to ignore a particular test: right-click → Ignore test. Then that test doesn't run, all the others run. To enable it again, right-click → Enable test. There is also "Ignore other tests". We can use these options whenever we need them.
+
+How many ran? 10. 10 tests ran successfully: errors 0, failures 0. All the tests are green — all cleared. Let's go to the error handler and check: this is covered, this is covered — check whether any error type was missed. Everything is covered. Now MUnit coverage: 38% overall. The error handler? 100%. So all its components are covered.
+
+[screen: Assert equals on the error payload — run fails (1 error): "2 issues found", expected vs actual]
+
+Now, for the doubt you asked earlier: since I set the expected error type, it is OK. Instead, if I want to validate the status code or error message, is there an option? Yes. Let's create a separate manual test: go to MUnit, create a test, drag-drop the flow reference to the main flow — the APIkit router. Then the same process: take Mock when.
+
+— Should I ask a doubt? When I create the error test manually, what about the Transform Message here and these variables? They come as null. Does that make the flow fail?
+
+No, it doesn't. That's why it works even without a Set Event. Is it clear to everyone? If something like that fails, we have to provide the required input to the components. Then how do we provide it? Go to MUnit and drag-drop Set Event — it is in MUnit, not MUnit Tools. You can keep it in behaviour or execution; I keep it in behaviour. What is this Set Event? Setting the event for this test. What is an event in MuleSoft? Payload, variables, attributes — I set everything here. Have I set anything so far? Nothing.
+
+How to set all this? Is it better to set it manually, or copy what the automated recording created? Copy what is in the automated one, because writing readUrl manually is difficult. We already have the recording option and can use it. How? I want a Set Event for the main flow. So I record a test for this flow, and a Set Event will come; I copy and paste that same Set Event. Do you understand?
+
+MUnit → Record test for this flow. It asks to save — there are some errors. Any request is enough for this — GET, POST, anything? Yes. POST is already open, so I put 1052 and hit it. I am telling you the technique: you can do it fast through recording. I don't want to do it manually; I am telling you the hacks.
+
+Let's see what payload we got. In the classpath it refers to get-employees … config-test set-event_payload. But we hit POST — why is this here? Something else came. One second, something happened. Where did we create the new test? This is the error suite; the get, default, patch, post tests — we were looking at the wrong test by mistake. It should be the 7303 main test, in src/test/resources, for this particular one: set-event_payload, set-event_attributes. After executing there will be variables, but there are no other inputs for this particular flow. So now we have all the input details needed — see how much scope there is for an execution not to fail. I copy that Set Event and paste it; I won't do it manually again. Apply a little common sense and work fast. Simple. Clear?
+
+Now back to the error test. Actually we don't need this Set Event here, so that's fine. I didn't provide any input and was wondering how this flow executes — it works generally. At least we discussed it; I remembered and discussed it right away.
+
+[screen: Assert equals error message #[payload.message] and Assert equals status code #[vars.httpStatus]]
+
+Now this manual test. Which error type should I raise? Here we verify both the error message and the status code, instead of the expected error type. Let's take DB:CONNECTIVITY. [unclear] It executed and came here.
+
+[screen: Debugger: error test for DB:CONNECTIVITY — errorType DB:CONNECTIVITY, InterceptionException, description empty]
+
+What is the error type here? See the debugger: DB:CONNECTIVITY. Now there is no validation and no expected error type. What happened to the test?
+
+— Failed.
+
+Error. Why did it fail? Click on this test, then MUnit Errors. What reason does it show? Something different. But we know clearly: there is no validation and no expected error type matching the error. Even when we read the errors, honestly, we don't understand them. When we don't understand, go to the basics. It says DB:CONNECTIVITY, caused by InterceptionException. I can't understand it — I don't know if you can. But for the basics of this test, we check the input error type, the expected error type and the validation.
+
+Usually I put the expected error type here and it works — that is a small hack. But I need to validate it. How? Assert expression checks whether the payload, attributes and variables match — that is complicated. So instead, simply: there is Assert expression, and there is Assert that, and Assert equals. Let's use Assert equals to check whether an expression matches a value. Let's drag-drop it.
+
+What is Assert equals? Actual and expected. What is expected for this test? After the flow executes, what status code do we expect? Let's check what the common error handler does for DB:CONNECTIVITY — I don't remember. Here it is. I am going to verify the status code, plus the error message. If it comes like this, it is correct for me.
+
+In the first Assert equals, the actual is payload.message — why payload? Because when this test runs, if the payload's message matches, the error message matches. Then the status: I add another Assert equals. The variable is created at the end — I edit it and copy the name. What is the status code for this? 500. So Assert equals on the status code with 500. Now the test comes to validation: if the error message is correct and the status code is correct, will the test succeed or fail?
+
+— Succeed.
+
+[screen: DB:CONNECTIVITY handler test — payload {statusCode: 500, message: ""}; asserts on message and 500]
+
+Okay, debug the MUnit test. I have done two asserts here. You can do the same with Assert expression; I am using this because that one is a bit complicated for me.
+
+Can I give the message directly like this, or keep it in src/test/resources and refer to it from there? Do you understand? Instead of giving the message directly, I put it in src/test/resources and refer to it — the same way Set Event does: readUrl with output application/… I create folders there, give a name with .dwl, and refer to it. But here I gave it directly.
+
+— If the message doesn't match, will it show the message?
+
+Yes. If there is an error, it will show the error message. I will show you, one second.
+
+Now it goes to the validation section, because there are components. There is an error. Why? Look — we got the same error again, about the interception. It should come to the validation module, right? Why not? Let's test it out. Is the DW all correct? Yes.
+
+Let's do one more thing: run all the tests we created for this project at the same time. They executed. Error. Debugger: some variables were created; there is variable 6, because there is no set event. We need the status too. What is the payload? Message — why is it coming wrong? See what message is coming: message empty. Maybe that is why it is failing. For DB:CONNECTIVITY the description will be different. In validation it is not matching: there is an empty string versus a null. Since it is an empty string, let's keep this as empty as well. Still failing. Why it fails, the exact reason we are not getting: we are getting an interception error. Do we have to pass any other input? No.
+
+Let's delete one and check only the status code, keeping one verification instead of two. This is the httpStatus. I see — I had written this expression wrong: it is vars.httpStatus. [unclear]
+
+Practice it: in every project, in real time, you compulsorily have to work on MUnits. Most of the time no project is without MUnits.
+
+I am commenting it out: Ctrl+Shift+/. It comes to the validation module; we have to see why. The mock is there, the error type is there, everything is clear; it executes the flow reference and comes here. I will check it and let you know. Then we run the entire suite — the overall tests for the entire project — to see whether any test is failing. There is some problem with this test; I might have made a mistake. Even I am not able to trace exactly what we did. This is a generic error; we won't get anything from it, most probably.
+
+[screen: StackOverflow: "MUnit test case getting InterceptionException error" — set expectedErrorType on the MUnit test]
+
+"Interception error … failing in Jenkins." The solution given there — nothing useful for us.
+
+[screen: MuleSoft Help Center thread: "Mule 4 MUnit Error" (schema / classloader errors when running MUnit)]
+
+MUnit error — let's see what is there. These are not our errors; they are different errors. Okay, I will check and tell you. The other pending thing is how to manually check the error type and validate it properly. Now I will delete this test, and then all the other tests remain.
+
+[screen: Global Configuration Elements while running MUnits (properties, secure properties, mule.env / secure.key global properties)]
+
+Now we have to run all the tests. How? Go to Run Configurations. Here you can see MUnit. Our application, 7303, is already selected because it is open. And we have to provide the environment variables: mule.env, secure.key. Go to MUnit → this one → Edit.
+
+Here only the error test suite is selected. We need all the test suites. On the right side — this is the only one that will run. We have to remove it; if we remove it, everything runs. Why did this come? When I select a suite file and run it, only that suite file gets selected, and it was automatically kept from the previous run. Now I left it empty — what will happen? It takes everything. Test resources too — it should take all, not just this one. Apply. All suites, all tests. By default it is without any configuration; that's why I didn't notice this. But there shouldn't be anything here.
+
+It would also be a problem without the global properties. If the secure key and environment are not set, there might be a doubt — since we already gave them globally, it's fine even if we don't set them there. If those two were not there, we would have had a problem running the MUnits.
+
+[screen: MUnit run — all tests passed (green), coverage report regenerated]
+
+Run. Now all the tests in all the suites run automatically. See — one by one they run and turn green. You can ignore all these warnings. Overall, 18 tests ran, and all are green. If one comes red, that test failed.
+
+Now MUnit coverage → Generate report. 100%. We have done all the flows properly. But in real time, with big projects, it is difficult to get 100% for all conditions. If you get at least 80%, it is fine. The generate report gives a visual representation. This XML file got 100%, with a weight of 14%. "Containers" — one is one flow. This is the HR employees main XML: the APIkit router flow plus post, patch and get — four flows — and then the percentage. The weight is this XML's components out of the total project's components. This is also 100% covered; 9.52 weight, also 100%. Common error handler, also 100%. Check them all one by one: the error handler, all green tick marks; go to GET — tick marks there too. Since all are covered, it is 100%. The only thing to observe: it is not considering the Choice itself as a component. Any questions?
+
+[screen: Student's pom.xml — app.runtime 4.8.0 vs Studio runtime mismatch while debugging their MUnit error]
+
+[Debugging the student's issue from the start of class:]
+
+How much did you give? I asked you to give it in the test recording configuration — you gave it there, see. Autodiscovery is there? If it's there, we can comment it out. When you run it, it will be the same again: "Cannot load class … MimeTypeParseException". Show the flow — which flow are you doing? Whichever flow you do, it will come. Open pom.xml and look at the MUnit dependencies — they haven't been created yet because the test hasn't been created. [unclear] localhost. Cancel it. 4.8.0 — okay. Go to run configuration → test recording, scroll down and to the right — the default is given by the project's server. There's nothing extra here. Go to the pom. [unclear] Monday.
