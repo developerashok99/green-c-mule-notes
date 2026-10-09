@@ -1,0 +1,88 @@
+MuleSoft Telugu Course — Day 52 (cleaned transcript)
+Source: transcripts/day52.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day52 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+[slide: What is Object Store? — a Mule component for simple key-value storage; mainly for synchronization info such as watermarks and temporary data such as access tokens; the Cache module uses an object store; available as transient or persistent storage]
+
+In today's session we will see the Object Store: what it is and, in detail, how we can use it, and then a demo as well. Object store is a generic concept, not a MuleSoft-specific one; we need to know how to implement it in MuleSoft.
+
+What is an object store basically? We can use it for storage purposes. "Object Store is a Mule component that allows for simple key-value storage." For example, I want to save an employee's address: the entire address is saved as the value under a key — address lines 1 to 5 and so on, in the form of key–value. The Object Store component helps store values like that.
+
+Why is it necessary? Key–value storage — but there is a database; why do we need an object store? We could save it there and bring it back. The problem is a database operation is a costly operation. It's valuable for permanent information, but for temporary information, instead of costly operations like the database, it's good to have a storage option. So the industry introduced the concept of an object store.
+
+What can temporary information be? Generally, the concept of watermarks — how to store those watermarks. And access tokens. For example, with policies we got a token; say it has a validity of one hour. I have to save that one-hour-valid token and use it. How? Store it, and retrieve it for reuse. It's used in these two instances: watermarks and tokens.
+
+[drawing: storing an access token in the object store so repeated calls reuse it instead of requesting a new one]
+
+Let's see how the token is used. This is our API, and in it we want to consume another API that is protected by OAuth / JWT. What do we do in our API? Generate the token first: send a request to the token server, get the token, save it in a variable or the payload, then pass it to the HTTP Request component in the header or wherever, and call this endpoint. Then we get the response, transform it, and send our response. Good. In this scenario, is a token generated every time we receive a request? Yes.
+
+I said the token from this token server is valid for 1 hour. Suppose I receive 25 requests in that hour. What am I doing? Hitting the token server 25 times to get a token. Instead, suppose I store it temporarily somewhere. Then I get it once and the other 24 times from our temporary storage.
+
+— Can't we keep it in a variable? Is a variable not enough?
+
+No matter how many times you generate the token, the server responds; but a token generated once is valid for one hour. Suppose after generating the token I save it in a variable: I got a request, generated the token, saved it in a variable, called the API and responded. Now a second request comes. There's already the variable from the first request — can you access it and use the token?
+
+— Yes, that's what I'm expecting.
+
+But a variable exists only for that particular request instance. Once that request is done, the variable is killed. So you can't use the same token in the second request through the variable, because the first request's variable is already gone. That's why, if we save it in temporary storage — the object store — the second request can access it, and the third, and the fourth — for as long as you configure it.
+
+So for the first request: [unclear] retrieve from the object store — nothing there — generate the token and store it in the object store; it goes to the API and responds. Now the second request comes. What happens? It comes to the retrieve operation and checks whether the token is in the object store. It is, so it retrieves it directly — the token I said is valid for 1 hour — and goes directly to the API and responds. How many times did we make the token call in one hour? We said 25 requests; we avoid it 24 times. What's the advantage? Every time, we immediately get the token without the load of token generation. That's possible through the object store: for the first call, second call, third call, the token is available multiple times.
+
+When the token expires, the endpoint will respond "invalid token". [unclear] We put a Try here; it expired, so we come to the On Error Continue; there we put a Flow Reference to the sub-flow that generates the token; the token is generated and stored, and we call this endpoint again. Then it continues to the next step.
+
+— So with the flow reference it will be reused here — correct?
+
+Yes, correct.
+
+So we've discussed one scenario with tokens. Next: what is "synchronization info such as watermarks"? We'll take that next. Two more points from the slide. There's a module called Cache. It uses an object store inside. Cache is again temporary — to save data there's the concept of caching. We did HTTP Caching; where is it stored? Ultimately in the object store, in the background. That's what this point means.
+
+The last point: it's available as transient or persistent. Now, say the 10th request comes, and at the 10th request this API is restarted. What happens to the token in the object store? I said temporary — is the token there or not? If it restarted, it won't be there? How do we decide? One is transient, the other is persistent. Persistent: when we redeploy or restart, even if the application crashes, it persists. Now, should this access token go to transient or persistent?
+
+— Persistent.
+
+What's the loss if it goes to transient? If it crashes — it's temporary information; since it's a token, there will just be one extra call. That's why it's best to go for transient here. What's the difference between transient and persistent? A memory call is fast; a disk call is slower. In terms of performance: I'm retrieving from the object store — where from? If it's persistent, from disk space; if transient, from memory. Since it's in memory, fast or slow? Fast. If it's persistent, a bit slower — there's a little gap. That's why for the use case I mentioned, if we go for transient, our call is a bit faster, and even if we lose the token information, there's no loss in this use case; we can go and get it again. So we can use transient for this.
+
+[drawing: upsert — if the record exists in SF it is updated, otherwise created; SF → Mule (On New Object / scheduler) → insert into the DB (Oracle)]
+
+[drawing: scheduler-based sync with a watermark kept in the object store — each run picks up only records after the last saved timestamp]
+
+The next use case: a scheduler that should trigger daily at 8 o'clock. There's employee information in a database, and I have to insert it into Salesforce — say into an Employee object there. Observe: employee ID — Mahesh is 100. The first time you create it. What happens if you insert it the second time? Will it duplicate? It won't, because there's a unique ID — the primary key we mentioned. Since employee ID 100 exists, if you insert 100 again you'll get an error. Right?
+
+— Yes.
+
+When you get an error, there's a problem again. So the first time I do all the employees; after that only new employee details. For example, in this database there are five employees: 100 to 104. What's the date today? 25th? Yes, 25th Jan. Today at 8 am the schedule triggered, read the five employees from the database and inserted them into Salesforce. From today, 4 people join by tomorrow morning: 105, 106, 107, 108. Tomorrow morning when it's scheduled, I have to take only these 4 from my database. Then insert them with the Salesforce operation — select and create. Today, 25th January, I already inserted 5 employees in Salesforce — created the records. Tomorrow morning, 26th January, it triggers, and I need only 105, 106, 107 and 108. How do I pick them? You've written a select query — good: select * from employees table where — what condition?
+
+— A date condition.
+
+[unclear] The first day I did 100 to 104. Now if I remember 104 — till where did I do it? On the 25th, till 104. Yes. If I remember 104, then next time: select * from employees table where employee ID > 104. What's greater than 104 the next day? 105, 106, 107, 108 — 4 will come. Right?
+
+— Yes. So we change the query every time?
+
+Yes, we make it dynamic. Next, the 27th: I'm remembering 108; say 109, 110, 111 are there. select * from employees where employee ID > 108. This is called watermarking. Generally, where we stop — where we mark — is the watermark concept: first we mark 104, then 108.
+
+[drawing (Q&A): watermark example — employee IDs 101…110 processed in batches; the last processed ID / time is stored and the next run continues from there]
+
+If there is no value in the object store, we can assign a value with the default. Database select: select * from employees where employee ID > 99. How many do we get the first day? 100 to 104 — 5, because it's greater than 99. Which key did you put in the store? A key — for the employee ID. I assigned this value. Now, after it's done, what do we put in the store? The last value: 104 — we take the maximum of the employee IDs. Correct?
+
+— Yes.
+
+So we store 104. How much value is in the object store now? 104, under the key. And I've inserted into Salesforce — first insert there, then store. So: DB select → Salesforce create → object store store. This flow has ended — the 25th. Now it starts on the 26th. What happens? The store retrieve gives 104 (not the default). The select query becomes greater than 104 — correct? Yes. Then 105, 106, whatever values come, go to Salesforce, and in the store again, the maximum of the employee IDs. See how easily it helps us.
+
+Now transient vs persistent here. If we don't remember where we stopped, it's a problem. With a token, we can go and get the token again from the other system — no problem. But here we don't have that provision; we'd have to do a Salesforce query, check where it went, and continue from there. That's why we have to use persistent here. Do you understand? With persistence — whether a system crash or anything else — since the value is with us, we can continue in any situation. Clear?
+
+Let me tell the scenario again with transient. Today it finished at 8 o'clock; tomorrow it should trigger at 8 o'clock. Before it triggers, the application restarts at 10 pm today. Then what's the value in the object store? Tell me. If you set a default, the default value — 99. What happens then? It starts again from the beginning. Will there be a Salesforce error again?
+
+— Yes. Duplicate records.
+
+There will be an issue. Did you understand why transient doesn't work here and persistent should be used?
+
+— I got the clarity now. Yes sir.
+
+Will the others confirm? Did you people get it, or shall I repeat the concept? What's the difference between persistent and transient? For executing payloads, variables or components, the processing is done in memory, and processing in memory is very fast — memory works without writing to disk. Now the same concept on disk: for example, I create a record in the database — permanent or temporary? Permanent; I can retrieve it whenever I want. But instead of the database, why am I doing this? It's an external call — a costly affair, a costly setup.
+
+Our application is deployed on a server. The server has memory and CPU, and our application is allocated some CPU and some memory. If we save something in that memory, the application can retrieve it very quickly. If it's saved on disk, it's comparatively a little slower. But memory isn't permanent: when the application is restarted or redeployed, or the server crashes, items are automatically deleted from memory — like the RAM and ROM concepts. As soon as the application restarts, the memory assigned to it is cleared, but the disk space isn't. In this case the watermark value is very important; otherwise you'll get errors, or redo the whole process from the beginning. That's why I went for persistent here and transient for the token. Is it clear to everyone? Pavan, Ganesh, Kalyani — what about you?
+
+— It is clear.
+
+Theoretically we now have the object store. Next we have to implement it practically in Studio.
