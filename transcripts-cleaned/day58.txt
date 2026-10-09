@@ -1,0 +1,146 @@
+MuleSoft Telugu Course — Day 58 (cleaned transcript)
+Source: transcripts/day58.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day58 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+[screen: Pending topics doc — Transformation (CSV/XML formats, custom function, flatten, flatMap), logging levels, verbose logging, CI/CD with Jenkins, HTTPS one-way/two-way TLS, CloudHub 1.0 vs 2.0]
+
+Okay, let's — this is complete: AWS S3 connector. This is pending. This has custom function, flatten and flatMap, and logging levels, which we're going to include here. Let's discuss these items first, starting with logging levels.
+
+[screen: Logger Level dropdown — DEBUG, ERROR, INFO (default), TRACE, WARN]
+
+Logging levels: when we build an application and print a log — oh sorry, it's visible now — what we're discussing today is logging levels. If you observe, when we print a log, there's a level, and by default INFO is selected. With INFO selected it's printed automatically, and you consume that information in the logs. Each log level has a significance. What are the levels? TRACE, DEBUG, INFO, WARN, ERROR, FATAL. Here in the dropdown: WARN, INFO, ERROR, DEBUG, TRACE. I think you can remove FATAL there.
+
+[screen: Log levels explained — hierarchy TRACE < DEBUG < INFO < WARN < ERROR < FATAL, with the meaning of each]
+
+Each level has its own significance. INFO gives you information logs: if you want to print any information, select INFO. Next, ERROR: error logging gives the main reason for the error with minimal details — where the problem came from, which line, which component — all the information related to the error. Then WARN: for potentially harmful situations we get such alerts in logging. But most of the time, if there are warnings, we ignore them; we don't focus much on them, because a warning doesn't affect the process. An error affects the process, so we focus on errors. If there's an error, the application may fail to deploy; or a request won't be processed correctly — the request errors out. When that happens, we go and check the details — why the request errored out. We use the error information for debugging.
+
+Then DEBUG. Say there's a failure, but there isn't sufficient information; then we enable debug logs. With debug logs enabled, we get detailed information about that particular component or connector, so we can debug, identify the error and make the process easier. TRACE gives even more detailed, in-depth information than debug. Most of the time in real time we enable debug: for example, we couldn't identify the error or the reason for a failed request or transaction from the info or error logs, so we enable debug and check. Debug has detailed information; trace too.
+
+What's the order — the hierarchy? From most detailed: TRACE, then DEBUG, then INFO, then WARN, then ERROR. For example, if I select INFO, everything from INFO downward — WARN and ERROR — is also printed. If I select DEBUG: debug logs plus INFO, WARN and ERROR. With INFO, the info from all components is printed, plus warnings or errors when they occur. If I select TRACE: trace logs, debug logs, info, everything. Whatever level we select, everything below it is printed. When we deploy applications with INFO logs, almost all the information, warnings and errors are printed — we keep observing it in the console. When there isn't enough information, we go to debug level, analyze in detail and find the reason.
+
+[screen: log4j2.xml — commented-out loggers you can enable (HTTP wire logging, DEBUG categories)]
+
+[screen: Runtime Manager — deployed applications list (CloudHub, runtime 4.8.x, status Started)]
+
+So when we don't have enough information, we have to enable debug logs. Where? At the application level. I have an application deployed in CloudHub; I take it, go to Settings → Logging. By default there's INFO. To enable debug logs, select DEBUG and mention a package here. Should it be for the whole application or a specific connector? For example, debug logs for all components in the application: give org.mule here. For the whole application — listener, logger, transform message, connectors, whatever the components — detailed logs are enabled. We can apply it like this.
+
+Or, say in this application I get issues only in one area and want to enable only that. Then, for example, there's the connector package for Amazon S3: here we have the Mule Amazon S3 connector's package name. [unclear] Let's see what happens: only the S3 connector gets detailed logs. What does detailed mean? Which input goes where, which connections, which access key, which secret — all these details are printed. When I click Apply Changes, it's printed after every request.
+
+Verbose logging means detailed logging. From regular logging we take information to identify and solve errors; verbose logging enables detailed logging — it prints as much as we ask. In verbose logging a lot of logs are printed, the application becomes slow and there's scope for performance issues. You should not always enable verbose logging. Only when you're facing some problem and can't identify it or replicate it in the non-prod environments — in situations like that — enable verbose logging.
+
+How to enable it? For the whole application it's too much; so identify the particular connector and give that. From where? For example, I went to that connector's configuration and copied the S3 package and pasted it there. For Salesforce: come to the Salesforce connector and copy org.mule…salesforce and paste it. For HTTP: go to the HTTP connector — you see org.mule.extension.http — copy it and provide it there, and only HTTP-related listener and request logs are enabled. That's how you handle it in a real-time environment. And after the issue is solved, you have to disable it immediately. If you want, too much information can be printed, and application performance is affected. Only when it's very much required should you go for verbose logging. Clear? Any questions? Go ahead. Okay.
+
+So these are the logging levels. We keep the same logging level normally: we print INFO, and check the information in detail in the info logs. TRACE is more detailed than DEBUG and consumes more space; we use it in very rare cases; most of the time DEBUG works. Then WARN and ERROR. You may have a question: if I select ERROR instead of INFO in this logger, it prints only when there's an error. If you want it to print every time, select INFO. Or WARN — it prints only when there's a warning. Why did I select INFO? I wanted to print this bucket every time. That's logging levels, verbose logging, and how to enable logging.
+
+[screen: DataWeave Playground — XML bookstore payload; {category: payload.bookstore.book.@category} reads an attribute]
+
+[screen: Playground: arr map $.empId on an array of employees → [100, 101, 102]]
+
+[screen: flatten(arr) — combines nested arrays into one array]
+
+Now flatten, flatMap, then custom functions — the DataWeave functions I said I'd tell you about. First, flatten. It works on arrays. An array has sub-arrays, and flatten flattens them. For example, I have 1, 2, 3, [4, 5], [8] — an array of arrays, with sub-arrays. I want this 1, 2, 3 and these 4, 5 all in one array. I apply flatten and it flattens the whole thing: see, [4, 5] is an array, and its values come into our main array — it removes the inner arrays and merges their values into the main array. [8] in an array and [4, 5] in an array, both flattened and the values added to the main array. When such situations come, we can use this function.
+
+Another thing: it does only the first level of sub-arrays. 1, 2, 3 — the first set — fine; but there's another array inside a sub-array — [6, 7] at the second level — and it couldn't flatten that second level. It takes the first level of sub-arrays, flattens them and merges the values into the main array. What if we want to flatten that too? Flatten again — flatten twice — and those values are added. So flattening means removing the first level of sub-arrays and adding their values to the main array. That's what happens in flatten. Understand it and use it when you get the requirement.
+
+[screen: arr flatMap $.empDesignation — map and flatten in one step]
+
+[screen: Tooltip — flatMap(items: Array<T>, mapper: (item: T, index: Number) -> Array<R>): Array<R>]
+
+Another one is flatMap. Here's an array of objects in variable A — an array of two employees — and variable B — an array of one employee, 103. Generally, I want to combine these two: add array B to array A. See how it's added: the first two objects, and then an array with the object. If I want to flatten this, remove the inner array and add the object to the array of objects: flatten — now an array of 3 objects. Fine.
+
+Now, take the small array of 2 employees; apply map and ask for all employee IDs: map $.empId, or a lambda with empId. See how it came: I got all the employee IDs, but 101… and 103 came in an array. Then I have to flatten it. I can do it with flatMap — a combination of flatten and map. [unclear] "Expecting type Array but got … empId 100" — I think an object is coming. A plus B is correct: array of objects plus another array of objects. A went here and B went here, and if we flatten it, all three objects come into the same array. But why isn't flatMap working? Let's see — let's proceed and see. It's not coming. flatMap is a combination of flatten and map; it aggregates both functions. Let's go to the documentation once.
+
+[screen: MuleSoft docs — flatMap: iterates over each item and flattens the results; [[1,5],[0.5,1.5]] flatMap (value, index) -> value]
+
+[screen: Jerney.io article — DataWeave flatMap use case: adding data between existing array items]
+
+[screen: Docs cookbook — Map and Flatten an Array (myData map … flatten vs flatMap, with a custom function myExternalFunction)]
+
+[screen: Playground: fun myExternalFunction(data): Array = if (data.name == 1) [] else … then myData flatMap ((item, index) -> myExternalFunction(item))]
+
+The use case we mentioned is used more regularly; they show different use cases. Copy this — this is the script, and this is what it does. The data: an array of objects with names 1, 2, 3. We provide an array: if data.name == 1, an empty array; else if data.name == 2, [name 3, name 5]; else data. What data do we need? In myExternalFunction, given the array, if name is 1… even without this we'd get the same; I don't think there's any difference. Fine — I'll show you flatten and flatMap properly later; why waste time here.
+
+Next, custom functions — we forgot to do these, and they're used regularly. How to define a function? There are named functions. Generally, if you observe, so far we've used functions — map, for example, is a predefined function DataWeave and MuleSoft have given us, and we reuse it. Instead, if we want to create custom functions, we can create them ourselves: define the function at the top of the DataWeave script and pass values to it and reuse it.
+
+A simple example — see here. To create a function: fun and the function name; then the parameters to pass; then after the parameters, the operation we're going to do. I created an add function: if we get two numbers, add them and give the result. If we use the add function and send numbers, we see the result automatically. Let me go back: what function did I create? fun add — with two parameters, I wrote n and m — = n + m. That's it. Then I used the same function by its name: add(1, 2) — automatically 3. Here add(5, 2) — 7. Here 100 plus 2. So when I pass values in place of n and m, it executes the function automatically. For example, I want multiplication with this kind of function — see how it works. If we have something repetitive, we create it as a function with a name and reuse it. To create a function: fun is the keyword, then the function name, the parameters to pass, then equals and what to execute. That's a custom function or named function. If you want any functions, create them on your own, declare them in the header, and reuse them. Okay. I'll delete this — done. Logging levels, verbose logging — also completed.
+
+[screen: The bookstore XML used for XML ↔ JSON examples (books with category, title, author, year, price)]
+
+Now XML. How does XML data look, generally? Here — this is XML data. I said we use JSON the most, but here we're showing XML; when XML comes, there should be a clear naming convention. Let's see. In XML, what's here first? The header — what information? The XML version and the encoding format; minimum details; it comes by default. This is the root tag: the root tag opening and the root tag closing.
+
+Why do we need data formats like XML and JSON? To transport or share data; they're very helpful and human-readable. When we see this, we easily understand there are different books in different categories. JSON would be the same. But why is JSON more popular? The same data can be represented easily, and it's lightweight. Most front-end applications use JavaScript, and JSON data is easily parsed with JavaScript. That's why it became very popular — lightweight, so faster responses. XML data is used simultaneously, though.
+
+What's in XML data? The root tag contains the total information, with a closing tag: opening tag and closing tag. Within the bookstore's opening and closing tags there are multiple children of the parent tag: this book is a child, this book is a child. Each child tag has its opening and closing. Data is represented like this. Inside a book: title, author, year published, price — all those details within that tag: the title tag's opening and closing with the value in between — the first title is "Everyday Italian", language English; then the author's name, year and price.
+
+What's at the top of the book tag is called an attribute. What are attributes? If we want to define metadata of a book, we define it in attributes. Where do they go? In the tag opening: give the attribute a name, equals, and a value in double quotes. If you observe, all these element values have no double quotes — just normal values. But attributes must be in double quotes. Where? In the opening of that main tag — the book tag. The title tag also mentions a lang attribute. If we don't mention the attribute, we wouldn't know it's in English. We could also do it differently: bookstore, book, and give category as a separate element — that's not wrong; close category, then author, year, price etc. But the best way to represent data-about-data is in attributes. How? In the main tag, the book tag, give a space; first the attribute name, equals, then the value in double quotes. Those are the two ways of representing it.
+
+So XML: a root tag, inside it elements; bookstore is the root tag; books are elements; inside them sub-elements; and categories are attributes — data about data. Book 1, book 2, book 3 — these three are called siblings. Why? They're at the same level. The parent is bookstore and these three are its children; then a book is a parent and all these are child tags. We don't need to know it in much more detail, because we're only dealing with XML data. With this minimum info, at least when something small goes wrong you'll see it — for example, if we open a tag, it must have a closing tag; if there's no closing tag, we can easily say that's the problem. That's why we have to understand XML data, but it's a rare requirement.
+
+[screen: Playground: XML bookstore → JSON (output application/json / payload)]
+
+[screen: payload.bookstore.*book map ((item, index) -> { title: item.title, author: item.author, year: item.year, price: item.price })]
+
+Now I have to convert this into JSON. I selected XML as input, output JSON — see, it converted to JSON automatically. For example, we need only payload.bookstore. Another question: there's an attribute here — how do we handle it? There's a book and a category — look, the category isn't coming. The elements inside come, but not the attribute. How do we get it?
+
+Copy this. What do we want? A key and value — title goes like this. payload.bookstore gives only this. If we want an array, use map and give objects. We can do one thing: payload.bookstore.*book — now we have an array. Then we add a map, and identify the combination: item.title, item.author — a-u-t-h-o-r — they're changing it, did you see? — item.year, item.price. Now I'm converting the XML data into JSON — an array of objects. Along with that, there's the book category here; that category should also be included.
+
+See — an array of different books came. But the category isn't there. If I want the category too: item.… — I removed it here — the category is there, but we have the same category for everything. Why? Because I took the first one: payload.bookstore.book.@category — "cooking" for all. If we put payload.bookstore instead… there's a problem. What happened? The total array of objects came. But one thing: whenever we want to read an attribute, how? payload.bookstore.book.@category — clear. But only the first one came. If I want all the categories, start the selector here — with item: item.@category. Now we got all the values — cooking, children… Now we see the category related to each book. So I converted the XML into an array of multiple books, and we saw how to extract elements and attributes. When XML comes like this, understand the main thing, and convert it like this for JSON.
+
+[screen: JSON books → XML: output application/xml / {"bookstore": {"book": payload}}]
+
+[screen: Error "Trying to output second root, bookstore, while writing Xml" — XML needs a single root element]
+
+Another thing: converting this JSON into XML — you have to take care of that too. Copy-paste this: JSON input. Now I have to convert this to XML — will you help me? First, output XML. Will just payload do it? No. Whenever we convert from JSON, we have to give the root element first: I give Bookstore — root element. Is it done? Why not? I gave a key–value, and it should be in an object; since it wasn't, there's a problem. Now I gave the bookstore — the actual one came. Next, convert the JSON into XML in this format: I gave the parent tag — nice. But inside there's a child: book. We have to give that book.
+
+— Sorry, are you asking something?
+
+I gave the bookstore root tag; inside it we need the element called book, repeated. That's why I gave book and set it to the payload. See what happened: it iterated and took them automatically — this for the first, this for the second, this for the third. That's how the whole thing is converted.
+
+Now set the elements related to the book. For example, I want to mention the book's category as an attribute. To do that again, I open the map. We need to give the book a category — there's a syntax; I'm looking at it. [unclear] The problem is an array is coming and it can't be converted into a string. Why is the array coming here? The payload category wasn't found. Let me close this. Let's apply payload first — map; close it. There's mapObject here…
+
+[screen: DZone article — JSON to XML Transformation Using DataWeave (books example with attributes)]
+
+[screen: Blog — MuleSoft 4 Transformation: Convert JSON to XML (Method 1 simplest, Method 2 changing format with attributes)]
+
+[screen: Method 2: name @(lastName: person.LastName, age: person.Age): person.name — writing XML attributes]
+
+[screen: Playground: the Profiles JSON → XML with candidates and attributes]
+
+JSON to XML — there's a similar example: "no need of namespaces — add brackets around the payload"; "without namespace"; "change format while conversion — if you want lastName and age as attributes of name". He took this and converted it to XML: profiles. Here: payload.Profiles map (person, index), and here Candidates. I think this is the right thing. What did he do? He mapped with person and index and created an object inside — an object named Candidates, with curly braces. There's a name here. First, let's understand this JSON data. If you observe: Profiles, with an array of details — name, last name, age, country, profession, skills. How to convert it into XML so that last name and age come as attributes in the name tag? That's the requirement. First map payload.Profiles, then give Candidates; and without the @ symbol, the last name won't come there. name @(lastName: person.LastName, age: person.Age): person.name. You can see lastName and age as attributes, and John as the name.
+
+Let's apply it to our bookstore. Refer to this once: he gave Profiles and the details. We get a payload here. [unclear] They first gave Profiles, then map with person — clear. It's the same for us; the only difference is there's no extra tag here. In Profiles, an array of objects — map is used for arrays of objects. payload.Profiles is an array of objects; our payload is already an array of objects. We're looking at that. Bookstore — mapObject is coming — but what is payload? typeOf — Array. [unclear] The problem: "trying to output second root, bookstore".
+
+Let's understand it first, then I'll make a script for it. This is our data: an array in Profiles, of objects. He built a Profiles tag, iterated payload.Profiles with map and person/index, created a Candidates object, gave country, skills and profession inside it. Then for the XML tags — I have last name here; I want it in the attributes, not in an actual tag. That's why he did it like this. This part will be problematic when we do it. [unclear]
+
+That's my intention: we want it near Candidates. What did we do? The @ symbol, open normal braces, give age — person.Age — sorry, small a — it's there. We need another — add lastName too. So if we want data from here as attributes, this is the way. Our data is related to this. I'll do it once and give you the script. Simply, if I put this in an object and do the same, it should come out.
+
+For example, once more: Profiles — we did that. Array, closed brackets, array of objects closed. Bookstore: payload.bookstore map (item, index) → book, title… Why write this? Let's build from here. First payload.bookstore, then map — item, index — then we need to write book here. What's wrong? "Trying to output second root bookstore while writing". Is there a mistake? We assign value to this; the book comes. Titles — something extra here. [unclear] It's correct. Okay, I'll check it and send it — this script. But overall you understood the concept: how to define an attribute.
+
+[screen: Notepad++: bookstore XML and the equivalent JSON (book array) side by side]
+
+I wanted to convert this script… For example, Ctrl+C, Ctrl+V here, converted to XML. Now this came for every book, with the price that was given — it converted it as it is, and the only thing missing is the attributes. This isn't XML input — it's JSON. From this XML, we take this as input: bookstore. Since we have XML here, we don't have to convert it. Put *book here — now we get an array. What do I do with this array of objects? Convert it: colon and start. My requirement: the information for each book — we don't have a category here — we built a category before; paste it here; I'll put the category here in reverse. I'll give it a name — category "C", "B". Now the category came properly. But I don't want the category here; I want it at the book. So the syntax: @ here, open normal braces, give the category. But see what came: "C" for all three. That's not what I want; it should come according to each book. That's what's missing. I'll find the script and send it to you, and touch up the flatMap too.
+
+— What if I put a star in front of the book?
+
+[unclear] That's why it doesn't take it. That's fine, I'll write one for us. The flatMap script and this JSON-to-XML bookstore conversion script — I'll send them.
+
+[screen: Playground: CSV input (empid, empsalary, empdes, empname) → output application/json / payload]
+
+[screen: output application/csv with payload map ((item, index) -> { employeeid: item.empid, employeesalary: … })]
+
+Next, the CSV data format. We already know what CSV is: comma-separated values. For example, I make this CSV: empid, empsalary, empdesignation, empname; 100, 3000, software, Mahesh. Now convert it to JSON — did you see? It came properly. Now I have to convert JSON to CSV — what will you do? That's the question.
+
+— You forgot the CSV here.
+
+Yes, I gave CSV here — sorry, thank you. See this? It's done properly. Say there are multiple rows — like this, JSON to CSV. Here — what happened? I gave header=false; by default the header comes — the header means all these keys come properly here. Another requirement: change the keys — not empid but employee_id, like this. How? See, the keys changed: employeesalary: item.empsalary — I'm changing the keys too. That's how you handle CSV data. But most important is JSON. Very rarely we get CSV, and XML sometimes. Still, it's very important for the certification — you saw how I handle attributes — in one or two questions. That's why we have to learn it.
+
+[screen: Remaining modules doc — CI/CD with Jenkins, HTTPS (one-way / two-way TLS), CloudHub 1.0 vs 2.0]
+
+Now, I've told you these things; this part is done. I have to send you the scripts — flatMap — and look at the errors. And it's already overtime. CloudHub 1.0 vs 2.0, and this — 5–10 minutes pending; sending the script and showing flatMap, 5–10 minutes; and this whole concept is pending. We had to cover it today but due to the delay it didn't get covered. I'll cover it along with this; 15 to 20 minutes of discussion will be enough. CloudHub 1.0 vs 2.0 differences — I ask about it a lot in interviews; that's why I have to discuss it. I'll message in the group — next Friday or Saturday — and you people can join the session and we'll complete the entire thing. Any questions?
+
+— No, sir.
+
+Okay, thanks.
+
+— Thank you.
