@@ -1,0 +1,188 @@
+MuleSoft Telugu Course — Day 46 (cleaned transcript)
+Source: transcripts/day46.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day46 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+In today's session we will most probably look at the Salesforce connector. For example, if you want to communicate with a Salesforce system — before getting into Salesforce itself, let me set the context. If we want a Salesforce system to connect with a MuleSoft application, we could write code to connect to it. But MuleSoft has eased the process with a Salesforce connector: just drag and drop it, give some username and password details, and you can connect to the Salesforce system. Very simple — with very few steps, drag, drop and configure, you connect to Salesforce and do the necessary activities. What activities? Insert data, query data, update data — all of these.
+
+Before going there: what is Salesforce actually? Do you have any idea?
+
+— It is customer-related management. Salesforce is a CRM.
+
+Anything else? What is CRM? Customer Relationship Management. Another small point: Salesforce provides customer relationship management software — rather than software, a SaaS product. And Salesforce acquired MuleSoft; now MuleSoft is a Salesforce product. Salesforce is a company like Microsoft, Oracle, IBM, but they are very good at this particular product: customer relationship management.
+
+For example, who is famous for cloud? What do we generally say for cloud-based solutions? Amazon — AWS, Amazon Web Services. Microsoft is growing too, with Microsoft Azure. And Google provides GCP, Google Cloud Platform. These three providers are very good at cloud services: Amazon entered first, then Azure, then Google Cloud, and they are the top three players in the market. In the same way, CRM is a segment.
+
+CRM — Customer Relationship Management. Managing the relationship with a customer properly: from the time the data comes to a company, to the time it is converted into a customer and then serviced — to capture that entire journey, you generally need software or a service. Who provides it? Salesforce. For example, take the Amazon e-commerce platform. Amazon sells products and services. They do marketing first. After marketing, some data comes in — a person's phone number, email and so on. They are shown repeated ads, they purchase the product and become a customer. After that, they are provided service — they didn't like the product and returned it, or the product was damaged, or a warranty has to be serviced. That is the journey of a customer starting from a lead. What is a lead? When we have a person's details before they buy, that is a lead. Then customer, then service. Managing that journey is very difficult for medium-level organizations and big enterprises; it isn't easy. Salesforce captures all these details and provides a cloud-based solution that is very easy for people to use, on a per-user subscription basis.
+
+It was one of the very early entrants into the CRM SaaS market, and became one of the top players over the years: almost 28% of the CRM market share belongs to Salesforce. The second player is far behind, around 10–15%. They have penetrated that much. They acquired Tableau in reporting tools, MuleSoft in the integration space, and many products like this, and became a very big company doing very well. They are very aggressive in introducing new features. And MuleSoft is among the top two or three tools in the integration space for any enterprise.
+
+To connect to a database you need a username and password, and then you can insert, update, select and delete. The same in Salesforce, but the terminology is different. In a database I say table. What do we say in Salesforce? Do you have any idea? Object. Here too we save data in an object. There are two types of objects: standard and custom. What is standard? Salesforce has already created it for us. For example, there is an object called Account, regularly used, created with a structure and placed automatically — that is called a standard object. If the Account object doesn't suit, and I want it a little different — the object structure, fields and all — I create my own object: a custom object.
+
+Where does the data go? Whenever a Salesforce system generates data, it is stored in objects — either standard objects or custom objects. A standard object is a predefined object created by Salesforce; an object we create is a custom object. Beyond that it doesn't matter much to us. The minimum we need to understand: there are two types of objects, and we can pull data from them, push data into them, or update them.
+
+So, are we working on the Salesforce system itself? When we worked with the Database connector, did we work on the database? No. In the same way, we won't work on the Salesforce system; there will be a separate development and testing team for it. We coordinate with them, get the details from that team, and configure it at the MuleSoft end. So we need only the minimum of Salesforce CRM: create an account, pass the username and password, log in and do our work. To store data, we use standard and custom objects. In that account, we can use a predefined standard object and see what activities we can do.
+
+[screen: New Mule project salesforce-demo — adding the Salesforce module (Studio fetches its dependencies)]
+
+First, where is the module for Salesforce? Let's create a new project. Is there a Salesforce connector here? No module. Go to Add Modules — is there Salesforce? Yes. I added Salesforce. See how many operations there are — almost 20–30 or more. Are all of them important to us? Not everything. We use Query, Update, Upsert, operations on a new object — I will show 3–4 operations. For any activity the approach doesn't change; the only change is which operation is used for what. I regularly used 4–5 operations; I don't know much beyond those. When I get a new requirement in Salesforce, I check the documentation for a related operation and study it — because I already know how to connect to the Salesforce system, I only need knowledge of that operation. There are a lot of things here, but we will see only a few, not everything.
+
+What do we see in Salesforce? Query. In the database, to fetch data we used SELECT; here it says Query. For insert it says Create. So instead of table we have object; instead of select, query; instead of insert, create; and delete and multiple other operations. Next, there are source-based operations, which we put directly as the source: say something happens in a Salesforce object; once that happens, our flow starts automatically, takes that record and processes it. We'll see those as well — 3–4 operations in total.
+
+[screen: developer.salesforce.com — signing up for a free Salesforce developer / trial org]
+
+[screen: Salesforce "Start your free trial today" sign-up form]
+
+First, should I create a Salesforce account? Without one, obviously it won't work. Let's create a Salesforce account, use those details, and connect from here. Where should we go? developer.salesforce.com, then log in to Salesforce. Salesforce has a lot of products now — Marketing Cloud, CPQ and so on; don't get confused by them. We get more requirements with Salesforce. Do we have an account here? No. Let's create one for free. I need one of your email IDs — you'll get a password, and I need those details, because mine has already expired. I'll use your email, is that okay?
+
+— Okay.
+
+Can I call it Mani? Yes. Last name? C. I'll put Software Developer. All these are fine. Which email should I give? [unclear] You get a 30-day free trial, no credit card needed. After 30 days it expires, and you can't use it for anything; if you want to use it again, create another account. Company / organization name … Forward the mail — copy it and paste it.
+
+[screen: Gmail: "Welcome to Salesforce: Verify your account" — Verify Account button, org URL and username]
+
+— There is no link there.
+
+Will you share it once? Yes, I'll share it. [unclear] — Verify Account. Okay, I'll share.
+
+[screen: Salesforce Change Your Password (first login) with security question]
+
+I have already created an account, so I go to developer.salesforce.com and log in with my username and password. Let me check the verification code — I have sent it to you. What are we doing? Creating a Salesforce account. For what? Whatever we do here, we will connect from MuleSoft and do some operations; that's why we create an account and access it. Just give the minimum details.
+
+[screen: Salesforce Lightning home — "Welcome, Mani": create your first contact / lead / deal]
+
+The first Salesforce screen looks like this. We have created a Salesforce account; next, we need to connect to it, and there is again some activity for that. First, let's observe the minimum things. Here we have the standard objects. Accounts is a standard object: if I want to add an account, I create an account and give the details. By default there used to be some dummy data; let's see. In Contacts we can save information like phone number, email, contact number. So we have standard objects for accounts, contacts, sales and services; we use them to save data.
+
+[screen: Accounts tab → All Accounts (empty list)]
+
+[screen: New Account form — Account Name, Website, Type, Description, addresses]
+
+[screen: Sales app → Leads → All Open Leads (list views: My Unread, Recently Viewed, Today's Leads)]
+
+If our requirement doesn't match — this Contact object should be a little different, with more fields — you can add fields to it. If you want it really different, you can create your own object. It depends on the organization's requirement. Most of the time standard objects, but custom objects also have scope. The only naming difference: a standard object is just "Account" or "Contact", while for our custom objects there is "__c" added at the end. That's the only change; the rest is the same. We don't need much Salesforce knowledge; we need to know how to connect and use it, not too much more.
+
+Go to Settings: click the profile icon → Settings → Reset My Security Token. When connecting to Salesforce from MuleSoft with basic authentication, I need this token. So: profile icon → in My Personal Information there is "Reset My Security Token" → click it → Reset Security Token. The token is sent [unclear]. Along with the username and password, this security token is what we use to connect to Salesforce from MuleSoft.
+
+[screen: Setup → Object Manager — standard objects (Account, Activity, Address, Asset …)]
+
+Then Object Manager — from the home page. If we don't see it here, the UI changes from time to time, which is a bit confusing. We don't need all these things. Open Advanced Setup. We need a UI to manage the objects. This UI is for using Salesforce; the Salesforce team — users and developers — do the development in the backend, but this is for us. There is an Object Manager, where all the objects are managed. I click it. Look at all these: Type: Standard Object. Salesforce created all these predefined for us — a lot of objects: order, and so on. The one used a lot is Account. An object is nothing but like a table: there is a structure, and we save data in that structure.
+
+[screen: Object Manager → Account → Fields & Relationships (field label, API name, data type)]
+
+Now I go to the Account object. There is a label and an API name. When you communicate from MuleSoft, which one should be used? The API name, not the label. The label is just the name for display purposes. The API name is what you use when writing queries. For example, in the database, what language did you use? SQL, Structured Query Language. Here, Salesforce Object Query Language, SOQL, is used. Almost the same as SQL, with small changes; if you spot those changes, you can do the activity. In SQL: select * from table name — I used employees_info. Here we use the object name. For Account the label and the API name are the same; but if a label has a space, the API name won't — use the API name. Keep in mind: always use the API name when doing an activity on Salesforce.
+
+Now in the Account object there are Fields & Relationships. These are the fields — like columns in a table: we had employee number, employee designation and other columns. Here we have fields: Account Name, Account Number, Account Owner, Account Site, Account Source, Annual Revenue — many fields. Should I use the field label or the field name? The field name. Observe: there should be no space in it. The label is only for display. Programmatic values are always code-wise. MuleSoft does the same: the query we write is converted into code — XML in the backend — and executed. So always use the field name; for the object, use the API name; for fields, the field name.
+
+Now say the Salesforce developer gives us something without knowing this — you have to ask, and they will give us the field name. There is Account Name; what is its data type? Name — Salesforce has a data type called Name, like a string. Look: Text is like a string. This is a Lookup(User). Salesforce developers need to know all of Salesforce's data types; we don't need too much. Here: Currency, Number, Picklist. Remember we made an enum? What is an enum? Like a drop-down: a value from specific values. A picklist means only those values can be picked. So there are data types, field labels, field names and so on. An object has its own fields. Why "Fields & Relationships"? There are relationships between one object and another, defined here. As far as we're concerned, that's fine; we don't have to think too much about it. You can also add or delete fields here, no problem.
+
+Salesforce is a big subject. But as a MuleSoft developer you don't need to know everything there. An object looks like this, and its fields look like this — I just wanted to tell you that. I clicked the gear icon, opened Advanced Setup, clicked Object Manager, and it opened.
+
+[screen: Object Manager → Contact → Fields & Relationships]
+
+Let's take another object, Contact instead of Account, and see what it looks like. What is the API name? Contact — so when we use it, we use that. Fields: Account Name, Assistant, Assistant Phone, Birthdate, and so on.
+
+I just want to get some data from Salesforce. Do we have any data? In earlier versions there used to be dummy data in Account; now there isn't. So we go to Accounts → New, provide the information and Save. Account Name is red — mandatory. Is Website mandatory or optional? Optional, so I'm not entering it. I enter only the mandatory details and save. [unclear] Account Type and so on are all optional. We can configure which are optional. We could also create such an object as a custom object, but since Account is a standard object it is already there.
+
+[screen: Account record "Mahesh" created (Hyderabad shipping address, history)]
+
+See, account Mahesh was created. Now I open the Accounts drop-down and choose All Accounts. The account list was empty before — see it now? It came. What is a piece of data in an object called? A record. The record is created. In the record you can see the account name, partner account, address details etc. You can create accounts like this.
+
+So the new terminology in Salesforce: object; fields; record; standard objects and custom objects. This terminology matters. When we have saved or created data, we call it a record: "an Account record has been created in Salesforce." When you speak like that, a Salesforce developer easily understands in their language. Otherwise — say a Salesforce developer comes to your meeting and you say "let's see whether the data is created in the account table" — they won't follow what "account table" means. "Let's see whether the record is created in the Account object" — they'll understand easily. If we speak in someone's language, it's easy for them to understand, and communication is easy for us. That's why this terminology is very important.
+
+[screen: Studio: Salesforce Query operation dragged after the Listener and Logger]
+
+Now, first I want to get some details from the Account object. The Salesforce module is already added to our project. To fetch information from the Account object, the operation is Query. I dragged Salesforce Query. I'm making it a listener-based application, because I want to show you debugging too; I drag-drop the Listener as well.
+
+Next, how does the result come from Salesforce? How did it come from the database with select — which format? Java. From Salesforce too, it comes in Java format. Next question: when you select * from a table, can multiple rows be selected?
+
+— Yes.
+
+How will the output come? In an array?
+
+— Yes.
+
+An array, and each row is one item in the array. The same here: a collection of items, because I'm selecting from an object. Based on the condition, one record or multiple records can come. Multiple records — an array of multiple items. A single record — an array of one item. No data — an empty array. Simple.
+
+What language is used for this query? SOQL — Salesforce Object Query Language. Everything is similar. What is the biggest difficulty? You get stuck and can't write it. What then? Salesforce developers do this — it's their job. Take their help, write a query with them once or twice, and test it. Or do research on the internet, write the query, and get it validated by the Salesforce developer.
+
+[screen: Instructor's notes: CRM, standard and custom objects, org username, password Test@123, security token, org URL]
+
+[screen: Notes: SOQL = Salesforce Object Query Language; environments (dev, SIT testing, UAT qa, prod)]
+
+So we use SOQL. First configure the listener; then take the connector and drag-drop it; then create the connector configuration.
+
+[screen: Salesforce Config → Connection: Basic Authentication (username, password, security token, authorization URL)]
+
+[screen: Connection options: Basic Authentication, OAuth v2.0, OAuth JWT, OAuth SAML, OAuth Username Password]
+
+Here is the Salesforce connector configuration. How many connection types are there? Multiple. It provides provision to connect in multiple ways: Basic Authentication, OAuth, OAuth JWT, OAuth Username Password, OAuth SAML. Which ones are used? I've observed OAuth JWT and Basic Authentication a little more. In our session we'll look at basic authentication, and I'll take 5–10 minutes to tell you about another connection type — OAuth JWT has a different process.
+
+I selected Basic. What details do we need here? Username, password and security token. Give these three and it works. Did you notice the difference between connection types? When we communicate with the Salesforce team, we have to ask what type of connection they are providing. If we know it's OAuth JWT or basic auth, we can ask for the details accordingly: "I want username, password and security token." For OAuth, Consumer Key, Consumer Secret and more things are asked. OAuth JWT asks for it another way.
+
+Since we are on basic auth, we have the username, password and security token — can we connect? What do people usually do? They create a separate user for this, set a password, and provide us the security token. When an organization has a Salesforce account, they use it for their own users; for MuleSoft they create a service account separately, and provide us that service account's username, password and security token. Then we connect with that.
+
+I take the username and password. Do we hardcode or use property files? Property files. Why? They are different for different environments.
+
+— Does MuleSoft have different environments and Salesforce not?
+
+For example, Salesforce also has different environments. We discussed this for MuleSoft: Dev, SIT, UAT and Prod — four environments. Now Salesforce has Dev, QA and Prod. What do we do? There's no UAT there, so we use the QA environment for it — we have to confirm that with the respective team. We have four environments; we confirm which of theirs to use for each, and then we can use it. In the UAT property file and the SIT property file, the configuration may be almost the same.
+
+— Yes.
+
+That's what you have to understand. If we understand this mapping — dev for dev, and so on. One more thing: what do they call SIT there? QA? No, he said "testing", for example. We should know their testing equivalent of our SIT. When we talk to them, understand these things. Is that clear to everyone?
+
+— Yes sir.
+
+Sorry, I copied the security token wrong; I'll take this one. Can I test the connection now? Test Connection — see, it succeeded. We are able to connect to the Salesforce system.
+
+Observe here: we talked about connection pooling — do you remember? You can also use a reconnection strategy here. What is connection pooling? Generally, a request comes to the Salesforce connector, a connection is created, and through that connection we connect to the Salesforce system and send the request. A response comes back, the connection is closed, and the result passes to the next component. So for each request: create the connection, establish it, connect to Salesforce, send the request, get the response, close the connection, pass on.
+
+What connection pooling says is: first create some connections and keep them ready, like a pool. Then when a request comes, it uses a connection already in the pool and goes fast. A normal scenario: you know a guest is coming to your house. Normally they come in through the gate and ring the bell; you're in the bedroom or on the first floor; after the bell rings you check and open the door; then they come in and sit. Since we know the guest is coming, I keep the door open. How many steps did I eliminate? The bell ring and the step of opening the door — time saved there. In the same way, this may seem small, but thousands of requests come to the system, and each opens and closes a connection. So it's important to keep connections ready. Latency means delay in the response; if I keep connections ready, performance improves — for example, if it takes 100 ms, it may take 90 ms; 10 ms saved due to connection pooling. If you want to improve performance, use connection pooling.
+
+— Is connection pooling only for Salesforce?
+
+Look at the database. By default it's enabled for HTTP requests too, and for Salesforce it does the same automatically. But for the database we have to configure it — check in the database connector. The advantage of enabling it is a little better performance. A minimum understanding is enough; it's an advanced concept that helps increase the performance of that connector.
+
+The test connection is done; we can establish the connection to Salesforce. What next? Now I need data from the Account object. Look — like the database select, there is a query here and parameters here. We'll pass the parameters/input from here.
+
+[screen: Salesforce query: select Name, AccountNumber, Website from Account]
+
+How to write SOQL? Almost the same: select. But star doesn't work here: if you want all columns, mention every column name. Should I call them column names or field names? Field names. Do I have them here? No — since we have Salesforce here, we get them from there. Where do I go? Object Manager → Account object → Fields & Relationships. Field names or field labels? We already decided: field names. For example, I want the name, account number and website: select Name, AccountNumber, Website. The table name is the object name — where is it? Under Details, see the API name first. Here both the label and API name are the same, but some objects have different labels and API names, so it's very important to take the API name.
+
+Now the condition — I'm not writing a condition and not passing any parameters. As we saw in SQL, you can try the same kind of things. What will I get? Name, AccountNumber, Website — and with no condition, all the records in Account. How many records are there? Only one.
+
+What format does the Salesforce query return? Java. I want to send my response as JSON — what do we do? Convert it: output json, payload. In Advanced we have target variable; next, reconnection strategy; and connection pooling, which I just explained. These are all common — once you learn them in one place, you can use them in multiple places. You can also change the error mapping — if there is an error and you want a different error type. This concept is the same for almost all connectors.
+
+Now let's run this project and test. We convert to JSON here, and there's a logger. Sorry, it goes up every time. A breakpoint here. We form the request — the path is /sfquery. It's deployed.
+
+[screen: Studio console — project built and deployed (BUILD SUCCESS)]
+
+I hit the request. You can see a lot of delay. I received the request; I'll debug. The payload is empty — it is sending some payload here, that's fine. Do we use this payload? No, not at all. Now the query — let me see what came. An error. What type? INVALID_INPUT — SALESFORCE:INVALID_INPUT. Do you understand it? For DB we remember there were different DB errors; for Salesforce, SALESFORCE:INVALID_INPUT: we are passing something invalid to the Salesforce system. What are we sending? Let's see the description.
+
+[screen: Error: "No such column 'AccountNumber' on entity 'Account'… append the '__c' after the custom field name" — wrong field API name]
+
+We didn't give an account number on the record; we gave only the name and website. It should come as null or empty, whatever. I took the name, the number and website; if there's no account number, it should come empty, and the name and website come. AccountNumber is not a custom field, right? The system created it automatically; we didn't do anything. What is the issue then? "No such column." You created an account, right? Let's look.
+
+[screen: Object Manager → Account fields: AccountNumber exists (Text(40)) — checking the field API names]
+
+The column is there. [unclear] Since we don't have the account number, shall we take only the website? Let's take name and website. The important thing: even if the account has a lot of fields, [unclear] — I'm not sure about it either. For example, when I created it, what did we give? A website; the type — remember we gave type Partner, partner account. I'll take Type as well. We need to take the necessary fields; you can't select * like in a database. How do we get all these fields? Simply, the Salesforce developer can give them to us, or they open it and give us all the fields in an Excel sheet with which ones are mandatory — all the details.
+
+Now I resume. After saving — it's not getting redeployed. AccountNumber is a standard field in general. Let's see. That's fine. See, that is none of our business — we don't have to work on that field. If they give us a field and there's an error, we tell them "please check it and let us know." When we do it correctly from our side, we can ask the Salesforce team itself; it's not our problem. They gave the account number field; if it doesn't work here, they check from their end what the setting or configuration problem is.
+
+[screen: All Accounts list with the new record (Mahesh, website, billing state)]
+
+Now I hit the request. Look: what is the payload size? One came. So the payload is overwritten? Overwritten. All these are common; we have to remember them. I repeat the fundamentals again and again so they go into your mind; don't feel bored when I repeat — some people understand easily after multiple repetitions. What is the media type? Java. Now see: Type — Partner came; Website came. How many fields did we ask for? Three. But along with them some other details came by default: an Id and a type. What's in here? A HashMap — it's a collection; Java uses different terms, but in our language it is a collection of items. In it is the actual data.
+
+[screen: Mule Debugger: payload — query result rows (Name, Website …)]
+
+[screen: Postman GET http://localhost:8081/sfquery → 200 JSON with the queried accounts]
+
+After converting to JSON we'll understand it easily — I'll show it once more. See how the data is: an array of one object. The details we asked for came, plus one or two extra: Id and type. If I write a condition, the data comes accordingly. Suppose there are 100 records — we get an array of 100 objects. Since there is one, an array of one record. Each record is formed like an object; 100 objects means 100 records. That is one thing you have to understand.
+
+Next, I write a condition here. Does Rajesh have an account in our Salesforce system? No. What should come? An empty result. I think the system has become very slow; I have to clean it once — normally it doesn't take this much time; sometimes it feels slow for 3–4 days. Shall I trigger the request? Now the size is 0. Open it: the payload is an array — but an empty array.
+
+[screen: Final Postman response after the Transform — account records as JSON]
+
+In query we always get an array of items. If the condition doesn't match, we get an empty array. If the condition matches 10 records, an array of 10 objects; 100 records, 100 objects; only one record, an array of one object.
+
+If we want to insert a record, as in a database, we have to create a record in the Salesforce object. How? What is the option for this? We will see it in tomorrow's session; tomorrow we continue with the rest of the Salesforce operations. Any questions?
