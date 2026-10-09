@@ -1,0 +1,88 @@
+MuleSoft Telugu Course — Day 53 (cleaned transcript)
+Source: transcripts/day53.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day53 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+[screen: Remaining modules (Notepad++) — Object Store and watermarking, JMS, transformation (pending: custom function, flatten, flatMap), CI/CD, AWS S3, HTTPS, CloudHub 1.0 vs 2.0]
+
+I'll remove this also. In DataWeave, what's left will take hardly 15–20 minutes. Then CI/CD pipeline deployment, then the AWS S3 connector, one-way TLS and two-way TLS, then CloudHub 1.0 vs 2.0. These are the five topics we will cover next week.
+
+[screen: object-store-demo flow: Scheduler → Retrieve (last emp_id) → Logger → Select → Logger → Transform Message → Store (new max emp_id) → Logger]
+
+What was the use case we discussed for the object store? Insert from the database into another system: we have employee records in the database and we have to create those employee records in Salesforce. If you observe, it's very simple: just put a Salesforce Create here — you don't have to do anything more than that. What are we doing first? A scheduler, every day — but let's run it every five minutes; easier for us. Then Retrieve.
+
+First of all, is the Object Store available here by default in the Mule palette, or do we drag-drop it? Go to Add Modules → Object Store, drag-drop it. Before proceeding, see what operations there are: Clear, Contains, Remove, Retrieve, Retrieve All, Retrieve All Keys, Store. Which operations did we discuss yesterday for our use case? Store and Retrieve. Why Store? After creating the Salesforce employee records, we take the employee ID — however many we create — and store that employee ID in the object store. Store saves the given value for the key: we specify a key name and store the value under it — key and value. What value do we assign? The employee ID value — whatever is comfortable. Then, to get the value for that key: Retrieve. I use the Retrieve operation to get the value based on the key: give the key name, and whatever value is available, the object store gives it to us.
+
+Once this scenario is executed and we see the results, we'll go to the other operations, so that at least we have some idea and can use them in any situation.
+
+[screen: Retrieve operation — key and a default value for the very first run (no watermark stored yet)]
+
+So first the scheduler, then the Retrieve. See what I did in the Retrieve: [unclear] we have given a default value. When there's no value stored yet, what's assigned? The default value. What's the key name? Employee watermark — I gave that key the name EMP watermark.
+
+[screen: Object Store config: name Object_store, Persistent, Max entries, Entry TTL (HOURS), Expiration interval]
+
+[screen: Global Configuration Elements: Database Config and Object_store]
+
+Then we have to create the configuration. Simple: here we give the key name, decide one, and then the value. Then you have to create the object store: click the plus icon. By default, is it persistent or transient? Persistent — by default the object store is persistent. If we uncheck it, it becomes transient. In this situation do we want persistent or transient? Persistent — we discussed this in the previous session.
+
+There are some more configurations: Max entries, Entry TTL, Entry TTL unit, Expiration interval, Expiration interval unit. We're not defining them here, but what do they mean? Max entries: up to how many entries can be saved in this object store — 500, 100, 10, 20, 30; we can define it. In our case, how many entries are there at any point in time? One — since we remember one value in watermarking, max entries don't matter to us. But the meaning: whenever you want to restrict the number of entries in an object store — think of it as a limit — give that limit here.
+
+What are Entry TTL and expiration? Entry TTL has a unit — seconds, minutes, hours or days — and the expiration interval also has units. Entry TTL stands for time to live. What is time to live? How long the value in this object store is valid. For example, I give 1 and hours. I saved the employee watermark as 100 with entry TTL 1 hour. That means this value is valid for 1 hour and then expires. We specify the time to live for a value; after that it expires. For example, the employee watermark is saved at 10 o'clock; when does it expire? At 11 o'clock. After 11 it has expired — but it hasn't been removed from the object store. Who removes it? See the Expiration interval. Say I set it to 30 minutes. What does it do every 30 minutes? It runs like a scheduler and, if values have expired, deletes them from the object store. So the expiration interval runs a scheduler that checks for expired keys and values and removes them. With TTL 1 hour, is a value removed automatically? No — it only expires. Removing is the expiration interval's job.
+
+In our case it's a watermark. But say there are 5 values stored in the object store — 5 keys and 5 values, given dynamically: one key created at 10 o'clock, one at 10:15, one at 10:30, one at 10:45, one at 11. Five keys. [unclear] With the expiration interval, the one from 10 is deleted when the check runs after it has expired; when does the check run again? [unclear] If it runs at 11, how many remain? The 10:15 one expires at 11:15, the 10:30 one at 11:30… That's why the expiration interval should always be less than the entry TTL — better.
+
+Say a key has TTL 1 hour and I keep the expiration interval at 2 hours. What happens? It was created at 10; the check runs and nothing is expired. When does it run again? At 12. When did the value expire? At 11 — so it stays an hour longer. Always keep the interval less. Since I've kept 30 minutes, it checks every 30 minutes and deletes everything expired. So it's very important to understand these parameters. You can configure seconds, minutes, hours, days — it depends on the scenario.
+
+So this is the object store configuration; after creating it, where is it? Here, in Global Elements — see, it's created. What are its values? I just gave them for the calculation. If I give one minute here, what happens? It's automatically deleted after a minute. [unclear] Otherwise there are default values — I think values are kept for around 30 days by default. In this particular scenario we don't want them expired and deleted. With watermarking, I'm saying, no; with a token, the token expires in 1 or 2 hours, and then we'd set it accordingly. Since we don't need expiry here, I'm leaving it as it is. By default — I don't remember exactly — the object store keeps values for around 30 days. That's the configuration.
+
+Now, in the Retrieve, there's the default value, and we select the object store. Next, under Advanced, the target variable: I gave the same key name — it's easier: employee watermark, and the value is saved there.
+
+[screen: DB Select: select * from EMPLOYEES_INFO where emp_id > :emp_id — only records newer than the stored watermark]
+
+Then in the select query: select * from employees_info where emp_id > :emp_id. The value sent in :emp_id is vars.empWatermark. Then create in Salesforce. After that, should I change the watermark value again? This transform converts to JSON; this is Java. After I've created in Salesforce, the employee watermark: say it was 100 and records 100 to 106 came; they're created in Salesforce. After that's done, should I store the value 106? That's it.
+
+How do I get 106? Look: max(payload.emp_id) — the maximum employee ID in the payload from the database. Where do I save it? Look again — the key name: we gave the same key name here, so it saves under this key again. It was 99; now 106 overwrites it. Next run: greater than 106 — no data to Salesforce; or if we have 107, 108, 109, 110, since there's data we create them in Salesforce and store again — 110 — and it comes again in the next schedule. Like this.
+
+See, what should we do? Implement it one by one and see how it goes. Since I'm looking specifically at the object store, I haven't put a Choice router here and didn't check that. When you do it, these are the kind of things you can implement.
+
+[screen: MySQL Workbench — local instance used for the demo]
+
+[screen: EMPLOYEES_INFO rows (IDs 120, 1000–1009 …) used to show which records each run picks up]
+
+Now let's check the database configuration. Which database? mule DB. It isn't running — let's test — it's running. use muledb. How many employees? 100, 101, 102 … the numbers jump from 120-something to 1000. When I iterated the first time, I set the default to 99. How many records are there now? select count(*) from the table — 38 records. What should we get in the first select? 38 records. Some were skipped in between, no problem; it continues. You people understand? Watermarking should be sequential and incremental at any time — remember that.
+
+So almost 38 records; we retrieve these 38 and then see the maximum employee ID. I'll add a breakpoint and debug the project. I already discussed the scheduler: it runs every 5 minutes at fixed frequency — so it triggers once it's deployed, runs, and runs again every 5 minutes.
+
+Variable 1 — why did it come? Remember we gave an employee watermark as the target variable in Advanced. How much is it? It should be 99 — but why did 120 come? From the previous batch — I ran it earlier. Since it's persistent, it comes back automatically even after I redeploy the application. Did you see?
+
+— Yeah.
+
+[screen: Debugger: the Select returns the new records as a list (emp_salary, emp_status, emp_name, emp_designation, emp_id)]
+
+[screen: Run output in Notepad++ — records 1006 … 1009 returned after the stored watermark]
+
+Now it takes all the records above 120 — right? From 120 up to 1009. Tell me, how many came? 17 records. Correct? We thought 38; the first 21 records — from 100 to 120 — are excluded, and 38 − 21 = 17. Of these 17 records, what's the highest employee ID? 1009. Next — I converted it just for our understanding. Let's see the employees: 1000, 1001 … 1009. One of them is missing because we didn't create it. [unclear]
+
+In general, these are auto-incremented IDs: 100, 101, 103 — if one number isn't used, the next is still incremented. If it isn't an employee ID, use another incremental number — a serial number or whatever's possible. When watermarking, keep one incremental ID. What's incremental? When a new record is created, it takes the previous value plus one.
+
+What should I do with these? Create in Salesforce. To create in Salesforce, should I check whether there's data? I'd put a Choice here: if there is data — payload size greater than zero — create and store in the object store. If there's no data, a logger below: "no data". Create records in Salesforce and print a log. If you check the logs every 5 minutes: if there's data it goes up; if not, it comes down and logs.
+
+So what's the value now? 1009. How do we know 1009 is stored? Now while I was debugging, 5 minutes passed and it triggered again automatically. If I retrieve now — the variable value in the retrieve: see, 1009. After 1009, what records are there? None now. If I'd put the Choice, it would go down — nothing more.
+
+[screen: Error "You called the function 'max' with these arguments: 1: Null (null) — but it expects Array" — max(payload.emp_id) when no new rows came back]
+
+Did you see the error here? Why did it come? Because there's nothing beyond that — do we have data at all? "You called the function max with these arguments: Null." What's null? I set max(payload.emp_id). The payload is empty — no employee IDs — so null comes. How can we take max of null? It doesn't work, so the error came. If I put the Choice condition, would the issue come? That's how we have to implement the business requirement.
+
+[screen: Fix: a Choice with #[sizeOf(payload) > 0] — Store the new watermark only when records were returned; Default does nothing]
+
+[screen: Choice condition #[sizeOf(payload) > 0] routing to the Store operation]
+
+Do you remember sizeOf(payload) vs isEmpty(payload)? Please refer to the difference: sizeOf loads the whole payload, checks the size, and returns it; isEmpty is better for checking whether a payload is empty. [unclear] What happens if the payload is empty — which route executes, the bottom or the top? After the select, it checks whether there's data. Is there? No. Then the payload size is zero. Does the condition match? No. So it comes down. Is there anything to execute there? No — so I'll print a log there too: "no data". If there is data, it goes here, takes the maximum employee ID, stores it, and then it's available again; when it runs again, it takes the new ones. Just as I said, put a Salesforce Create operation here and it's enough. What else do you need? Did you understand this use case? Clear? That's how the object store helps us.
+
+Next, instead of watermarking, the access token I explained — take that use case and try it. Remove persistent — uncheck the check mark. If you uncheck it, then when you stop and redeploy, it automatically gets a new value. You have to implement the access token in a different way; I explained it yesterday. Go through that session and try to create the same kind of flow. Any questions?
+
+[screen: Full course module list — modules 1–4 (ESB, Mule basics, deployment strategies) already covered]
+
+That's the object store. What next? I'll stop the recording and the session for today. This next one will take 1.5 to 2 hours; this one 1 hour to 1 hour 15 minutes; this one also 1 to 2 hours; this is a small one. We'll start fresh next week: Friday, Saturday, Sunday — in these three sessions we're planning to cover all of these. Okay?
+
+— Yes.
