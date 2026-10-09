@@ -1,0 +1,120 @@
+MuleSoft Telugu Course — Day 55 (cleaned transcript)
+Source: transcripts/day55.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day55 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+[slide: Agenda: CI/CD pipeline deployment using Jenkins]
+
+In today's session we'll get an idea of CI/CD pipeline deployment. There are multiple DevOps tools for CI/CD and we can use many of them, but the widely popular tool is Jenkins, so we'll learn how to do a CI/CD pipeline with Jenkins.
+
+First of all, we've seen three deployment models so far — remember? CloudHub, on-premises and hybrid. What did we do in these three? We took the jar file and deployed it directly. Will that happen in real time? No — mostly we deploy through a CI/CD pipeline. Who develops the CI/CD pipeline? [unclear] The DevOps team develops it. You can have multiple steps in the pipeline.
+
+[slide: What is Jenkins? — a popular open-source CI/CD (Continuous Integration / Continuous Deployment) tool known for its versatility and automation]
+
+So first, what is Jenkins? An open-source CI/CD tool that helps us deploy our applications. We automate the deployment process. For example, we have multiple environments. Where does the developer deploy first? Development. Once it's working correctly, it should go to the next environment, and after that to the next. This can be done manually or automated. And there are multiple steps in each: build it, run the MUnits, some other checks — put those checks in and deploy at the end. To execute these steps you build a pipeline and give them one by one — first, second, third — and the pipeline runs them accordingly. A lot happens in the background, and it differs by organization, depending on which CI/CD tool they use — Jenkins, Bamboo, AWS's own pipeline, Azure's own pipeline. Jenkins and Bamboo are widely popular specialised tools; one reason is that Jenkins is open source — anyone can download, install and use it in their services.
+
+[slide: CI/CD pipeline diagram — code commit → Git → Jenkins → build → test → stage → deploy → production]
+
+The CI/CD process happens in multiple steps. First of all, we write code in our Studio — I mean, that's the intention. When we develop an application — drag, drop, configure, write transformations — what happens in the background in Studio? In Anypoint Studio I created a project; after creating it, everything is drag and drop: configurations, transformations. We easily understand the front-end drag-and-drop and visual representation. Can the machine understand that? No. So it has to be converted into a structure: even if we work visually, XML code is generated. In the configuration XML there are three tabs — Message Flow, Global Elements and Configuration XML — and in Configuration XML you see the XML code for everything in the Message Flow view. Finally, what I'm saying is: a project you create in Studio is ultimately XML code.
+
+[drawing: Anypoint Studio (create project, develop logic, configure, transform, XML code) → GitHub → Jenkins → deploy to CloudHub]
+
+I have to save this XML code somewhere. Where? I developed it locally and saved it locally. Then my laptop or system crashed. So we put it in GitHub. That's where code repository tools come in — remote repository tools: GitHub, Bitbucket, GitLab. What do we do with them? Save the code. Advantages? We can reuse it, and collaborate and work with multiple developers.
+
+For example, take GitHub. I saved the code in GitHub — say this is our X1 project code. It's a folder structure: go to the project folder in Show In → System Explorer, the workspace — multiple files. I stored that code in GitHub; developer 1 pushed it. Can developer 2 access it? Yes. So we can share easily. In X1, you're working on feature 1 and they're working on feature 2 — at the same time? Yes, it works, and it helps to collaborate. You push feature 1 and they push feature 2; if there are merge conflicts in the code, it handles all that. Then you deploy the application. So GitHub, Bitbucket, GitLab are code repository tools: we save and share our code there. Even if we have a problem locally, the code is in the remote repository; take it and work on it.
+
+Not only that. Say we deployed once as version 1 with feature 1, and it worked well. Then we developed feature 2 as version 2 and deployed it — and there was a problem; it's not working properly. Should you revert to the version 1 code? Yes. What happens in Studio? The version 1 code was overwritten by version 2. What about GitHub? I take the version 1 code again — version management happens in the code repository. So I take the version 1 code and deploy the project, and run version 1 until version 2 is properly prepared. Version management, collaboration among developers, saving and sharing code in a central location. That's why GitHub and the other code repository tools are very famous: GitHub is very popular, then Bitbucket, then GitLab; and Azure has its own repository tool. In the cloud environments, each — Azure Cloud, AWS Cloud, GCP — has sub-tools. I don't remember whether AWS or GCP has version management, but Azure does. We can build CI/CD pipelines in Azure and AWS; I don't know whether they have a code repository tool.
+
+It's in our workspace: right-click → Show In → System Explorer. Here's our workspace, and in it the flow-reference project. See the files inside: pom.xml, the artifact JSON file, .classpath, target, src — multiple files and folders. pom and the artifact file are the main files; we can ignore the rest — we don't even need target or the .settings. In src/main there's nothing under java, because we didn't do anything Java-related — very rarely Java is used. In mule there are two XML files — the ones we did in the visual view. Then resources — application types, log4j2, the DataWeave code that was auto-generated. And api — empty.
+
+Now take all this and save the project in the code repository. Advantages: for example, 10 days later another developer can start on it. Or, as I said, version 1 deploys and runs successfully; then I push version 2, deploy it, and it fails — it doesn't work as expected — and I have to revert to version 1. The code repository tools manage both versions, so it's easy to go back and retrieve version 1. All these things help us properly; without GitHub and repository tools, it would be very difficult. If you've worked with this already, it's clear; I'm repeating it once as a refresher, because people coming from non-IT backgrounds don't know code repository tools and have some misunderstanding.
+
+So finally we push these files to code repository tools. Look here: first, code commit. Where? To the repository tool. There are multiple steps here. In the CI/CD pipeline — continuous integration, continuous delivery or continuous deployment — first we push and commit the code to one of the code repositories. Then the project is built. Then tested. Then the staging environment. What is staging? I told you four environments: dev, SIT, UAT and production. Dev, SIT and UAT are staging environments. Why "staging"? They act as a bridge between initial development and final live. What's final live? Say I'm using the Flipkart mobile app: the code is live in production, and the general public — the users of the app — can use that feature. If it's in UAT, can the public use it? No — it's in the testing phase. So we have multiple staging environments — dev, QA, SIT, testing, UAT, whatever. After those, we deploy to live.
+
+We can automate these steps, or semi-automate them. That's continuous integration and continuous delivery — or continuous deployment. When the code comes to the repository, the DevOps pipeline automates all these steps — automated or semi-automated — triggering the steps one by one, first, second, third, like an orchestration. It's written like a script; it executes automatically and deploys our application.
+
+Say I want to deploy the application to CloudHub. What was the general process? This is the CloudHub environment, this is Studio. We logged in directly, exported a jar file from Studio, went to Runtime Manager, Deploy Application, and gave it the jar. But now there's a pipeline in the middle. In this pipeline: first Bitbucket or GitHub — say GitHub — I push the code into GitHub. Next we build it, save it in a repository, and after that deploy it to CloudHub. All this happens in a Jenkins pipeline. Jenkins needs a connection to GitHub/Bitbucket, a repository connection, and a CloudHub connection. This is the first step, this the second, this the third. If the first step fails, it stops: if the code isn't built properly from Bitbucket/GitHub, our deployment fails. Since we create the pipeline, we deploy from there and check whether it triggered. All these options are automated in the Jenkins pipeline. To deploy, Jenkins interacts with GitHub, then the repository, then CloudHub.
+
+There are many more possible steps. There are tools that analyze our code: when the code comes from Bitbucket, the first thing some do is run code tools like SonarQube or other static code analyzers. They check whether the code follows best practices; they run the job and report — with a threshold like 60% or 70%. If the measurement meets it, it goes to the next step; otherwise it fails: "your code is not according to standard practices." We'll create a simple pipeline, but in organizations it may be more complex because of their requirements. We don't need to know all that — static code analysis, the minimum is enough. No need to dig deeper into everything; once you acquire the knowledge, you can go deeper. If you want exposure to different tools and technologies, that's where cloud and DevOps come in; you can explore both, because applications are deployed in the cloud and pipelines are created through DevOps, and you can learn in detail how to create pipelines there. But first be very strong in your main subject — MuleSoft. Once you're a pro in MuleSoft, you can dig deeper into these technologies.
+
+[slide: What is Continuous Integration? — developers frequently merge code changes into a shared repository; automated testing and early bug detection keep the codebase stable]
+
+"This allows for automated testing and early detection of bugs to keep the codebase stable." I pushed a small piece of code and it failed to deploy — then automatically you know there's a problem with your code. We check it and identify the bugs easily. If we practise continuous integration, it's easier.
+
+[slide: What is Continuous Deployment? — any code change that passes all checks is automatically pushed live, minimising manual steps and speeding up updates]
+
+Next, continuous deployment: an automated software release process. Any code change goes through all the steps in the pipeline, and with minimal manual steps we can take the application live — [unclear] we have scope to automate all of this.
+
+[slide: Software / platforms required — Anypoint Platform, Anypoint Studio, Java, Maven, GitHub, Git, Postman, Jenkins]
+
+What software do we need? To build a project and deploy it with a CI/CD pipeline through MuleSoft: the Anypoint Platform, Studio, Java. To work with Jenkins we need Jenkins. What does Jenkins need? Java and Maven. And Anypoint Studio — do you need Java and Maven separately for it, or are they embedded? Embedded, so we don't configure them separately. But for Jenkins, you have to install Java and Maven on your system, in compatible versions: for the Jenkins version you pick, choose compatible Java and Maven versions; otherwise it's very difficult. So it's good practice to maintain compatible versions.
+
+We have to push the code to GitHub — the terminology is "push". How? With Git — using Git you push the code from your workspace to GitHub. Or: there's code in GitHub — others developed version 1 — and we have to build version 2 on it. Then we need the code from GitHub in our Studio; again use Git to bring it here. So sending our code from our local system to the code repository tool, or from the repository tool to our local system — what does that is Git. It acts as a mediator between your local system and the code repository tool. We also need Postman for testing, and Jenkins. All these are required. We already have the Anypoint Platform, Studio, GitHub (to create), Postman and Jenkins (to download). We'll download and install whatever's needed, configure it, and build the pipeline.
+
+[screen: Instructor's notes: download links (Java JDK, Maven 3.8.6, Jenkins, Git), java -jar jenkins.war, --httpPort=8099, and the mule-maven-plugin cloudHubDeployment snippet for pom.xml]
+
+[screen: TechSpot — Java SE JDK 11.0.25 download]
+
+First, Java. Where's a good place to download it? You can download it anywhere; I've given a URL here — if we open it, it's easy. The reason: Java is owned by Oracle, and on Oracle's site you have to create a username and password; this site has a direct download option. I'll send all these URLs. Which version? Java 11 — observe, 11. Click Download; an exe file — the JDK — is downloaded. Double-click it; next, next, next, finish; Java is installed on our system. If you're logged in as a different user, it asks for the admin username and password — right-click → Run as administrator. If you're already an admin user, no problem.
+
+[screen: Command prompt: java -version → java 11.0.21 LTS]
+
+How do we know Java is installed? Command prompt: java -version — we all know this. Which version? 11.0. Where are the latest Java versions? Almost in the 20s — I don't remember exactly, maybe up to 24 — but [unclear] the stable ones are used more. MuleSoft was almost 1.8; then 11; now 17 — especially in CloudHub 2.0. If you look at application compatibility, the focus is on 17. Before, 8 and 11 were supported more; now it's shifting to 17, and all applications have to be compatible with 17. I identified Jenkins compatibility, so I'm using Java 11.
+
+If you don't have Java: double-click the exe, give the admin username and password, next, next, finish. If you have to uninstall a Java — say a 17 or 18 version — go to Control Panel → Programs and Features → Uninstall programs, find Java, right-click → Uninstall. Then java -version won't find it; download and install the one you need by double-clicking the exe. So this 11 version — download it from this URL.
+
+[screen: Apache archive — Maven 3.8.6 binaries (apache-maven-3.8.6-bin.zip)]
+
+What other software? Maven. Where from? Directly from Apache's website. I put the URL; don't get confused: if you see the tar.gz / zip, you download that file — Apache Maven 3.8.6 — there are multiple versions; I'm using 3.8.6, the bin archive. Click download. I've already put it in my software folder: apache-maven-3.8.6. You get a zip; after extracting it you have the Apache Maven folder with a bin folder. I placed this 3.8.6 folder here.
+
+[screen: Windows Environment Variables — JAVA_HOME, MAVEN_HOME and the Path entries]
+
+For this we need an extra configuration: an environment variable. Maven isn't installed like Java; we configure it from this folder. Where are environment variables? Windows search → "Edit the system environment variables" → Environment Variables. There are user variables and system variables. User variables work only for your user; system variables for the whole system. With multiple users — say Mahesh1 and Mahesh2 — if I configure it for Mahesh1 and log in as Mahesh2, it won't work. A system variable applies to both. So go to system variables. Create an environment variable called MAVEN_HOME — since I already created it, you see MAVEN_HOME here. What path did I give? D:\Softwares\apache-maven-3.8.6. Copy the path, give it as the value. I'm not clicking OK because it already exists; there's an Edit option for small changes.
+
+Along with MAVEN_HOME, we add another entry to the Path variable. Click Path → Edit: many paths are already there by default. We add an extra one for Maven: New, and give the bin folder — the Maven folder's bin. Then restart the system. For Java, it works immediately after install without restarting, but for Maven you need to restart. Then the command mvn -v checks the version of Maven and whether it's configured. To see it properly after setting the environment variable, restart. I already configured and restarted, so I can see the version. If you don't see it, restart; then in the command prompt you'll see it.
+
+[screen: Command prompt verifying the Java / Maven setup]
+
+So Jenkins needs Java and Maven — both available now. Next is Jenkins.
+
+[screen: jenkins.io — Download Jenkins 2.479.3 LTS / 2.495 weekly: Generic Java package (.war), Docker, Windows …]
+
+I kept the link for this too: Download Jenkins. Here, version 2.479 and 2.495 — multiple options: Windows, Linux or other servers. I'll take the WAR file — the generic Java package. Select based on Windows or Linux and download accordingly; I'll use the .war. Download it, and the whole jenkins.war file is downloaded.
+
+So we downloaded Java and Maven, set the environment variables, and downloaded the Jenkins WAR. Next? We need Git — and GitHub. Do we have a GitHub account? No. Let's create one: go to GitHub and create an account; then we can save and share our repositories. After that, to communicate properly between local and the remote repository — local to remote or remote to local — we need the Git software.
+
+[screen: git-scm.com — Downloads (Windows 2.48.1)]
+
+What's Git? Download it here: click Windows, download, run the exe, finish. Generally, after installing: right-click → Show more options → Git Bash. If you don't install it, the Git Bash option won't come. Just double-click the exe and hit next; it enables this option. What do we do with Git Bash? Open a command prompt and run git commands — send to the remote repository, or from the remote repository to local. Git Bash helps establish communication between your local and the code repository.
+
+[screen: GitHub — Create your free account (email, password, username)]
+
+[screen: GitHub — Verify your account (puzzle), then confirm the email code]
+
+Next, since I don't have a GitHub account, I'll create one. [unclear] the email you gave — mcp2925119 @ gmail.com — okay, we gave this. Then password and username — I'll give this as the username. "Password may be compromised — it is in a list of passwords commonly used." Let's add some length — 2025, 2024 [unclear]. Continue. After the session, you have to do some research.
+
+What can we do in GitHub? Save all our projects here. Only MuleSoft? No — everything: Java code, Salesforce code, any code. It's not only for Mule projects. It organizes a project properly in multiple folders and files and manages it. [Verification code] — I'm pasting it.
+
+[screen: GitHub dashboard after sign-up]
+
+This is the dashboard — multiple repositories and projects, with their own terminology. The main thing: go home and create a repository for each project. For example, I'm developing a system API; for it I create a repository here. The repository name will be like our API name — e.g. hr-employees-sys-api. What's a repository? A place where you store something — don't get confused by the word; a placeholder to save something. In folders we save things; this is called a remote repository because it's in a remote location: I'm local, and this code is saved on remote servers — so it's a remote repository tool or code repository tool. Different terminology, but a repository is just a place to store something. Why did I create this repository? To store the hr-employees-sys-api project: I go to that project folder and push it, and the structure of our XML code and POM file is saved there the same way.
+
+[screen: Create a new repository — cicd-app-7303, description "this is a demo application or project used to demonstrate cicd deployment", Public/Private, add a README]
+
+So first, create a repository. We want to deploy an application through the CI/CD pipeline. What's the application name — have you decided? I'll check in Studio. But in projects the names won't be like this; they follow a standard naming practice. With this API name or project name, I create a remote repository. Will you create it, or a separate team? A separate team. Why? If you create a repository and someone else creates one with the same name, there's a conflict — or a small name change and they do something else. So mostly the DevOps team creates the repository in GitHub, Bitbucket, GitLab — whatever remote repository tool the company uses.
+
+Back here. Should this repository be public or private? Private — because it's only for our organization. A public repository is for when anyone can come and use it. In organizations it's mostly private, because our project should be visible only to us, not the rest of the world.
+
+"Initialize this repository with a README file." When we first create the project, will there be files in it? No. If we want to include a file with rules, restrictions etc., we can include it like this; otherwise a standard file comes. We can include documentation or rules related to the project. I just added a README.
+
+Then "Add .gitignore" — you can exclude it. What is .gitignore? Say I have 10 files locally and I push them, but 3 of them shouldn't be pushed: I tell Git to ignore them. Then when I push, it checks the differences and pushes the changes, but not changes in those three files. It's very important — include those files if you want, or exclude them when pushing. Choose a license — leave it. Create repository.
+
+[screen: Repository cicd-app-7303 created (main branch, README.md)]
+
+A remote repository is created for you, for the CI/CD pipeline. What's here? Only one branch. In certain organizations, there's a develop branch for dev, a QA branch for SIT, and the master/main branch for production code — multiple branches we can use. Now we have only the main branch. Click the branch dropdown on the right → View all branches → New branch.
+
+[screen: Branches → Create a branch (new branch from main)]
+
+Can I give a branch name here? Yes. From where should I create it? From main. Is there code in main? No. I give a branch called develop — I'll develop on the develop branch and maintain the main branch. Create new branch. See — the new branch is created. Go back and click the branch dropdown: two branches. If I switch to the develop branch, what's in it? The README we asked to include — only that one file. What's in it? "cicd-app-7303 … demonstration." If we prepare the project's details as a document, we can include it here, but most of the time it isn't done here; we just include a file.
+
+Now we've created a repository in the remote repository tool. What next? We have to bring it to our local and push the code we developed locally to it. Okay. To get this remote repository to local, which software do I need? Git — so I'll download Git, configure it, and then we'll start. Shall we continue that tomorrow? What shall we do?
