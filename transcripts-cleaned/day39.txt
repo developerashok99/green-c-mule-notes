@@ -1,0 +1,264 @@
+MuleSoft Telugu Course — Day 39 (cleaned transcript)
+Source: transcripts/day39.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day39 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+[slide: Agenda — What is MUnit? Components of an MUnit test, capabilities of MUnit]
+
+Today's agenda is unit testing in MuleSoft, with a framework called MUnit, and how to implement MUnits practically. In that process: what is MUnit, what components are there in it, what are the capabilities of the MUnit framework, and how to implement MUnits practically in projects. We will discuss all of these.
+
+[slide: What is MUnit? — a Mule application testing framework for automated tests of integrations and APIs; full suite of integration and unit test capabilities, integrated with Maven for CI/CD]
+
+First of all, simply put, it is an application testing framework. Generally we have many different tools; this one is part of MuleSoft, and MuleSoft has provided it to us as a framework. What is a framework? Everything is ready for us, so it reduces our work. With it we create automated tests for our applications, integrations, APIs and so on. What is the advantage of creating tests? We can check whether things work properly — it is very, very helpful for us.
+
+Next, it is fully integrated with Maven as well, the project build tool. If you work in Java, there are JUnits. Since Mule is a Java-based tool, it is related to that: they created a new framework called MUnit to create tests easily. Because it is compatible with Maven, it is easy for us to run it through the CI/CD pipeline.
+
+You can create tests in two ways: one is manual and the other is the recording option. The recording option works for Mule 4.3 and above; the previous versions didn't have it. Most projects are on 4.3 or above, so most of the time we go for recording. Error scenarios we can definitely handle too — so we use a combination: both manual and recording. We are learning both.
+
+Let's take a general example of unit testing to understand it. Say a car has to be manufactured. What do we do? We manufacture all the parts individually. To make a car we need a lot of parts — I have taken some important ones: steering, gearbox, engine, seats, body, brakes, tyres and so on. We test each part individually to see whether it works, before assembling the car. Some parts may even be outsourced. Each works fine individually, but we also need to check that everything works together with proper coordination. After assembling, testing is done; once it passes, we send it to the sales office. If, when we assemble and test, the tyres are not working properly, what do we do? We replace the tyres. The test fails, we replace the parts, test again, and then send it to the sales office.
+
+In the same way, what does a developer do? We develop an application, an API. In this API there are many individual flows. We create tests according to the input and check whether they work correctly. The developer creates the test in MuleSoft — recording or manual, either is fine. After creating the test, we run it, and it checks whether things work properly.
+
+[drawing: developer → MuleSoft → MUnit (unit test); then assembly → QA testing (SIT) → stages]
+
+Now, for example, we have a system API. It is important to check whether the system API works properly. But if the system API works, does the entire business transaction work, or only this particular API? Did you understand the question?
+
+— I understood it perfectly.
+
+This is our API ecosystem: experience, process, and from the process we call three system APIs. Developer 1 does system API 1, developer 2 does system API 2, developer 3 does system API 3, and developers 4 and 5 do the others — five developers, five APIs. Since I developed system API 1, I ran all the MUnits and tested it, so the API works on its own. Developer 2 does S2, developer 3 does S3, and so on. After that, does the response come back properly through the process and the experience API?
+
+— But the testing team has to do integration testing separately anyway, with right inputs and wrong inputs. They're already doing it, so why do we do unit testing again?
+
+What is the use of unit testing? We have tested it now, and it is good. Now in the future we make a small change. We can check whether that small change has any effect. If we run all the tests easily, we see whether one change affected anything else. That is not the testing team's responsibility — we create the tests ourselves. Each organization has its own requirements, and we do it accordingly.
+
+Whether the whole experience API, process API and system APIs are integrated and working properly — that is done by the testing team, the QA team. Like assembling and testing the car, this total SIT, that is QA testing, will happen. How? If you give this request, do you get this response? How do you get the success response, the error response? What happens with bad data? What if a system is down — for example, if three systems are down, what response goes back to the consumer? If the process API is down, what response do we send? All this testing is done by the QA team. In which environment? In SIT — some people call it the testing environment or the QA environment. That is the overall process. After this testing it is promoted to UAT, User Acceptance Testing. After performance testing, it goes to production. That is how it works.
+
+So we run unit tests at every level. What do we do with the MUnit framework? Before deploying the application, MUnit is one step in the pipeline.
+
+[drawing: CI/CD pipeline (DevOps team) — Jenkins or Bamboo: code → build → MUnit (≥ 80% coverage) → deploy]
+
+We haven't discussed the CI/CD pipeline topic yet, but at a broad level, a pipeline has multiple steps. We automate each step; starting from the first step, all the steps complete and finally the application is deployed. Jenkins is widely used for CI/CD pipelines — it is open source and widely popular. It is not the only one: pipelines can also be created in GitHub, Bitbucket, Azure, AWS — they all provide CI/CD pipelines.
+
+Who creates the CI/CD pipeline? The DevOps team, most of the time. I just know how to use it, how to trigger the application, and how to check the logs whenever there is a failure. If we want to increase our knowledge, that is our own interest. If you ask me to build a pipeline, I can do basic-level work, but I can't go into the deeper levels. But that basic knowledge helps when something totally new comes: I watch some videos, read some blogs and articles, and implement it in the project. With minimum knowledge, I can understand things faster than others.
+
+Now, the multiple steps in this CI/CD pipeline. Minimally: first we push the code to a code repository. After the code is pushed: is the code correct or not? Run the tests. Build it and publish the jar to a repository. There are some extra steps, but one of the steps will be MUnit.
+
+How is MUnit evaluated? By a percentage — 80% or 90%. If you get that MUnit test coverage percentage, it succeeds; otherwise the deployment fails. Depending on the percentage set in the organization, if it succeeds it goes to the next step. If MUnit gets errors or the percentage is less, the deployment fails here.
+
+How is this percentage calculated? We have created our API. How many flows are in it? Three implementation flows, plus the main listener flow, plus the resource flows — and there is an error handler too. How many flows overall?
+
+— Six.
+
+— Seven?
+
+— Eight.
+
+Okay. Now say there are 40 components in total. Will the response match the expected response? That is why we create multiple MUnits, not just one — so that the tests touch all the components. Say the MUnits we created touch 30 of the 40 components when we run them. 30 by 40 — what percentage?
+
+— 75%.
+
+And what is our benchmark?
+
+— 80%.
+
+So when the application is deployed through the pipeline, will the MUnit step succeed or fail?
+
+— It will fail.
+
+What should I do to increase it? Create some extra tests to cover those components. Now 35 by 40 — about 87.5%. Now I deploy through the pipeline: will it go to the next step? Coverage is 87.5%, more than 80%, and all the tests succeeded — only then does it go to the next step. So MUnit coverage is: how many components are in our application, and how many of them are covered by our MUnit tests. I will show you practically, nothing to worry about. Just remember to calculate the coverage percentage like this. If the coverage percentage is met, it is automatically promoted to the next step.
+
+[drawing: MUnit — record or write manually; success cases, not only failure cases]
+
+We have two options: the recording option and the manual option. For success cases — I passed a request and it succeeded — we follow the recording option. The recording option does not work for failure cases; that is why we create those tests manually. The recording option works with Mule runtime 4.3 and above. Since we are looking at both, you will at least have an idea of each. In the future MuleSoft wants to support error and failure scenarios with the recording option as well, which will help us write MUnit tests faster.
+
+[slide: Components of an MUnit test — Execution (run the flow with the input event), Behaviour (define the test behaviour), Validation (validate the result)]
+
+In a Mule flow we have source, process and error sections. In the same way, when we create a test there are three sections: Behaviour, Execution and Validation. You can observe them here. Let's understand which section is used for what.
+
+In the execution section, we execute the flow with the required input event. The execution section triggers the test, runs it, and provides the necessary inputs.
+
+Next is behaviour. When the test runs, it behaves according to what we define here. We define some components and activities here. When the test runs, the behaviour section is utilized.
+
+Finally, we have to validate. What is an automated test? Manually, what does the testing team do during API testing? They trigger the input in Postman and verify the response manually. MUnit is an automated test that we create. We have already given the input and also the expected output. Where do we define the expected output? In the validation section. It checks whether the result came according to it; if so, the test passes. If it is not according to the expected result defined in the validation section, the test fails. Then we check why it failed and fix it until the test case succeeds.
+
+So, three sections. Execution starts the test with the required inputs. In the behaviour section, any behaviours we mention are utilized while the test runs. After the test runs, the result comes; if it matches the result given in the validation section, the test succeeds, otherwise it fails. That is how MUnit works.
+
+Now the capabilities. The first capability: creating automated tests manually or using the recording option. Next, I told you it is a testing framework — MUnit is a testing framework provided by MuleSoft for MuleSoft developers to create automated test cases. For this we need some components in the behaviour section and some in the validation section. When we create a flow, listeners, flow references, loggers, Transform Message, Set Variable, Set Payload — all these are called message processors or components. Similarly, MUnit has its own components.
+
+One is the mock processor — we use it a lot; it is the one we use the most. Where and when we use it, we will discuss, but understand the idea first. What is a mock in general? What is the difference between an actual interview and a mock interview? In the preparation stage, a mock interview behaves like the actual interview. In the same way, say I have a database: a mock component will behave in the same way and give the same result, but it will not make the actual database call. We will see in detail why we do that — it is very useful.
+
+Next is the spy processor. Spy means just spy: it stands aside and watches whether the process is happening correctly — whether the entire process is being handled properly. There are components for that as well. Then the verify processor, which we use in the validation section.
+
+One more thing: say we have created ten MUnit tests and I want to ignore one or two of them. We can ignore those tests — that capability is there. Among the ten, I want to tag some as error scenarios and some as success scenarios — that capability is there too. And I told you about the percentage: whether MUnit coverage is 70%, 80%, 50% or 30%, you can check it visually. It provides a coverage report in front of your eyes, and we can check all of this in Studio. When we go to the practical, we will discuss how to generate the coverage report, how to enable and disable a test, what components we use, and so on.
+
+So for the flows, APIs and applications we create, the MUnits use this testing framework to create test cases, and they are automated. As soon as we run them, they automatically provide the same input, process it, compare the result with the expected result, and pass or fail the test. Any questions so far?
+
+— No.
+
+[screen: hr-employees-sapi-7303 in Studio: main flow, implementation flows (post / patch / get)]
+
+This is our application, if we remember correctly. I'm closing the tabs to the right of the existing tab, and I'll close unrelated projects as well — at least our project should be open.
+
+So far we have used src/main/mule and src/main/resources. What else is there? src/test/munit and src/test/resources. Can you tell me the significance of these two? When will src/test/munit be used? As soon as we see the structure, we can correlate it with src/main.
+
+— Where we keep all the resources required to run the tests is src/test/resources, and the tests themselves are created in src/test/munit.
+
+She is right. Just as the main flows are created in src/main/mule, and the resources they need — property files, logging, DataWeave files — are stored in src/main/resources, the test cases are created in the src/test/munit folder and their resources and inputs are in src/test/resources. What is the advantage of categorizing like this? Is it a problem if everything is kept in one folder?
+
+— We can easily identify which file is which.
+
+And who creates this project structure for us? MuleSoft. So the proper project structure is very important. By default, Mule 4 projects are Mavenized; Mule 3 was not. I will explain the Mule 3 vs Mule 4 differences when I discuss interview questions and answers. Mule 3 is mostly ignorable now, but in 2021 and 2022 interviews often asked about the differences between Mule 3 and Mule 4. What they ask now is the difference between CloudHub 1.0 and 2.0. We will discuss that as part of the interview questions and answers too.
+
+[screen: pom.xml before adding MUnit — groupId com.mycompany, app.runtime 4.4.0, mule maven plugin 3.5.4]
+
+Now I have to create a test. Do I have to add dependencies for it? By default nothing is added. On the left, in our project dependencies, there are validation, sockets, secure properties and so on, but nothing related to MUnit. In the palette under M — nothing either. We could copy it from another project, or look it up online. But there is another option — let's see it.
+
+Say I want to create an MUnit test case for the GET flow. The first step: click on the flow, right-click on it, and you will see an option called MUnit. Under MUnit there are two options: "Record test for this flow" and "Create blank test for this flow". The blank test is the manual option; the record test is the recording option. Is this test case for a success scenario or an error scenario?
+
+— Success scenario.
+
+So the recording option will work for us, and we choose it. When I click it, the related dependencies are also added. Where are dependencies kept? In the pom file. Let me search the pom for "munit" — I put the cursor at the start and searched: "String not found". Nothing. After creating the test, let's see what happens. And src/test/munit — since we haven't created anything, it is empty. In src/test/resources there is a log4j2 file, like the one in src/main/resources. We will leave it as it is.
+
+Now, to record a test for the GET flow, we should keep the input ready, because it doesn't give much time. After the pop-up comes, you get a limited time — maximum one or two minutes — to provide the input. Otherwise we have to start again. So I am keeping everything ready.
+
+[screen: Run the project (get flow) locally before recording the test]
+
+If the Postman request points to CloudHub but I am recording the test locally, where will the request go? To CloudHub. Will that work? No. So I create another folder in the collection: on the main folder, Add Folder, and rename it "local". I want the GET request in the local folder: Save As → localhost.
+
+[screen: Postman GET http://localhost:8081/api/employees/1000 → 200 employee 1000]
+
+What happens when I hit this GET? The listener receives the request and passes it to the APIkit router. From the router it comes to the GET flow. The logger executes, then the Transform Message, then the Flow Reference, which executes the implementation part. Then it comes back to the GET flow, and the response goes back through the listener.
+
+When we create the test, what happens first is that the application is deployed. I right-click and say record test; the application is deployed and a pop-up asks us to provide the required input. As soon as I provide the input, it automatically records all the requests and processing in the background. After recording, the test is created. If we didn't have the automatic recording option, we would have to do all this manually. Who is doing all this? The MUnit testing framework.
+
+So I went to the flow, right-clicked on the blue header line, MUnit → Record test for this flow. See, it is deploying the application. Then we need to hit the request.
+
+— So next time it runs, will it automatically deploy and run the test?
+
+Yes, it will automatically run the test. See, the application is deployed and it is waiting for input data. If we leave it too long it will time out, so I am hitting it now. Send — done. See: "No listener for endpoint". [unclear] Localhost 8081 — the API path had been removed when we cleared it. We should actually test the application first: deploy it, check that a response comes for a request, and then record.
+
+[screen: config/dev.yaml — listener 0.0.0.0:8081 api/*, database localhost 330 mule12, encrypted credentials, autodiscovery.id]
+
+I forgot to do one more thing. We need run configurations for MUnit as well. In the run configurations, under Mule Application there is also MUnit, and under it a test recording configuration for this project. Which configuration is it using? See the configuration related to this test recording: the project name.
+
+[screen: Run Configurations → Arguments: -M-Dmule.env=dev -M-Dsecure.key=…]
+
+I'm editing this. Now when I go to the test and right-click, it automatically applies to this particular test. If you go to Run Configurations or Debug Configurations, this test recording has already selected the application you clicked on; if we do another application, that one will be selected here. You can pass the arguments here or there — but you have to give the variables with -D. I have given the environment here. There is no difference between the two.
+
+Now let's go to the flow. It is better to first check whether the application is working. If that step fails, it won't go to the next step.
+
+[screen: globall-config.xml — the API Autodiscovery element (commented out to run locally without the platform)]
+
+— Some organizations disable this [unclear] — in the organization I'm currently in, it was disabled, but it was there in all my other projects.
+
+— What do you mean, disabled?
+
+— They asked us to do it locally, but it ran in the pipeline.
+
+Why is this failing now? Our database is not available. [unclear]
+
+I go back to the GET flow, right-click, navigate to MUnit, and select Record test for this flow. As before, the pop-up appears after the application is deployed: provide the required input. So what did we do? We configured the run configuration for MUnit recording, checked the application works, disabled API Autodiscovery, and now test with the required input. I hit it in Postman. Look — the recording has come. The input is recorded.
+
+[screen: Right-click flow → MUnit → Record test for this flow: New Recorded Test wizard (file name, test name)]
+
+If this request doesn't get processed successfully, the recording will fail. If the database is down and an error comes from the database, will the test be recorded? No. Recording only takes place if everything completes successfully. If the database fails in between, the recording fails. I will show you that later, but remember it.
+
+Now Configure Test. Two things: the file name and the test name. In src/test/munit on the left, first a file is created — like a folder — and inside that file, the test. We need to give meaningful names to tests. This test is related to the GET flow — see, it took the GET flow's name and added "-test" at the end. And the file name: the API's XML file name came with "-suite". What is a suite? A set of test cases. So if we don't change anything, it creates a file with the XML name plus "-suite", and all the test cases for that XML go inside it. Since this is clear to me, I'm not going to change it; if you want, you can change the file name and the test name. If there is already another suite and you want to use it, select it from the drop-down. Right now I don't have any suites, so I can't see other options.
+
+[screen: Configure Test — "Set input and assert output": the recorded payload / attributes / variables become the test input]
+
+The GET flow has Logger, Transform Message, Flow Reference, Logger. What am I creating? A test for this particular flow. The input we provided is for the listener — but is it the listener flow, or only the GET flow? Only the GET flow, because I right-clicked the GET flow and created the MUnit there. If you want a test for the listener flow, go there and right-click it.
+
+Now, if I create this test, will it run properly or will there be an issue? Studio is local; the database is on localhost; these two have connectivity. Now I deploy the application through Jenkins. There is a pipeline, and the next step is the MUnit test. When this test runs, it gives the required input and runs the flow. Does Jenkins have connectivity to the database connector?
+
+— No.
+
+So when there is no connectivity, it hits the database, can't connect, and gets no response. Will it fail or succeed?
+
+— Fail.
+
+So the test fails. But we have already recorded it. So we say: mock the flow reference. Don't actually go into the flow reference to get the response. Since you have recorded what goes into the flow reference and what response comes from it, use both and don't go into the actual flow. We are telling it to mock this. Is it clear? Any doubt? I just clicked on this flow reference and I am mocking it. Keep this in mind — I will show you practically what happens because of the mock.
+
+[screen: Generated test get:employees(empid):hr-employees-sapi-7303-config-test — Behavior: Mock when + Set Input; Execution: Flow Reference; Validation: Assert payload]
+
+See the preview summary: Behaviour, Execution, Validation. Behaviours are the mock and Set Event. I clicked Finish. Was a test created? Yes. Let's see where: src/test/munit. It was an empty folder earlier; now a suite file has been created. Open it — this is a test. If I want to rename it, I can do it here (or earlier in the wizard). In this test there are behaviour, execution and validation sections.
+
+One thing to understand first: only when you have MUnit added can you see these. When I first migrated, I didn't see any MUnit components and wondered why they weren't working. Even if you add the modules, you see them when you go into the MUnit test.
+
+[screen: pom.xml now has munit-runner and munit-tools 2.3.9 (scope test) and the munit-maven-plugin]
+
+Also observe the pom: earlier there was no MUnit. Now the MUnit version has been added, a plugin — the MUnit Maven plugin — and two dependencies: munit-runner and munit-tools. MUnit tools has the components used to test at the MUnit level.
+
+— So when we right-click the GET flow, there are just one or two options?
+
+Yes — one is the manual option and one is the recording option. Now, right-click in this white space: Run MUnit suite. This suite will run. How many tests are in it? Only one.
+
+What happens first? Execution: the flow reference. When we click run test, the test goes to the execution part, to the flow reference. When it goes there, where does it get its input? The input we sent from Postman is already stored. Have you seen this Set Input? The input required for this test case is in it. Set Input can be in the behaviour section or in the execution section — no problem, it can be anywhere. Since this was created automatically, it is kept in behaviour; when people create tests manually, some keep it in execution. Don't get confused by that.
+
+What is Set Input? A Set Event block. What is an event in MuleSoft? The combination of payload, attributes, variables — everything. That's why it is Set Event. Where is Set Event? In the MUnit palette — you can see Set Event there; to do it manually, I drag and drop it here.
+
+Let's see what is in the Set Event. I opened it: payload, attributes, error, variables — everything is there. See what the automatic recording did: it set the payload and all the variables — automatically recorded and created. Observe the values: readUrl with classpath. Where does that come from? From src/test/resources. A folder has been created in src/test/resources, and in it mock payload, mock variables, set-event payload, set-event variables — all created and referred to from here.
+
+For example, in Set Input the payload section uses a readUrl function with a path: src/test/resources/…/set-event_payload.dwl — take input from here. Let me open that file. What is in it? Is there a body in a GET call? No — that is why it is an empty string.
+
+[screen: src/test/resources/…/set-event_attributes.dwl — recorded headers (transaction-id, origin, language …), method GET, requestUri /api/employees/1000]
+
+Query params and URI params are there? URI params yes, query params empty. All the attributes are saved here.
+
+We create some variables before this — initial variables — and these are also set automatically in Set Input. I went to Set Input → Variables.
+
+[screen: Set Input → Variables: headers, outboundHeaders, queryParams, requestPayload, startTime read from the recorded .dwl files]
+
+There is a variable called headers. outboundHeaders — ignore it. queryParams, requestPayload, startTime, uriParams — these are all variables we created. Set Event is one component, and in it it sets payload, attributes and variables. We would have to do all this manually; it does it automatically. How much time does that save? A lot — and accurately.
+
+Let me show a variable. Click queryParams → edit. The path is readUrl, slightly different here: output application/java. Everything automatic, read from set-event_variable_2. [unclear] That's why you have to be careful with URI params — that's why it's empty. Variable 1 is empty, variable 2 is empty, variable 3 is empty. Variable 4 — what is it? The startTime variable; see, it has a value. Everything is done automatically; we didn't do anything.
+
+[screen: Recorded attributes headers file (transaction-id abcdefgh-jxbv8599-sjdf762-3746bb …)]
+
+Now we understand how the Set Input / Set Event component sets the flow's inputs based on our recorded input.
+
+Next, how to run and debug the test. I want to debug this test: right-click here → Debug. Where should I put the breakpoint? None needed — since we are debugging the test, it automatically stops and shows us the line. This red warning you can ignore. It has started and stopped here. I go to the debugger, press Next. Where does it go? To the GET flow, then to the implementation [unclear].
+
+[screen: mock_payload.dwl — mocked response { empId 1000, empName Suresh, empSalary 100000.0, active true, empDesignation "senior software engineer" }]
+
+The response of the flow reference will be in the payload. Where is that payload from? mock_payload.dwl. I go back to the design view. Is this it? Yes. Everything that came back from the flow reference — executing against the database and sending the final Transform Message response — is saved here. Even though it didn't execute, since I recorded it, it didn't go into that flow; it used this saved response. The flow reference was handled by the mock. Did you see that I put the mock in the behaviour section? This happened because of that mock.
+
+What happened here? The point should have been here, but it didn't execute. Look — there was an error. Click on the MUnit tab — it turned red. To see the error: click on the suite file, click the test, and there is a section called MUnit Errors. I can't see it now, so Window → Show View → Other → MUnit Errors, and I place it here — convenient for me. Click on it — does it say time out? Yes: 120,000 milliseconds — 2 minutes. While debugging, were 2 minutes over? Yes, so the error came. By default you get 2 minutes to debug. If you want more, click on the test, and the configuration for this test opens: Test timeout in milliseconds, default 1,20,000. If I want 4 minutes, keep 2,40,000. For a big test you can change it; since this is a small test I won't, but I am telling you that you can.
+
+[screen: Run the MUnit suite → Tests run: 1, Failed: 0, Errors: 0 (SUCCESS)]
+
+Now let us run it. Another small point: go to the flow and see — tick marks are coming. That means this is covered, this is covered, this is covered — these four are covered by this test. They show green. Since the flow reference didn't go inside, the implementation flow is not covered. Save it.
+
+[screen: MUnit Coverage → Generate Report: overall coverage 9.52% (per-flow breakdown)]
+
+There is another tab here: Show coverage, Generate report. We have many flows and many XML files; see whether all of them are there. We have done only this one. In the flows here, this one is green — is this flow 100% covered? Yes. The others should change from red to green one by one as we add tests.
+
+[screen: A second recorded test for get-employee-implementation-flow (Choice: data found / not found)]
+
+Now we record MUnit for the implementation flow. Will it create a separate suite file or use the same suite file?
+
+— The same suite file.
+
+No, it creates a different file. Why? Because this is a different XML file — the implementation XML. I can change the suite name if I want when I configure the test. I am giving the input. Configure test — I'm not going to change anything.
+
+We have to mock all external calls. Why did we mock the flow reference for an internal call? Because it would go through the flow reference to the external calls again. So here, select the call related to the database and click "Mock this processor". I can decide what to mock; I leave the default option, so all payloads and variables are mocked. If I wanted only the payload, I could keep payload and remove variables, but I'll leave the default. Next → Summary → Finish.
+
+Now go to src/test/munit — another suite file has been created. Go to src/test/resources — another resource folder has been created. Look at this test: this is the set event, and this is the mock.
+
+[screen: Assert payload: import getemployeeimplementationflowtest::assert_expression_payload / assert_expression_payload::main({payload, attributes, vars})]
+
+What is this assert expression? We validate some expressions — the payload, the final response, final attributes or variables. Look: assert expression with the payload that finally came, attributes, and vars. This is done automatically. The expected payload is already set here, and it matches the payload that came through this test against it. I will show you how to do this manually, but since this was done automatically, leave it. There is also Assert That — if we want to check only one thing, we can use that. We will discuss it in detail later. So in the validation section, it validates the result automatically, and the test is successful.
+
+Now we run this — only this test. I should get tick marks in the implementation flow. There is a Choice: data found or not found — is the tick for this path or this one? Default. So I record another test for the default route. When I see the test name with "default" in it, I can easily remember that this is the default-path test — put names like this and it is easy. Select and mock in this one too.
+
+Now there are two tests here; I run both: right-click in white space → Run MUnit. Both show green, errors 0, failures 0. Expand them — both are success. Now go to the GET implementation: this is covered, and this is also covered. Check the percentage for the GET implementation flow — is it 100%? Before this, it would have been about 83.3; after this, it increases. What did I do? I gave inputs so that both paths of the choice are covered. That is how MUnits work.
+
+What should we do next? In GET we should cover the other things too; then cover POST success scenarios, then error scenarios, then how to run all the MUnits, see the percentage, and generate coverage — I will show you all of that. See, what is the overall coverage now? 14.2%. Of all the components, only 14% are covered, because we have done only GET. Nothing else is done yet, so the percentage is low.
+
+About MUnits, especially in interviews: very few people ask. But in real time you have to do it compulsorily. In 10 interviews, maybe 3 will ask — what is MUnit, what components did you use, what is the structure. Preparing for that is enough. But when you go to work, you compulsorily have to write MUnit test cases for each flow, and with the knowledge we have learnt you will be able to do it. Recording covers success scenarios; when we handle errors, I will show it a different way — manually — so it is understood. Do it, execute it, check the overall percentage, and then we will look at it together. Any questions?
+
+[screen: Q&A — a student's JWT validation log: "Token signature is not trusted" → 401 (WWW-Authenticate: Bearer)]
+
+[screen: Q&A — Postman: Azure OAuth token (client_id, client_secret, grant_type client_credentials, scope https://graph.microsoft.com/.default)]
+
+[unclear] … if the token contains an invalid signature, it will be rejected.
