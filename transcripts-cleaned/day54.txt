@@ -1,0 +1,180 @@
+MuleSoft Telugu Course — Day 54 (cleaned transcript)
+Source: transcripts/day54.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day54 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+In today's session: one of the important topics in MuleSoft integration, the FTP module. File, FTP and SFTP — these three connectors fall under the same category. Since we have access to it, a software provider called FileZilla gives us an FTP server. We will download it, install it, check how we can access the FTP server, read files from it, and write files. If we learn all the operations, it's the same with File and SFTP too.
+
+What is FTP? File Transfer Protocol. FTP servers have files placed in them. We connect periodically — once a day, once a week, once a month, once a year — take the details from the file and send the data to another system or application. That's a regular requirement in the industry. There are FTP servers and SFTP servers; we connect to them and read files, or take some data and write files. That's how it works.
+
+[drawing: scheduler → read file from the FTP server → transform → For Each insert into the DB; FTP to-dos: download/install an FTP server, configure it, develop the Mule app; formats JSON, XML, CSV]
+
+What's the requirement we'll implement? A scheduler-based application — a scheduler-based integration. There's an employee CSV file on the FTP server with the employee details. How is the data in the CSV file? Say there are 10 rows, each row one employee's details. So 10 employees — bulk data. Can we insert 10 employees directly with a single insert? No. So I use For Each and send each to the DB: insert into the DB.
+
+So the requirement: the employee data is in a file on the FTP server. We read the employee CSV file from the FTP server. Any component that helps connect to a different system is a connector — FTP is a connector, like DB. We connect to the FTP server, fetch the data, split it and insert it into our database. To do these steps, first we download and install an FTP server, then do small configurations on it, then develop our Mule application. We've already used the widely used data formats — XML, CSV — so we discuss CSV now: a CSV file placed on the FTP server; I take the data from the CSV file, transform it, and insert it into the database. That's the requirement.
+
+— Do only these three formats work in an FTP location?
+
+Not only JSON — there are more files; if you observe, mostly there are CSV files and Excel files. These are regular data formats that we use a lot. I'm showing CSV here.
+
+— So in FTP locations, only these formats?
+
+No. There are more CSV file requirements, or Excel files. That's why I'm discussing two requirements. One is the read operation: I have a CSV employee file, read it and insert it into the DB. What else? Can I use bulk insert, without splitting? Right — if I know the maximum per file is around a hundred, I can use bulk insert. And I'll show an Excel format, with read as CSV, so you can handle both file formats. If you get other file formats? You'll do some research and a small POC and do it; you already have the knowledge of the FTP connector.
+
+— Do we need to set different properties for each file we read?
+
+For example, I have a CSV file in my FTP location; we set the properties for reading CSV. Say we consume an employee file — it's in a folder. And there's customer data uploaded as an Excel file, while employee data is uploaded as CSV. Both are different file formats in two different directories or folders. Then the requirement changes: this one's file format is CSV, that one's changed; this one's location, that one's location changed. I configure each in its read, and then read that particular one.
+
+We have to do three steps: download, install and configure, then develop. What is FTP? A server — a concept, like the database. I downloaded and installed it from a company called FileZilla; that provides the FTP server, which we use. There's UI access to it; we set up the configuration to get UI access. Then we go to the MuleSoft application.
+
+In companies, the FTP server will be in the file area only, with different providers. If access is given, you can access it from other applications or other teams. There's another team that maintains the FTP server, and we access some files on it from the Mule application. Say 10 different teams access that server and 10 different files or locations. The FTP team will say "your files have been placed in your folder; access them from there". It's a server that lets other teams extract content and use it for further purposes. What do we use a DB server for? To store data permanently. Why an FTP server? To store files — and access those files again. That's how we use the FTP protocol.
+
+[screen: Google: "ftp servers" — an FTP server is a program for transferring files over a network (FileZilla)]
+
+[screen: Different FTP servers — FileZilla Server, Cerberus FTP, CompleteFTP, Titan, Core FTP, Files.com, Globalscape]
+
+There are also tools like SolarWinds and WinSCP — software to connect to a remote place and push files from here. There are a lot: Titan server … I haven't encountered many. Even I don't know the name of the FTP server we had — some FTP server. I got the opportunity twice in my whole journey; I just took the username and password and did it, and didn't explore further. We have multiple options like this.
+
+[screen: Control Panel → Programs: removing an old FileZilla Server before a fresh install]
+
+[screen: FileZilla Server 0.9.x installer — licence agreement]
+
+I've already downloaded and installed it; let's uninstall it first. I took this older file because in the new version the settings are slightly different; I used the old version for practice. Generally, downloading, installing and configuring FTP servers is not our job — it's the FTP server team's; they do everything separately. Since we don't have practice, we're doing it. For practice we use this zip or exe, install it and use it. If you want the latest, go to the FileZilla site and click Download. The latest version's configuration is slightly different, so don't explore that; I'll use the old version, and I'll share it in the chat box so you can practise.
+
+Uninstall the existing one: Programs → Uninstall. Done. Now go to our software folder, double-click it, Yes. It's very simple. Agree. Leave all the default settings; you can change the install location if you want. Here there's port 14147 — remember this port number, because the UI uses it to connect to the FTP server's admin interface. We haven't changed any settings. Install — and it opens a UI automatically. Complete.
+
+[screen: FileZilla Server interface — connect to the admin interface (localhost, port, admin password)]
+
+Now the UI is open; connect to the server. "Do you really want to close the current connection?" — close it. To connect: where's our FTP server installed? On localhost. Port? 14147, as we saw. A default password, admin; enter it and connect. Now we're connected to the FTP server.
+
+[screen: FileZilla Server → Users: add a user, password, shared folder (home directory) with read/write permissions]
+
+Edit → Users. First we create a user — for example Mahesh — and enable the password for it; I set the password as mahesh. So the FTP server creates a user, and MuleSoft uses that user. Now it asks for a home directory. Go to Shared Folders, Add. I created two folders on the desktop: an FTP folder and an employee folder. I use the FTP folder as the home directory, and the employee folder as the working directory. [unclear] I gave an alias name for the directory: /emp — so instead of giving the entire path, I can use this name. Then for the emp directory, look at the permissions: Read, Write, Delete, Create, etc. For example, if I give only Read to a user, someone logging into the folder can only read the file. That's why I'm enabling all the permissions: now I can write, read and delete files there. The FTP team might create one user with only read access to a particular folder; the FTP team handles all that. We're configuring our part for testing.
+
+So: we downloaded and installed it, set the configuration in the UI. Next, develop the MuleSoft application. Our FTP server is ready. Since we placed the data on the FTP server — the FTP software uses our laptop's folders. To give access or change the access details, use this UI. The FTP folder is empty; it's just the home directory. Here's the employee folder, with files from previous sessions — fine.
+
+[screen: employees.csv sample — empid, empname, empstatus, empsalary (100 Praveen A 75000, 1001 Ram Active 80000 …)]
+
+First, let's see what an employee CSV file looks like. What's a CSV file? A comma-separated values file. How do I open one? Right-click → open with Notepad, or with Excel. In Excel it shows rows and columns properly; in Notepad it shows the values separated. Let's open with Notepad++. Is this comma-separated? There's no comma here? In CSV files, does only a comma work, or can pipe symbols and other separators work? Pipes can be used, and some people use tabs. Commas are used most, or pipes depending on the scope — pipe-separated files are also used. Here it's with tabs — the data isn't proper; let's check this one.
+
+Look at this data. How can you categorise it? First, can you call this the header? Yes. Header names, separated by commas: employee ID, employee name, employee status, employee salary. Each row represents one employee's details. What does the comma do? It separates one value from the next — employee name from employee ID, employee status from salary. That's why it's called comma-separated: "A" is separated from Praveen and 75,000. There's multiple data in multiple rows. In CSV files headers may or may not be there, but in real time most of the time they are, because without headers we have no representation of what each field is. So 99% of the time you'll see headers. That's the sample CSV. I open it in Excel — see how it came. Two ways to open a CSV: Excel or Notepad. Now which file will we refer to? The one in the employee folder.
+
+[screen: ftp-db-insert flow: Scheduler → Start Logger → Read employee CSV from the FTP server → CSV to Java transform → For Each [Before DB Logger → Insert → After DB Logger] → End Logger]
+
+I've already developed the application in MuleSoft. The requirement: the scheduler runs, the file is read… Overall it's simple. The scheduler is fixed frequency — we've discussed fixed frequency and cron; I set it to trigger every 2 minutes — easier for us. The For Each configuration is even simpler; we've done it, simple configurations. Here the only new configuration is the FTP Read. Then I convert the CSV into Java, because For Each won't accept the CSV format for processing; so I convert to Java and insert into the database from Java. I didn't write any aggregation logic — we saw it in detail with For Each. My main motto here is FTP.
+
+[screen: Database Insert: insert into EMPLOYEES_INFO values (:emp_id,:emp_name,:emp_status,:emp_salary,:emp_designation)]
+
+[screen: MySQL Workbench — EMPLOYEES_INFO before the run]
+
+Is FTP there directly, or do we add it? Add Modules → drag-drop FTP; it's not in the project by default. Look at FTP's operations — multiple in the FTP connector: Copy, Create directory, Delete, List, Move, On New or Updated File, Read, Rename, Write. Which am I using? Read — it connects to the FTP server at the scheduled time and reads the file at the location I gave. I drag-drop the Read. To create the connector configuration, click plus and give the FTP server connection details, user name and so on; then it connects. Since I already have one, I'm editing it.
+
+[screen: FTP Config: working directory, transfer mode BINARY, passive mode, host localhost, port 21, username / password]
+
+[unclear] It's like the database server: when we connected to the database through MuleSoft, we used port 3306, and Workbench used a different one. Here, 14147 is the port for the admin UI. What's the port for the FTP server? See here: 21. By default the FTP server port is 21. Will it be 21 and localhost in real time? It'll be different — like 10.21.25.5 or a domain name like abc.com; they give a host and port. I created the FTP server with default settings, so the default port 21 for me — I don't have much knowledge there, that's why I didn't change it. Remember that for our practice.
+
+Username? Which user did we create? Mahesh. And I put the password as mahesh. Can I test the connection — does this user have access? Test Connection — established successfully. Where's it located? C:\Users\Mahesh\OneDrive\Desktop\FTP work… — the working directory. Did we give the entire path? Yes. Since we gave it, it's enough to give the file name in the file path: working directory + file name gets us to the file. Back in Anypoint Studio, I gave only employees.csv — the working directory combined with the file name. Or you can give the entire file path directly here — C:\Users\…\OneDrive… — no problem, try that too.
+
+[screen: FTP Read operation: connector config FTP_Config, file path employees.csv, MIME type]
+
+Look — employees.csv. Where's it? In the emp folder — this is it. Right-click and check: ID, name, salary, status — 206, 207 … 211. That's the data.
+
+We've given the connector configurations and the SQL query. Which database? Mule DB — select * from … — the details go up to 211. Can I deploy? Let's see. The employee file is in the FTP folder — a server folder: I tagged this local folder for the FTP server. I created the files myself — employees CSV, I showed you. It's not big customisation. Headers — the mapping should be correct here too: one name in the CSV and one in the database. When writing the query, map properly: the left side is the database and the right side is the format from the FTP server.
+
+[screen: Debugger error: "Path '/EMP/employees.csv' doesn't exist" — the FTP read path must be relative to the user's home directory]
+
+When the scheduler triggers — "Path employees.csv doesn't exist". Let's check the files — it seems Notepad has it open. [unclear] After 2 minutes it'll come again. Let's stop it for a while and check the path and connection. If we want the path clear, we have to give a slash — and for the other one, check the /emp too. Edit → Users — how did we give it? Shared folders, /emp.
+
+Username, password, working directory — collect all these details from the FTP server team properly, test once whether the system connects from local, and then confirm.
+
+[screen: FileZilla Server log — the Mule app connecting (USER, PASS, 230 Logged on, RETR employees.csv)]
+
+"employees.csv does not exist." The alias help: "for example, assume you have C:\… and given it the alias /data/files; the shared directory will then appear on the server in the directory /data under the name files. Separate multiple aliases with the pipe character." We gave this to the FTP folder. The FTP folder doesn't have employees — the emp folder does. Let me check on the desktop: [unclear]. Is the working directory the same for both? Yes. It left with the normal error. Let's stop it and clean the project; debugging again. I don't think we should give a slash here, only "emp". I don't remember exactly — we did it a few days back and forgot. [unclear]
+
+See, path means: if we give the entire path — this is the path — then I give /employees.csv only, and the path is complete. The working directory with the file path combination: the working directory goes till emp — you have access to emp. Here I gave only the file name, without the working directory; or give the full path directly and it works. You can test this full path. That's why it said so. Working directory plus path combination works; full path works too. Use the slash here.
+
+[screen: CSV to Java Transform: output application/java / payload map ((item, index) -> {…})]
+
+Back to debug. Did we get the payload? Yes. What format? CSV. Good. Let's stop it.
+
+[screen: Second flow: Read CSV from FTP → CSV to Java → Bulk insert into the database (one call)]
+
+Let's try bulk insert: read again, CSV again, then bulk insert. Simple — we're doing the same as before but with bulk insert directly; insert once more. I won't repeat. After reading — the target variable, you know everything; reconnection strategy — all applicable here too. The error is gone, everything's okay.
+
+Now I've read the file and inserted it into the database. After inserting, I have to delete the file from the FTP location?
+
+— Yes, in the FTP location.
+
+[unclear] What do we do? When our operation is done, use Move and give it a path to move the file there. There are various operations we can use: Delete, Copy, Move help here. Create Directory: can I create another folder inside the employee folder?
+
+— If we use Create directory, it creates it automatically?
+
+Yes, it creates it — because I have access there, if you observe. What if there's no access? It won't. The user should have permission — remember, for the user, under the directory, it also gave Create permission. There's Delete. We've seen Move. What's List? It lists the files in a folder. Then On New or Updated File — when to use it? Like On New Object: if a new file comes into our folder, or a file is updated, it automatically picks it up. It's a source component. If a new employees.csv comes into the employee folder, it automatically triggers the process. Next, Read — seen. Rename — to rename the file. Write — to write content to a file and create a file on the FTP server.
+
+FTP is version 1.5.x [unclear]; FTP and SFTP 2.0 versions — there's a small difference between 2.x and 1.x in List. In 1.x, List on a folder with three files returns the names and the contents of those files. In 2.x? Only the file names come. If you read the documentation, you'll see: in 1.x List returns file names and content; in 2.x they changed the feature completely — only file names. Since you have the file names, read whichever file you want with the Read operation. So the combination is List + Read. Three file names — read each file one by one and complete the process. Clear?
+
+— Yes.
+
+These are the operations. Rename, delete, move — practise all of them multiple times and you'll understand easily.
+
+[unclear] On New or Updated File comes from the source: you give the connector configuration, then the directory, then — see the option here — the scheduler: how often it should poll. And Auto delete — delete the file after it's processed — by default false. If we put true, [unclear] it deletes it after processing.
+
+[screen: ftp-db-demo flow: Scheduler → Logger → Select → Logger → Transform (DB rows to CSV) → Logger → Write to the FTP server → Logger]
+
+Now the write side. I fetch the data from the database. How does it come? In Java format — an array of objects. What should I do with it? I said write it in Excel format?
+
+— Yes.
+
+Output format: Excel (xlsx). What did I do here? I used the map function; I named the item payload01 and the index — I could have used "in", but I kept a bigger name. I mapped payload.emp_id as String, employee name, salary, status. Now it's converted into Excel format: it takes the content and forms a payload in Excel format. Where does it write the payload? [unclear]
+
+I'll give the file name 27 — do we have 27 here? No. [unclear] When I write this multiple times in real time, the same file will be overwritten. See, there's an option: Write mode — Overwrite, Append, Create new. With Create new [unclear]. Overwrite replaces the content. There are options; I'm not touching them. Append is also useful: say we add some employees today; to add more data, use Append — write mode Append. Ten employees' data in the database; append — 10 already there, 10 coming, and so on. That's why the query should match it. Here we simply did it as a sample. Whenever you go for append, you have to get only the delta data. Delta data means the difference data — between yesterday's data and today's — get that difference and append it. That's the right way. You can use an object store for it — get the data by date, or incremental watermarking or something like that. You already have all the concepts in your mind.
+
+So the business requirement: download data from the database and write it to a file there. What questions do you have to ask? What's the volume of data? How frequently should it run? Is this a scheduler-based integration? If so, how does the cron look? When you discuss all these with the team, you'll know the file volume. Next, the FTP server: was a user created for MuleSoft? If not, who is the respective team — find their SPOC and get it created. Then the port on their server has to be opened from our MuleSoft application server. After all that, we start development. Getting through this interaction actually takes most of the time. To be honest, with good knowledge and depth, you can write the main business logic very quickly — half a day, an hour or two — and loggers, error handling etc. take some more time.
+
+Here's the Write operation; the content I kept is payload — I set the payload before.
+
+— In the Write operation, if we use Append instead of default, it won't keep yesterday's data as it was?
+
+No, no. Write append means what you add to the file. Let's do it now. [unclear] We add each time. For example, let's see how much data we got: the first time from 100 up to 270-something. Then again — from 100. The second time like this, the third time like this — the new data and old data together. Why? Because I wrote it like that: select * from employees.
+
+[screen: The written CSV opened on the FTP folder — rows exported from the database]
+
+[screen: Transform: output application/csv with payload map ((item, index) -> { empId: item.emp_id as String, … })]
+
+[screen: employees CSV opened in Excel — the exported records]
+
+If the requirement is to bring the full data and overwrite every day: today there are 100 customers; select * from customers gives 100; written to the Excel file — 100 rows. Tomorrow, meanwhile 50 more customers are added to the database; the select gives 150 in total. With overwrite, the 100 is replaced and 150 written. On the third day, 250 customers in the database: 150 deleted and 250 rewritten. That's overwrite.
+
+My other requirement: every day, whoever is added extra, I have to append them, without disturbing the whole customer list. First there are 100 — take them and write them to the file. Tomorrow 50 are added. Should only the 50 be fetched, or 150? Only 50. You must have written a query for that — watermarking: "I already took data up to this customer; fetch from the next." Only 50 come, I append those 50; the first 100 stay the same; 150 in the file. The third day another 100 customers: in our query those 100 new ones come and are appended after the 150. That's append. If the customer data is large, the full select takes a lot of time — that's why it's important to understand this.
+
+Let's debug. It already created 27; let's do 28. I just want to show the data transformation. Another thing: we struggled with paths here. Servers behave differently — some take slashes, some don't. It depends on which server you're connecting to. [unclear]
+
+I'm closing it. When I triggered it the second time — from 100 up to 217 appended. Let's see. The file got confused. Completed. Let's go and check: 29 came. [unclear] How much data is in it? In the preview: 47 rows including the header. When we open it there's an issue — we knew it'd happen the first time. This time we'll change it to 30 and look directly without the preview. Let's see whether the same data came; if the same data is there, it's not appending — that's a doubt too. Let's run it twice without the preview; then we'll get clarity. How is the configuration? Two seconds — that's the problem: it's triggering every two seconds. Make it one minute. One minute over — it took long. Resume. Let's check. It's asking to recover — there's an issue. The file gets saved automatically when we write content. "This workbook contains features that prevent it from auto save." "Excel completed file level validation and repair." "Excel was able to open the file by repairing it." There's some problem in Excel. [unclear]
+
+Try this: if Excel doesn't work, try CSV — with CSV it will work. Try it once; if it doesn't work, we'll see it in tomorrow's session. Try CSV and let me know. Excel compatibility may have some issues — maybe versions; I'm using a trial version now.
+
+[screen: Scheduler — scheduling strategy Fixed Frequency / Cron, time unit options]
+
+[drawing (recap): FTP server ↔ Mule app (read, write) with a scheduler, then insert/bulk insert to the DB]
+
+[screen: File connector config — working directory for local files]
+
+Now, if we click Add Modules and add File, what operations does it have? The same, or changed? The same. So when do we use File and when FTP? Say this is our Mule application server — Mule on-premises — with the Mule runtime on it. A server has folders; the runtime is in, say, C:\Users. The application is deployed there, and the file is placed on the same server — not in C, but in D, in another folder. If I want to access this file in the Mule application, which connector? FTP or File? File — because your Mule server and the file location are on the same server. Correct?
+
+— Yes.
+
+Then we go for the File connector: Read, Write, Move, Copy, Rename, Delete — all the options. That's the scenario. [unclear] For our case, we could also use the File connector to read from that local folder directly — the same thing. What details does the File connector need? Just the file path. If the location is wrong, it won't find it. You don't need a user ID or password, because it's local — local to the server, I mean.
+
+[screen: SFTP Config — host, port, username, password, preferred authentication methods, known hosts file]
+
+[screen: FTP / SFTP / File operations in the palette — Copy, Create directory, Delete, List, Move, Read, Rename, Write, On New or Updated File]
+
+What is SFTP? Secure File Transfer — there are security aspects. Are the operations the same? Yes. So the difference is additional security: host, port, username, password, plus any security-related information. Scroll down: the authentication details — enter those and you can connect. Why didn't I do SFTP? Because I don't have the provision to configure an SFTP server. Instead of an FTP server you have an SFTP server, and the extra security configuration comes in — that's all. Operations and logic are the same as what we've done.
+
+So these are the file-handling connectors: File, FTP, SFTP. Now you know when to use each. If our file server is an SFTP server, use the SFTP connector to connect to it. If it's an FTP server, the FTP connector. If it's local to the application server, the File connector. Those are the three instances. Learn one connector and you get three — like with JMS you also got VM.
+
+[screen: Course modules (Notepad++) — Module 5 File, FTP and SFTP endpoints highlighted; remaining CI/CD, AWS S3, HTTPS, CloudHub 1.0 vs 2.0]
+
+Back to the list. There's also a requirement for the S3 connector: AWS has S3, Azure has Blob storage, GCP has Google Cloud Storage. Learn one and it's the same for all; that's why the AWS S3 connector is included in your batch. Then CI/CD pipeline deployment — some pending there. Then CloudHub 1.0 vs 2.0 differences, and one-way and two-way SSL — HTTPS connections. Till now we've created everything as HTTP APIs.
+
+We'll wind up the session and connect tomorrow. Thanks, Indira.
