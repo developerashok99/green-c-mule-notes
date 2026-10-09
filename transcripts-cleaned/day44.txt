@@ -1,0 +1,204 @@
+MuleSoft Telugu Course — Day 44 (cleaned transcript)
+Source: transcripts/day44.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day44 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+[screen: DataWeave tutorial 4 — Variables & Logical Operators]
+
+What did we do in the previous session? We saw the selectors: single value selector, index selector, range selector, multi-value selector, descendants selector. We use the single value and index selectors more than the others; we will use these two regularly. And the data types we deal with most are strings, numbers, booleans, arrays and objects. I told you we deal with JSON mostly, and with string data in it; we will see how to work with string data later.
+
+[screen: Tutorial 4.1 Variable Access — var <name> = <expression> in the header; descendant / multi-value examples with payload..id, payload.*id]
+
+Now, how do we access a variable? Generally, if we create a variable with Set Variable or in a Transform Message, how do we access it later? vars.variableName. In the same way, I can create a variable in the DataWeave script itself. But this variable has scope only within that particular DataWeave script. For example: var, space, the variable name — say test. How do I access it in the script? We don't have to write vars; we just use the variable name. Since it is a string, that's fine. If it is an array or object? For example an array: if we say the name, the whole array comes; if I need a specific index value, I use the index.
+
+[screen: Playground: var test=payload / var demo=test.message → {var1: test.message, var2: demo} → both "Hello world!"]
+
+Again, now our variable is an object: we set the payload as the variable. This is an object, right? We assigned this payload to the variable test. Now if I want message from test: test.message — got it. So we can create variables in the DataWeave script as well.
+
+My question: this variable is used inside the Set Variable or the Transform Message. Will it be accessible after we come out of the Set Variable or Transform Message? No. What is its scope? Say this script has 1000 lines of code; you can use it anywhere in those 1000 lines. Outside the script, it won't work.
+
+You can define multiple variables as well. For example, var test; then I need test.message: I can use the same var keyword. When a variable is defined here — var variableName = something — if we want to hardcode, we hardcode; otherwise give an expression. For example, this test variable; for the demo variable I give test.message. When the first variable is created, the second variable takes its value from the first. We can create multiple variables like this. The process: var variableName = value. How to use it in the script? Only the variable name. That simple.
+
+For example, I can call it two ways: payload.secondlevel.id. I have taken a simple one, but payload.secondlevel.id has to be written every time, and in real cases it is much bigger. What I did is define payload.secondlevel as a variable; instead of payload.secondlevel I write test. Simple, without writing the big thing. See — the readability is good. So for anything repetitive or too long, we can define it like this and use it.
+
+— Sir, what is the star here?
+
+Here — see, there are two id's in the second level. Suppose I didn't give the star: it takes the first id. First, the second level — what will the test variable be? Only the second level. This one? Yes — 222 — no, this one will also come; it goes till line 7. [unclear] The second level starts at the bracket and ends here; inside the second level there's a third level as well. Now see what test means, and what test.id means.
+
+[screen: Tutorial 4.2 Logical Operators — >, <, >=, <=, ==, ~=, not, !, and, or]
+
+Next, the logical operators: != not equal to, and ~= similar to. What did I give? test.*id[1], which is 22, == 2 — true or false? False. 22 is not equal to 2 — false; that's why false. Say this is 2 — == gives true. Not equal: !=. Okay.
+
+What is "similar to"? Let's see. What happened now? I used ==; is it false or true? Both are the same — why did it come true now?
+
+— Because you used upper.
+
+Yes, I used upper — it converted to capital letters. Observe: test 2 is generally in small letters, but after upper it converted to upper case; this is also upper and that is also upper, so it came true. Now, test 1 — this one is false for us too. We use ~= for some cases; I will tell you the use case. Similar-to is used in rare cases, but we still use it — I remembered it suddenly.
+
+[screen: MuleSoft developer tutorial: "How to compare different data types in DataWeave using equality operators"]
+
+What does similar mean? Basically, a little closer. Example: equality.
+
+[screen: "1" == 1, "true" == true, |2020-01-01| == "2020-01-01", /a/ == "a", typeOf("abc") == "String" → all false with ==]
+
+[screen: The same examples with the similar operator ~= — values are coerced, so they return true]
+
+"The similar operator tries to coerce one value to the type of the other." What should happen here? "1" is a string and 1 is a number. In general a string and a number won't match. With ~=, they match. With ==? They won't match.
+
+Why? Here typeOf is used — the typeOf keyword. For example, this is the payload: if I give typeOf(payload), it shows the data type. See — Object. Then what is id in the payload — what data type? See — Number. So if you want to identify the type of the payload, a key or anything else, we can use it. For example, I give an array — and what does it show? Boolean? Why Boolean? Because I kept true as a normal value. Does it work with capital T? It doesn't — only small t. false — still Boolean. It gives us the data type of the payload or the values in it.
+
+[screen: Playground: payload.number1 ~= payload.number2 (100 vs "100") → true]
+
+Now I compare number1 and number2. Obviously false. Let's make this 100 and that "100". == is false. With ~=? True here. So it automatically coerces similar data types — that's the example. Boolean does the same. Next, dates: here it is in a string, here in the pipe symbols — we see it more with dates. This regex one similar too. typeOf("abc") is String, so that is true too. So we understood the similar operator. Actually there was some doubt there; take a look at similar once more.
+
+Logical negation: if we put an exclamation mark before any function — for example isEmpty on a string, or isBlank. What does isBlank do here? The string has a value, so we get false. If I want the opposite, we use !. We can also use not for this — that's what they are saying here: not is the same as !.
+
+And logical and / or: first condition OK and second condition OK — such situations. In our Choice, for example, there are two conditions: for both to be OK, first condition and second condition. If one condition OK is enough, first condition or second condition. We can check this with the logical operators.
+
+[screen: if (typeOf(payload.number1) == "Number" and typeOf(payload.number2) == "Number") … else "not a number" — tooltip: comparing Type<100> with "Number" always returns false; use ~=]
+
+For example, let's take this. I am using if for now; leave the question of why and how, just understand the condition. What is typeOf(payload.number1)? I want to write a condition: first identify this data type, then that data type; only if both are numbers, output "number", otherwise "not a number". I wrote the condition: if typeOf(payload.number1) == "Number" — the first — and the second. What happens if the second is not a number? First condition true, second false — true and false is false. When false, does this value come or that value? "not a number". Now I made this 100. Another bracket was missing: typeOf(payload.number2). Let's put the whole thing in braces. Still "not a number". The problem is it's not matching for each number.
+
+Let's see — just copy it. First, typeOf(payload) — also false. Why false? There must be a difference. Did you get it? Remove the extra bracket — it gives a syntax error. Now — it is not able to check with ==. But if we put the similar operator instead of == in our conditions, will it come true? See here — did "number" come? What does it mean? The first condition true, the second condition true; true and true is true. Now let's make one a string — "not a number". This is how we use the logical and. What about or? Even if one is correct, it comes. We already know that.
+
+What is this — the type itself? What happens if we output typeOf(payload.number2)? Tell me what it is: String. [unclear]
+
+[screen: default operator: payload.number1 + (payload.number2 default 0) when a field is missing]
+
+Next, default. What does it mean? Even if a key doesn't come. For example, we are expecting something in the payload; it should come compulsorily, but it didn't come — number2 didn't come. In some situations it should come but doesn't. What happens? It becomes null.
+
+— What value is this? The sum should come, but why is it zero?
+
+So — is null plus something considered like that? We sum it and check with a default value. Understand? If payload.number2 comes, it takes it from there; otherwise I keep it as zero. Did the function work? It worked. So whenever the value is null, it takes the default value; otherwise it takes the actual value. Clear — this is useful for everyone.
+
+— Can we give only a number to default?
+
+We can give an array or an object — a complete array or object too.
+
+— Can we put a string with double quotes as default?
+
+You can give any string; here I need a number, so I'm giving a number. For example, say number1 is test1 and this is test2 — strings. Can we plus strings? We can't. Concatenate? See — did it come correctly?
+
+[screen: payload.test1 ++ payload.test2 with a missing field → error "Unable to call ++ with (String, Null)"; fixed with default ""]
+
+If it comes, it works; if it doesn't come, it's a problem. So I give a default: if it comes, take it, otherwise an empty string. The default spelling was wrong — that's why. Now did it fail or work? It worked.
+
+Now instead of test1 I give a variable, payload.test. Concatenating strings gives a string. This is an object, see. I concatenated an object and another object. See what happened — both came in the same object.
+
+— So the objects merged?
+
+Yes, object and object merged. So concatenation concatenates string to string, object to object, array to array. Will an empty object work? Yes, it will. Now there is no variable called test2 — it didn't come. What do I do? Open brackets and give a default: if it comes, take the value, otherwise a default empty object. Why is this a problem? There's no test2 here — since it is a variable we access it as a variable; let's use payload2 as an example. See — it merged with an empty object. In such situations, we can use default in multiple ways: whenever something might not come, the default function is used. That's one thing I wanted you to understand.
+
+[screen: Tutorial 5.1 If Else — var action = if (payload.price < 100) "buy" else "hold"]
+
+Next is flow control. If and else: if this condition is okay, do this; if not, do this; if something else comes, do this. How to write the if condition? Open normal braces, write the condition inside, then give the response for it. If not, put else and give a different response when the condition doesn't match.
+
+Let's take a small script. Look: price is 120. If payload.price is less than 100, say buy; else, hold. Is the price less than 100 or more? More. So what should print? Hold. Look — payload.price comes, and we assigned it to our action variable. What is the value of action here? Hold. Printed. Okay.
+
+What happens if we change it — did it change? [unclear] If the condition matches we give this. That's fine for one condition. What if there are multiple conditions? We can do the same. Instead of only payload.price, to get buy there is another condition — we can put any condition next to it with or / and. If both must be correct, use and; if either is enough, use or. And it's not just two conditions; you can do three — put them all in brackets.
+
+[screen: if ((payload.price < 100) and payload.action == "buy") "buy" else "hold" → {price: 80, action: "hold"}]
+
+payload.price is less than 100, and another condition should also be there.
+
+— Why did you write hyphen hyphen here?
+
+Not hyphen — equality, ==. Prashanthi, where are you? [unclear] And payload.action == "buy". Is there any action in the payload? No. Is null equal to "buy"? No — false. True and false? False. So hold comes. Correct? Yes. Now I make it 7. If I put "Buy" with a capital B — it is case sensitive. Now this is true and this condition is true; when both are true, the first value comes.
+
+Now I change it to or. Even then it's true — even if one condition is OK. Now this is 120. 120 less than 100 is not true; or with true — true or true… false or true is true. Now this is false too: payload.action == "buy" — remove it, the opposite: false or false is false. Correct? Yes, hold. And "black"? Hold. This is the way you write multiple conditions.
+
+[screen: Exercise: else-if chain adding a "sell" action when the price exceeds 140]
+
+Now, we have seen multiple conditions in the same if. But say there are three steps: below 100 is one action, 100 to 140 another, above 140 another. What do we do? Nested ifs — else if. Here, if is the first condition, else if the second condition, else if the third; if nothing matches, else. If you want multiple conditions, separate them with else if again.
+
+Hold or even sell: if the price increases beyond 140, we have to sell. Less than 100 — buy. More than 140 — sell. 100 to 140 — hold. That's the condition. I write the same: else if price greater than 140 — and the value for it, "sell". So less than 100 gives buy, more than 140 gives sell, between gives hold. Now I got hold; now buy. I wrote only one else if; for another condition I can write another else if.
+
+— Can we use only a string like this, or can we output objects and arrays too?
+
+We can output objects and arrays. You can pass an object directly, or an array. I'm just giving you the info. Is it clear to everyone? Any doubts? We use if, else if, nested, regularly.
+
+— Sir, we can write it in the script body as well?
+
+Yes. They didn't write it that way here, but you can write the whole condition here in the body, in action — the same. They wrote it like this to keep the body clean.
+
+— So variables go above the three dashes?
+
+Yes. There is also a way to create variables at the bottom — do. We use it very rarely and I don't want to confuse you. Mostly we use this var, which is usable in the whole script. But if I want a variable only within a particular part and scope it there, there is another kind — with the do function. Till now I haven't used it either. It's a very rare requirement, and people get confused with it; that's why I'm telling you.
+
+These variables can be used anywhere in the script — say a thousand-line script, anywhere in it. But if a variable is needed only in 50 lines, we can create one that is used only for those 50 lines.
+
+— What's the advantage — memory is saved?
+
+Yes. Say there is a 10,000-line script and the variable is needed only in one part. Otherwise memory is assigned to that variable and kept for the whole script. If it is created for those 50 lines, used and released, it's not held for the remaining 950 lines — so it saves a bit of memory. I use it in such situations, but very rarely. I don't want to confuse you people with that. Did you understand the if condition?
+
+[screen: Tutorial 5.2 Pattern Matching with Literal Values — match { case … -> … else -> … }]
+
+[screen: payload.action match { case "buy" -> "Buy at market price" case "sell" -> … case "hold" -> "Hold asset" else -> "Invalid input" }]
+
+This is also rare: literal pattern matching. There's an input expression; if it matches, in this case give this, in that case give that. It's called literal pattern matching — like switch conditions in other languages. If I write it in Notepad and copy-paste, the double quotes may change — be careful. If action is "buy", it should match this value. If it's "sell" — [unclear]. This is how we use pattern matching when we get an opportunity. Not too much focus on this, but focus on if and else.
+
+[screen: Tutorial 7 Working with Arrays — filter, map, distinctBy, groupBy, reduce]
+
+Next, arrays. We will work with arrays and look at one or two functions. Generally we get a lot of data in this form. We should learn how to work with arrays and objects: removing duplicates, grouping, sorting — we need all these regularly. In databases with SQL we filter and do a lot of things; similarly, we look at how to work on JSON arrays, and the DataWeave language helps us with that.
+
+[screen: Tutorial 7.1 filter — filter(Array<T>, (item: T, index: Number) -> Boolean): Array<T>]
+
+First, filter. What should the input for filter be? There is a function called filter — will it work on this? That is the question. The input should be an array. The output? An array. When filter works on an array, the input is an array and the output is an array. If you want to filter on an object, there is a separate function, filterObject; we will use that. filter works only on arrays: input array, output array. Keep this in mind first.
+
+[screen: Tutorials 6.1 Named Functions (fun) and 6.2 Lambdas ((arg) -> body)]
+
+[screen: Tutorial 6.3 Functions as Values — filter(payload, (n, idx) -> (n mod 2) == 1)]
+
+I create an array and give it as the payload. See what came — the same. Now I want only the even numbers from this array. It is an array of items. What is this 1? An item. This 2? An item. This 3? An item. Which position is the first item in? The 0th index. By default it shows item and index; you can rename them — I could put x and i. First I'll show it as it is.
+
+What is item and what is index? This is the item — refer to the value with it. If you want to refer to the index, this is the index. How do I filter? It starts with the first item in the array and checks whether 1 is even or not. It isn't — so drop it. Then 2 — is 2 even? Yes, keep it. Then 3. I'm telling it manually: it goes one by one, picks every item and checks whether it is even. If it is, it keeps it in an array; if not, it doesn't. That happens in the background.
+
+[screen: Playground: payload filter ((item, index) -> isEven(item)) on [1..10] → [2, 4, 6, 8, 10]]
+
+There is a function for this — isEven. What do I write inside isEven? item. See what filter does: takes the payload, takes item 1 and checks whether it is even — no, so not kept. The second — even, kept in the array. The third — no. It iterated each item, checked it, and finally gave the result.
+
+Now I need the odd numbers. How? Put not in front of isEven — I used the negation symbol. Enough? Yes. Okay for everyone? What if there were no isEven/isOdd function? There is a function called mod — division remainder: item mod 2. If we divide by 2 and the remainder is 0, it's an even number. If not equal to 0 — odd numbers. We already have isOdd, which is easier; otherwise, whatever is convenient for you.
+
+Is that enough for filter? Input array, output array. Now I changed item to x — an error comes. Why? We can name them whatever we want, but we have to be careful.
+
+— Can we give the index first?
+
+You can see it here: after payload, I gave filter, and as soon as I gave it the order came — first item, then index. We should not give the index first; we should follow the same order. It is a function already defined and given to us; when using a function we have to follow its specification. If it were our own function we could define the order; since this one is predefined, we follow it.
+
+[screen: payload filter ((item, index) -> item.salary > 50000) on an employee list (mahesh / ramesh / rajesh)]
+
+How do we use filter? A use case: I have a list of employee details, and I want salary more than 50,000 — or 50,000 to 1 lakh, or above 1 lakh, or below 1 lakh. Can I filter them? Yes — that's where filter is useful. How are employee details? An array of employees, an object for each employee. Let's take a small example: an array, with objects: name … What will the item be here? Tell me: each object is an item. Right? Yes. 80,000 — let's take a senior. Now: I want salary above 50,000. payload filter — how to write it? The salary is inside the item, so item.salary greater than 50000. Did you see what came? Both employees — Ramesh with 80,000 and Mahesh with 1 lakh — both came. See the details. And the one with less than 50,000 — say less than or equal to …
+
+[screen: payload filter ($.salary > 50000) — shorthand with $; error when used on a string payload]
+
+What is this dollar? A single $ represents the item, $$ represents the index. How to remember? When we click on filter we see item and index. Since the item is first, the single dollar is the item; the index is in the second position in the function, so the double dollar is the index. That's why inside the filter we have $.salary. It doesn't matter which way you write it; it's up to you. But if you are looking at a project done by someone else and see this, now you know what it is. Clear to everyone?
+
+Observe: filter always works on arrays. Now let's do one thing: what did I do? "You called the function filter with these arguments" — and it expects one of the combinations. How do you filter an object? There is a function called filterObject.
+
+[screen: Tutorial 8.1 filterObject — payload filterObject (value, key, index) -> key ~= "age" (keys are of type Key, so == fails)]
+
+So filter and map are for arrays; filterObject and mapObject are for objects. That's it. filter is only for arrays — if you say string, the interviewer will get confused. filter iterates over an array and filters the values based on our condition. filterObject works on an object and filters based on the condition we mention. The aim is to clear the interview rather than show off our knowledge.
+
+Now see — is filter coming in the suggestions? Only filterObject comes in the auto-suggestion, because the input is already an object. That is very clear. What are the parameters? value, key, index. What is the value? This is the value, this is the value… $, $$, $$$ — value, key, index. Clear for everyone?
+
+— Yes sir.
+
+What did I do there? If age equals 34, the object is printed. What did we do here? filterObject, value key index, key == "age". Because age is a key. It didn't take an index — should we give one? We only say which key it is, not the value.
+
+— So it only gives true or false?
+
+No. [unclear] There's an empty object in the output — let's see why. You can see the commas too; the output is empty. "All object keys in DataWeave are of type Key, regardless of how the objects are created. The == operator tests if two values are equal … that is why key == "age" returned false for every key-value pair." The key doesn't match — that's the problem. I changed it to a string — what does the as function do? Convert. key as String, with capital S. Now it matches; it became a string "age" and gave both. Or it asks us to use the similar operator — the key doesn't match "age" with ==, so use ~=. Or convert it to String with as.
+
+— Can we convert to String or Number?
+
+We can convert to Number too. If it can't be converted, we get an error. Age is a key — will value as Number work there? It will.
+
+[screen: Playground: payload filterObject (value, key, index) -> value == "age" → {} — filters on values, not keys]
+
+Now I filtered on the key; now I filter on the value — on the address. It didn't come, because one is a string value and one an integer. We need both — what do we do then? [unclear] That's how we will work.
+
+Now we have seen filter and filterObject. Similarly there are map and mapObject, and other functions like these; we'll see them. Why did I show filter and filterObject together? On arrays we use filter; for objects, filterObject — so you know exactly how to use each.
+
+— Do we have for loops in this?
+
+For-each — for that we have a scope actually; it is not a function, it is a scope, and it's even easier. The functions here are more than enough. I will add one more function here — it is in the documentation but not in this particular tutorial.
