@@ -6,7 +6,7 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 >
 > 📄 Want the original raw English transcripts these notes were built from? See **[transcripts/](transcripts/)**.
 >
-> 🧹 Cleaned transcripts for Days 3–34 (terms corrected, repetition removed, screen text added): **[transcripts-cleaned/](transcripts-cleaned/)**.
+> 🧹 Cleaned transcripts for Days 3–36 (terms corrected, repetition removed, screen text added): **[transcripts-cleaned/](transcripts-cleaned/)**.
 
 ## Index
 
@@ -46,6 +46,8 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 | [day32.md](day32.md) | Rate Limiting, Rate Limiting SLA, Spike Control, HTTP Caching, JSON Threat Protection (theory) |
 | [day33.md](day33.md) | OAuth 2.0 deep dive: Authentication vs. Authorization, the Authorization Code Grant Type |
 | [day34.md](day34.md) | Client Credentials & Resource Owner Password Grant Types, Object Store for tokens, JWT |
+| [day35.md](day35.md) | Applying policies in practice: Create new API, API Autodiscovery, deploying to CloudHub 2.0 |
+| [day36.md](day36.md) | Fixing the CloudHub 2.0 deployment, artifactId, Basic Authentication and Client ID Enforcement |
 
 ## Topic Quick-Reference
 
@@ -95,6 +97,8 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 | Rate Limiting / Spike Control / HTTP Caching / JSON Threat Protection | [day32](day32.md) |
 | OAuth 2.0 / Authorization Code Grant Type | [day33](day33.md) |
 | Client Credentials & Resource Owner Password Grant Types / JWT | [day34](day34.md) |
+| API Instance / Autodiscovery / CloudHub 2.0 Deployment | [day35](day35.md) |
+| Basic Authentication / Client ID Enforcement (hands-on) | [day36](day36.md) |
 
 ---
 *Notes generated from Telugu-language lecture recordings, transcribed and translated to English via local speech-to-text (Whisper), then organized into structured notes.*
