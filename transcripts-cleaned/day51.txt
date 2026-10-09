@@ -1,0 +1,236 @@
+MuleSoft Telugu Course — Day 51 (cleaned transcript)
+Source: transcripts/day51.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day51 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+In this session we will talk about JMS. In regular integration projects the requirements are REST, SOAP, database, JMS, the Salesforce connector and AWS S3. JMS is one of the most important requirements, and that's why we will look at JMS integration.
+
+First, JMS is a generic term. For easy understanding: databases are provided by multiple vendors — MySQL, Oracle, Microsoft. Different databases are available in the market, and we have used MySQL. In the same way, JMS is a generic concept, used for communication between different systems and applications. What is JMS? Java Messaging Service — that's the full form. From the name it's clear: we establish communication in a message format.
+
+[drawing: JMS = Java Messaging Service; brokers — RabbitMQ, Apache ActiveMQ, Apache Kafka, IBM MQ; Anypoint MQ (licensed); benefits: decoupling, asynchronous]
+
+Are there companies that provide these messaging services? Many: RabbitMQ, Apache ActiveMQ, Apache Kafka, IBM MQ and others. Apache ActiveMQ is open source, so we will use it for practice and the demo. The terminology is the same across them — queue, topic, publisher, subscriber, producer, consumer, message. There may be small changes, but if you know one JMS service well, it's easy to understand the others. Apache ActiveMQ is open-source software from the Apache Software Foundation; it is completely free, so we can download, install and use it. The rest are licence-based.
+
+MuleSoft also provides Anypoint MQ, a messaging service from MuleSoft. Along with it there's the VM connector — you can use VM as queue-based too; I'll tell you what we use when. Anypoint MQ is licence-based: even with a MuleSoft licence, you pay separately for Anypoint MQ. That's why we can't practise Anypoint MQ in the free version, so we won't discuss it. In the industry ActiveMQ is used more than Anypoint MQ, but depending on the organization they may use RabbitMQ, IBM MQ or other messaging services. That's the high-level overview. If we understand these two things, we can easily understand others.
+
+[drawing: sender → JMS server / broker (ActiveMQ) with a queue or topic → receiver (subscriber/consumer); further processing handled by the receiver]
+
+This messaging service is used as a mediator between different applications — a JMS broker. What do we do with a database? Insert a record and you can retrieve it permanently, update it, modify it, delete it. If we need permanent storage, we use a database. Now there is a JMS broker; I send a message to it. What do we call the one who sent the message? The producer — the one who publishes it: producer or publisher. I'll discuss the terminology in detail in a few minutes. So I produce a message and send it to the broker — we publish or produce the message into a queue or topic. After that, someone has to take it and use it: the consumer. They consume the message from that queue or topic and process it for the further business process.
+
+For example, on this side there's a front-end application. It made a message and published it to JMS. In the back end there are three systems — one, two, three — and each department has its own business process. They have to take the same message and process it. After I produce the message and publish it, there's no rule that it must be removed immediately; you can take it when you need it, or remove it immediately, based on the setting.
+
+The point to observe: the consumers don't know who sent the message. Is there any connection between the producer and the consumers? No — first point. And when the producer sends the message, does it have to be removed immediately? No; it can be removed when it's acknowledged. Then why not use a database — permanent storage with every record? With a database you'd have to delete the records yourself; JMS systems do all this automatically. To send to multiple systems, we use a topic: we publish the message to the topic; three systems take it from the topic, and after they're done, it is deleted from there automatically. So it acts as a mediator, a broker, between multiple systems. Even though the producer and consumer have no connection, communication is established.
+
+When to use it? A producer is a system or application; a consumer is a system or application. Whenever you want to establish communication with decoupling. What is decoupling? Say there are four applications or four business processes; if I want to decouple them and process them independently, I can go for JMS. That's the first point. The second point is asynchronous. In synchronous communication, the producer sends the message, it gets processed, the response comes back through JMS to the producer. Here, the producer sends the message — and whether it was processed or executed successfully has nothing to do with the producer; it's not worried about it; it forgets about the further process. If we need multiple systems, we prefer the topic. To put it simply: there will be a message; we can take it and process it, or publish it to a system and send it to someone else. That's the overall context. Any doubts?
+
+There's no coupling here: between producer systems and consumer systems there is no connection. The producer sent it and the consumers took it; the consumers don't know about the producer, or about each other. That's how we decouple producers and consumers. Is everyone clear?
+
+— Is there a real-time example?
+
+Yes, let's discuss one. For example, we take a message from Salesforce, and there's a database, an SAP system and a microservice. Salesforce publishes a message to the topic on the message broker. Now this message has to go to the SAP system, the database and the microservice. What's a microservice? APIs built in Java, in Spring Boot — an API or service. As soon as the message arrives, they write the logic to consume it, take it and process it, depending on the requirement. For example, as soon as a customer is created in Salesforce, I have to send that customer data to SAP, to the DB and to this microservice. How? You can implement it various ways. One way — since we don't know which systems consume when, and they must do it independently — is this architecture. The customer data created in Salesforce is available to SAP, to the DB and to the microservice. SAP creates it in its system, in its related table; the DB creates it in the customer table; the microservices may have their own database — here MySQL, there Oracle — and insert it into Oracle. Each is a separate business process. The messaging broker acts as a mediator between these four systems.
+
+Or say there's orders data between Salesforce and SAP, sent one way and back again — we have to decide how communication goes and then decide the architecture. If we want it synchronous like an API, we can. Whether to go asynchronous or decoupled for a business requirement, the architects discuss and decide; it depends on the situation.
+
+A small use case: in CloudHub, have you observed that the logs are limited to 100 or 150 MB, or deleted within 30 days? But I need all these logs available even after 30 days, or 1 or 2 years. What do I do? Send them to an external logging system. I put a messaging service in the middle: the logs first go to queues, and from those queues some system — like the ELK stack, Elasticsearch, Kibana — saves them and uses them from there. I use it like this for streaming logs.
+
+In one of my recent projects I had to send orders from Salesforce to SAP. An API in Salesforce uses a new-object consumer: as soon as an order is created, it's automatically taken and published to a queue. Another API consumes from that queue and uses the SAP connector to publish that order to the SAP system. When the order is created in SAP, the reverse should happen: Salesforce should be intimated. It could have been done with an API, but they followed a queuing mechanism because they wanted asynchronous communication. We pushed it to the queue; as soon as it comes, we consume it, call the SAP system and process it — in a matter of milliseconds. If the SAP system or its API is down, where is the message? In the broker — stored in the topic or queue. After the system is back, we consume it and use it. So even if the consumer's downstream system is down, the message is saved; it's deleted automatically after a time limit, typically kept for 7–10 days. Since we consume and use it, that's not a problem. In such contexts we go for this kind of thing.
+
+Let's discuss in detail. Here I've written sender, producer and publisher — whoever created a message and sent it. How do you send an HTTP message? In JSON format — with body, attributes, query params, URI params, headers, authorization — HTTP has a structure. A message has a structure too: headers and body. What's in the headers? Information about the body — the size of the message, its structure, all these details. So the structure of a message is headers and body.
+
+Then where is this message saved? In the JMS service, in a queue or a topic. In a diagram, this is how a queue and a topic are represented — horizontally, the way we draw a database cylinder. Say we published it to a topic. Who consumes it? The receiver, consumer or subscriber. With publisher we say subscriber; with producer, consumer; with sender, receiver. So: sender ↔ receiver, producer ↔ consumer, publisher ↔ subscriber. Clear? "Send message" here, "consume message" there; also "publish message", "consume message". Different terminology is used. In the middle we have the mediator, the ActiveMQ or JMS broker, with a queue or topic in it holding the message; we consume it here and process it; further processing is handled by the receiver. That's the architecture. When we get a requirement — as we discussed — we're decoupling the producer/sender from the receiver, with a broker in between.
+
+[drawing: new employee published to a topic → finance, payroll, mailing systems each receive it]
+
+Let me give you an example. There's a front-end application where a new employee joins. The HR application that creates the employee details calls a MuleSoft API. Once this API request is triggered, the same employee details have to be sent to the finance department, the payroll department, and other departments. I can handle it two ways. I can send to these three departments synchronously and then send the response. The disadvantage? The response time increases. Instead, as soon as a new employee is created, we save it in the HR database and give the response right away — that's clear. Then I have to send this information to finance, payroll and the other department. So I publish a message to a topic, with the new employee details. Finance takes those details and creates them in their systems the way they want — salary, designation, all in our message — and saves them in their database and systems; payroll too. How each department's process happens — through an API, a microservice, whatever — forget about that for a while; that's a different scenario. What we need is to send the data to these three departments; after that, they process it further. Remember that.
+
+So: when a new employee is created, it has to be saved in the HR database and sent to three other departments. Tell me how you'd design this API. Can you help me? The front end is used by HR; employee details are filled in and come as a request to our API — obviously listener-based. So far so good. After that?
+
+— First, insert into the database. Then for the other systems — for example Salesforce, use the Salesforce connector and insert it.
+
+That's one way. Say this is finance, this payroll, this marketing — each with its system and we have their connectors. Sending to these three and then responding — all synchronous: 200 ms, 400 ms, 300 ms, 250 ms. How long in total? 600, 900, 1150 ms. But if you look, there's no need to wait. I'll give the response as soon as it's saved in the HR database.
+
+— Or, since they're independent, can I use Scatter-Gather?
+
+That's one way. Another way: after the database, set the response, and publish this message asynchronously to the topic. Listener → database → set response → publish to topic. Since the publish is asynchronous, the message goes to the topic in the broker. Then the finance system, payroll system and marketing system have to consume the data and process it. Here, in 200 milliseconds, the response went back; the message is in the broker. Then from the broker I create separate APIs — one, two, three — each with its own process: for finance, first convert the message and insert it into their database; then the payroll system; the marketing system — each an API. Can you do it any of these ways? Yes. Why did I choose this? No dependency. And another thing: if this employee's publish failed — no broker connectivity — the record is in the database, so we can take it and publish it again.
+
+You got the point? I showed you the same scenario three different ways. Now you have the knowledge: you can do it this way or that way. If you raise a point for one way, the architect may come with a counter — "no, that's not why we're doing it this way" — and give a reason; then we understand. That's why I show three different approaches.
+
+— Can batch processing also be used for this — asynchronously, to process into different systems?
+
+Can you repeat the question? Batch processing can be asynchronous, yes, and the batch would be kicked off. But this is a single record. How many new employees join every day? Even in a big organization, very few. For customers, say an e-commerce business, there might be many customers a day — that kind of volume. So depending on the use case you can use batch processing as you said: there you take huge data and make batches. Here, when I publish, the three things happen automatically, with no connection. HR triggers it in the application; within milliseconds the response is sent — "employee created successfully" — and at the same time, the three systems get it within a seconds or milliseconds gap — almost real-time communication. That doesn't happen with batch processing. Do it according to the requirement — depending on the size and what we want to do. Any other questions?
+
+[drawing: Queue — pipeline of messages where the sender pushes and the receiver consumes; one-to-one (point-to-point)]
+
+So far I've used two terms, queue and topic, and we've seen producer/sender/publisher and consumer/receiver/subscriber. What is a queue and what is a topic? A queue is a placeholder: as a database saves records, a queue saves messages — and for how many days, etc., is defined when the queue is created. Who does that? The ActiveMQ team or a separate JMS team; they give us the details. There are many types of queues — first-in-first-out, last-in-first-out — we don't need that much knowledge; that's for the specialist developer. What we need: what's a queue, what's a topic, and when to use which. That minimum is enough.
+
+"A queue is a placeholder of messages, or pipeline of messages, where the sender pushes (publishes) the message and the receiver consumes the message." Why two different things? A queue is for one-to-one or point-to-point communication: a sender sends, a receiver receives, and after receiving, the message is deleted. If it's deleted after receiving, and there are multiple receivers that need the same message — is that possible with a queue? No. That's why we have a topic.
+
+[drawing: Topic — one-to-many: one message delivered to receiver 1, 2, 3]
+
+A topic is also a pipeline of messages where the sender pushes the message and receivers consume the same message: I publish one message and even three receivers can consume it. One-to-many communication. [The slide had a mistake there — it should say topic.] When we want a message to go to many consumers, use a topic. If it goes from one system to one other system, a queue is fine; if multiple consumers need it, a topic. That's the difference: a queue facilitates point-to-point communication, a topic one-to-many.
+
+[drawing: JMS operations — publish (to Q or T), consume (from Q or T), On New Message (listener, starts a flow), publish-consume (synchronous)]
+
+To do all these operations, we have a connector. For a database we have the Database module: after setting up the connection, there are operations — select, insert, update, delete. In the same way, there's a JMS connector in Studio with multiple operations. There's Publish: to publish a message to a topic or queue. If there's already a message in the topic or queue and I have to consume it: Consume. Third: I want messages taken automatically — as soon as one arrives in the topic or queue, it should come into my application. How? Remember in Salesforce we used On New Object; here there's On New Message — the JMS listener. It's a source component; it acts like scheduler plus consumer. With Consume, we execute the flow and consume when it reaches that operation; On New Message takes it automatically. That's the difference.
+
+And Publish-Consume — this is synchronous: publish and consume, and we get the response back. Publish is asynchronous — we publish and our work is done; it doesn't matter whether it's processed. With Publish-Consume, the response comes. This appears in the certification. [unclear] With Publish, the payload goes on to the response, since it's listener-based; with Publish-Consume it waits.
+
+[drawing: order app → queue → delivery and inventory systems — decoupled, asynchronous processing]
+
+[drawing: New Emp → topic → finance/payroll, HR, operations; to do: download and install ActiveMQ, JMS operations]
+
+What should we do now? Do we have ActiveMQ? Is it available? No. When it's not available, first we download and install it. Then all the operations: publish, consume, publish-consume, the listener. Next, acknowledgement.
+
+[drawing: acknowledgement modes — AUTO, DUPS_OK, MANUAL, IMMEDIATE; JMS listener (On New Message), DLQ for failed messages]
+
+Acknowledgement: there's another operation, Ack. Along with Publish, Consume, Publish-Consume and the JMS listener, there's acknowledging. What does acknowledge mean? I take a message from the topic and say "I have successfully processed it" — that informing process is called acknowledgement. There are different ways to acknowledge; we'll discuss them.
+
+Also: as an HTTP message's headers, body and attributes convert to attributes and payload in Mule, a JMS message's headers become attributes and the message body becomes the payload. When I consume a message from a topic, how is it in MuleSoft? The headers are in attributes and the body is converted to the payload. That's what you have to understand. Any theoretical questions before we go to Studio?
+
+[screen: activemq.apache.org — Download: ActiveMQ Classic / Artemis]
+
+[screen: ActiveMQ Classic release table — 6.1.x / 5.18.x stable, Java compatibility, JMS 1.1 / Jakarta JMS 2/3]
+
+In the meantime, the ActiveMQ download — have you seen Apache ActiveMQ? Here you can download what's needed. There's ActiveMQ Classic; we can use Classic. There are different releases; decide based on the Java version. Here Java 17+. Mine is 1.8, I think. According to that I downloaded my version, and it's now deprecated — discontinued. Let's check which version I downloaded — 5.16.0.
+
+[screen: ActiveMQ Classic 5.18.6 — Windows zip (apache-activemq-5.18.6-bin.zip)]
+
+[screen: Extracted folder apache-activemq-5.18.6 → binwin64 → activemq.bat / wrapper.exe]
+
+After downloading, we get a zip file. Unzip it — right-click and extract — and a folder is created with all the files. Inside, there are folders, including bin. Go to bin; since my system is Windows 64-bit, go to the win64 folder. You see activemq.bat. Double-click this batch file and ActiveMQ starts the server. After it starts, how do I use the server? For a database we use MySQL Workbench. For this there's a console: it has a host and port; open the web console with that host and port, give the username and password, connect, and see how many queues and topics there are, create new ones, publish messages. So first I'm starting it.
+
+— Can you hear me? You said you downloaded for 1.8 — on what basis do we choose?
+
+Look here: 5.16 — which Java? 1.8. So it depends on your Java version. For the next batch, I'd go for Java 17 since it's a long-term version, download the matching one and use it. Here it says 5.18.6 needs 11; 6.1.5 needs Java 17.
+
+[screen: activemq start console — broker starting, KahaDB, transport connectors (openwire 61616, amqp 5672, stomp, mqtt, ws)]
+
+[screen: Console: "Apache ActiveMQ 5.18.6 … started", Web console at http://127.0.0.1:8161/]
+
+The web console is also up. Look: http:// then the IP; with port 8161 the web console opens. Has it started completely? Yes — connector MQTT started. So our ActiveMQ server has started. How do we check? Copy the URL, or use localhost:8161 — the port is 8161; 127.0.0.1 is localhost.
+
+[screen: ActiveMQ web console http://localhost:8161 — sign in admin / admin]
+
+[screen: ActiveMQ console home — broker name localhost, version 5.18.6, uptime, store/memory usage]
+
+Username and password default is admin / admin. Sign in. Now the web console for ActiveMQ opens: "Manage ActiveMQ broker" — click it to go to the actual management console. Here you can see queues, topics, subscribers. Like connecting to a database with MySQL Workbench to do activities, for the ActiveMQ broker we do them here.
+
+[screen: Queues page — create a queue (name), list with pending / consumers / enqueued / dequeued]
+
+[screen: Topics page — ActiveMQ.Advisory topics and a user topic]
+
+Queues — any? One queue was created. Topics — normally empty for you. Look — I'll delete these. Did you create them manually? Yes, earlier. How to create a queue? Give a queue name here and click Create. For a topic: go to Topics, give a name, Create. These advisory ones came by default — not for us to delete. I created q.test and t.test.
+
+Look at q.test: Number of Pending Messages — zero. Number of Consumers — zero. Messages Enqueued and Messages Dequeued: how many messages came in and how many were processed. Say 10 messages came and 5 were processed: enqueued shows 10, dequeued shows 5 — the consumer took and processed them — and pending shows 10 − 5 = 5. That's what we see here.
+
+[screen: Send a JMS Message form — destination, Queue or Topic, correlation ID, persistent delivery, message body]
+
+Now I have to send a message to this queue. From where — from the web console? There's a Send To link; click it. Where's the body? Here: Message body. These are headers — you can send all those details. I sent a message "testMessage" from the web console. Click Send. Now: pending 1, enqueued 1. Dequeued? Zero. Why? Nothing has been processed yet — there's no consumer. So it stays pending until a consumer comes and consumes it.
+
+To delete this message: there's Delete — that deletes the queue. Purge deletes the messages — basically dequeuing them. Pause pauses the queue. These are small details; we don't need anything else. The same with topics: create a topic and use it the same way, publishing within it — a little difference, that's it. t.test — why T? It's a topic; q for queue — no other naming convention. Here the number of consumers, active consumers — when we deploy the application. Messages sent/enqueued/dequeued; send to; active subscribers, active producers, delete. There are some extra configurations here; I'm not sure I've used them. That's the high-level overview: queue and topic, and we'll use them. That's the web console.
+
+[screen: Studio: Add Modules — searching Exchange for the JMS connector (Anypoint login)]
+
+Now Studio. In the ActiveMQ broker, I want to push a message to q.test. How? With the Publish operation. Is there a JMS connector here? No. Add Modules → JMS — drag and drop it. Does this JMS connector work only for ActiveMQ or for others too? The same way for others. When we add it, we get the operations. What are the JMS operations? Ack, Consume, On New Message, Publish, Publish Consume. Since my Studio version is 7.12 I see On New Message — in some versions it's named Listener — both are the same. And there's Recover Session — even I'm not aware of it; I've never used or explored it.
+
+Now the requirement: publish the message to a queue. Does Publish go in the source? Let's drag it to the source — did it come? No. It works only in the processing part — not a source component. On New Message is a source component — why? Because when a message arrives in the queue or topic, we consume it and start the process automatically. Consume — process or source? Process; you can't drop it in the source. When our process is triggered, we connect to the topic or queue and consume from there. Publish works asynchronously and Publish Consume synchronously: asynchronous means it happens and moves on; synchronous means it happens, waits for the response, and then goes to the next component.
+
+So: to publish to a topic or queue — Publish. To consume an existing message when I need it — Consume. To get it immediately as soon as a new message comes — On New Message. To publish synchronously — Publish Consume. [unclear] Even in 7.19 the options are the same. No listener there? I'll check whether the latest version's connector adds it.
+
+[screen: JMS Publish operation: destination, destination type QUEUE, message body output json …]
+
+ActiveMQ demo — I've already configured it. First, publish. I dragged in the connector and then the Publish operation. We want to publish to the queue called q.test. What did I give first? Destination — where to push: the queue name. Next, Destination type: queue or topic — it's the queue we created, so Queue. You can send a correlation ID or something too. Then the Message: we send a JSON message in the body. Everything else I left default.
+
+— You configured JMS_Config, right?
+
+Yes, going there now. We've seen where and how to send, but to connect to any system we need a connector configuration. I already created it, so I'm editing it.
+
+[screen: JMS Config — connection type ActiveMQ Connection; required libraries ActiveMQ client / broker / KahaDB (Configure…)]
+
+JMS configuration — Connection: ActiveMQ Connection. There's a generic one too, for other brokers. Since we have ActiveMQ, use ActiveMQ Connection. [unclear] Most of my work was with ActiveMQ, Apache Kafka and Confluent Kafka; I've never used RabbitMQ or IBM MQ. If they're similar, everything's the same; in the connection configuration there'd be slight changes. Better to check Exchange: Ctrl+T, RabbitMQ — RabbitMQ connector, Mule 4? I don't think it's there.
+
+[screen: DZone article — MuleSoft Integration With RabbitMQ (AMQP connector) for comparison]
+
+What do they do? Let's see this article: they download and install RabbitMQ and use an AMQP connector to connect to it. Not Apache, but the idea is clear.
+
+Along with this connection we need some libraries — like the JDBC driver for the database. Here: a client, a broker and KahaDB — three. The ActiveMQ client is mandatory; the others are optional dependencies. If we click Configure → Add recommended libraries, it turns green. Since those two are optional I didn't add them. If I right-click and remove the configured library, it turns red; come back and add the recommended libraries. When we add it, it's added to the POM file too — along with JMS, the ActiveMQ client.
+
+[screen: JMS Config: username/password, broker URL tcp://localhost:61616, factory configuration]
+
+Then username and password, and the broker URL: in the factory configuration, Edit inline, and the broker URL. Which server? localhost for us. In an organization, their server. What details do you ask the ActiveMQ team for? Server / broker URL, username and password, and the queue and topic names. Enough?
+
+— Queues and topics are created by them?
+
+Yes, by them. How did I know this URL? From the startup console earlier — the openwire connector on 61616. If not, there's a conf folder next to bin with these details. But in a project, they'll give us the URIs, so we're not bothered much. I've given the broker URL, username and password; Test Connection works. On your system it'll work the same: tcp://localhost:61616. In real-time work they set the IP and port and give us those details. That's all.
+
+So I've given the queue details for publishing and the message to send. When we publish, should it go to q.test? Is q.test there? It seems it was deleted — restarted, or something else configured. Fine, I'll create it. See — a new queue was created.
+
+A small thing: in ActiveMQ, even if the queue doesn't exist, publishing creates that queue automatically. I don't know about other systems, but it happens in ActiveMQ. Suppose I mention a new queue name — a new queue is created with that name. But good practice is to create all configurations properly and then use the same queue name. In Anypoint MQ, you'd get "destination not found" when publishing to a nonexistent queue; ActiveMQ creates it and publishes there. So be very careful.
+
+[screen: Postman → localhost:8081/publish — message published to the queue]
+
+The listener path is /publish; listener configuration 8081. Postman. After deploying, we trigger the request and see whether we can publish to the queue. I hit the request. Our API gets the request. Is it published yet? Not yet — we haven't reached that point. Normally we're not sending anything in the body: an empty payload and normal attributes.
+
+[unclear] I'm also consuming the same queue in another flow — that's why Active Consumers shows here; it's deployed too.
+
+Let's check the Publish: destination q.test; body — what we send; headers — nothing else. In Publish there are User Properties; we can send headers or any properties there too. Click Next. Is it published? One message — one pending message.
+
+[screen: ActiveMQ console: queue shows 1 pending message]
+
+— I have a doubt: we used On New Message — it should process this automatically and dequeue it, right?
+
+There must be some problem: q.test vs q.consumer — the consumer is on another queue. I think there's some issue there; check it. No problem. If it's published and we need it, it's clearly set. Enqueued or dequeued? Not yet. Do we get a response? Not yet. One more thing: what's the payload? The same — I'm telling you whether it's overwritten or not: it isn't. The logger is printed; after it, nothing else.
+
+[unclear] Then how did it take it? I said q.test and this is q.consumer, and it took it automatically. Now how did the message come? The payload — JSON or string? It's a string.
+
+What should we use to make it JSON? I'll explain. typeOf(payload) — it reads as String. If I give payload, it's the whole string. What do I do? Read it: the read function — read(payload, "application/json"). [unclear] Basically it's a string, but what's the underlying message? JSON. So I read the payload with the underlying format, application/json. It's not working here — I wrote it wrong. The read function is used whenever there's a difference between the binary/string format and the underlying format. If I just write payload here, it comes directly — since JSON is coming, the read function isn't needed here; it already came as JSON.
+
+Have we discussed the read function in general? No. Let's go to the DataWeave Playground. Here: I put this in a string. It's all a text overall, but what's the underlying message? application/json. Single quotes around it like this. read(payload…) — accepted formats: text, binary, CSV, XML, multipart… [unclear] Let's do it step by step. typeOf — String. What did I do? There's a JSON message in string format — like a string in double quotes — and the underlying message inside the string is exactly JSON. Correct? How do I read that JSON message? Like this: read(payload, "application/json"). The read function converts the binary or string format into the actual underlying message.
+
+Now the reverse: this is an object; I convert it to a string — write. typeOf — String. Did you see? It converted the whole object into a string. Now I need payload.message — does it work directly? It didn't. Why? Because it's all a string. I have to read it first: read(…, "application/json") — now it's converted to an object; typeOf shows Object. Now I can use .message — e.g. .hello.
+
+When is this used? Say you have to insert a JSON object into a database column that accepts text. Use write(payload, "application/json") for that column: it's converted into a string and saved as text. Later you retrieve that column — it's a string — so you read() it, convert it to an object, and use it. Such scenarios are a bit rare, but that's how we use read and write. To save into the database I converted the object into a string with write; I had a string that looked like an object and converted it back with read. It works for XML too, as the underlying format; I used JSON because I use it a lot. Clear to everyone? Any confusion?
+
+— Yes, clear.
+
+In the Mule debugger, the payload came as JSON, shown with double quotes. If we check typeOf(payload) and it shows Object, it's not a string — clear. If we get a string, then we read it.
+
+[screen: On New Message source listening on the queue — the published message triggers the flow]
+
+Now the message you published — what do we do in such situations? On New Message. Its configuration: the connector configuration is the same; Destination — the queue you want to consume; Consumer type — queue consumer, or topic consumer with the topic name. How does the body come? As the payload. You can use all the default configurations; you don't have to change anything. The only thing is the reconnection strategy: since this is a source, we can use forever. For Publish? Standard — 3 times, frequency 2000–3000 ms.
+
+So this is Publish and this is On New Message. To understand the asynchronous behaviour — this isn't complete yet — it will show that both happen. These are all just loggers. Look: enqueued, dequeued, pending — zero. Now let's send a message. See — it processes it directly. Why? There's no breakpoint in that flow.
+
+Now let's put a breakpoint and push another message. It doesn't process yet, and the console doesn't change. Did you see? It's the acknowledgement mode: only when this flow is executed is there confirmation that the message completed. Then enqueued and dequeued both update. What is dequeue? The message in the queue is removed.
+
+— So then it won't be there for consumption again?
+
+Once it's removed, it won't be there again. That's what I mean: when the confirmation comes here, it's dequeued there.
+
+[screen: On New Message → Acknowledgement mode dropdown: AUTO, MANUAL, IMMEDIATE, DUPS_OK]
+
+Now the acknowledgement mode. There are four: AUTO, DUPS_OK, IMMEDIATE and MANUAL. By default (AUTO), once the entire flow succeeds, the message is dequeued — you can observe it now: it processes the entire flow and dequeues it. Clear? With IMMEDIATE: as soon as it comes here, the broker is told it's processed, and the message is dequeued, counter updated. Let's change it to immediate and see. Deployed; I hit it — send. Look: done immediately — enqueued and dequeued both. It says "whether I've processed it or not — you don't have a connection to that — I'm confirming it to you, go ahead". That's immediate.
+
+AUTO means if this flow executes successfully, it confirms automatically. DUPS_OK works the same as auto, but there's scope for duplicates. What we use most: AUTO and MANUAL. Otherwise, with immediate, we can't tell whether the message was processed. Mostly it's the default AUTO, or MANUAL. DUPS_OK is the same as auto but with scope for duplicate messages — so for functionality like orders you wouldn't use it; when you think duplicates are okay, you can go for DUPS_OK.
+
+[screen: Manual acknowledgement — the Ack operation in the flow; message stays pending until it runs]
+
+— I don't understand — how does manual work?
+
+With MANUAL, I acknowledge to the broker myself, to dequeue the message. With which acknowledgement ID? Where is it, and how do I configure this? [unclear] attributes.ackId. Each message has an acknowledgement ID; I'm confirming that message by ID: "you can go ahead and dequeue it." Let's debug. I trigger it. Number of consumers… The application is still deploying; the consumer isn't up yet. Where's the message now? In q.test. Once it's up, the message is pulled. Let's see the dequeue: I said I'd acknowledge it manually. In the Mule debugger, check the attributes: each message has an acknowledgement ID. For this message I'm acknowledging it manually; after coming here, it's dequeued.
+
+So: IMMEDIATE — done immediately. Default/AUTO — done when the flow succeeds. DUPS_OK — the same, but a message may come twice. MANUAL — say it's a very big process and I want to acknowledge only when I get close to the end; then use the Ack operation, confirming with the acknowledgement ID from the attributes. With attributes.ackId — the ID of this message — I acknowledge it manually with the Ack operation. Let's see the dequeue: is the process complete? It's done there. So there's a difference from auto — yes. The most used are auto and manual. If you want to stop and acknowledge manually after coming to a point, you can.
+
+Let's enter a JSON message: employee ID — since we're already writing a transform here — name and designation. Send only that. The request comes here, it's published. The transform message: "message published successfully". Is it consumed? It's enqueued, but not dequeued — pending messages 6, 5… So is it consumed? Not yet.
+
+Now, I consume whenever I want with the Consume operation, and automatically with On New Message. What's the difference? We saw the same in Salesforce: On New Message works like listener plus consume; with Consume, I can consume only when the flow is triggered. After mapping it — go and see: dequeued. Why — the process isn't completed yet? Because Consume's default acknowledgement here is immediate: consume means the message is removed. If you want manual, set MANUAL here. That's how Consume works.
+
+We've seen Consume, On New Message, Publish, and Ack. Recover Session isn't required; I haven't used it either. Try Publish Consume yourself: there's the destination to give, and so on.
+
+For topics it's the same: we create the topic and give the topic name here — for the consumer, Topic consumer with the topic name; when publishing, destination type Topic instead of Queue. No other difference.
+
+[screen: Postman /publishConsume → {"message": "message published successfully"} — publish-consume waits for the reply]
+
+Another thing: in Add Modules there's VM. I mentioned Anypoint MQ: a queuing mechanism provided by MuleSoft, with extra licensing cost, and it works only for cloud-based deployments — Anypoint MQ is only a cloud-based messaging solution; on-premises can't use it. Then there's VM. I drag and drop it. The VM connector is also for queues. Its operations: Consume, Publish, Publish Consume and Listener — the Listener does the same as On New Message. So what's the difference between VM and Anypoint MQ? VM is within the same application: if within one application I want to publish to a queue and consume from it — to initiate asynchronous communication within this application — I can use these VM operations. Application-to-application communication? Say application 1 publishes — can application 2 consume? No. The VM connector is for intra-app communication, within the application. For Anypoint MQ or Apache MQs: inter-app communication — publish in this application and consume in another application, or in the same one. We put everything in one application for the trial, but consuming from another application works with both brokers, because it's a fully-fledged broker. VM is when you want it in the same application, with the same operations: consume, listener, publish. Inter means between applications; intra means within the application — for intra, go for VM. In CloudHub 2.0 I think they're discontinuing it, but in CloudHub 1.0 it's there.
+
+Any questions? That's it about JMS and queues. If no questions, we'll connect tomorrow at 7:30 a.m. Thanks everyone.
