@@ -1,0 +1,112 @@
+MuleSoft Telugu Course — Day 41 (cleaned transcript)
+Source: transcripts/day41.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day41 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+[screen: Reference project consume-soap-service-730: Listener → Start Logger → Set XML input for SOAP calculator service → Before SOAP Logger → Consume Calculator SOAP service → After SOAP Logger → Final Response → End Logger]
+
+Today we will see how to consume a SOAP service. What have we done till now? We have already seen how to consume a third-party REST service, and we have created a REST service. But we will not create a SOAP service, because 99% of the time we build all the latest applications on REST. Since we build on REST, there is little scope to build SOAP services.
+
+Next question: since we are not building SOAP services, why should we consume them? If we look at older applications, they have already built SOAP services. How do they expose their services to us? They are not changing them — they keep them as they are and expose a SOAP service to us. Then we have to consume that SOAP service. Such situations are rare, but we should still know about it. We have a third-party service: how should we call it from our REST service, how to send the input, and how to manipulate the output — a clear and easy use case for all of us.
+
+[drawing: a SOAP service consumed through the SOAP connector (Web Service Consumer) inside our Mule app]
+
+For example, this is our API. The input comes to our API — we know the input. Inside, the listener is there. We use a connector related to SOAP to connect with this third-party SOAP service and utilize it. We have to send XML to the SOAP service, and the output will be XML. Then we convert the XML into whatever we want. In our example, we use a free third-party SOAP service.
+
+To connect to SOAP we have the Web Service Consumer. Usually we have the HTTP module; here we have the Web Service Consumer. What is the module name? Web Service Consumer. How many operations does it have? Only one, called Consume. Consume is an operation for calling a SOAP web service. If there is a third-party SOAP service, we add this to the modules and drag-drop Consume.
+
+[screen: The SOAP service's WSDL — http://www.dneonline.com/calculator.asmx?WSDL (types: Add, AddResponse, Subtract, Multiply, Divide)]
+
+So let's first discuss the use case. What is this third-party SOAP service? I will show you: it is a calculator service. For REST we have RAML, the RESTful API Modeling Language. The equivalent for a SOAP service is WSDL. If we want to consume a SOAP service, the SOAP service provider gives us a WSDL location. This URL I have taken is the WSDL location; at this location the WSDL file is saved. What is in a WSDL file? In RAML we have how many resources, what security to apply, what inputs to send, what output we get — all that information. The same way, the WSDL file contains all the details. See here: for Add we send two numbers, intA and intB, and get the sum. Since it is a calculator service — what is the input for subtracting, what is the output for add, and so on: Add, Multiply, Subtract, Divide.
+
+[screen: WSDL operations and binding — Add, Subtract, Multiply, Divide; soapAction http://tempuri.org/Add, CalculatorSoap / CalculatorSoap12]
+
+[screen: New Mule project consume-soap-service-7303 (Mule Server 4.4.0 EE)]
+
+We need this listener — default config; I gave the path as /soap. Loggers are all common. First, let's see the connector for the SOAP service: Web Service Consumer. We use the Web Service Consumer to use a SOAP service. Go to Add Modules → in the W section you can see Web Service Consumer → drag-drop it. Then there is the Consume operation, which we can call.
+
+[screen: Add Modules → Web Service Consumer; Consume operation dragged into the flow after the Listener (path /soap)]
+
+What is our API? We send two numbers and add or multiply them as per our requirement and get the result back. We want to add two numbers. Now the Web Service Consumer has come. Why did I drag-drop it first? We first have to transform the message and send XML, right? Without discussing anything, I directly drag-dropped the Consume operation. Why? I will tell you.
+
+[drawing: JSON request → transform to XML → SOAP connector → XML response]
+
+[drawing: the request body {"integer1": 100, "integer2": 105} sent from Postman]
+
+What is our input? Not for the SOAP service, but for our API: we send two numbers in JSON — an object with integer1 and integer2, for example 100 and 105. That is our input. But if I send the same input to the SOAP service, obviously it will not understand. So we have to convert it according to the SOAP service and then send it.
+
+[screen: Consumer config General tab: SOAP version SOAP11 (default), MTOM enabled false]
+
+[screen: Web Service Consumer Config: WSDL location http://www.dneonline.com/calculator.asmx?WSDL, Service Calculator, Port CalculatorSoap, Address http://www.dneonline.com/calculator.asmx]
+
+What are the config details? The WSDL location — already provided by our third-party service. I have shared the URL and showed you. The WSDL — Web Services Description Language — file is at this location. This is very clear information for us. We give it as the WSDL location. Then the service name is automatically populated: the services available in that WSDL file are displayed here. If multiple services are built in that WSDL file, we can select which one we want. Since there is only one, we select it: the Calculator service.
+
+After this, the port. It gave us two port options. If there is a single port, we use that one; if two are available, we decide and use one. And there is the address. If I click without doing anything, it pops up automatically. Observe: the address and the WSDL location are the same, except the last "?WSDL" part. What should we give as the address? If it doesn't fill automatically, take out the "?WSDL" at the end.
+
+[screen: Finding the service name (Calculator) and port (CalculatorSoap / CalculatorSoap12) in the WSDL]
+
+If it is not filled automatically, where do we find all this? Open the WSDL file and have a look: there is a service name, Calculator — you can manually copy it and fill it in. When we give the WSDL location, it pulls it automatically. See, the ports are also here: CalculatorSoap and CalculatorSoap12. We can use either, and we can copy and paste the port from here too. The address also fills automatically. If it doesn't, open the WSDL and fill it in. Now we have configured our SOAP connector.
+
+[screen: Consume: connector config Web_Service_Consumer_Config, Operation Add, Body payload]
+
+After configuring, the calculator service has multiple operations, like add and multiply, and we decide which one to use. If I click on Operation here, this SOAP calculator service has four operations, and we can use whichever we want. I am going to use Add. I clicked Add and saved. So: I get two numbers in JSON, convert them to XML input, send the two numbers, and it adds them and sends the result back. This is a simple service; in real time it can be any input and output based on the requirement.
+
+Now how to send the input to this? We know it has to be XML. But what is the format? A simple hack: after configuring all this, drag-drop a Transform Message before the Consume. What do we get? Did you see? There is an input section and an output section. What did we get in the output? Let's observe: the XML Add object. What is the input for the next connector? The output of the Transform Message — it goes into the payload. I am already setting the payload here, and the Consume's input is that payload. That's the first point.
+
+[screen: Transform Message → Define metadata for the input (JSON example: num1, num2)]
+
+Now I have to build the payload in this structure. How will I get the input? The input will come like the JSON. I have to map it here. How? With the graphical user interface in the transformation. The output metadata is already fixed. How about the input metadata? You can define it here. Sometimes defined metadata doesn't work in Studio. I click on "Define metadata" on the payload — it takes some time to load. You can also define the output; here it is filled automatically, but if not, we can define it, or clear it and define it manually.
+
+Now we create a user-defined type for the input. What is the input? A JSON object. Here is the JSON option; I clicked it. Will you give an example or a schema? If there is a schema, you can give a schema, but since it's an easy example, I use an example. Which example file do we need? It should have all the values. In Notepad, I write the input example.
+
+— Can I save it in Notepad++?
+
+You can save it anywhere. Yes, input file, JSON. Some of you may have an idea. We made an object here. Now Save As → Downloads, select "All files" and give input10.json; it will be saved as a JSON file. Now we can see num1 and num2 — I didn't give "integer" there, I gave num1 and num2, that's why it looks like that.
+
+Now I have defined the metadata. The right side shows the structure and the left side should also. But observe — has the payload come? It doesn't come. Metadata loading is problematic in Studio sometimes; we don't know the reason. But I have a small hack — since it is a small example that is fine; with a big example it would be a problem. Take another Transform Message and drag-drop it before this one. Set its output to the example and save. Now that is the output of the first Transform Message — and the input for this Transform Message. See, it came here in payload.
+
+— Why are you doing this?
+
+So that we can use the visual representation. Now I map num1 to intA and num2 to intB, by dragging like this. See — the code is built automatically.
+
+— Yes sir.
+
+Otherwise we would have to do all this manually, but drag-and-drop is easy.
+
+[screen: Transform to SOAP: output application/xml / ns ns0 http://tempuri.org/ / ns0#Add: { ns0#intA: payload.num1, ns0#intB: payload.num2 }]
+
+See what is on the right side: the XML output. This is called a namespace. Instead of writing the namespace in full every time, it gives a short name, ns0. See, ns0#Add — Add belongs to ns0. What is the input for Add? intA and intB. Will it convert to XML? Yes. Now I send this XML payload to the Add operation, and it will respond to us in XML format. We don't know how exactly it will respond. Let's see if a Transform Message after Consume shows us the input: AddResponse shows up there. But we don't yet know whether it will be in XML or something else — generally XML. So I'm not going to do anything; I'm deleting this Transform Message. We put a logger and debug it.
+
+Is it ready? Can we consume it? Let's see if there's any other work — basically we only have to transform the final response, and we can't do that yet. Let's deploy. These are the errors — what are they? Is there any red in the XML? No, so no problem; it is a warning showing up as an error. "Error exists in required project." Since there is no red symbol in the configuration XML file, we can go ahead and deploy.
+
+In the meantime, get Postman ready: HTTP, localhost:8081/soap. Body: JSON object, num1 and num2.
+
+I forgot to delete the example: after writing the transformation, is the first Transform still required? Otherwise it will be the same input every time — if I pass different numbers, the payload is overwritten with the example's numbers. That's why I have to delete that example transform. When I uploaded the file and it was not loading, I used that hack; now I remove it. The error message is gone.
+
+[screen: Mule Debugger: payload is a SoapOutputEnvelope — body <AddResponse xmlns="http://tempuri.org/"><AddResult>395</AddResult></AddResponse>, headers, attachments]
+
+Once we get the request, check the payload. What format? JSON. After this Transform Message? XML. Look at the payload — it has been converted to XML format. What will this SOAP connector do? Connect to the third-party SOAP service, send the two numbers, and return the sum. Let's see how the response came. I have not set a target variable in the advanced section, so the response is in the payload, not in a variable. I expanded it. Which format? Overall it is Java. Where is the AddResponse section? The body part has AddResponse, and it is in XML. In general this can happen: the overall response is in one format — body, headers and attachments in Java — but the exact response we want, in the body section under AddResponse, is in XML.
+
+[screen: Postman GET http://localhost:8081/soap with {"num1": 195, "num2": 200} → 200 — body:<AddResponse …><AddResult>395</AddResult></AddResponse>]
+
+How do we extract this? Transform it. Tell me the expression that helps — I will turn on the expression preview. First, payload. payload.body.AddResponse. We need it in JSON, right — output json. Show me — is it converted to JSON? Okay, only the number now. How do I want it? With a key: I want a "Response" key. JSON object. See, there is no rule to keep the keys they sent; we arrange it as we want. That's why I'm showing the difference. Now it came correctly as we want.
+
+[screen: Final Transform: output json / { Response: payload.body.AddResponse.AddResult, "serviceused": "addition" }]
+
+Now is a Transform Message needed, or is Set Payload enough? Set Payload is enough, because it is simple. But since I am used to it, I used Transform. Nothing more than that. I formatted it as normal.
+
+— Sir, we put "Response" without quotes. Should it be in quotes?
+
+It should be in quotes, basically, but DataWeave handles it automatically — otherwise you would get errors there. You can leave it as you wish. Sometimes people add another field — for example "serviceused": "addition", hardcoded. They put quotes on one and not the other — nothing happens even then; DataWeave handles it. Since we mentioned output json above, it is intelligent enough to convert everything below and take the keys automatically. Look at the response when we hit it: earlier the response came as text; I remove that. When the JSON response comes, the keys come in quotes. That means when it converts to JSON, it does that for all keys. Let's hit it. See — the double quotes have come. Nothing happens if you forget them.
+
+[screen: Postman → 200 {"Response": "395", "serviceused": "addition"}]
+
+I got what I wanted. There is no need to build or know how to build a SOAP service. For example, have you ever built or created a SOAP service in MuleSoft? Even consuming third-party SOAP services is rare — I got that opportunity in one of my old projects. The question they ask is: which connector do you use? We have the Web Service Consumer connector, and its Consume operation connects to the SOAP service. You can explain that.
+
+[screen: WSDL service section: port CalculatorSoap12 (binding tns:CalculatorSoap12) — used for the SOAP 1.2 discussion]
+
+[screen: A student's flow during Q&A (Listener → Transform → Consume → Transform → Logger)]
+
+— Mahesh here — you took the same URL?
+
+Yes sir. I will send it in the chat box. It's simple: a SOAP service that is available on the internet — dneonline.com calculator. It doesn't work fully properly; only Add works reliably. If you try the others, they may not work properly. The SOAP service was clear for everyone? Any doubts?
