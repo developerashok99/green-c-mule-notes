@@ -1,0 +1,214 @@
+MuleSoft Telugu Course — Day 48 (cleaned transcript)
+Source: transcripts/day48.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day48 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+[slide: Agenda: For Each scope discussion]
+
+Good morning once again. In today's session let's discuss For Each. For Each is one of the very important components in MuleSoft — not only in MuleSoft, in any programming language. It's difficult to write any program without for-each, because it is very helpful for many use cases. We use it in programming, and the same way we can use it here — but here all the background code is done for us; we just drag and drop it and use it.
+
+What does For Each do generally? Say we get a collection of items. What is a collection of items? Basically an array — for example 1, 2, 3, 4, 5. We already know this; each one is called an item. What does it do first? It takes the collection and splits it, taking the items one by one. In the first iteration it takes 1, and I want to process something on 1 — for example 1 × 10. It does that. Then it automatically moves on: in the second iteration it picks the second number and multiplies it. So it splits the collection, takes the elements of that collection, and processes whatever operations we place inside the For Each scope.
+
+For Each scope means For Each is like a flow: I can place multiple components inside it. First do this, then this, then this — three tasks. The collection comes, it splits it one by one, processes these three tasks for the first item, then automatically picks the second and processes the three tasks, then the third, and continues for the fourth and fifth. Once all five are done, it comes out and goes to the next processor. In this example, how many iterations?
+
+— Five.
+
+What is the operation inside For Each? Multiply by 10. Only that? Can I do multiple steps or only one?
+
+— Multiple.
+
+That's what we have to understand. When I show only a multiplication, you may think we can do only single operations. No — according to our requirement, we can do multiple operations in the For Each scope. Scope means I can place multiple components inside it, so multiple tasks can be done on each item. Then it completes automatically and passes the event to the next component.
+
+[drawing: create new employees — an array of employee objects [{E1}, {E2} …] → insert each into the DB]
+
+Let's take a use case: a list of employees. In our DB insert, does it insert a single employee or multiple? One employee. Say I have a collection of employees — each object has employee details like name, email, designation, salary. I want to pick each one and insert it into a database. This is a REST API: we get an array of employee objects. What should we do with it? Split them and insert them into the database.
+
+A second example: insert each employee into the database and also create an employee record in Salesforce. Now each list of employees needs two operations. In the first example, one operation; in the second, each employee inserted into the database and created in Salesforce. Like that, you can do multiple operations in the For Each scope — you can place any number of components or processors inside it.
+
+Now we have this list of employees: employee 1, 2, 3, 4, 5. Each is an object — name, email, designation, salary — key–value pairs. What does For Each do? It gets the entire payload. In the first iteration it takes the first employee's details, inserts them into the database and creates them in Salesforce. Then — does the response go out? No. It's synchronous; it picks the second employee automatically, inserts into the database, into Salesforce, and so on; then it comes out of the loop and passes the event to the next component.
+
+What we need to know — like in Scatter-Gather: if variables are created inside, will they be accessible outside? What happens if outside variables are modified inside? Another small characteristic: for For Each, whatever payload we pass in, the same payload is available after it. It doesn't modify it. If we give the payload as input, the same payload is available outside, after the For Each. Remember this; I'll explain why while demoing. Any questions before the demo?
+
+— We have all the objects; we put them in the HTTP listener and pass them one by one from there?
+
+I told you it's a REST API. Our API gets a request — this list of objects is the request. What's the response? "All employees were successfully inserted." But it doesn't come from the For Each.
+
+[drawing: For Each processes records sequentially; on a failure it can skip that record and the remaining records are still handled (Oracle / MySQL)]
+
+For example, if the DB is down and the 4th record fails, will it go on to the 5th record? It stops the loop. If the 3rd fails, the 4th and 5th won't happen. What can we do to continue? Error handling: Try with On Error Continue. Then even if the fourth fails, we proceed with the fifth. These are the scenarios we'll discuss in the demo, step by step. Then the details: payload propagation, variable propagation, how variables created inside and outside behave.
+
+And what is the response from For Each? There is no response from For Each. It just does the activities inside the scope. Whether an array or a collection of items, it does the activities inside and comes out. It doesn't give any response.
+
+[drawing: the input can arrive as JSON, XML or Java — the For Each collection is the array of records]
+
+For the inputs we supply to For Each — I've mostly seen JSON — it accepts XML as well as Java: JSON, XML, Java. When JSON comes, a collection of items comes; it splits each item — an item can be an object, a number, a string, whatever — does the necessary activity, comes out of the loop and passes to the next component. Is it clear to everyone? Any questions?
+
+Now a doubt might come: there's already a bulk insert in DB — can I use bulk insert? It depends on the scenario and the situation. You can use it — but do you have scope to? For example, 10 employees, 2 employees, 3 employees may come. It depends on the scenario, the solution architect, pros and cons. In this case, Salesforce doesn't accept unlimited bulk — there's the 200 limit; 300 at once won't work. So we have to go for For Each.
+
+What is the other thing? DB insert accepts a single record; Salesforce Create accepts multiple and single. Tell me how this combination should work: this is the insert and this is the create, with a Transform Message before each. How do I send to Salesforce? An array of one item. Inside the loop, each employee is an object. Will Salesforce Create accept this object? No, because it needs an array of objects. So in the Transform Message I put this object inside an array, convert it for Salesforce, and do the same.
+
+— Say I have hundreds of employees — say less than 100 every time. I used bulk insert and Salesforce Create. How does For Each handle this — For Each for DB and from that…?
+
+Everyone understood the question? Let's do an example: say there are 500 employees. Can I do it without For Each? Let me see. This is the database — can I use bulk insert? Yes. Will Salesforce Create accept it all? Let's see — it worked and came back. But I mentioned a limitation in Salesforce: 200. Then there's a problem. Then — split into two batches. That's what I mean: it depends on the situation.
+
+Another question: should I do it sequentially or in parallel? For example, there's no dependency; it doesn't matter whether it's inserted first in Salesforce or the DB — it should happen in both. Can I use Scatter-Gather? Yes. These are the kind of things you need to think about.
+
+First understand the business process: we get a simple request — how should we handle it? If you break it down step by step, you'll understand easily. Understand the scenario first and then convert it into technical aspects; then it is very easy. Otherwise it's difficult. Understand the business scenario, keep in mind the components and processes we have learnt — how can we use them here, how much data will come, what to do with it, how to process the business requirement, what they are saying, how many steps — first identify the process. Then bring your technical knowledge and coordinate between the business knowledge and the technical knowledge.
+
+Many people's problem is that they don't understand the business properly before starting development. Even if you're not on the entire project, you need to be very clear about the input and the steps to implement. As developers, many people understand 5–10% of the business and proceed without understanding the rest. Most of the time it works out, no problem. But if you want to grow in your career, this is one of the most important things to do. For people starting their careers in IT, or with around 3–4 years — if your approach is different, please try to follow this approach; it will have a very good impact. We need to change our approach according to the requirement.
+
+[screen: foreach-db-insert-demo: Listener → Start Logger → Is not empty collection → Transform Message → For Each [Try: Before DB Insert Logger → Create employee records into DB → After DB Insert Logger → Success Response; On Error Continue: Fail Logger → Error Response]]
+
+Now, we created a project. In the listener there's nothing special — a simple approach: we configured the listener connector configuration and path. Then the logger, just printing the payload. Look — what did I use here? The Validation module, to make sure there are some values.
+
+[screen: Validation Is not empty collection — Values #[payload], message "No data to process"]
+
+Then [unclear] I created two empty arrays. Next, the For Each scope. How does it look? Let's drag-drop it — this is how it looks.
+
+[screen: For Each settings: Collection #[payload], Counter Variable Name counter, Batch Size 1, Root Message Variable Name rootMessage]
+
+What do we have in its configuration? Collection, Counter Variable Name, Batch Size and Root Message Variable Name. First, Collection: what input are you giving this For Each scope? It should be a collection. What if I give nothing here — just keep the default? Then the payload in front of the For Each is taken as the input. Did everyone understand? By default the For Each scope accepts the payload from before it — it should be a collection — and takes that same payload. If I create a variable instead, the collection can take that. Is this clear? The input of your For Each is defined by this Collection. What does the default take if we give nothing? What is the payload here? The collection of employees. If I modify something before it, that payload is taken; if not, the same payload that came in. Simply put, by default it is defined as payload. Clear now?
+
+— Yes.
+
+Or — not payload, the payload is very big; in it I want a particular part, defined as a variable. I created a variable from payload.employees, then I give vars.employees here. So you understand what I'm defining: that will be passed as the input to For Each. That's what Collection is.
+
+Next, the counter variable. What is it? The input array of 10 employees comes; it has to count how many iterations are done — it needs a counter. That's the counter variable name. As soon as For Each starts, a variable called counter is created and counts the iterations automatically. The name is defined here; if you want a different name, you can replace it, but I keep the default most of the time — I never touch it. In the first iteration, what is the counter? One. In the 8th iteration? 8. When the 10th comes, 10. Will these variables be there outside the For Each? They will not. There's no need — think of the logic. They're only needed to count the iterations; once the process is over, they're not needed. If 100 employees come as input, it iterates 100 times — it calculates from the collection. And while debugging, we check the counter variable to know which iteration is happening.
+
+[drawing: For Each iterates the payload array — each iteration gets one object ({"name": "mahesh", "dept": "software", "salary": 75000})]
+
+Next, batch size. What is it? With the default, batch size is 1. Now we have a collection of employees — I'll write only two details to keep it easy: name, designation, salary. This is one object; another object; another object. I send this to For Each. First iteration takes this object and processes it; the second takes this object; the third takes this one. How does For Each know to take one by one? For each — each time, one.
+
+[drawing: [1,2,3,4,5] with batch size 2 → iterations [1,2], [3,4], [5]]
+
+Say I make the batch size 2 instead of 1. With 1, it splits the collection one by one: first 1, then 2, then 3, 4, 5. With batch size 3, it takes the first 3 as one input and the next ones as the next input. So with 1, 2, 3, 4, 5, the first iteration gets 1, 2, 3 — as a collection. Since it is 2 or 3 items, it can't pass them as a single value, so it keeps them in an array. For the first iteration, an array of three items; for the second, an array of the remaining two items. Is this clear to everyone? Many people have this doubt.
+
+So take 1, 2, 3, 4, 5. In this For Each I put a Transform Message that does × 10. Batch size 1, the default: first 1 × 10, then 2 × 10, 3 × 10, 4 × 10, 5 × 10, done. Now I make batch size 2. What is the input for this Transform Message? 1 and 2 — as an array. Will × 10 work on it?
+
+— No, it will fail.
+
+So depending on the batch size, we have to change the processing properly. Did you understand?
+
+— Yes.
+
+So it's very important. It takes 1, 2 as one single unit; then 3, 4; for the third iteration, 5. Even though 5 is single, it goes as an array because of the batch size. Will that work for inserting records? No — you are inserting into the database and sending two; how would that work? That's why I have to send a single object, a single employee — or use bulk insert. It's very important to understand this in detail. Even among experienced people, about 70% won't understand this much. But if we learn it this way, we have a strong foundation; otherwise it's difficult.
+
+[drawing: inside For Each — counter (iteration number) and rootMessage (the original full payload) as variables]
+
+So we have batch size, counter variable and collection. What is the root message? Root Message Variable Name. As soon as For Each starts, two variables are created: one is the counter variable and the other is the root message variable. What is the root message? As soon as the input arrives, it creates another variable and saves the For Each's input in it. For example, 1, 2, 3, 4, 5 is the input for this For Each; it creates a variable called rootMessage and saves 1, 2, 3, 4, 5 in it. And the counter for each iteration. So how many variables are created? One for the counter and one for the root message. Are they available after the For Each is done? They are available until the For Each ends; once the For Each comes out, they are killed automatically. The system creates them because it needs them for the For Each process in the background, and when the process is done, it kills them. Is this clear to everyone?
+
+If you remember, I told you one thing: I give the payload as input to For Each — and what will be after the For Each? The payload will be there. Why? Tell me. Because of this root message. The payload is saved into the root message, and that payload is available outside the For Each — no need to do anything else; it isn't overwritten. Do you understand? The input before the For Each is available after it, because the root message variable takes the input, saves it and uses it throughout the For Each process. So it doesn't overwrite anything.
+
+Now the counter values. What is the payload here, before? Now the For Each starts: the root message gets 1, 2, 3, 4, 5, batch size 1. In the first iteration, what is the payload? 1. Can you configure For Each confidently now? There's nothing more to it than this.
+
+— Sir, one more question: if we don't define the collection, it takes payload. So the root message is not always the payload?
+
+Not always. If I pass a variable here, that variable's value is in the root message.
+
+— Okay.
+
+Next, in the first iteration, the payload is the first item, then the second item — we already have the idea. Now I can drag any number of components in here. The first employee is done with these three components, then the second employee with these three components, then the third…
+
+So 1, 2, 3, 4, 5: it completes 1, then 2, 3, 4, 5. If 3 breaks, 4 and 5 stop. With error handling, even if 3 fails, 4 and 5 are processed.
+
+[drawing: after For Each the payload is the original collection again — results must be collected in variables]
+
+Why these empty variables? I'll tell you again: two empty arrays — one success response and one error response. One more point: there is no response from For Each. It just completes the activities. Remember that.
+
+[screen: DB Insert: insert into EMPLOYEES_INFO values (:emp_id,:emp_name,:emp_status,:emp_salary,:emp_designation) with "emp_id": payload.empId as Number …]
+
+What is my use case? Insert the list of employees into the database. We use the Insert operation — we know it — inserting into a table, passing all the information with input parameters / named parameters, with a logger before and after insert.
+
+[screen: Success Response (Transform to a variable): vars.successResponse ++ payload]
+
+[screen: Error Response in On Error Continue: vars.errorResponse ++ payload ++ {"errorReason": error.description}]
+
+And observe — I used these variables. Outside the For Each, I created a variable called successResponse, and I use it again inside. Why? What does this operation do? Store the payload into the array. Is it an empty array? After the first iteration, the first employee came and the insert is done. When it comes here, the same variable is used inside — and it's an empty array at that point. And what is this payload? The initial request? Not initial — the payload in the first iteration: the first employee. Or rather the response coming from this insert — the payload is overwritten. I add that payload here with ++. For this empty array, this payload is added. First iteration, second, third — added each time. I'll show you practically.
+
+If an error comes: I'm using Try, with On Error. The first succeeds, the second succeeds, the third fails. If it fails, here comes the error response: I created an errorResponse variable and use it here. All the processes are done. Then I gather the responses and send them.
+
+[screen: Final Response: {"success": vars.successResponse, "error": vars.errorResponse}]
+
+That's the use case: process the list of employees and send back clearly the processed ones, the failures, and which employees failed. My response should say which employees failed and which succeeded. That's why I do it like this.
+
+[screen: for-each-demo-7303 flow: Listener → Logger → For Each [Logger → Set Payload → Logger] → Logger]
+
+Before that use case, let's do a simple one. Take a variable — I created one named initialPayload with 1, 2, 3, 4, 5, and among the numbers I put a string, deliberately. What am I doing next? Multiplying the payload by 10. Let's do this simple case. New flow, drag-drop For Each, printing payload in the logger, path /foreach. In For Each I multiply. Loggers give us a better understanding. The first logger inside prints payload; then Set Payload — since it is a simple calculation — payload * 20; then another logger. What is the requirement? If we get a list of numbers, multiply them. Simple. Then say it's successful and send it. Is everyone ready? I debug with a breakpoint and go to Postman.
+
+POST http://localhost:8081/foreach, body raw JSON, an array of numbers. First I'll send all numbers, to succeed: 1, 2, 3, 4, 5 — fewer iterations is easier and quicker. In the previous example I created the input inside the application; now I send it from outside. It's still deploying. Now I hit it.
+
+[screen: Debugger inside For Each — counter, rootMessage and the current element as payload]
+
+The request has come. What is the payload? 1, 2, 3, 4, 5. Attributes — small attributes. When it goes into For Each, it ignores the attributes — most of the time they're not helpful there. Is there any variable? Did I configure the For Each or leave the default? Default. And see whether the payload is taken as the input. The variables are created: rootMessage and counter. The collection: payload, 1, 2, 3, 4, 5. We didn't create any variables, but two variables are created here.
+
+If I open rootMessage, inside there's a typed value — is there a value? Yes, the payload. So it saves the payload in a variable called rootMessage — it has many fields, but the payload is in the typed value. Next, see the payload: For Each went in and is in the first iteration. Of the array 1, 2, 3, 4, 5, is it the first one? Yes, 1 is the payload. And the counter: 1. So in the first iteration we have clarity. In the console the first logger printed 1 — and this logger printed 1, 2, 3, 4, 5. Remember that.
+
+Next, 1 × 20 should happen. Did 20 happen? See — it happened. Is the payload overwritten? I'm doing Set Payload — overwritten. Now I print payload — will 20 or 1 print? 20. Check the console — it's printed. Now the second iteration starts again. Did it go out, or did the second iteration start automatically? Automatically. What is the payload for the second iteration? 2. The counter is 2. Any change in the root message? No.
+
+— So the counter starts from 1?
+
+Yes, from 1. Now 1, 2, 3, 4, 5 — the second iteration is happening; third — the same, I won't repeat; fourth; fifth. Will it go out after 5, or come back again? 5 is completed. Look — notice whether the two variables are still there. They are. So whenever you start a For Each, the system creates two variables, rootMessage and counter; once the For Each completes, the system removes those variables automatically — like a Remove Variable in the background. Until the process is done, it keeps the two variables, then kills them. Simple.
+
+Now what is the payload? The initial payload — the one in front of the For Each. Why? Because it took the root message and processed with it, it doesn't overwrite. Understand? And there is no output from For Each — no response. So in an interview, if asked what the payload is before and after For Each: there is no change. If asked why, you can give these reasons.
+
+I sent it and it processed. What is the response — did it come here? The same payload came back.
+
+Now my question: if I create a variable inside, how does it behave outside? If I create a variable outside and modify it inside, how does it behave? Those are my questions.
+
+Also: processing is sequential — in the same order as in the array. Now I send numbers and two strings. First payload: 1, crossed; 2, crossed; then the string came. It goes in the same order, not randomly like 1, 2, 3, 5, b, a. It's sequential. Remember that. Why do I repeat all this? Because we forget everything; I repeat it multiple times so it is imprinted in your mind.
+
+[screen: Postman POST /foreach with [1,2,"a",4,"b"] — testing a failing element]
+
+[screen: Error for "a" — "You called the function '*' with these arguments: 1: String ("a") 2: Number (20)"]
+
+Now we have "a". "a" × 20 fails. Will the process stop or go forward? It stops. See — 1 and 2 are done; it came to "a" and failed. Check the console: payload; then 1 and 20; then 2, 40 printed; then this logger — after which nothing could be printed: it broke here. Then the error. After "a" — whether 4, 3, "b" or 5 — these are not processed; "a" broke it. When an error comes, it stops the process right there and goes to error handling.
+
+[screen: For Each with a Try scope and On Error Continue — the failing element no longer stops the loop]
+
+It should not happen like that; it should continue. How? I wrap it in a Try, with On Error Continue, and just log it. What happens now? "a" comes, fails here, prints here, continues; the next iteration starts and takes 3; completes it; "b" comes, fails here, prints here; the next iteration completes and it goes out. I take a simple example first so it's easy, then a little more complex one.
+
+I hit the request. Second iteration, third iteration — "a" failed, it went to On Error Continue. See, the 4th iteration started and 3 came. Next iteration "b" came — "b" failed. Next iteration 5 came. Printed out. 1, 2, a, 3, b, 5: 20, 40, then the error at "a" — the error logger in On Error Continue prints it — then 3 goes, 60; then "b" comes, the error logger prints again; then 5 goes, 100. And it's done.
+
+How do I know which succeeded and which failed? Create a variable and store each response. How? The counter variable only counts iterations. My question is which failed — not which iteration; we need the actual numbers.
+
+[screen: Set Variable inside the loop to collect results (successResponse / errorResponse arrays)]
+
+If I take the payload, it's overwritten here every time. Say I create a successResponse variable inside with this payload. First, 1 × 20 happened — will it be 20? Yes. Then the second iteration: 2 × 20 = 40.
+
+— So for the empty array, first 20 came — array of 20. When the second iteration comes, 40 — 20 plus 40 added to the array?
+
+It will try to add to the array, but every time we initialise the empty array again inside. Do you understand the point? Let's try it and see. Let's keep this empty for now. You understand the complication: if you do it inside, you can't initialise the variable there — it gets overwritten.
+
+I hit it; the request has come. It would be nice to put a logger. How many values should be saved in this variable? Array of 20. Then "a" — see, it's overwriting: without the previous iteration's value, only the current iteration comes. Error — what is the variable now? errorResponse is "a". When it comes down again, it overwrites again. At the end, successResponse is 100 and errorResponse is "b".
+
+So what did we understand? If I create a variable inside the For Each, it is accessible outside — that's the first point. And its value is from the last iteration. Clear to everyone?
+
+— Yes sir.
+
+The variable created inside For Each is accessible outside For Each. And its value is the final iteration's value. Can we get all the successes we want? No, we can't that way. So if you create a variable inside For Each and modify it, the last value is available outside. I just showed you that for when you get such scenarios. But our main intention is to know what succeeded and what failed.
+
+So now I take a Transform Message outside, before the For Each, and create two variables there: successResponse and errorResponse, as empty arrays. Otherwise it gets overwritten. I delete the one inside; only the two variables remain, and the payload is deleted. A variable created outside is accessible inside the For Each — I'll show you.
+
+I have to aggregate the success responses and error responses and show them. How? Inside, I define the successResponse variable with the same name: vars.successResponse ++ payload. This is the outside variable — I'm overwriting the same variable name. In the first iteration: empty array plus 20 → [20]. In the second iteration, plus 40 — the item is added to the array → [20, 40]. Third iteration, again vars.successResponse plus the new value. The same for errors: errorResponse.
+
+Why am I concatenating? Tell me: this is an array and this is a number. Can you concatenate an array and a number? With ++ the number is added into the array. Here the empty array plus the payload string — remember, when the string comes here it fails — in the error handler I add the string item into the array. That's why I use ++ here. Now these variables are accessible outside, so I put a Transform Message at the end, JSON.
+
+— Can we give a different name inside the Set Variable?
+
+If we give a different name — think about it — the outer one isn't accumulated. Here we use the same one; otherwise each time it would start from the empty array again. That's why we use the same name. If you do all these things, you'll get a lot of doubts. When you get those doubts, practise and make scenarios; that's how you build confidence.
+
+So finally, since these variables are available outside, I set the payload to send the successful and failed records.
+
+[screen: Postman → 200 {"successResponseResults": [20, 40, 80 …], "failedResponseResults": ["a", "b"]}]
+
+It's deployed; I run it. See how many variables there are: counter, rootMessage, plus successResponse — [20], because 20 was added to the empty array. After the first iteration successResponse is [20]; then 40 is added to [20]. Do you understand? Is it overwritten each iteration or accumulated? Accumulated. Why? Because I initialised the variable outside, and since I kept it empty, I can accumulate the success responses and the error responses. If you initialise it inside, it gets overwritten. That's the explanation of why it doesn't work inside and why it works outside. The interviewer may ask: there's no response from For Each — I want to send the aggregated success response and aggregated error response; how do you achieve that? Tell them: initialise two different variables, a success response variable and an error response variable, and aggregate the responses with the same variables inside the For Each — one in On Error Continue and one in the actual process — using the ++ symbol to accumulate.
+
+See the error response variable: empty — the outside variables are accessible inside; we have clarity. Now it goes down again; see the variable: errorResponse has "a". Then it accumulates: "a" plus this payload, "b". So "a" and "b". You can check the logger too. Next it iterates and comes out. Now two variables have been killed and these two are available. So variables created outside and modified inside are available as the modified variables. What is the propagation of variables in For Each? We get the modified value. If asked: "I sent a variable into For Each and modified it inside — what is available outside?" The modified variable. The payload stays the same payload. Did we reach the target? Yes. How did we set the final response — did we get it correctly? Yes.
+
+So instead of expecting a response from For Each, we initialise empty array variables, accumulate into them and send them. That's how you have to handle it. What about other people?
+
+— What if you give a Flow Reference inside?
+
+It goes there, does that and comes back here; completes, then the second iteration, third. That's how it works — synchronous: go there, do it, come back, then the next iteration. That works when you need it.
+
+We don't go to this depth in real time; when we get the use case, we do a POC and understand. If you do it while practising, you'll have it in mind, and when you get the use case you'll understand it easily and move forward. Any questions? If there are no questions — tomorrow we'll do this with the database use case as well; I won't take more than 10 minutes on it.
