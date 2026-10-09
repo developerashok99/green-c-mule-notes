@@ -1,0 +1,192 @@
+MuleSoft Telugu Course — Day 49 (cleaned transcript)
+Source: transcripts/day49.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day49 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+In the previous session we discussed For Each in detail and looked at it practically. But practically we took a small scenario — small data, an array of numbers — for our basic understanding of what happens in For Each and how it works in MuleSoft and Anypoint Studio. We also understood the propagation of variables: if a variable exists before the For Each, how it behaves inside and when it comes out; and if a variable is created inside, how it behaves outside. We learned all of these.
+
+[screen: foreach-db-insert-demo: Listener → Start Logger → Is not empty collection → Transform → For Each [Try: Before DB Insert Logger → Create employee records into DB → After DB Insert Logger → Success Response; On Error Continue: Fail Logger → Error Response]]
+
+Now let's take a real-time use case. We have a REST API, and for it we get an array of employee details. We can implement it in multiple ways. Basically: insert it into the database. We get an array of employees, and I have to insert them into the database — I can insert record by record, or [unclear]. We insert into the database, capture the successes and failures, and handle errors — so we use a Try scope inside For Each and capture the successes. That's our use case, and we can implement it in different ways. [unclear]
+
+You need to check the performance as well. Before going live, test with around 5,000 or 10,000 records. Who tells you how many records you will get — how many requests per day or per hour for this API? The business requirements: the business analysts or business team have to state it in the document. If they don't, at least we should have an expectation of how much our API will get and work according to that. This is called a non-functional requirement, and it goes in the document. Based on it we do performance testing. For example, say I get 5,000 requests per day; per hour, divide by 24. Increase that and do performance testing: if we get that many requests, can our API handle it? Then we allocate memory, and do performance testing for the number of cores and number of workers. That's how it works.
+
+First, the listener configuration — we have all these ideas. What did we do here? We checked whether an empty collection is coming, with the Validation module; if it is, we show the error message. Then I created two variables, successResponse and errorResponse, initialised as empty arrays. I use them in the For Each to capture which records succeeded and which failed. Then a logger before the DB insert, a logger after the DB insert, and a logger in the failure path, and I capture the success response and error response. What is the expression for capturing the success response? vars.successResponse — the same variable name — ++, concatenating the payload. And here the same: vars.errorResponse ++ payload ++ the error reason.
+
+[screen: DB Insert inside For Each: insert into EMPLOYEES_INFO values (:emp_id,:emp_name,:emp_status,:emp_salary,:emp_designation)]
+
+Now I have a doubt whether this will work properly. Can you tell me? After the insert, what is the response?
+
+— The array of employee records?
+
+Does that work properly? After the insert, one row is inserted each time — the response says one row was inserted, maybe some extra details — but you don't know which record got inserted. My motto is: which records were inserted in this scenario. In the previous scenario I wanted the result of each iteration. You get the point? Think along those lines.
+
+In this scenario, the employee ID isn't in the insert response. How do we capture it? It's in the root message — in rootMessage's typed value; you can capture it from there. That's a good option. Another option: say I put a target variable on the insert — then the payload is not overwritten here, and we take payload.employeeId. That's one option. Another: a variable set before inserting, with the employee ID. So: target variable, root message in For Each, or a regular variable. If you have an idea of variable propagation and payload propagation — that's how your mind has to work.
+
+Since the response from the insert is not very important, I put it in a target variable. Where is the target variable? In the Advanced section. This is the DB response. What will the payload be here — all the employee details? Yes. Do I need everything or only the employee ID? Only the employee ID. If I get 100 records, accumulating 100 full employee details would be a waste. So I capture only the employee ID.
+
+[screen: Input parameters: emp_id: payload.empId as Number, emp_status: if (payload.empStatus == true) "active" else "inactive" …]
+
+How should the request be sent? Employee ID, employee name, employee status, employee salary, employee designation.
+
+— Why as Number? Because if a string comes, it converts it?
+
+One second, I'll tell you. [unclear] It will be in our sample, right? Which application? HR employees, 7303. In this application, in the insert. Let's go to src/main/resources. Did the API spec come here? Where is the RAML? Here — it's like a JAR. I went inside the RAML: there are examples. This is POST — the POST request example; it has the designation too. But we need an array of objects. If you remember, the GET returns an array of objects. Seems we made a mistake and copy-pasted something — ah, the POST one is a single object; correct for us, we made it single. So I use it and make an array of objects: add a square bracket at the start, one at the end, commas in the middle, and multiple objects: Ctrl+V, comma, Ctrl+V, comma, Ctrl+V. The data is formed. Beautify it.
+
+[screen: Postman request body: an array of employee records (empId, empName, empSalary, active, empDesignation)]
+
+We have to change the data. Can you help me? The employee ID — why change it? It should be a unique number. Which database am I using? MySQL.
+
+[screen: Database Config (MySQL Connection) for the demo]
+
+[screen: MySQL Workbench — EMPLOYEES_INFO rows before/after the run]
+
+I go to MySQL Workbench to form the request: select * from employees_info. We're on the mule DB and it is active. Let's check the employee ID, name, status and designation columns. I change the values and beautify.
+
+[screen: Success Response: vars.successResponse ++ [payload.empId] (collect inserted IDs)]
+
+[screen: Error Response in On Error Continue: vars.errorResponse ++ [{"errorReason": error.description} ++ payload]]
+
+Error response: [unclear] an array; in the second iteration something comes again like this; since I'm concatenating — [unclear].
+
+[screen: Error "Cannot coerce Array ([]) to Number" — payload.empId as Number evaluated on the whole array instead of one record]
+
+Now I hit the request. Mule Debugger: let's see the payload. "Cannot coerce Array to Number." It should be an object. I resumed. Batch size is default. Ctrl+S, done. Hit again. When I debugged it earlier, I overlooked it. Now see — it's an object: we got the first object.
+
+[screen: Debugger inside For Each — counter, rootMessage, current record as payload]
+
+There are five variables here. What are they? counter; dbResponse — the target variable; rootMessage; successResponse; errorResponse. What is in dbResponse? Any employee details? If we kept it as before, it would only be payload.affectedRows — we know one row was affected but not which employee was inserted. That's why we did it this way. Now see the successResponse: one record succeeded. Has it accumulated a value? After it comes here, yes. Let's say employee ID first — but not like this; we want the employee ID with a key. Then it's simple: put an object, give a key, value payload.empId. Then an array of objects comes one by one: employee ID 1000, then another object, 1001, and so on.
+
+[screen: Final response {"success": [1000, 1001, 1002, 1003], "error": []}]
+
+Second came; everything is done. Look — Ctrl+Z, Ctrl+N. Error? Nothing — empty array. Success. [unclear] It's easy for us to duplicate it to test the error. Now I'm sending it a second time with 1003 kept. Let's check in the database — 1000 … Now 4, 5, 6, and keep this 3 as it is. Which iteration should fail? The last iteration. Let me show the response in Postman.
+
+[screen: Second run: {"success": [1004, 1005, 1006], "error": [{… "errorReason": "Duplicate entry '1003' for key 'employees_info.PRIMARY'"}]}]
+
+Is it clear to everyone how we use this For Each?
+
+— Yes sir.
+
+[screen: Alternative flow with Bulk insert — Transform payload map … to a list of records, then one Bulk insert]
+
+[screen: Bulk insert: insert into EMPLOYEES_INFO values (:emp_id,:emp_name,:emp_status,:emp_salary,:emp_designation) — one call for all records]
+
+Now look here: another For Each, with batch size 2, and a Bulk Insert. We gave the payload to the bulk insert's input parameters. What did we use? The map function. Why? An array of employee details comes, and we have to transform all of them: change every key in a different way — empId to emp_id, empName to emp_name; and employee status — make it active/inactive. An array of objects comes, and we change all the details in every object. With an array input, to change every item, we take the map function and write the transformation.
+
+Why? We're inserting in bulk. We have an array of 4 employees here; with batch size 2, each iteration gets 2 employees — an array of 2. We transform that array of 2 with these keys, change the status, and now it's an array of two employees matching the database. We map everything with the named parameters, keeping the same order as in the query. So: first time two employees are inserted, second time two more. If I send four — two inserts. If I send ten — five inserts. If I send nine — the last insert has one employee. Did you see? With batching, the transformation is different and the component is different. That's what we should observe.
+
+Let's run this one too. I put 3 here [unclear], add a breakpoint. The next IDs are 7, 8, 9 — let's check the database: no 1007–1009, only up to 6. I trigger the request; received. What type of message is it? An array — an ArrayList. Since it's an array, I put the transform with map. And observe: the two employees in this batch — 1007, 1008. Did the order change? See — it picks from the first one. That's why I highlight this point multiple times.
+
+[drawing: For Each scope — payload, vars and the modified result coming out]
+
+[drawing: For Each = sequential, one DB call per record (stop/continue on error) vs Bulk insert = one call]
+
+[drawing: DB connection lifecycle — create connection, establish, insert record, close connection]
+
+A normal insert does only one record. Now the database operation: we get the request; this is the DB and the DB connector. First, create a connection; next, establish the connection; next, do the activity; then close the connection. Right?
+
+— Yes.
+
+It does it sequentially there too, fine. Here, with five records one by one, I am creating, establishing and closing the connection five times. With bulk, only one time instead of five. Is time saved or not? That's the difference. Performance will be good and you get the results faster.
+
+Now the second iteration: what is the size? Only one — but still an array: an array of one object. I gave three objects with batch size 2: first time two, second time one. Is it clear to everyone?
+
+— Yes sir.
+
+The process is over; I check the database. This is how For Each works. Any questions on For Each? No problem, I'll take it as no questions.
+
+Summary: we gave the scope's input payload. How is the payload after For Each — does it get overwritten? We are talking about the scope, not inside. It doesn't; that's why the payload is the same as the input. Clear? Next: I created two variables before the For Each, variable 1 and variable 2, and modified only variable 1 inside. How is variable 1 after the For Each? Modified — that's what I wanted you to understand. Variable 2, not modified — same as it is. And a new variable created inside For Each — is it there after? It is, because it's a new variable. Now, in an interview, could you answer such questions easily? That's payload and variable propagation. Some people ask: the payload goes in and comes out — why isn't it overwritten? Because there is something called the root message: the input is stored in the root message and each iteration's payload is taken from it. And which two variables are created for the For Each process? The counter variable and the root message variable. Keep this summarised in your mind. Those two variables don't come outside: root message and counter are removed when the For Each completes. We went into the depth that is required.
+
+[drawing: Agenda: Parallel For Each — propagation of payload and variables, error handling, max concurrency, differences from For Each]
+
+Next we move on to Parallel For Each: propagation of payload and variables in Parallel For Each, how to handle errors in it, a property called max concurrency, and the difference between Parallel For Each and For Each.
+
+Look at the names: why For Each and why Parallel For Each? In For Each we take the records — depending on the batch size, 1 or 2 — and process them. In Parallel For Each we process the records in parallel. Say we have 100 records; I can process them in any order. I don't want to do them one by one; I want them in multiple routes, done quickly. So I go for Parallel For Each.
+
+For example, I get 100 records and send them to For Each, and each record takes 150 milliseconds. How long for 100 records overall? 100 × 150 — 15 seconds. What does For Each do? With batch size 1, it takes the first record, processes it, then the second, then the third. In Parallel For Each there's a factor called max concurrency. Say I give max concurrency 5. Basically, 5 routes are created — you can process 5 messages at a time.
+
+— Like Scatter-Gather?
+
+Yes, like Scatter-Gather. Five threads are created, each thread with a record. In which order are they processed? Randomly — we don't know the order. So 5 records are done at the same time, in 150 milliseconds, across 5 threads. [unclear] So for 100 records it takes roughly a fifth of the time.
+
+There is another small point. In Parallel For Each, every iteration's response is captured. Is that so in For Each? No — we accumulated manually, if you remember: created an empty array and accumulated into it. In Parallel For Each it's different: with max concurrency 5, the responses of the first batch are captured, the second batch's are saved, and so on; not in order, but captured here. What is the downside of this capturing? We know the advantage: the system automatically does the extra work we'd have done. The downside: memory is consumed — more memory. Because of that, we can do it only up to a certain level. After that level? An out-of-memory issue. That's a disadvantage. Then we take that and do batch processing.
+
+Do you understand? Many people say: when should we go for For Each? With a small number of records, up to 1,000 or 2,000. With Parallel For Each — we give the worker size; is the memory allocated 500 MB or 1 GB? Is it sufficient, or will it be exhausted? That's important. If it's not sufficient, we should go for batch processing — how batch processing works is a different topic; keep it aside. One disadvantage: Parallel For Each consumes a lot of memory, because every iteration's response is saved. If we do it ourselves, we store only what we need; when the system does it, it stores everything. Even in MUnit, when we did it manually, how little we created — versus how many variables, payloads, mock payloads and mock variables the system creates while recording. In the same way, Parallel For Each captures everything. If we keep batch aside, that's the clarity here: Parallel For Each saves every iteration's response.
+
+[drawing: For Each single-threaded, stops on error, sequential vs Parallel For Each multi-threaded, waits for all, aggregated response in random order]
+
+Now did you understand the difference between For Each and Parallel For Each?
+
+— Yes sir.
+
+If asked the difference, what would you say?
+
+— For Each runs only in sequential order.
+
+For Each is single-threaded; Parallel For Each is multi-threaded. For Each takes more time; Parallel For Each takes less. What happens on an error — what's the difference? For Each stops the process and propagates the error. In Parallel For Each: there are 5 threads running, and the third thread has the issue. It waits for the first, second, fourth and fifth threads to complete, and then stops and propagates the error. Say there are 100 records: in the first iteration all 5 succeed; in the second iteration, 5 threads; [unclear] in one there's an issue — it waits for the others to complete and then raises the error, and doesn't go on to the next iteration. Any confusion or doubt?
+
+— No.
+
+So it stops the process and then propagates the error. For Each processes the records sequentially: 10, 20, 30, 40, 50 — because this is first, this second, this third, we process and put them one by one. Now I send 1, 2, 3, 4, 5 to Parallel For Each. How will the aggregated response come? Tell me.
+
+— Randomly.
+
+— No, in the same order.
+
+[unclear] These are the main important points to remember. 10,000, 20,000, 30,000, 40,000 records — okay, no problem. But if you are hitting 50,000, 1,00,000, 20,00,000 and so on, you go to batch processing. The point is it depends on the use case. We are discussing the knowledge now; based on it we decide which one to go for. Same point: it splits the input and processes, then aggregates. See — split, process, aggregate. Another point: does Parallel For Each consume more memory? Yes. For Each consumes less memory compared to Parallel For Each. That's also one point you can make.
+
+[drawing: [1,2,3,4,5] split and processed concurrently — total time = slowest record, aggregated response]
+
+[screen: parallel-for-each demo flow: Listener → Start Logger → Set Payload [1,2,3,4,5] → Parallel For Each [Try: Logger → Transform → outsidePFE …]]
+
+There is a Parallel For Each scope; we drag-drop it and work on it. First let's understand. This is a listener configuration; we'd send input from outside, but here we send it from inside. What are we sending? An array of strings and numbers. I created a variable outside, with the variable value and name the same. A transformation. Inside, I created a new variable called insidePFE. Then I print the payload. When an error comes, On Error Continue; and the next Transform Message prints error.description.
+
+What do we need to discuss here? Collection — do we have an idea? If you don't give a collection, what does it take? The payload. Clear for everyone. If you want to give a variable, give the variable — or something inside the payload, with an expression. Timeout — what's that? It should finish within that time; like Scatter-Gather, per route. What is max concurrency? Maximum level of parallelism. Based on the operations inside the Parallel For Each, it is set automatically and taken care of. If I have to define it manually, there's a formula; we'll discuss it at the end. You shouldn't give it randomly as you wish — 100, 200, "I'll give 10,000". There's a separate calculation. Max concurrency creates the parallel threads, and each thread processes one record — that's what happens in the process.
+
+Next, what is Target? Like each HTTP request or database request has a target variable in Advanced, this component has an option to save into a target variable too. And remember the points we were talking about — in For Each, how the variables and payload are modified. In Parallel For Each, by default, does the payload change? Yes: the payload is overwritten. I'm writing that point here; we'll discuss variable 1 and the rest after we see it practically. If it's the payload, by default it is overwritten — if you are not defining a target variable.
+
+Let's deploy. Path PFE. Debug — a breakpoint here. It says another application is already running; stop that first.
+
+What you have to do: implement the same database use case with 100 records. Hit it and see the overall response time; see how much time it takes with Parallel For Each. Set up 100 records; the same process in Parallel For Each — we did DB inside For Each; implement it in Parallel For Each and capture the time. Not in debug mode — in run mode. Send 100 employees through For Each, then 100 through Parallel For Each. The response time shows in Postman when you hit it — or rather, capture a time: put a log print at the start and at the end; the difference gives the total time. Then capture it for Parallel For Each. How much time did each take? That's the assignment for you people; tell me in the next session what your observations are.
+
+[screen: Console logs — each record processed on a different thread (CPU_LITE / processor threads)]
+
+It's a simple payload; it calculates everything simultaneously. We don't see it properly in debugging. But if it's random order, we get clarity. Did you see? Did it go inside and process? It only shows the Try above — 5 times. How many times did it show? I think more times. All the threads were created. Let's see once. I think 5 threads are created. Look at this "uber" — these are called threads in general. How many? 4, b, 5, 1, a — 5 logs printed. 5 threads are created based on my system's capacity, and these 5 threads process 5 records.
+
+A variable has been created here — you can see its value. For this iteration only outsidePFE is there. Now see: in the order — the clarity that it's not in order came here; it's happening randomly. It's happening a little differently — how can debugging show five threads at the same time? That's what I mean. outsidePFE is there; next insidePFE — not yet created here. Inside — modified, good. But when the Parallel For Each comes out: what is the variable? The same value it had before the Parallel For Each. The variable is modified inside but it doesn't change outside. That's another difference you can mention.
+
+[screen: Parallel For Each output — array of Mule messages (payload, attributes, exceptionPayload) in the order given]
+
+Did I define a target variable? No. Will the payload be overwritten? Let's check. What was the input before? 1, 2, 3, 4, 5. Is that the payload now? There's something else — some typed value and other things. What is it? Aggregated responses — you can see them. Which media type? I'm converting it. This is the first record: inbound attachment names, exception payload, inbound property names, many other attributes. Then the second iteration. So one object is created per iteration. Say 10,000 records — 10,000 objects are created. Here 1 to 7 — an array of 7 records, 7 objects. What's in the second object — a body? And the third — "a".
+
+[screen: One record failing ("a" * 10): its error text is kept in that element's payload, the others succeed]
+
+"You called the function '*' with these arguments: String "a" and Number" — that's what's in it.
+
+[screen: Postman → 500 "Expecting Array or Object but got Null" when a variable set inside PFE is used outside it]
+
+Not available — "Expecting Array or Object but got null". I resume. It came out. The employees variable is the same; the outsidePFE variable is the same; the payload is overwritten.
+
+[drawing: For Each → new value / payload / modified vars; Parallel For Each response overwrites payload, new vars not accessible outside]
+
+Now back to our PPT. The payload is overwritten — we've seen it. Variable 1 is outside the Parallel For Each and I modified it inside — did we get the modified or unmodified variable? Unmodified. Why? Can you give me an idea?
+
+— The process is happening in parallel — randomly.
+
+Exactly. Something is modified inside; after the Parallel For Each comes out, we get the original. With 10,000 records processed with no clarity on which comes first and which later, it doesn't capture all of those modifications. That's why — unlike For Each, where you get the last iteration's modified value — there's no option here, so we get the unmodified variable. And a new variable created inside the Parallel For Each has no outside access: not accessible outside. If we compare the two, these points are clear. Is it clear to everyone? Any doubts?
+
+[screen: Task Manager — CPU cores (used to pick Max Concurrency)]
+
+[drawing: CPU-intensive tasks: max concurrency ≤ number of cores; blocking (I/O) tasks: ≤ cores / (1 − blocking factor)]
+
+Now max concurrency — if you leave it default, it takes it automatically. I'm dividing it two ways. First, the formula for CPU-intensive tasks — a little more DataWeave, DataWeave-related work: max concurrency is less than or equal to the number of available cores. The system decides how many cores are available and makes it equal to or less than that. Where are the cores identified? On my system, my system's cores; when deployed, the cores of that server. Say number of cores is four: for DataWeave-related tasks, max concurrency ≤ available cores — on my system 4 threads or less: 3, 2 or 1.
+
+Then blocking tasks — that's the other one, apart from CPU-intensive. What are they? Input and output: database, HTTP request, Salesforce — connecting to external systems. The formula: max concurrency = number of available cores ÷ (1 − blocking factor). What's the blocking factor and how do we decide it? It should be greater than 0 and less than 1. Why? If it is 1, 1 − 1 is 0 — not correct. That's why the blocking factor varies between 0 and 1.
+
+[drawing: 4 cores, DB wait 100 ms of 400 ms → blocking factor 0.25 → 4 / 0.75 ≈ 5.3 threads]
+
+For example: 4 cores, and of 400 ms, the DB wait is 100 ms — blocking factor 0.25. 4 ÷ 0.75 — let's calculate — about 5.3. So almost 5 threads are created; we run it with 5 threads.
+
+If you understand this — if you give 100 randomly, it may "work". But if you have to restrict it, you have to know how much to restrict or how much you can give. The formula itself isn't critical, but you should know it. For example, in an interview — "I want to give 100 as max concurrency, is that okay?" You should have an idea; you shouldn't give 100. There is a formula — even if you don't remember it exactly, you should say we don't give 100 or 200 randomly; we go according to the formula. That's why I'm discussing it.
+
+In recent interviews with people of 5 to 10 years' experience, I've asked: "I want to give max concurrency 100 — will it work?" Very few people answered. Why do I ask? With 5 to 10 years of experience, they should have a good grip on performance and everything. Without that grip, they won't be able to handle certain challenges. That's why there's scope to ask such tricky questions. This is Parallel For Each. Any questions?
