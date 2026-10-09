@@ -1,0 +1,198 @@
+MuleSoft Telugu Course — Day 47 (cleaned transcript)
+Source: transcripts/day47.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day47 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+[screen: Course module list (Notepad++) — remaining modules: File/FTP/SFTP, Object Store, Routing, JMS, Transformation, Scopes, Salesforce, CI/CD, AWS S3, HTTPS]
+
+Just before proceeding with the session, let's check which topics are pending. We completed SOAP, right?
+
+— Yes.
+
+This is completed. This is pending. Object Store is pending. We completed Scatter-Gather? Yes, completed.
+
+[screen: Module status update — DWL concepts done (Flatten and Flatmap pending), Salesforce connector operations: Create, Query, On New Object]
+
+In DWL only CSV and XML are pending; the rest is completed — how to handle CSV and XML data — and I forgot to mention flatten and flatMap too; I'll discuss those two as well, if I remember. The rest of DWL is completed. We completed the Async scope. The Salesforce connector will be done by today. These are not done yet: For Each, Parallel For Each — all pending. Deployment is pending. S3 is also pending.
+
+Now back to Salesforce. What did we do with the connector? We did only one operation, if I remember correctly. From these objects — whether we insert data, retrieve it or delete it — the language is SOQL, Salesforce Object Query Language. It is similar to SQL, almost the same with small differences, and the output is in Java format. We did the select; an array of objects came; we converted it.
+
+[screen: salesforce-account-demo: Listener → Logger → Transform Message → Salesforce Create → Transform Message → Logger]
+
+Now, the same way, we have to insert a record. How? There is a Create operation. In the Salesforce module, select Create among the operations and just drag-drop it. Then — if we don't know details like mandatory fields, optional fields etc., obviously we can't do the job exactly. What the Salesforce development team does is provide all the object details in an Excel sheet or Word document, in a table format: what is mandatory and what is optional. After they give us the details, we must send the mandatory fields compulsorily. Generally we have a mapping sheet for inserting data into the Salesforce object, with the optional and mandatory fields, and we get the details from our side. For example, if Salesforce has a mandatory field and the data we receive doesn't have it, that's a problem. So when we discuss the use case end-to-end, we expect the compulsory details from our source and inform them. If we can enrich it and send it, we try to. We have to send all the mandatory fields and map them properly as per the mapping sheet.
+
+[screen: Create operation: connector config Salesforce_Config, Type Account, Records payload]
+
+What am I doing here? Checking the configuration. There is a Type. What does it do? We select our object here. As soon as we refresh, a drop-down comes automatically. If the drop-down doesn't come properly, what do we do? Take the object's API name and enter it in Type. Records is given as payload. [unclear]
+
+[screen: Transform to the Salesforce format: payload map ((item, index) -> { Name: item.name, AccountNumber: item.accountNumber, AnnualRevenue: item.annualRevenue as Number }) with output application/java]
+
+What I did was put a Transform Message before it. Let's see what's in this Transform Message — using the map function. What is the output type of this Transform Message? Java. Did you observe? I am sending Java to the Salesforce Create. If I send JSON format, will it work? Generally they say it won't, but… there will be a problem if there are date formats. In my experience, apart from date formats — if there are no dates anywhere — both Java and JSON work. But when we send a date, in JSON it is a string, while in Java it is a date type. Where a date is expected and a string comes, there will be a conflict and a problem with the insert or upsert. That's why many people say only Java works and JSON doesn't. Is there a date here? No. Since there's no date, JSON would also work. You try it once. You got the point I'm trying to convey?
+
+— Yes sir.
+
+What about other people?
+
+— Yes sir.
+
+Whenever we want to insert data, it is always good practice to have the data type as Java, not JSON. We want to insert records into the Account object. I already selected the Account object. Since we know the mandatory and optional fields in Account, I have taken some details rather than all. If we want to map 10 fields, we note down all the details and then do it; I did it for only three fields.
+
+For example, I get a string here: in the input, annual revenue comes as a string. What does Salesforce expect? A number. What should I do then? Convert it to a number before sending. A number in a string means 1234 in double quotes — that's a string, right? But Annual Revenue in Salesforce is expected as 1234, not text. So I use the as function and change it to Number. Then there's no data type conflict between Salesforce's annual revenue and our source's, and it inserts correctly. If it isn't converted — it expects a number and gets text; [unclear]. I'm just telling you: if there is a data type conflict, we have to resolve it before sending.
+
+For Create, I set up the payload here, converted it to Java and used a map function. Why map? How does the data come? In an array. I am sending an array of objects here — see: name; this is one object. If there are 10 objects like this, an array of 10 objects goes. How many are you sending to insert? Say 10. Since an array of 10 objects is the same as an array of 500 objects, say we send an array of 500 objects. Will Salesforce accept it or not?
+
+— It will accept.
+
+There is a limitation: it accepts up to 200. You got the point? What should we do then? Split it and send it in batches. We got 500 from our source and Salesforce accepts 200. We can do it two ways. Divide into three batches and insert three times — one way. Or tell the source not to send more than 200 — if they say they'll handle it, that's the easy way. If they can't, we can't either. Another way is Salesforce bulk operations: if you select Create Job and the bulk operations, there's a provision to create a larger number of records. When we want to create a large number of records, it submits a job: if I send 500 records, it creates a job ID and submits it. The job will still be in progress — creating 500 records at once takes some time — and there is an option to give the job ID and check its status. So it is very important to understand the differences: when to use what. This is a very common issue. If you know this limitation, you either change it at the source or divide into batches.
+
+How to divide into batches? What happens with For Each? Every record is split and processed. If we mention a batch size — say we get 500 records and send them to For Each — For Each is a scope. I tell it to split into 150 records. It splits the array of 500 records into 150 and completes the operations inside. In the next iteration, another 150 form an array of objects; then another 150; then the rest. Each iteration.
+
+Now let's create records in our application. I'll send an array of records; how will the response come? Do we have an account number? No — we didn't have it when we selected, so I'll remove it. Which records should I send? The payload — I wrote the same payload here, copied it. I can do it two ways; I just wanted to show you. You can put the DataWeave directly in the Records field and write the function there. But how do they do it in real time? Most probably they have a Transform Message, Set Payload or Set Variable, and do it from there. Why? Can you tell me a reason? If I write it directly in Salesforce Create, can I put a logger and print what I am sending? For example, I put a logger here — what do I write in it? All these functions again: copy them from there to here. Instead, I put a Transform Message, and then the logger can print the payload. It's not mandatory, but that's why — at most you can externalize all these queries and put them outside the component.
+
+Now I'll be able to create. I deploy in debug mode and add a breakpoint. It seems it's not there — what did we do? Duplicate. SfdcCreate — there was an error. Let's clean the project once. It's going on.
+
+[screen: Postman POST http://localhost:8081/create with an array of accounts (name, accountNumber, annualRevenue)]
+
+SF create — make it a POST. Body: JSON, multiple accounts. We are sending an array of three account records. It takes the properties, iterates the properties inside each object and forms the request. I hit the request. How did the request come? The payload is an array of objects. Name and annual revenue are in the format we sent, but Salesforce expects a different format. AnnualRevenue needs capital letters, Name too. On the left side I mentioned what Salesforce expects and mapped it from our input. And the string you have to observe — annual revenue. payload.annualRevenue — a string. Now with as Number inside — evaluate — Number. Converted. Just understand that.
+
+[screen: Mule Debugger: the transformed Java payload going into the Create operation]
+
+Now see how the Transform Message converts it: to Java, an ArrayList — 0, 1, 2. Now we send it to the Salesforce Account object, insert it and get the response. How does the response come? That's important. In Java.
+
+[screen: Create response (Notepad++): items with success: true, Salesforce record id, statusCode, successful: true]
+
+It came. Look at this — how did it come? In Java, as we thought. It says items, size 3. Is it inserted or not? statusCode is blank… What is "successful" in the payload? true. If payload.successful is true, all three records you sent were successful. What if two of them fail? How do we know which record failed? That's why there are items here: see whether each item was successful. First record successful, second successful, third successful. Now, if out of three, two succeed and one fails — the third — what is its success? false. And the total successful? false. Why? Since not everything succeeded, the total fails.
+
+What do we do with this? If I convert it to JSON and check it properly, it's clear. Since I forgot, I'll do it in the Mule Debugger with the expression evaluator: output JSON, re-evaluate. Ctrl+C — Ctrl+1, Ctrl+2. See what happened: items in the payload — an array of objects in items. First object successful; second; third. How do I know whether the whole thing succeeded? I already told you, the first level: payload.successful. If that's true, is everything successful?
+
+[screen: Playground: payload.items.successful → [true, true, true] — reading the result of each record]
+
+— Yes sir.
+
+If I want to see whether the first record succeeded? payload.items[0].successful — index zero. This is the way we have to use it. Now everything is successful for me. If you want to write some logic with a Choice condition, that's fine; you already have the knowledge of the different components and connectors, so you can use them. If we have to send only one object? We send an array of one object. That is one thing.
+
+[screen: Salesforce All Accounts — ABC / DEF / XYZ Company records created from Mule]
+
+[screen: XYZ Company account record in Salesforce]
+
+Let's check in Salesforce. It says Recently Viewed; go to All Accounts — it has been inserted: ABC Company, DEF Company, XYZ Company. I can't see the annual revenue because I didn't put it in the display; I add Annual Revenue in "Select fields to display". We can mention any fields we want to display, and then we see annual revenue here. I'm selecting XYZ like this — you can select all the fields. See, that's none of our business; the Salesforce team will check and inform us whether the details were inserted properly.
+
+The insert is done; the response is OK. Will it fail now? Since it is an empty object, the response looks different — I kept Java as output, so it came unreadable; if I put the payload properly, it gives clarity. Now, in a small Transform Message, let's send a string for this annual revenue, without converting. If it's a number string, will it accept it? Let's check. GHI, HIJ, IJK Company — three companies; I'll send numbers as strings for two of them, not converting anything. We won't fail at the connector level; observe the response. What came? Everything inserted — Salesforce converted it intelligently. But there are some fields where it won't accept that. What do we do then? Convert it. Remember that.
+
+Now I go back to Salesforce: Object Manager (Open Advanced Setup → Object Manager) → Account → Fields & Relationships → Annual Revenue: Currency(18). Let's send more than the limit. This is X company, Y company, Z company.
+
+[screen: Debugger: "Failed to send request to https://site-customization-…my.salesforce.com" — SALESFORCE:CONNECTIVITY]
+
+What happened? An error: "Failed to send request" — SALESFORCE:CONNECTIVITY. No detailed description. This is an error we should not get. Payload — X company, XYZ, 1 — it was transformed; after that, while sending the request, we get the error. Let me send it again. What should come? An invalid input. Generally, the Create operation would insert the two other records and fail this particular record. But what's happening here? It doesn't give a relevant error; it shows a different, connectivity error. What will you do now? Tell Salesforce it shows a connectivity error. What will they do?
+
+[screen: Salesforce Config → Test Connection (Basic Authentication with username, password and security token)]
+
+— No, connectivity is also getting established; do a test connection.
+
+Say they told you that — you're getting misled, right? Exactly. Now I did a test connection — it connects, and yet it shows a connectivity error. What they do is check the logs on their side; there will be details in their log about which error — some data was wrong. They'll tell us to check, and there's scope for that. We need to debug like this: if we get a Salesforce connectivity error, check the connectivity; if it connects, it's not a connectivity issue, it's some other issue. Maybe an amount problem — the annual revenue. After connecting, they check their logs in detail — they'll have a provision for that somewhere; I'm not sure about it. The Salesforce developer gets into it, checks the user I used in the Salesforce connector, the logs related to that user, and gives you the information that the problem is here. But in general, what should happen? Success should come for the others, and one of the three should fail and come back here. Since that's not happening, let's try something else.
+
+[screen: Create response with INVALID_TYPE_ON_FIELD_IN_RECORD — "Annual Revenue: invalid number: abcde"; successful: false]
+
+[screen: payload.items.successful — one record false, the others true (partial success)]
+
+Let's see now: success and failures. Overall everything executed, but not everything succeeded. What failed? Let's copy the data and check it. True or false — basically the second record failed, if you observe. That's what we have to see; you have to identify which one failed. You can take it from there. In Salesforce we use this regularly. We can also use reconnection strategies and connection pooling. That's Create.
+
+[drawing: upsert — if the record is available in SF it will update; if not, it will create]
+
+Now, what does upsert do? Do you understand? Upsert is a combination of update and insert. If the record exists, it updates the respective fields. If it's not available, it creates a new account. Do we have an operation for that in Salesforce? Look — Upsert. You can try it: update plus insert. Everything else is the same as Create. If you want to update only, there is Update. There are many operations; we don't need to know everything, as I said earlier. To delete, use Delete. You can try all these: one for delete, one for update, one for upsert. If you face any challenges, let me know.
+
+Other than these, there are two more operations we use regularly. What are they? On New Object and On Modified Object. Show me — where are these operations placed? In the process or in the source? In the source. Whatever flow it is, this is the source — the main flow — you can see the line here. I drag On New Object into the flow. So On New Object and On Modified Object are source operations. What are source operations? Like listeners. What does the listener do? With an HTTP Listener, after the application is deployed, when we hit the request, the listener listens, processes the request and gives the response back to whoever hit it.
+
+[screen: Salesforce On New Object source: object type Account, scheduling strategy Fixed Frequency (frequency, start delay, time unit)]
+
+So when should On New Object or On Modified Object be used? What do they do? Go to the details: first the connector configuration, then Object type — the object name goes here. Then the scheduling. What does it do? Periodically it checks the object I mentioned; if there are any changes in that object, it takes those records and processes them automatically. That's its job.
+
+There are two options: On New Object and On Modified Object. What's the difference? By the name: On New Object is for a new record in an object. A new account is inserted into the Account object; then it automatically takes that account, and I do some operation. Or an existing account record is updated — will On New Object pick it? No. It picks only new records. If you update, On Modified Object picks it.
+
+[drawing: SF → Mule (On New Object) → insert into the DB (Oracle) — XYZ company sync]
+
+A small, general use case: this is the Salesforce system, this is the database system. There is an Account object in Salesforce. As soon as a record is created in it, I have to go to the database and insert it — automatically. How do I do this? Do you understand the use case? Say it again: in the Salesforce system an account record was created — for example a new XYZ company. Who created it? A Salesforce user, from the Salesforce UI. As soon as a new record is created in Salesforce, it should automatically be inserted into the database. That's my requirement. How can I do this?
+
+I create a flow; as the source I use On New Object. Check its configuration: frequency 1000 — milliseconds. Every second it goes to this object and checks whether any new records came. The scheduling strategy is fixed frequency: every second this connector connects to Salesforce and checks for new records. If something came, it picks it up and brings it into our MuleSoft ecosystem. Will it have the same structure in the database or different? Mostly similar, but the field names will change a bit. So Salesforce-to-DB conversion — transformations. Enough? Yes.
+
+[drawing: Scheduler-based sync — SF → Mule → DB on a schedule (upsert)]
+
+You could do it another way — think about it. I put a Scheduler here, then a Salesforce Query, a transformation, and the database. I run the scheduler every 1 minute or every 5 minutes. What is a scheduler? A component; in the source, it automatically triggers the flow, say every 5 minutes. First it triggers when I deploy. The query takes all the accounts from Account, and I insert them all into the database. Then I remember where I stopped — instead of all the accounts, I remember a sequence number, using an object store. Next time it runs, it takes the accounts after that number and inserts them. You can implement it this way too. Clear? Any confusion?
+
+— No.
+
+We can do it this way or that way, but On New Object makes it automatic. Otherwise we set a scheduler and select again — On New Object works like scheduler plus select automatically. It gives us comfort so we don't do extra things.
+
+The next use case: even if an object is updated, I need the details — say I change the annual revenue on an account. Then On Modified Object. On New Object works only for new records — only if a new account comes. On Modified Object works only if there is a modification in the object.
+
+Let's go to this. Since we're not getting a drop-down, I'll type the object name, Account. The rest of the configuration is the same. Should it be every one second or different? You can change it here. Scheduling strategy: Fixed Frequency, with Frequency, Start delay and Time unit. Fixed frequency means: every second this triggers, connects to Salesforce and checks.
+
+If you remember, for reconnection we have three options: none, standard and forever. I told you we use standard regularly. When should we use forever? I told you — do you remember? In such situations: for the Salesforce source I put forever. Any doubts? Why? Because it's the source, it tries to connect continuously and nothing else is affected. So we can use forever for the Salesforce connector in such situations: in Advanced → Reconnection strategy → forever — Salesforce keeps trying until it connects if there's a connectivity error. But if you keep it on Create — if it keeps trying until it connects, it won't be able to send the response. In the source there's no such issue, so we can use forever there. That's one thing I wanted to mention.
+
+So On New Object with fixed frequency checks the Account object every second; if a new record comes, it immediately absorbs it. Is fixed frequency the only option? There is also cron.
+
+One more thing with fixed frequency: I want it every 5 hours — can I? Yes: give 5, hours. Then this job checks every 5 hours, gets all the new accounts created in those 5 hours, and processes them. For example, if I deploy at 10 o'clock, it checks immediately for anything new; then after 5 hours — 3 o'clock; then 8 o'clock; then 1 o'clock. That's how it works. Now the start delay: say I set it to 1 hour and deploy at 10. It won't trigger as soon as it's deployed; it triggers after 1 hour, at 11 o'clock; then 5 hours later at 4; then 9; then 2 o'clock. That's how we use start delay. Most of the time we don't use it, but if required, you can.
+
+[screen: Docs — Scheduler Endpoint (Trigger): fixed frequency or cron, single-node in a cluster]
+
+What is cron? It's triggered at a particular time, in a time zone. With fixed frequency I can trigger every 1 hour, every 5 minutes, every 10 hours, every day or every year — but not "every day at 8 PM Indian Standard Time". For that, use cron. What is this expression here? To say every day at 8 PM, we write that expression here. Will we write it ourselves? We will. But there are many cron expression generators online — I don't even remember the syntax. It's a small expression: copy it and paste it here, or into the property file and take it from there.
+
+Why the time zone? It should run in a particular time zone. On CloudHub, if we deploy in a US region, it automatically takes the US time zone if we don't mention anything. I'm in the US region but I want Indian Standard Time — then we mention the time zone here. You use the same in the Scheduler.
+
+[screen: Docs — Cron Expressions (seconds, minutes, hours, day of month, month, day of week, year) with examples]
+
+"The cron expression in this scheduler triggers the generation of Mule messages in a new execution of the flow every 15 seconds." See how every 15 seconds is written: 0/15 * * * * ? This requirement comes rarely; when it does, you can take another team's help or research on the internet and do it immediately. Each position has a significance — seconds, minutes, hours, days, years — and we decide based on that. "There is no default cron expression." Seconds 0–59; minutes; hours; day of month 1–31; month Jan–Dec; day of week. Look at the examples: "Run every 2 seconds of the day, every day." "Run at 10:15 AM every day": seconds 0, minutes 15, hours 10, every day — that's why the stars and question marks help. "Run at 10:15 AM every day during the year 2019": the year position has 2019 instead of a star, so it runs only in 2019; with a star it runs every year. You have to understand these expressions. Even I don't remember them; I do 5–10 minutes of research and then write it. For every day at 10:15 PM, this is enough. For every day at 8 PM: 0 seconds, 0 minutes, 20 hours — it runs automatically.
+
+[screen: Docs — Change a Time Zone (>> operator) and the list of Time Zone IDs]
+
+How to write time zones — the MuleSoft docs give the list of Time Zone IDs. Africa … we want India: in Asia, Asia/Kolkata. We take these IDs and use them accordingly. That's the cron expression.
+
+Now this schedule: by default the unit is milliseconds, frequency 1000, start delay 0; I leave it as it is. Tell me what this will do: every second, check whether there are any new accounts in the Account object; if there are, it gives the details. If none come, nothing — empty. I'm converting it to JSON. Will it send any response anywhere? This triggers every second; the flow starts and ends at the last component. It doesn't send a response back; it stops there, and starts again a second later.
+
+[screen: New Account in Salesforce (A Company, Hyderabad address) to trigger On New Object]
+
+[screen: Salesforce: "Account 'A Company' was created"]
+
+Let's see what comes. Nothing happened yet — we have to create an account in Salesforce. Now I create a new account in Salesforce: A Company, Save. The account is created. Let me check in All Accounts. Has it come here? It came. It polls here as well. How do we know which company came? I check the payload. What came? Java. How many fields? Fifty-five — so we got all of them, including options and everything.
+
+[screen: On New Object payload: the full new Account record (BillingCity Hyderabad, BillingPostalCode 500008, Website, CreatedDate …)]
+
+Now what if we create two accounts within one second? Two accounts come? Then an array would come — an array of objects? Let's see. This is the company's account: shipping, billing city, billing address, the details — the object itself. Let's create two with a delay — why delay? Creating manually takes time. D Company, E Company, F Company. I triggered this; there's a breakpoint here. How many accounts should be created? Two: F Company, D Company. Two accounts are created. [unclear] You got my point? One record comes at a time — as one object, a single object — and we have to write the operations accordingly. When we insert it into a database, we do it accordingly.
+
+So put together what we have learnt. Create an account table — or rename a table — you already know how to insert into a table. Take 4–5 details from this and insert them there. Since this comes as an object, what should you use? mapObject — and format it properly before inserting. If you do all this, it's basically a project: Salesforce to database update, or database insert. You have to combine things like that.
+
+[screen: On Modified Object source — fires when an existing record is updated]
+
+[screen: Editing an account in Salesforce ("Your changes are saved") to trigger On Modified Object]
+
+Now I modify a record. Will On New Object fire? It won't. The A Company account — I set its website to acompany.com. A second has passed — did it trigger? No. Now the same with On Modified Object; everything is the same. Object Account — it populates automatically — I have a metadata issue here, or you get objects directly. Configured, with a logger again. It's running; the input goes into the Transform Message and the output out. I add a breakpoint.
+
+— I want to do an activity at 10 o'clock, or every 5 hours — which component should I use, irrespective of Salesforce?
+
+I'll put that aside and come to that point. Since it is deployed, I test this first. Did something come here? No. Now I change the company — did it come in new or modified? Check it out: a modification of a record in the Account object, so you see it in the On Modified Object flow. How did it come? See — all the fields came. Then we change it as we want and work with it. That's On Modified Object.
+
+[screen: Scheduler component in Studio — scheduling strategy (fixed frequency / cron)]
+
+Now the question you asked earlier. I have a process with two databases: every day at 10 o'clock I want to get data from database 1 and put it into database 2. How do you do it? On New Object is specific to Salesforce.
+
+— Using the Scheduler: connect to the database and schedule it every day at 10 o'clock; take the data from there, transform it and insert into the next database.
+
+How should our flow be? Database 1, database 2, Scheduler. Fixed frequency or cron?
+
+— Cron.
+
+Yes, cron: every day at 10. First, the database connector — select data from here. Correct? Then transform it properly with a Transform Message; then DB insert; then log. This is the Scheduler component. What does a Scheduler job do? With fixed frequency, it automatically triggers this flow every second, say: it starts and ends at the last component. Every 5 hours, as I said, with start delay too, the same way. For every day at 10 o'clock, write the expression here and mention the time zone; otherwise it uses the default. Then we can do whatever activities we want here. This is the scheduled one — it's a regular pattern.
+
+Now we are talking about integration, right? Can I call this an integration — between Salesforce and the database? If you use a Database Insert, isn't this an integration between Salesforce and the database? Is it an API? Can I say this is an API?
+
+— Yes, it is an API — an API is online?
+
+See, why not? This is an integration between Salesforce and the database, using source components. You are not exposing it to a third party, and you are not giving a response back.
+
+— Okay, I see.
+
+We are integrating the Salesforce system and the database system with the help of a scheduler-based process. And this one, with database 1 and database 2 — is it an integration or an API? Integration. Understand the thin line of difference. Can I call an API an integration?
+
+— Yes sir.
+
+Yes, because it integrates different systems or modules. But don't get confused. What is an API? We expose it to a third party or consumer, who sends the request and we respond back to them. It can be REST or SOAP, but in MuleSoft 95–99% of the time you use REST services. Not only in MuleSoft — in the modern API ecosystem we go for REST services. Is that clear for everyone? Any questions?
