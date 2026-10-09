@@ -1,0 +1,216 @@
+MuleSoft Telugu Course — Day 43 (cleaned transcript)
+Source: transcripts/day43.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day43 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+In today's session we will first talk about the Async scope. There is a scope called Async; in it, we can run any activity in asynchronous mode. First, if we understand what synchronous is, then asynchronous is easy, because asynchronous is the opposite of synchronous.
+
+[drawing: consumer → request → API steps (one calls the DB) → response]
+
+Generally, we have an API. What do we do in the API? First we get a request, and then we send a response. Our consumer — after sending the request, are they waiting for the response? Yes. After the request comes, the listener receives it, and then the first component, second component, third component execute one by one. Does it happen one by one, or randomly? There are three or four components here: first, second … fourth. They execute in sequence. Each component processes the event; the next component waits for the previous component's response. Say this one is a call to a third-party API or a database: it sends the response to the next component, and so on, and then we get the response. If you observe, I sent the request to the database and I am waiting for the response from the database. We call this synchronous mode: when we send something and wait for it.
+
+Now, there are situations where something needs to happen alongside the main process. For example, we have received a loan request. Along with the information they submitted — name, permanent address, communication address, PAN number, phone number, email etc. — they also have documents: ID proof, address proof, PAN card. They scanned all these documents and sent them in the request. What does our application do? It checks all the details — whether they are eligible for a loan or not. Say we decide to give them the loan. After deciding, should we save all those documents or not? We have to save them. Does saving documents take more time or less? More — for example, 4 seconds.
+
+Where do we save documents, generally? In a file location — there are FTP servers, separate file servers, SFTP servers — and save them in the appropriate place. So we upload these documents to an FTP or SFTP server, and that takes almost 4 seconds.
+
+Now what should I do? Process the loan request: check whether the PAN card is correct, whether the Aadhaar card is correct, whether the CIBIL score is correct, whether they are in the right bracket, whether the person's age is correct. After checking all these we decided: we can give this person a loan; everything is correct. We have automated the entire process. Now we have to send a response to the front end: "Your loan application has been accepted, it is successful, and so-and-so amount will be disbursed to your account." To send this response — must we upload the documents first? Uploading takes 4 seconds. The total process otherwise is, say, 500 milliseconds. How fast can I give the response to the consumer? 500 milliseconds. How much difference is there between 4 seconds and 500 milliseconds? Huge. There will be a lot of such situations in real time.
+
+So I don't make the consumer wait. Since it is a big request taking so much time, I acknowledge the consumer: "I have received your request; the process is in progress", and send the immediate response. But the process continues in the background — in asynchronous mode. What does that mean? Instead of making the consumer wait, I make that process independent. That is asynchronous mode. Any doubts?
+
+[drawing: the last step, Doc Upload, wrapped in an Async scope — the response goes back without waiting for it]
+
+Consider this the Async scope. What does the Async scope actually do? A request came into the API and the entire process was finalized. After that, the document upload — this is the connector for the document upload, and the process related to it happens with the FTP server. I put that in asynchronous mode. This final component is asynchronous; I send the response from here. [drawing erased] The response goes from here only.
+
+[drawing: the Async Doc Upload writes to an FTP server in the background while the consumer already has the response]
+
+Simultaneously, the document upload to the FTP server takes place in the background. Both are done simultaneously: I am doing the document upload independently of the other tasks.
+
+To understand this simply: there is flow 1 and flow 2. How do I go from flow 1 to flow 2? I call flow 2 from flow 1. With which component? Flow Reference. If I use a Flow Reference in flow 1 to call flow 2, it goes to flow 2, runs, and comes back to flow 1 — if we debug it, it completes and comes back. Right?
+
+— Yes.
+
+Now, what if we want flow 2 to work independently — flow 1 sends the request and doesn't wait for the response? Let's say I put the Flow Reference inside an Async scope; then the process in flow 2 is independent. Let's see the same example here.
+
+[screen: New project async-scope-demo — Listener (path /async), Start Logger, Set Payload, Set Variable, End Logger]
+
+Async scope demo. Generally, when you go to a company you are given a remote desktop, and 8081 may already be used by a different process there. If you deploy an application configured with 8081, what happens? An error: the port is already in use. Why? Like I said, you can give a house number to one house in a street, but not the same house number to two houses in the same street — the postman or delivery person won't be able to identify it. In the same way, on the same machine, the same port can't be used by multiple services. What do we do then? Go to the listener and change the port number — instead of 8081, 8082, 8083 or 8085, whichever is vacant.
+
+I'll write it all as dummy: parent flow, a payload, a variable. Simple. Now I want to copy the same flow: right-click → XML, Ctrl+C, Ctrl+V, and change it to child flow: Start Logger, Logger, and here Set Payload "child flow payload".
+
+[screen: Two flows: async-scope-demo-parent-flow and async-scope-demo-child-flow (Set Payload "child flow payload", Set Variable)]
+
+[screen: Flow Reference in the parent flow → flow name async-scope-demo-child-flow]
+
+Now I want to call the child flow from the parent flow. If we call it, will it go to the source, or come to the first component? We have already discussed this: it comes to the first component, always, internally. Whenever you receive a request from outside, the source receives it. A Flow Reference goes directly to the first component, not the source. So if we remove the source, it doesn't matter.
+
+But my question: will it deploy or not?
+
+— It will deploy, right?
+
+It might not, in my opinion. Why not? Can you guess?
+
+— Both have the same listener?
+
+The listeners are the same — what's the problem with two listeners?
+
+— There is only one port for the two listeners — is that the conflict?
+
+Anyone else?
+
+— There shouldn't be error handling for this?
+
+That's not a big problem; it can be there. And don't get confused with parent flow and child flow: the calling flow is the parent flow. If I call another flow from this child flow, it becomes the parent flow. It doesn't matter; we don't have to worry about that.
+
+[screen: Deploy error: "Already exists a listener matching that path and methods" — both flows had a Listener on the same path; child flow source removed]
+
+Look, we got an error. Look at the message: the listener path is the same for this flow and for this flow. If you change it, you won't get that error. Since I don't need it, I delete the listener in this flow. I just showed you how the situation comes. If there are two identical paths, it doesn't work: we get a request — should it go to this flow or this one? There will be confusion. You can use the same port — we use only one listener configuration — but if we change the paths, /parentasync and /childasync, then /parentasync goes to the parent flow and /childasync goes to the child flow. The same listener configuration, 8081; only the path changes.
+
+Like the house number: there is a big compound, and the postman gets one house number for it. Or think of it like this: two brothers build a big compound, with one house number; inside it they build a second house, and instead of a new number they mark them 1 and 2. When the postman comes, they identify 1 and 2 clearly. In the same way here: changing the path in the listener is easier. Is it clear to everyone? Such situations never really come in real time, but if you get confused while doing a POC, now it's clarified.
+
+[screen: Debugger with a plain Flow Reference: after the child flow returns, payload is "child flow payload" and its variable is visible in the parent]
+
+Now let's debug. /async — we hit the request; it has come. Mule Debugger: next, next. Variables, payload — there will be one variable. What happens now? This Flow Reference waits for the response from that flow, right?
+
+— Yes sir.
+
+Until then it won't go to the End Logger. See what it did: it received the response and passed it to the next component. The response is done.
+
+[screen: Postman GET http://localhost:8081/async → 200 "child flow payload" (synchronous: the child's result comes back)]
+
+[screen: Async scope dragged from Core → Scopes and the Flow Reference placed inside it]
+
+Now, what we want is asynchronous: this child flow should run independently of this process — consider it the document upload process. What do I do? Take an Async scope. Where is it? In Core, in the Scopes section → Async. Or right-click this Flow Reference → Wrap in → Async, as we did with Try. Or drag-drop Async and drag the Flow Reference into it. Can we put only one component in an Async scope or multiple? Multiple. Since I put this Flow Reference, the whole thing executes in asynchronous mode.
+
+[screen: Parent flow: Listener → Start Logger → Set Payload → Set Variable → Async [Flow Reference] → End Logger]
+
+It is deployed; I hit it. Now it is in asynchronous mode. Observe — it is waiting. Did the response come? Not yet; it comes as soon as the End Logger is done. Now see — the response has come. But has the second process completed? Not yet. Now it does it and ends.
+
+[screen: Console while the Async branch runs separately (Request Uri /async, headers)]
+
+[screen: With Async: Postman → 200 "parent flow payload" — the child flow's payload/variables do not come back to the parent]
+
+What does this mean? Fire and forget. I fired the process and forgot about it — I am not waiting for the response from that process. When we have to handle such scenarios, we can use asynchronous mode. If you check the console, all these are the logs of the process. The Flow Reference is very clear: once it reaches the Async, one copy of the request is passed into it and the same goes to the next component too. That runs independently, and after the rest completes the response is sent here. That's what happens in the background. If there are questions we'll discuss; otherwise I'll move to the next topic.
+
+— If an error comes in the async part, that response should be shown to the consumer, right? Where can we see it?
+
+It doesn't go to the consumer, right? The consumer doesn't need it. Then we publish the error to a queue and process it from there — the error-handling mechanism will manage it. Or we see it in the logs and correct it. That's it.
+
+— But if the loan is sanctioned and the documents are missing, that's not correct, right?
+
+Yes. We need reliability. What is reliability? There should not be any message loss. If we reject the loan application, whether the documents are there or not is not a big problem, honestly. But after the loan is sanctioned, what if we don't have the documents? Maybe the person committed fraud, a case comes up, and we need to verify all the documents — we need to have them. That's why, compulsorily, reliability: in the process of uploading the documents, even if an error comes, the message must not be lost and it must be handled properly. That design will obviously be taken care of by the senior people; if they suggest how to do it, we follow the same. Any other questions? Okay.
+
+[screen: DataWeave Playground (dataweave.mulesoft.com/learn/dataweave) — payload, script and output panes]
+
+Next, we discuss DataWeave. Generally, if we need something, we go to the DataWeave Playground. You give the input, write the script, and the output comes here — three sections. What is it? A UI given by MuleSoft for practising DataWeave or checking DataWeave expressions. The left side is the input. Here you write the script. The input is processed with the help of this script, and the output is presented on the right side. This is called the DataWeave Playground. If you search online for "DataWeave Playground", you will see this screen. Here we can practise whatever we want. There is also a tutorial here, with all the related tutorials, and the docs — the docs are more detailed.
+
+If you want to learn all of DataWeave, it will take months. But if we learn 20–25% of it, we get 70–80% of the results. We will see those things. We should know where to stop. Later, in a new requirement, if some DataWeave is needed, we check the documentation and do it. So it is very important to understand what should be learnt: learn less and get more benefit. We will see such things.
+
+What is DataWeave, first of all? DataWeave is a programming language; we can also call it an expression language. A programming language in the sense that I use it to transform messages in MuleSoft. For example, I want to convert JSON to XML, XML to JSON, CSV to JSON, JSON to CSV — I transform all these things. Or enrichment: I have first name and last name and I want full name. How do I form it? Concatenate first name with last name — or first, middle and last name. We use it as a programming language for transformations in the MuleSoft ecosystem.
+
+In the earlier version it was slightly different: we used DW 1.0. Which version of DW are we using? The latest version seems to be 2.6 — I think it has increased, I don't remember. But what we usually write is 2.0. There are many differences between 1.0 and 2.0; you can ignore 1.0 — we use 2.0. Even within 2.x there are small changes — 2.1, 2.2, 2.3, 2.4 — but no major changes. So you can tell which version of DataWeave you used. Where is the indication? Here, in the header.
+
+[screen: Studio Transform Message with output application/json and a {"message": "Hello world"} sample — the same script in the Playground]
+
+Where do we write a DataWeave script? In Transform Message, Set Payload, Set Variable and so on. When we write the script, we pass the input to it, and according to the data in the input and the script, it modifies or transforms it and gives the result. For example, the input here is a JSON object with a "message" key and a "Hello world" value. I want it in JSON, but only the value of message. So I write payload.message, and the output is only the value of that message section. That's how we pass the input to the script and it converts it to an output for our requirement.
+
+But instead of Set Payload or Set Variable, why do I use Transform Message? In Transform Message we automatically see the script section. In Set Payload or Set Variable, the whole script has to be written by us — the output line, the %dw 2.0 — we write it all. In Transform Message we automatically get %dw 2.0, output application/java, three hyphens, and then the script.
+
+What are these lines? With output we tell the script: I need the output of this processing in Java format, or JSON, XML or CSV. output application/json, application/csv, application/xml work. In the latest versions json, xml, csv also work — no need to write "application/"; even in short form it understands you want JSON output. So output is a direction for the script: after processing, I need the response in JSON format.
+
+Next, why the three hyphens? From the three hyphens down — lines 4, 5 — that section is called the body. And above is called the directives — the header. What separates them? The name… I forgot it — it is called the delimiter. We use three hyphens as the delimiter to separate the header from the body of the transformation. In the header you tell which format you want and which version you use.
+
+We have seen the visual side as well: input section, output section, defining metadata — all in the Transform Message. There is another option: Preview. There is the graphical editor — remember I dragged and mapped there? It has two-pane (input/output) and single-pane views — that flexibility is there. Also, we don't always have to go to the Playground: with Preview, if you provide sample input for the script and click Preview, it gives the response. For example, I output this and click Preview — we should get a preview. [unclear] Sometimes the preview section doesn't respond properly; that's why we use the Playground.
+
+— There may be sensitive data. Is the Playground online — on the internet?
+
+Yes, yes. That's why for sensitive data it's not good. If we paste payloads there and they get stored, that breaks the strict guidelines of financial or banking institutions. Then you can use the Preview or the expression evaluator — it can be done in multiple ways. Preview helps us see the result, but it needs the input as well. Here "resolving metadata" keeps showing and we're not able to see it. In the latest versions, if it works, give the payload here, click Preview, and the result is printed — we'll see it on one of your screens later. You can write the script here and click here. But I'm not so comfortable with this method; most of the time I use the Playground, or the evaluate-expression option while debugging.
+
+So the minimum for DataWeave: directives at the top, then the three-hyphen delimiter, then the body. We discussed everything neatly; the rest of the details are in the tutorial.
+
+[screen: DataWeave tutorial 1.2 MIME Types — application/json, application/xml, application/csv; output application/csv header=false]
+
+I have shown you the tutorial. Click on Tutorial — this is the screen. Here we learn most of the functions, and I will add some to it. If you learn that, most of the time it will be more than enough. Obviously no subject ever ends with learning — you have to keep at it — but with less knowledge you can still get results; this section is useful for that. We have already talked about XML and CSV. Look at this: [unclear] even 2.0 code works; it is able to identify it.
+
+[screen: Tutorial 1.3 Script Anatomy — header (%dw 2.0, input payload json, output csv header=false), ---, body]
+
+This is the script. Look: three lines, then the three dashes. The first three lines of the script contain directives. The first directive: every DataWeave file defines which version the script is using — "you can think of this more as a necessary formality, as other factors determine which DataWeave version is used." That's the first line. The second line: input and output directives — what is the input for this script and what is the output.
+
+Have you ever seen us writing input? We only write output. Even when we drag-drop a Transform Message, you see only an output directive, no input directive. Why? It is optional, because the metadata was already defined before the Transform Message, so there's no point mentioning it. If required, you can mention it: input — where is the input, payload or a variable — and its MIME type. MIME type is the data format: JSON or XML or whatever. If we mention that, we are defining the input. Otherwise there is no need.
+
+For example, in this script, the input is JSON, the output is to be CSV, with no header. We can mention exactly that, with properties like header=false. DataWeave supports multiple MIME types; we see three major ones here, but there are others like dw, Java and so on. Mostly these three.
+
+And by default, which MIME type is used internally? Java. So don't convert whenever you feel like it; otherwise leave the default, because performance improves. Generally, if we convert from one format, process it and convert again, it takes time — a slight difference. If you don't need it, if it's okay in the native format, leave it. Whenever you require a different format like XML or CSV, transform the message into that format. That is what I wanted to tell you.
+
+Now the requirement: take this input. Which format? JSON — an array of objects. We have already selected JSON; if it is a different format we need to change it. For example — is there an error? Why? Because here you gave JSON and it says XML; that's not the right way. In the payload section I gave an input in JSON format. I convert it to the same JSON — any change? Nothing. Now I convert it to CSV — has it changed to CSV? Yes. I don't want the headers: header=false. These are output directive properties; we rarely use them, especially for CSV.
+
+[screen: output application/csv header=true skipNullOn="everywhere" — error "Invalid input 's', expected ','" (skipNullOn isn't a CSV writer property)]
+
+[screen: DataWeave Reference Documentation (docs.mulesoft.com) — Basic Example, String manipulation]
+
+Another one is skip… for example, let's put a null here. I don't remember the name — skipNullOn. I am telling you where to use it. skipNullOn="everywhere", with output JSON. Look what happened: is there any difference between input and output? There is a null in the second object, and it was skipped. So, with the directives, if there are nulls in the payload, I remove all of them. We can use it in such situations.
+
+[screen: Docs: Skip Null On — output application/xml skipNullOn="everywhere" (elements, attributes, everywhere) — for XML / JSON outputs]
+
+— Does it work for empty?
+
+No — empty it treats as input only. You have to feel that difference. You can use directives like this.
+
+[screen: Playground: CSV payload → payload map ((item, index) -> { "fullName": item.firstName ++ " " ++ item.lastName, "age": item.age })]
+
+Now convert to CSV: it took this input and this script — payload — and converted to CSV. Give me a second. Now I am converting JSON to CSV. Now it is CSV. What do I do to convert it to JSON? For example, first name — map is a function: payload map. We will discuss it later; for now just understand. I am making a full name: item.firstName concatenated with item.lastName. We will discuss how to convert all this, but just understand. Now when converting this payload we get an issue — oh, sorry, this payload is not JSON but CSV; I gave the payload as CSV but kept this as JSON. Fixed. Now the CSV is converted for me. See what it did: it took the CSV input, our script converted it — each row is taken as an object, two rows become two objects, and the items repeat. So: an array of objects. That's how DataWeave helps us. We have also discussed the script anatomy.
+
+Now we have an idea of data types: strings and numbers, booleans true and false, and arrays. The advantage in DataWeave: an array can contain multiple data types — a string, a number, another string, another number. In some languages everything in an array must be the same type, but DataWeave accepts different types. Then objects: an object starts with curly braces, keys are defined with values, and key–value pairs are separated by commas. We discussed all these in the beginning.
+
+Now there is a concept called selectors. What are selectors? Generally we have to select something, and we write payload dot like this. There are multiple selectors: single value selector, index selector, range selector, multi-value selector and descendants selector. The single value selector is used a lot so far: it is the dot.
+
+[screen: Tutorial 3.1 Single Value Selector — payload.environment, payload.name]
+
+I have an input with a name and an age. If I want age: payload.age. Will it select a single value or multiple values? A single value: the value related to age is displayed, whether it's an object, a single number or an array. What notation do we use for the single value selector? The dot — also called period. Now in this JSON input I need the value related to stage. Tell me: payload.stage. What you have to observe here: the dot finds the related value. Now suppose there are two "stage" keys. What happens? The first value is displayed. For scenarios like that there is the multi-value selector; we haven't got there yet. The single value selector takes the first key identified; it doesn't go to the second, third or fourth. That's why it's called single value selector. Clear for everyone?
+
+— Yes sir.
+
+[screen: Tutorial 3.2 Index Selector — payload[1], negative index payload[-1] ("ua")]
+
+Next, the index selector — commonly used. With an array, do we remember payload[0] or payload[1]? We have used it. For example, this input array: prod, qa, dev. I want dev. How? payload[2], in square brackets. What is this called? The index selector. Why? An array is made of indexes, and the index starts from 0. The first value is 0, then 1, then 2. If I want the first value, I take 0.
+
+In the array, another array is a value — where? In index 1. In that I need dev again, or qa — payload[1][…]. Clear? That is the index selector. If there is nesting we do it like this. Earlier we used dots; in the same way, arrays inside arrays are handled like this. What is at 2? An object — an array of objects. Now I want age — will you tell me? In payload[2], the first item is the whole array; in it again the first item, so index 0, again 0; then a single value selector for age. Is that enough? This is how we combine selectors for objects in arrays.
+
+I forgot one more thing in the index selector: I need the last element of the array. What do you do when you don't know the length?
+
+— Minus one?
+
+Yes, -1. From the start, indexes begin at 0; from the end, -1. -2 is qa, -3 is prod — the third item from the last is the first item for us. So we can use minus as well.
+
+[screen: Tutorial 3.3 Range Selector — payload[0 to 1] → ["prod", "qa"]; reversed range with negative indexes]
+
+Next, the range selector — do you have an idea? It is an extension of the index selector. For a single index I use the index selector; the range selector selects from one index to another. I need this index to this index: 0 to 1. What is the result? [unclear] If I give a range beyond the array — there is no index 8 — we got 4 values; it is important to identify that. Do I have to start from 0? No. Where is position 2? dev — correct? Yes. Then 3 is uat, 4 is pre-prod. Okay.
+
+So the range selector selects a range of values in an array. But what do we use most? The index selector and the single value selector — that combination we use the most. Till now we haven't used the range selector; we rarely use it. But we should understand it: if we know it exists, we can check the documentation when needed.
+
+If you notice how the values come: I gave -3 to -1. What is at -3? uat. And at -1 … the values come in the same order. [unclear]
+
+— Can we write it with a dash instead of "to"?
+
+It's a range syntax; I always use "to". A dash doesn't work: it treats it as 3 - 1 = 2, so it becomes payload[2]. It converts minus to subtraction.
+
+[screen: Tutorial 3.4 Multi Value Selector — payload.*name → ["Emilia", "Isobel", "Euphemia", "Rose"]; payload.*price on an array]
+
+Next, the multi-value selector, .* — "returns an array containing any value that matches the key". Look: how many times does "name" appear? Multiple times. With the single value selector, the first one comes. With .*, all the names come — an array. Now assume there is only one name. What does payload.*name give — the same? The same value, but in an array. Did you observe?
+
+— Oh, okay.
+
+That's the small difference you have to observe: payload.name gives a string. If there are multiple, use the multi-value selector, .*. We did a JSON object before — multiple keys repeated in the object. It works on arrays too: items repeated in the array. Look here, the price: 1, 2, then 3, 4, 5, 6 — all the values as an array.
+
+[screen: payload.movies.*title on XML input → ["The Terminator", "Titanic", "Avatar"]]
+
+This is XML. For example, we need the XML titles. What do we use? payload.movies.*title. We will discuss XML again — opening and closing tags — but this is XML format; I converted JSON to XML too. With .* on repeated tags, it took everything related to the repeated tags and converted it. That's what I wanted you to understand. If we use an index, how does the first title come? After *title — like that. Since it is an array, you decide whether you want the first value or second. [unclear] That is the multi-value selector.
+
+[screen: Tutorial 3.5 Descendants Selector — payload..echo finds a key at any depth]
+
+Next, the descendants selector. What does .. mean? "The descendants selector is the perfect tool to use when you need the values for a certain key no matter where they appear in a piece of data." I'll convert that JSON and get the script too. Look: there is an "echo" key here; then a sequence inside it, and an echo in that sequence too. Earlier the keys were at the same level — name, name, name, name. Now say I give payload.echo — the first value comes. Say I give payload.*echo — it comes in an array, the first-level value, the same. But the one nested inside the sequence, or inside try — did those come? No. That means .* gets only the first level; if it is nested, it doesn't work. That's why there is the descendants selector: it goes to any level. At the first level it displays the value; then another value in the sequence — "getting details" — it extracts that; then in try, in success — those too. These three are at three different levels. We use the descendants selector in such situations.
+
+[screen: Selector mistakes in the Playground return null (e.g. a wrong path)]
+
+Apart from the index and single value selectors — that combination is what we mostly use — the range selector and multi-value selector we use rarely. When we deal with arrays we use the multi-value and sometimes the descendants selector. When we do a hundred transformations, in data-intensive projects, we use them; otherwise single value and index selectors. These are the different selectors for us. Any questions?
+
+— No.

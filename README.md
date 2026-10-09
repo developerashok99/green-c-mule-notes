@@ -6,7 +6,7 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 >
 > 📄 Want the original raw English transcripts these notes were built from? See **[transcripts/](transcripts/)**.
 >
-> 🧹 Cleaned transcripts for Days 3–42 (terms corrected, repetition removed, screen text added): **[transcripts-cleaned/](transcripts-cleaned/)**.
+> 🧹 Cleaned transcripts for Days 3–43 (terms corrected, repetition removed, screen text added): **[transcripts-cleaned/](transcripts-cleaned/)**.
 
 ## Index
 
