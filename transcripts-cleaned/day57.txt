@@ -1,0 +1,168 @@
+MuleSoft Telugu Course — Day 57 (cleaned transcript)
+Source: transcripts/day57.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day57 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+[slide: Agenda: create an AWS account, introduction to Amazon S3, demo of S3 Connector operations — Create Bucket, Put Object, Get Object; Q&A]
+
+In today's session we'll discuss the Amazon S3 connector. First we need to create an AWS account, and then do S3-related activities.
+
+Many people have an idea of AWS: Amazon Web Services, a cloud solution provider. For example, we need a database. What do we do? Take a server, take the database software, install it, and use it as a database. What cloud providers do: you just go there and use it as a service — use their infrastructure, install the software you need, and use it. There are also ready-made services. For example, S3 is a ready-made service provided by Amazon Web Services. What we use depends on the use case.
+
+Which cloud solution providers are famous? Amazon — AWS; Azure, the cloud service provider from Microsoft; and GCP, Google Cloud Platform, from Google. These are the three most famous cloud providers in the market; AWS and Azure more so, and recently GCP is growing very fast in terms of data analytics.
+
+[slide: What is Amazon S3? — Amazon Simple Storage Service, cloud-based object storage from AWS, for unstructured data (photos, videos, log files, sensor data)]
+
+What is the S3 service? A database stores data that can be organized into rows and columns. For example, employee data can be organized into rows and columns; we assign values to columns and rows and store it correctly. That's structured data, and we use databases to store it. But unstructured data — like a JSON file, a CSV file, a video or an audio file — how do we store all that? Amazon introduced the concept of object storage and provided it as S3.
+
+What is Amazon S3? First, it stands for Amazon Simple Storage Service. What kind of storage service? We know Amazon is a cloud solution provider, and S3 is a ready-made service. It provides cloud-based object storage. What's cloud-based object storage? A storage location to save unstructured data. "This object storage is designed for unstructured data like photos, videos, log files, sensor data, which don't fit neatly into rows and columns." We save all these in Amazon S3. Since this cloud is used a lot, we're discussing Amazon S3. The equivalent service in Azure is called Blob storage — the same concept, different naming. In GCP there's Google Cloud Storage, GCS. So: Amazon S3, Azure Blob Storage, Google Cloud Storage. Amazon Web Services is famous for this, so we look at S3. In two words: cloud-based object storage. And object storage supports saving unstructured data. Any questions so far?
+
+In a database we have structured data; this is for unstructured data. That's it. How do you save photos in a database? We can't. Video files? We store all of these here.
+
+— So if we want to store structured data in the cloud?
+
+Amazon provides database services too — RDS, Relational Database Service — or I can install MySQL in the cloud. There are other services too. Where people use databases a lot, they've used separate on-premises ones, and now they're moving to the cloud. It depends on the use case. But this S3 service is provided by Amazon, in the cloud.
+
+[slide: S3 stores data as objects within containers called buckets; each object has the data, metadata and a unique identifier]
+
+That's Amazon S3 at the top level. How is data stored — what's the terminology? There's a bucket, and there's an object. Object storage: whatever you save — say I saved a CSV file — that CSV file is called an object. It has a name — for example, I uploaded employee.csv; its name is employee.csv — a unique identifier. If we save another file with the same name employee.csv, will it work? No — we have to save it with a different name, or overwrite it. That's the unique identifier. Each object consists of the data itself — what's in the employee CSV file; then data about that data — file size, file extension, any extra details — in the metadata; and a unique name, the unique identifier. That's an object.
+
+Where are these objects stored? In containers — those containers are called buckets. So first we go to the S3 service and create a bucket, and store objects inside it. A bucket is just a container. For example, in my C drive I create a folder and place multiple files in it; I'd call that folder a bucket, simply put. It's a concept for organizing. For example, I want all JSON files in one bucket: I create a JSON bucket and put all the JSON files in it; a CSV bucket for CSV files; a bucket for marketing, and so on. Any file you want to save in a bucket is an object — .csv, .json, .txt, .mp4 or any other file. The object has a unique name, data and metadata. That's the overall idea. To revise: we create buckets in S3 storage and store our files in the buckets. Buckets are containers that help us organize our data, our files, in a properly structured manner. Any questions? Okay.
+
+[screen: AWS docs — Create an AWS account (standalone account steps)]
+
+[screen: AWS IAM user sign-in page (account ID, IAM username, password)]
+
+[screen: AWS Sign in — Root user / IAM user, root user email address]
+
+First we have to create an Amazon account — an AWS account. It's free; it gives you a free trial — one year, I think. We have to enter credit card details. Create an AWS account → create a new account, since we don't have one. We give an email address — for example maheshredd04@… gmail.com [unclear] — and the account name; I've used what I have; you can give something else. Click Verify email address. You get a code by email; provide it here. It charges Rs. 2 on the credit card first — that's fine; they revert it. You can use a credit or debit card. Then a password — it asks for a strong password. We already have an account. After you enter the card details, you can log in. How? Here: email address, Next, password, Sign in — and you see your account.
+
+[screen: AWS Account page — Billing & Cost Management, Payment Method, IAM, Personal Information, Security Credentials]
+
+[screen: AWS Console → All services by category (Compute, Storage → S3 …)]
+
+There are many services — I mean almost hundreds — database services, and many data-related services. For example, I have a MuleSoft application; I can take a private cloud server and deploy it. What's the problem with taking a private cloud? We need Java and Maven; we need to set up the environment. They'll use all of these; maybe the admin team or DevOps team gives it to us.
+
+Where did this go? It went to the IAM service directly — because I'm already signed in, it redirected to this page. What we need is the AWS home page. Click All services: machine learning, compute — EC2: for example, to deploy a MuleSoft application I'd prepare an EC2 instance — container services, storage, database, analytics, migration and transfer, networking, security, developer tools, financial, IoT, media services, game development — it provides all kinds of services. Where's our service? Under Storage; there are many more in storage; we use S3.
+
+[screen: Amazon S3 console — Account snapshot, General purpose buckets (empty)]
+
+That's account creation. Next, go to the S3 service. You don't have to go this way; you can search: type S3, the relevant service comes in the drop-down under Services; click it to navigate to S3. In the S3 service there's Create bucket; after creating a bucket we can upload files to it. So: create the AWS account, navigate to the S3 service, create the bucket. We can do it here if we have access. But how do we do it programmatically — for example, from MuleSoft? Take the Amazon S3 connector and create a bucket using it. Before that, since we have manual access to the S3 account, let's see how to create a bucket here.
+
+[screen: Create bucket — region Europe (Stockholm) eu-north-1, bucket type General purpose, bucket name]
+
+[screen: Create bucket — Object Ownership (ACLs disabled), Block Public Access settings, Bucket Versioning, default encryption]
+
+[screen: "Successfully created bucket mulesamplebucket" — buckets list]
+
+First it asks for the bucket name. We can leave all these settings as they are and click Create bucket. I'll create mulesamplebucket. Scroll down, Create bucket. The bucket is created. Observe: before this there were only these two, created earlier; now we have mulesamplebucket. There are no files in it.
+
+Now let's create an employee file — each employee like that, an array of objects. Let me format it. Two options: in Postman, or here with the language set — JSON — it's proper here too; or the DataWeave Playground. Now we have a proper structure. Ctrl+V, Ctrl+S — saved as employee with the .json extension. Close it.
+
+[screen: Upload → Add files (employee.json, 505 B) → Upload]
+
+[screen: Upload succeeded — 1 file, 505.0 B]
+
+[screen: mulesamplebucket → Objects: employee.json (json, 505 B, Standard storage class)]
+
+[screen: Opened object — the employee.json content (empid, empSalary, empDesignation, empName …)]
+
+Back in mulesamplebucket: Upload → Add files → Upload. Upload succeeded. Let's go to Buckets — to S3 again — mulesamplebucket: we have employee.json. To download it, select it and Download; or open it — see: last modified, storage class and many more things. Again, AWS S3 — or Amazon Web Services in general — is a big subject. We're not bothered about that; there's a separate team. What we do: use the S3 connector to create a bucket like I did manually, and upload a file there.
+
+For example, a requirement: a file is placed on the FTP server — an employee JSON file — and I need to store it in Amazon S3. How? Two ways. Take it manually from the FTP server and upload it manually to S3. But I have to automate this — take the files that come every day and put them here. For that, a programmatic approach: in MuleSoft, a small scheduler-based application. Every day at 8 o'clock, the scheduler runs, connects to the FTP server and reads the file; we take the same file and create it in S3. Enough? We need the FTP connector — Read — and the Amazon S3 connector, which has an operation called Put Object. Since we create an object, it's "put object", not "create object". We use Put Object to upload a file to Amazon S3. So: scheduler, FTP Read, and S3 Put Object.
+
+Do we create the bucket manually, or directly from MuleSoft? Compare it with a database table: did we create the database table, or was it already created? Already created — generally handled by the database team. But even if we have to create it, there's an option from MuleSoft.
+
+Is there a connector to connect to Amazon S3? If I drag-drop the Amazon S3 connector and add some details, I can connect directly to Amazon S3. It has many operations: create a bucket, upload a file, read the file, rename, copy the file content, move a file from one place to another — such options are provided in the Amazon S3 connector. Clear till now?
+
+So, what we did manually: create a bucket where there's none — the operation is Create Bucket. Then upload a file into that bucket — the operation is Put Object: put the object, the JSON file, into the bucket I created. Then read the JSON file content — there's an operation for that. Let's see: Create bucket; under bucket there are more, like Delete bucket; Delete object, Delete objects, Get object. When we get data from an object, it's Get Object: we call employee.json an object — any file saved in a bucket is an object, that's their language. "I need data from the object" — Get Object: give the file name and you automatically get its content, and then do whatever activity you need. For example, employee JSON is here and the use case is: take this JSON file and insert it into the database. What do you do? Get Object to get the data from the bucket, then convert it for the database and insert it. Clear overall? Let's demo.
+
+We'll create a new project. Another question: will the Amazon S3 connector be in our palette or in Exchange? Not in the palette — we add it from Exchange. Then how do we connect?
+
+The aws-s3-demo project is created. What first? How to create a bucket from MuleSoft — though most probably we won't create buckets; the AWS / S3 team creates the bucket and gives us the name. I'll show it from here: create a bucket, upload a file as an object into the bucket, and read the file we uploaded — these three operations. The other two or three operations I'll just guide you on — what each does — and you can do them on your own, because we already have knowledge from JMS, Salesforce and others with similar operations. You can practise those on your own; how to connect stays the same.
+
+Look in Add Modules: oh, Amazon S3 is there already — it's added to the palette; no need to add it from Exchange. Just drag-drop. It asks the version; I take the latest.
+
+Look at Amazon S3's operations — many, like Salesforce. Copy Object; Create Bucket; Delete Bucket — I don't have an idea about all of these. Delete Object: we uploaded employee.json and want to delete it — use Delete Object; to delete multiple objects, Delete Objects. Get Object: to get the data of an object — employee.json — use Get Object. List Buckets: if we have 10 buckets and want a list of them — how many buckets there are. Next, On New Object and On Deleted Object — can you tell me what these do?
+
+— When a new one comes, it's reflected; and the same for deleted.
+
+For example, if a new object is uploaded to a particular bucket, the source component triggers immediately and receives it as data, and we can do the next operation. That's a source component. On Deleted Object: as soon as an object is deleted, the information about the deleted object comes, and depending on it we can do other operations. Then Put Object, to upload data. There are many.
+
+[screen: aws-s3-demo flow: Listener → Start Logger → Create Bucket (Bucket name #[attributes.queryParams.bucketName]) → End Logger]
+
+First, a listener base. Default config; path /createbucket — we want to create a bucket first. The operation: Create Bucket. To create a bucket, we have to provide the name. If we give it here, it's hardcoded. If we pass query parameters or URI parameters, we can map it dynamically. Let's see that.
+
+[screen: IAM → Security credentials → Create access key — access key and secret access key (shown once; download .csv)]
+
+[screen: Access keys (2) — key IDs, created on, last used, status Active]
+
+First, create a connector configuration for the Amazon S3 connector. Click plus: it asks for an access key and secret key, not a username or password. That's how you connect to your Amazon S3 system. Where are the access key and secret key? We created an account, so somewhere here. Did you see "Mahesh" here? Click it → Security credentials → you go to the security page. Scroll down a little to Access keys → Create access key. I'm deleting the existing one: first Deactivate, then Delete — there are only two allowed, that's why. Generally, I created an access key earlier and have used it for many days. Now Create access key again — "I understand… root user" — and here you see an access key and a secret key. Copy and save them. You can see the secret key here too. After clicking Done you'll see the details again — but only the access key, so save the secret carefully. Or download it as a CSV file — the access key and secret will be in it. If you click Done without copying, you'll have to delete it and create a new one, because once you click Done you can't see the secret again. I don't know about admin rights in the background, but as a user you can't access it.
+
+Who gives us all these details? We collect them from the AWS S3 team: "I'm using the Amazon S3 connector from MuleSoft. Give me permissions for this bucket. Give me the access key and secret key, and the bucket name." Set it up with them, then start the project.
+
+I don't need to see these details again — I'll use the downloaded file. Download .csv — it's downloaded like the root key file — then Done. Look: you can see the access key only, not the secret key. In Actions there are Deactivate and Delete, but no option to retrieve the secret key. So be careful: take the secret key when created. I already downloaded it, so on my system — here — both access key and secret have the details. If I hadn't saved or downloaded it, I'd have to delete it and create again. Remember that.
+
+[screen: Studio: Amazon S3 Configuration — connection with Access Key, Secret Key and Region Endpoint]
+
+[screen: Amazon S3 Configuration filled in — Test Connection]
+
+Now, with both the access and secret keys, enter the details there and test the connection. [unclear] The connector configuration is already created; close the project; go to Create Bucket and edit the connector configuration. Provide the access key and secret key — I copied the secret key and pasted it, and the access key too. Then the region, correctly. With the access key and secret key, we should ask for the region and give it correctly. See here, the region came; for the second key the region didn't show — I'm not sure why. We should give the same region as the bucket. There are many regions, and we should know which is which — here US East 1, by default regions are created like this, so it's okay. But it isn't always like that: for example, a European client uses European regions; in the US, maybe not East but West. They use regions according to their situation. There are many regions, so check which region and which user to create and add the proper details.
+
+Now Test Connection — can we connect to Amazon S3? Connected successfully. That's clear.
+
+Now I want to create a bucket. I should give the bucket name — if I give it here, it's hardcoded every time. So we'll pass it in query params: then whatever name I pass, it creates that. What expression? Help me: the bucket name can be dynamic; query params means attributes — attributes.queryParams.bucketName. This is the start logger; since there's no payload, just a name: attributes.queryParams.bucketName. Now the bucket will be created.
+
+[screen: Postman GET http://localhost:8081/createbucket?bucketName=…]
+
+Before creating, which buckets are there? Search S3, click it, all buckets open — mulesamplebucket and others. Let's create mulesamplebucket1 and mulesamplebucket2 and see. We need Postman, and to deploy the application — let's run in debug mode with a breakpoint, then copy the listener path into Postman: createbucket, query param bucketName with the value — bucket1 and bucket2. Let's check whether the application triggers.
+
+The bucket creation option we may rarely need, but we can do it here as well. There are many operations — Put Object, Get Object — and depending on the use case we change the operation; we can use them in many categories. But connecting with the access key and secret key is the easiest way. In Get Object there's a small [challenge] — I'll show you.
+
+I click here and hit the request. The request has come. Our bucket name is printed — mulesamplebucket1. Next. What did we get in the payload? If it weren't created there, we might get an error. Let's go and check — refresh: the bucket was created successfully.
+
+[screen: S3 console: new buckets mulesamplebucket1 … created from Mule]
+
+[screen: Put Object: connector config Amazon_S3_Configuration, Bucket name, Object key, Content #[payload]]
+
+Now another flow, without disturbing this one. I can copy-paste these start and end loggers — we know we can copy-paste in XML — and drag-drop a listener, aligned separately; no problem. Same listener config, path /uploadobject. Print the payload. Which operation? Put Object. The same connector configuration — same S3 system, same access and secret; only the bucket name differs, and the object name. Which bucket? The one we created — this is the bucket name. We could make it dynamic, but I'm hardcoding it here. The object key is basically the name of the file we upload; I'll pass it through query params: attributes.queryParams.fileName. The file name comes through query params and the content in the payload: I take the file name and the content from the body, and upload a file with that name and content. Object key is the file name; Content is the content.
+
+We already created the file — right-click → Edit with Notepad++. This is the content. In Postman we give the file name in the query params and the content in the body.
+
+[screen: Postman POST http://localhost:8081/uploadobject?fileName=employee.json with the JSON body]
+
+HTTP, localhost — remove all this. uploadobject — query param fileName = employee.json. We send the content in the body: raw, JSON. Now the request goes there. I add a breakpoint. Let's stop it — it's working? What happened again? No problem, again.
+
+We discussed a use case earlier: take a file from the FTP server and insert it into the database, with For Each and with bulk insert. Can we do such a use case here? Take a file from S3 and use the employee data to insert into the database. Implement that and see; we'll understand the challenges there — I'll show you what the challenge is.
+
+[screen: Debugger: Put Object response — eTag, versionId, serverSideEncryption AES256 …]
+
+[screen: S3 console: mulesamplebucket1 now contains the uploaded object]
+
+Now I hit the request. It came. What's the payload? It came in Java, did you see? What should we do when it comes in Java? Generally, a Transform Message to convert it to JSON. Since we didn't, there's no proper message. In mulesamplebucket1 — you can download it and see it here, or open it. It's uploaded. If you put a transform here, it'll be a little clearer, and you can send the response you want. So the Put Object also works.
+
+[screen: Flow: Listener → Start Logger → Get Object (bucket name, object key) → Transform Message (output application/json / payload) → End Logger]
+
+Next, Get Object. I'll stop it. Content is already there. Same way, copy-paste the same flow: go to XML — flow 2 — delete this, and drag-drop the Get Object operation from Amazon S3. Same connector configuration — same S3, access and secret. Bucket name? In Postman we had the file name in params; before that, which bucket should I retrieve the file from, and which file? Send both in query params: bucket name and file name from attributes.queryParams. Let's make both dynamic — then it's generic for any bucket: bucketName, then copy-paste, fx, fileName. Since it's dynamic, we can access any object — any file — as we specify. I have the bucket name mulesamplebucket1 and file name employee.json. I kept the Transform Message the same way. Now Get Object connects to the AWS S3 system, goes to the bucket — mulesamplebucket1 — and gets the employee.json file content.
+
+Let's debug the project. Oh sorry, the path — first stop it; listener path getobject; saved. Deploy. Postman ready. I should get the data.
+
+— You have to change the URL.
+
+Get object — yes, sorry, thank you. That was upload object. localhost:8081/getobject, with fileName and bucketName. So: go to this bucket, retrieve this file, and tell me the content.
+
+[screen: Postman GET …/getobject?fileName=employee.json&bucketName=… → the file content]
+
+I got the content. Now, say I want to insert it into the database — what's the extension after this? After getting the data, transform it, write queries for the database and insert. Use For Each, or bulk insert — bulk insert any time if the file content isn't much; if there's a lot of content, For Each is better. You can extend the use case like we did for FTP.
+
+Now I'll show you the challenge: how data comes from Get Object. Deployed; hit it. We got a request. No payload, but the attributes have the query param values: fileName and bucketName. Next, Get Object connects and the data should come. See the payload — we got it. Which format? application/octet-stream — binary format. Convert it to JSON — what happened? It looks different. Overall it looks like a string: a double quote here and a double quote there, and all the data inside looks like a string. If you send this to the database, will it convert? It'll be like a string. Do you understand the challenge?
+
+— Yes.
+
+How should we convert it? Why did it come like this? The Amazon S3 connector gave us data in binary — octet-stream — format. What's the underlying data format? JSON. To convert to the underlying format — remember the read function? We use read with the underlying data format. Let's see: I sent this to Postman and the response showed the same. To convert it, in the expression evaluator: read(payload, 'application/json') — the underlying format in single quotes: JSON. See now — correct? Will the database accept it properly now? Yes. That's what we have to do. After that, send it on. I'm not doing the DB part because you already know how: do it two ways — bulk insert, and normal For Each — for knowledge and exposure.
+
+[screen: S3 On New Object source — bucket name, folder, scheduling strategy fixed frequency (1000 ms)]
+
+[screen: DataWeave Playground — the downloaded employee.json shown as JSON]
+
+That's Amazon S3. Overall: Amazon S3 is a cloud object storage service. In object storage we create buckets and organize our data in them — we can save any file, an MP4 or anything. A saved file is called an object. We saved a JSON file and tried it. There are different operations. The Amazon S3 connector gives us an option to connect directly: we generate an access key and secret key, establish the connection with the S3 system, and do the different operations. I've told you about the operations: List Objects, List Buckets, On New, On Deleted — try all of them; you'll find nothing different. For example, Delete Object: select it to delete an object; Delete Objects for multiple. Then On New Object and On Deleted Object: drag-drop On New Object — see, it goes to the source. Configure it with the bucket name — mulesamplebucket1 — and when a new object comes into the bucket, it comes here. It triggers every second and checks whether a new object has come. That's all about the Amazon S3 connector.

@@ -1,6 +1,6 @@
 # Cleaned Transcripts
 
-These are cleaned-up versions (Days 3–55) of the raw Whisper transcripts in [transcripts/](../transcripts/). The raw files are left unchanged.
+These are cleaned-up versions (Days 3–57) of the raw Whisper transcripts in [transcripts/](../transcripts/). The raw files are left unchanged.
 
 What was done to each day:
 
@@ -65,3 +65,4 @@ What was done to each day:
 | 53 | [day53.txt](day53.txt) |
 | 54 | [day54.txt](day54.txt) |
 | 55 | [day55.txt](day55.txt) |
+| 57 | [day57.txt](day57.txt) |
