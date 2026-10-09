@@ -1,0 +1,200 @@
+MuleSoft Telugu Course — Day 50 (cleaned transcript)
+Source: transcripts/day50.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day50 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+[slide: Agenda: Synchronous processing, Asynchronous processing – Async scope, Batch processing discussion]
+
+What did we see in the previous session? We completed Parallel For Each, and before that For Each — both scopes in detail. Now batch processing. For the same kind of activity — processing data — we have been given three different provisions: For Each, Parallel For Each and batch processing. As I discussed yesterday, when we want to handle large data sets we go for batch processing.
+
+Large data set is fine, but what counts as large? A generic example: someone wants to buy a car. For a normal employee earning Rs. 50,000, even a 10 lakh car is a burden — they have to consider all their expenses, pay the EMI and plan everything; for them, a 2 lakh car fits. It depends on that person's range — it's a relative term. In the same way, in batch processing, "large data set" is relative: we should know what to compare it with. The main thing is our memory. When the memory is in a situation where it can't handle the data — data sets larger than our memory — that's when we go for batch processing.
+
+For example, our application has memory — say 500 MB — and with this 500 MB we process the entire application. A regular application with Parallel For Each: a listener, a process, a Parallel For Each. We process the data; memory is allocated to the application, and the internal variables and payloads are stored in memory. In situations where the memory cannot handle it — that's where batch processing comes in. Generally, when a data set grows to 20,000, 30,000 or 40,000, everyone automatically goes for batch processing. But from an interview point of view, the point to make is: whenever the data cannot be handled by memory — data sets larger than memory — that is one reason.
+
+[drawing: For Each over 100 records fails on the 50th / Parallel For Each on the 30th → app restart loses progress; batch auto-restarts]
+
+Another thing. We take two instances: we send 100 records into a For Each process, and the same 100 records into a Parallel For Each process. In the For Each, at the 50th record there is an issue — a failure — and the application restarts. What happens to the 51st, 52nd, 53rd? Did you understand the question?
+
+— Yes.
+
+For Each: 100 records input; failure at the 50th; the application is restarted. Parallel For Each too: 100 records, an issue at maybe the 30th — it depends on the size — and they restart or redeploy the app. What can happen?
+
+— It could be connected to queues — there's no configuration anywhere in Parallel For Each.
+
+Generally, we have an API. Leave For Each aside: normally there's one API, it gets a request, and we have to respond. There are two components. The request comes from the listener to the first component, then the second — and here it automatically restarted; some issue in the worker. What happens to this request? It is automatically lost; it can't be handled. We sent a request and the application stopped — we're in the request-reply pattern. In Anypoint Studio you can see it: hit from Postman, debug, and stop the application at the third component; check the response and you'll understand. In the same way, when the app restarts, the processing doesn't happen for those 50 records. The request details were held by the application; after restarting, nothing handles them. The same with Parallel For Each. Did you understand this point?
+
+— Yes. The data is lost.
+
+Yes. Wherever it stops, For Each and Parallel For Each have no option to continue. But in batch processing we have this option. For example, I send 100 records to a batch process and the application restarts at the 50th record. The batch process notes that it failed at the 50th record, and when it restarts, it resumes from the 50th or 51st record and processes all the records. That's known as reliability. What is reliability? Not losing the data. In such situations we can go for batch processing — even if we have less data but need to process it reliably. With Parallel For Each we'd have to manually push the message back to a queue, retrieve it from there and reprocess; batch processing does all this automatically. So: one, huge data the memory cannot handle; two, batch processing also provides reliability.
+
+[drawing: synchronous — the request waits until every processor has finished, then the response returns]
+
+[drawing: asynchronous — the response returns while the Async part keeps processing in the background]
+
+Along with that: synchronous vs asynchronous. For Each is single-threaded and Parallel For Each multi-threaded — different. But in both we wait for the output — even from Parallel For Each — so both run in synchronous mode. How is batch processing done? In asynchronous mode. Do you understand? We need to understand these in detail. When you have to handle huge data that memory can't handle, asynchronously, or whenever you need a reliable pattern — processing without losing data — go for batch processing. Any questions so far?
+
+[drawing: Batch components — Batch Job, Batch Step, Batch Aggregator; handles huge data asynchronously, reliability; 3 phases: load and dispatch, process records, on complete]
+
+[screen: Batch Job scope diagram (MuleSoft docs) — Process Records with Batch Steps and Batch Aggregator, then On Complete]
+
+How many steps does a batch process take? First, multiple components are given to us for batch processing — in the Mule Palette in Anypoint Studio. How many phases does a batch process have? Three. First, Load and Dispatch; then Process Records; then the On Complete phase.
+
+What happens in Load and Dispatch? This is the Batch Job scope. When we provide input to it, the first phase happens automatically in the background — we have no visibility of it anywhere. How does reliability come? Load into persistent queues: the data is split and saved into persistent queues.
+
+[drawing: records loaded into a persistent queue; processing in memory vs persistent (disk)]
+
+What are persistent queues? There are two types of queues — in-memory and persistent. We'll see queues in JMS. In-memory means: if the application restarts or crashes, the data in that queue is deleted. I publish a message to the queue; a consumer receives it and consumes it to process — I'll discuss this terminology with JMS. Say the message is here, stored in memory, and the application restarts: the memory is erased, and the data in the in-memory queue is deleted too. Persistent means: even if the application restarts or crashes, when we restart it, it continues from where it stopped. Since it already has the messages in the queue, it automatically takes them from the queue and processes them again. Where is it saved? On disk. That's why it's persistent: since it's saved on disk, it's available to us from wherever it crashed.
+
+So in the first phase, when the batch job gets its input: load and dispatch — load into a persistent queue. That's the background step. The second phase is Process Records, which can have multiple steps — we do the entire processing there. Next is On Complete, the third phase. What is it? A summary of the total process: how many records were batched, how many processed successfully, how many failed — all presented as a summary.
+
+In For Each, do we have to create a summary ourselves?
+
+— We have to create it.
+
+Yes. But the batch job reports it automatically. Parallel For Each aggregates all the responses from all threads and gives us the response; For Each doesn't give one. Does the batch process give the responses? No — only a summary, not all the responses of each thread. Say we got 1 lakh records: after processing 1 lakh records, we don't get aggregated responses, only the summary — of 1 lakh, 95,000 succeeded and 5,000 failed. It doesn't gather all the responses into a report. Remember that. Three phases: load and dispatch, process records, on complete.
+
+What components are provided for the batch job? Go to the palette and search "batch". These are Salesforce-related, leave them. In Core: Batch Job, Batch Aggregator, Batch Step — three components. Like a scope: we drag-drop a Batch Job first, and can include extra Batch Steps in it, and aggregators.
+
+[screen: batch-process-demo flow: Listener → Set Payload → Batch Job [Process Records: Batch_Step (Logger → Set Payload → Logger → Batch Aggregator), Batch_Step1] → On Complete]
+
+I drag-drop a Batch Job. Inside it you see the phases: On Complete, Process Records — and the load and dispatch is the background step; it's invisible, nothing to do there. In Process Records, do you see a batch step? One or multiple? One. If I want multiple, I drag-drop another Batch Step. What is in a batch step? Processors and an aggregator. What does aggregator mean? Input comes and we process it; then if I need to combine 2–3 records, I use the aggregator. We put the Batch Aggregator in the aggregator section of the step. It's optional; I'll show how it works. So: more Batch Steps from here; a Batch Aggregator — only inside a step's aggregator section, not on its own. Is this clear?
+
+— Yes sir.
+
+I'm telling you what can and can't be drag-dropped where. Let's go to the actual example for more clarity.
+
+[screen: Set Payload with an array of records sent into the Batch Job]
+
+Let's do the same process as Parallel For Each in a batch: input 1, 2, 3, 4, 5, a, b, 6. After drag-dropping the batch, check the configuration — of the job, the steps, the aggregator — one by one. If the input is not JSON, XML or Java, put a Transform Message before it and convert it. Second, the name: to name the batch job, change this name, and it changes here too.
+
+[screen: Batch Job properties: Max Failed Records, Scheduling Strategy ORDERED_SEQUENTIAL, Job Instance Id, Batch Block Size, Max Concurrency]
+
+Another point: error handling. In Parallel For Each, did we handle errors manually, or did it support it? It fails; to continue, we used Try with On Error Continue — set up manually. In batch processing, if records fail, continuing is supported automatically. The configuration for this is Max Failed Records. What is it here? -1. What does -1 mean? No matter how many records fail, it continues. [unclear] For example, if we get 5,000 records and set it to 100, once more than 100 fail it stops. It sets that up in the background.
+
+Then the scheduling strategy. What is the Job Instance Id? An instance ID is automatically created by the system for this job. If we want to configure it ourselves — a custom ID — can we? Yes. But how do we configure it here? There's no fx button, but we can write expressions with #[ ]. Most of the time we leave it to the system to generate, and it runs according to that ID.
+
+Next, block size, and max concurrency. We'll check the batch job with the default configuration; I'll change this, that's why I'm telling you. What is the batch block size? Each block processes 100 records.
+
+— Does it split 100 by 100? I don't understand.
+
+[drawing: 100 records split into blocks (block size) processed by threads T1 … T4]
+
+When we have multiple records, each block takes 100 at a time. I said it saves to queues and processes from the queues. Why do we call it batch processing? Say we have 10,000 or 1,000 records — that's a batch. Is this also done in parallel? Is there max concurrency? Yes: max concurrency means, for example, 5 threads — parallel processing. Save to the queues; according to the system configuration, 5 threads are created: thread 1 to thread 5. The 1,000 records are saved in the queue. Each thread takes a block of 100 records from the queue — the batch block size — and processes them one by one; after those 100 are processed, it takes another 100 from the queue. [unclear] The same formula as Parallel For Each for max concurrency. Exactly — it handles the process the same way.
+
+We can set the batch block size as we like; the default is 100. It affects performance; it's good to leave it as it is. Unless we do trial and error — testing, observing everything — and decide accordingly. This defines the number of records that can be processed in parallel.
+
+[unclear] After the On Complete phase, it doesn't overwrite the payload of the main flow, since it's asynchronous. Variables then [unclear]. If I don't give a target, what happens at the end? After completion there's the payload. We can also define a target variable.
+
+[screen: Batch Step: Accept Expression and Accept Policy — NO_FAILURES (default), ONLY_FAILURES, ALL]
+
+Next, the Batch Step configuration. By default there's one batch step in Process Records; if you want multiple, add another — I'll tell you why it's useful. Look at the batch step configuration: Accept Expression and Accept Policy. These are filters. 1,000 records came, and you don't need all of them. For example, letters and numbers are coming and I have to accept only the numbers. Can I? In Accept Expression I put #[ ] and write an expression: isNumber. It accepts only numbers; a and b are automatically filtered out, and only 1, 2, 3, 4, 5, 6 go into this step's processing. So if we want, we write an accept expression here.
+
+What does Accept Policy say? ALL, NO_FAILURES, ONLY_FAILURES. Say there are two batch steps, and I want to process the failures in the second step. What do I put in the second batch step? That I want only failed records. Records that failed in batch step 1 become the input of batch step 2. To configure such things we use the Accept Policy and select ONLY_FAILURES. For example, I want to insert only the failed records into a separate database table. I process them in the second batch step. What is its input? 1,000 records come; in step 1, 950 succeed and 50 fail. For step 2, I said only failures, so those 50 failed records are its input. In step 2 I insert all of them into the database — the failure records. After that, I process them manually or define a process accordingly.
+
+— Now say we've processed 950 records, and while 956 is in the middle of processing an interruption happens — the process goes down. Will those records be failures, or processed in the first or second batch step?
+
+Not the second batch step — what you are saying is that the entire batch process failed; the application. [unclear]
+
+— With For Each: 9 records were processed internally; while processing the 10th, the application stopped. Are all 10 failed?
+
+No, 9 are done. It didn't come out of the For Each, but I inserted into the DB inside the For Each, so each completed iteration is done — 9 are done; the 10th failed. We'd respond to the consumer; with error handling — even with error handling, the application restarted. So we'd go and manually check the input against the database and use it manually. These are all edge cases, very rare. Why would an application restart while working, unless there's a problem? Even when an application is redeployed, it is redeployed after the current process completes. For example, I'm doing a Parallel For Each and redeploy the application through the pipeline: another 50 records' processing is pending; it redeploys after those 50 records are processed. Did you understand?
+
+— Yes.
+
+It waits until the process completes and then redeploys — it handles all that automatically. But there are scenarios where the server restarts automatically — say we're on-premises and the server restarts. What can we do? Nothing; all the applications stop. To put it simply, you can't restart a live production server — except when there's no business time. All these are edge cases. But we still need that info while designing the application.
+
+[screen: Batch Aggregator: Aggregator Size (or Streaming) — groups records before writing]
+
+Next, the Batch Aggregator configuration. What is the aggregator size? 4. We can work without a batch aggregator — it's optional. But why is it given? We split and process records one by one. Say each record is processed here, and I want to collect some and do something together: three records are processed — the first done, the second done, the third done — and I have to do an activity with those three. If I put a batch aggregator with size 3, as soon as three records succeed, [unclear] it does the activity with them. Whenever you want an aggregation in the process, do it here.
+
+Say you get 100 records, 5 fail and 95 come through, and the aggregator size is 100. Will those 5 failed records also come to the aggregator? No — only successes. Remember that: failed records don't come to the batch aggregator; they are not its input.
+
+— Yes sir.
+
+[unclear] Try other input formats and see whether it fails — no problem. But according to the official documentation, it accepts Java, JSON and XML. And first — the payload; it takes the payload first.
+
+I selected the numbers here. Look at the batch steps. I left the default setting. I put a logger — printing what? After splitting, the payload; then payload * 20; then the payload printed again — the response. The batch aggregator here has aggregator size 4: after 4, the responses are combined and the logger prints them. That's all.
+
+Next, in batch step 2 — we're just showing it with a logger: "a" comes to this step separately, "b" separately. If we want to process them separately we do it here. What should I do when a string comes — invalid data? For example, insert it into the database; any activity per our business process, which we discuss and decide. [unclear] "Exclude other than numeric values."
+
+[screen: Batch flow triggered by a Scheduler instead of the Listener]
+
+It isn't starting; Postman seems to be showing something. I stopped it. Now, there's a listener. What if I invoke it automatically instead of with a listener? I can replace it with the Scheduler. I deleted the listener; the Scheduler is the source component. Scheduling strategy: fixed frequency — or cron. Fixed frequency, say every 5 minutes. That's passed into this.
+
+[screen: Console — "Starting loading phase", "8 records were loaded", "Started execution of instance … for job batch-process-demo-3Batch_Job"]
+
+Now in the first pass: what is the payload? 4 first — did you see? Why? Because it's multi-threaded. That's why it doesn't follow any order. Next iteration: multiple threads, b, 4. How many threads were created? It created 3 threads: 4, b, 1. Three came out, as you can see.
+
+[screen: One record fails in a step ("a" * 10) — "You called the function '*' with these arguments"]
+
+[screen: On Complete payload — BatchJobResult: loadedRecords, processedRecords, successfulRecords, failedRecords, elapsedTimeInMillis]
+
+[screen: Console exception summary — Exception Type, Step (Batch_Step), Count]
+
+[screen: "Finished execution for instance … Total Records processed: 8. Successful records: 7. Failed Records: 1"]
+
+The batch step … the On Complete phase: failedOnCompletePhase false — if true, it failed there. How many records were processed? 8. Successful? 6. Failed? 2. Total records — good. What format is this? That's why I'm converting to JSON and printing it. Do we understand how it is? This is the system log — the batch job prints it automatically. The last one is our payload log after JSON conversion: number of records, total records.
+
+[screen: Batch Aggregator logs — records written in groups (e.g. [20, 40, 80, 100])]
+
+How did I set the aggregator size — 3 or 4? 4. What does that mean? Whichever 4 records succeed, those 4 are printed here. When did it go to batch step 1 for the failed records? After the first three were processed. It hadn't gone to the aggregator yet. Here 4, 1, b, 80. Now 5, 2, 6 — 100, 40, 120. When do we see it? 20, 40, 80, 100. [unclear] In total, 6 out of 8 should succeed. Done? In the second aggregator call, only 2 came — because the process is done and there are no more records, it picked those two records and printed them. Clear?
+
+— Yes.
+
+Now it triggered again automatically — did you notice? I set the interval and it's over, so it triggered again: the Scheduler. Whenever you want to invoke your own flow at a certain interval or time, use a Scheduler — fixed frequency or cron.
+
+Overall in the batch: we used the aggregator like this, batch step 2 like this. Let's check once more in detail. The input came. If it were a listener, what would my response be? That's what we need to check.
+
+— Yes sir.
+
+What did you get here? The payload. Did the payload get overwritten? We didn't define a target variable. See: what was the payload before? 1, 2, 3, 4, 5, 6. What's here? Record count: 8. Status: executing. So we got the information that the batch job has started. That's what happens here; with a logger here you can see it in detail. And see, the process isn't done when the start is shown — why? Because it's asynchronous; it went there and ran.
+
+[unclear] If Postman is corrupted, uninstall and install it again.
+
+Now 1, b — before, 4 came first; now the order has changed again. Now there are 3 records — we kept size 3. b is the failure. Then 2. The next one started. Now see the payload: 4 succeeded; as soon as enough succeed, they come to the aggregator. And b goes to batch step 2. That's how it works. If I put 0 instead of -1 for Max Failed Records, the first failure stops the process. You people try it: take all the combinations I told you and test whether it works accordingly. Testing will give you more clarity and more grip on batch processing.
+
+[drawing (use case): every Friday 10 PM — CSV file of customers on an FTP server (~5000+ records, max 12500) → DB insert and Salesforce create, scheduled with cron]
+
+Use case: [unclear] every Friday at 10 PM a file comes. What file? A CSV file. In it, around 5,000+ records, maximum 12,500. What will you do with it? First, a cron schedule.
+
+— Right, put the cron. Then the FTP connector reads the CSV file.
+
+Per the documentation, the batch works with XML, Java and JSON. Which is ideal for us, JSON or Java? Java is ideal — if we want to do something in the background, we convert it to Java.
+
+This is the array of customer data — the file is a list of customers. Let's assume that before inserting into the database you have to call the database to check whether the customer exists — if it does, don't insert; if not, insert. Then the complexity increases; I don't want that complexity. Always new customers. So in an array of customers, each customer is an object: name, address, etc.
+
+As soon as it comes into the batch process, each object's details come out one by one. We have a Transform Message and a DB insert. This is FTP — did you see where FTP is? Outside the batch process. Did you notice?
+
+— Yes.
+
+Next is the DB insert. Why did I put this Transform Message? The object came, I did the transformation I wanted in Java and inserted it into the database. Then what again? Salesforce. Do I have to transform for Salesforce?
+
+— You have to.
+
+Why? There's an object here and I have to convert it to Java, the Salesforce format. I did all that and did a Salesforce Create. You're utilising everything you've learnt so far, one by one.
+
+Now, if the database insert succeeds, I have one table; if it fails, I have to insert into another table. What will you do?
+
+— A second batch step.
+
+That's it — before On Complete, all of this is batch step 1, and the failures go to step 2. [unclear]
+
+So it's very important to understand the scenario: what their business is, what's happening, what we're doing — do a first calculation. Let's understand these two points: batch processing is better here because the data is huge; error handling happens automatically; there's reliability for us. This is customer data, so reliability is very important. So batches are good here. If you understand the requirement, you go for batches. That's the first step.
+
+Now they're clearly telling me the business requirement: every Friday is enough — once weekly — or every Saturday, in non-business hours, on non-working days. If you get clarity like that… Generally they prepare a big document and we take the actual content and go to implementation. The reason a developer's job is easy is that everything is ready in front of our eyes. How to do it is on you: in a For Each? In a batch process? How? Reliably.
+
+[screen: Studio: ftp-db-insert flows — Scheduler → Read employee CSV from FTP → CSV to Java → For Each insert vs Bulk insert into the database]
+
+[screen: CSV to Java Transform: payload map ((item) -> { empId: item.emp_id as String, … })]
+
+After the FTP server topic is done, we'll take one example and do it. From our file we convert to Java payloads — the data is a normal CSV file; we take that data and convert it to objects. Our requirement is basically the same. If you observe here — FTP demo done. What did I do? This is the FTP connector: it connects to the FTP server and reads the file. Then I converted it to Java, and inserted it into the DB. So the FTP read connector and DB insert combination is done; next we have to write. [unclear]
+
+[screen: Remaining course modules (Notepad++) — File/FTP/SFTP, Object Store, JMS, CI/CD, AWS S3, HTTPS, CloudHub 1.0 vs 2.0]
+
+Then what other concepts can we deal with? We have to deal with FTP; when we do, we'll discuss that. Then JMS — we talked about queues; queues and topics, we'll deal with that.
+
+— What kind of files do we see — only CSV? Excel also comes?
+
+CSV mostly; Excel also comes. [unclear] If you ask me about EDI formats right now, I couldn't do much. If a client came, I'd do a POC once. There is an option called Anypoint Partner Manager — a ready-made solution. There is a separate connector, the X12 connector, and Anypoint Partner Manager is charged separately; with it you can easily drag and drop to deal with EDI formats on the Anypoint Platform. After acquiring the license, there are formats like X12 in Anypoint Partner Manager. That's my understanding.
+
+If you ask me now, I'd say I know about 20–25% of MuleSoft, because there is so much I haven't explored, that I didn't get the opportunity for. We had that blind spot long back. EDI is a rare requirement — mostly manufacturing and healthcare-related standards. [unclear] If there are requirements in it, we'll put effort into it; otherwise … If you want to learn some EDI, I'll see later.
