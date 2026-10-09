@@ -1,0 +1,200 @@
+MuleSoft Telugu Course — Day 42 (cleaned transcript)
+Source: transcripts/day42.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day42 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+In today's session we will first see Scatter-Gather. Scatter-Gather is also a component for us; we will discuss how to use it and in which situations. Then we will move on to the next component, the Async scope.
+
+First, Scatter-Gather. As soon as we see the name: we scatter something and then gather it again. First we scatter, then we gather. We will remember it as soon as we see the name.
+
+[drawing: an API calling Amazon, Flipkart and TATA Cliq REST services one after another — 250 + 350 + 400 ms]
+
+Let's take a small example. There is a price comparison website — for example, a mobile price comparison website. What do they do generally? They collect prices from different websites and display them. How do they get the prices? Obviously they have to communicate with the Amazon system, the Flipkart system and the Tata Cliq system — let's take these three e-commerce sites as the example. The price comparison website has tied up with Amazon, Flipkart and Tata Cliq, and these three have exposed their APIs; let's consider them REST APIs. So Amazon has an API, Flipkart has an API, and Tata Cliq has an API.
+
+The comparison website is developing an API in the backend. When they get a request from the front end — for example, compare prices for an iPhone — the request comes in. Immediately it communicates with the Amazon REST API. What do we use for a REST API? The HTTP Request connector. We send the request to Amazon and get the response, with all the price details from Amazon. Say it took around 250 milliseconds. Then I send it to Flipkart, and Flipkart responds in 350 milliseconds. Then Tata Cliq responds in 400 milliseconds. And it is not just these three HTTP requests — there will be other processing too.
+
+[drawing: sequential total = 250 + 350 + 400 + 200 = 1200 ms]
+
+Total time taken: 1200 milliseconds. Now observe: is the request we send to Amazon, or the response from Amazon, needed for Flipkart or Tata Cliq? Is there any dependency?
+
+— No dependency.
+
+But I am waiting for the response; after it comes, I send to Flipkart; after that, to Tata Cliq. If I get a request for a phone's price comparison, even if I send it to the three sites at the same time and get the responses at the same time, there is no problem. Isn't that better?
+
+— Yes.
+
+[drawing: Scatter-Gather — the same three calls sent in parallel routes and gathered at the end]
+
+Then tell me what happens if I send to the three sites at the same time. First we scatter the request into three routes. What does scatter mean? In the first route the request goes to Amazon and gets the response; in the second route it goes to Flipkart; in the third route it goes to Tata Cliq. We execute the three routes at the same time. At 250, Amazon is finished: the response has come. Then what? It comes to the gather point and waits for the others. At 350 Flipkart arrives, at 400 Tata Cliq. So how much time did it take for all three? 400 milliseconds. Plus the other components, 200. 400 plus 200 is 600 milliseconds.
+
+[drawing: with Scatter-Gather the time is the slowest route + 200 = 400 + 200 = 600 ms]
+
+So what happened here? Since there is no dependency and there is scope for parallel processing, I can use Scatter-Gather at such times. The Scatter-Gather component gets the request and sends it to all three routes — route 1, route 2, route 3 — at the same time. Amazon, Flipkart and Tata respond; we gather the responses and pass them to the next component. Route 1 takes about 250 ms and waits at the gather; route 2 at 350 ms waits; route 3 is 400 ms. That is how Scatter-Gather processes a request in multiple routes simultaneously.
+
+What is the time taken by the whole Scatter-Gather? The maximum time taken by any one route. Among the three routes, the maximum is 400 milliseconds — route 3, Tata Cliq. So the Scatter-Gather takes 400 milliseconds; the other components about 200. 400 plus 200 is 600, as we discussed. What is the advantage? Time saving.
+
+Next scenario: the response from Amazon must be the input to Flipkart. Can Scatter-Gather be used then? It can't. Please note that. Or the response from Flipkart must go to Tata Cliq, or Flipkart must be called only after the Amazon request is done — when such a dependency is compulsory, you can't use the Scatter-Gather component. Whenever there is a situation for parallel processing, where the calls are independent of each other with no relationship between them, you use Scatter-Gather, process in parallel, and automatically reduce the total time of the API. The sequential API is not a wrong process; if we want to increase performance, we use Scatter-Gather to save time.
+
+How many routes should a Scatter-Gather have? At least two. Why? If there is only one, what is the use? No use — we can use normal components. There should be at least two routes. I'm not sure about the maximum; in my experience I use up to four or five. I haven't observed any restriction or seen one mentioned anywhere; you can try and see.
+
+And we also gather here. What do we gather? The collection of the first route's response, the second route's response and the third route's response, and that is passed on. When the request goes into the Scatter-Gather, the same request goes to the first, second and third route: for all three, the payload is the same, the attributes are the same, the variables are the same.
+
+— These are in multiple APIs?
+
+No, this is all within the same API — our API. In the first approach, one API with three HTTP connectors one after another takes 1200 milliseconds. Instead, we drag-drop a Scatter-Gather, and in the first route we have one HTTP connector, in the second route one, and in the third route one — still one API.
+
+[screen: New project scatter-gather-demo — Listener (path /scattergather) and Start Logger]
+
+Let's set the listener path as /scattergather. In Core, you can see Scatter-Gather in the flow control (Routers) section.
+
+[screen: Scatter-Gather dragged from Core → Routers; routes added]
+
+Do you see any routes here? No. How do we add routes? The same as we did for the Choice router. This is the first route; now let's create the second route — done. A logger, and the third one too: three routes. Next, a logger. Since we don't have a real price comparison example, I have told you the use case, but I can't implement it exactly. I'm keeping it simple with normal loggers and transform messages.
+
+[screen: Three routes, each a Route N Logger + Transform Message, then End Logger]
+
+Now we have three routes. Can we put any components — any message processors — in route 1? Yes. Route 1 has a logger and a Transform Message; route 2 a logger and a Transform Message; route 3 a logger and a Transform Message. While route 1 is processing, route 2 and route 3 process simultaneously. The maximum time of these three routes is the total time of the Scatter-Gather. When we come past the first logger, the payload, attributes and variables — the same copy — are sent to the first, second and third routes. After processing, the responses are gathered and passed to the next component.
+
+[screen: Route Transform: output application/json / {"route3": "route 2 executed successfully"}]
+
+[screen: Scatter-Gather properties: Timeout, Target, Max Concurrency]
+
+There are three configurations here. Timeout: how long to wait, in milliseconds, for a route to complete. If a response doesn't come within that time, it times out — per route. For example, if I know any route must respond within a maximum of 500 milliseconds, I can set that; if a route doesn't come back within it, it immediately times out. Most of the time we leave it default, unless you have a specific restriction. With the default, it waits for the maximum time, no matter which route.
+
+Next is Target — the target variable. If a variable name is given, the result is stored in that variable. That's why I said with HTTP, target variable and reconnection strategy are common. Here too: if you give a name, the entire response of the Scatter-Gather goes into the variable; otherwise it overwrites the payload.
+
+Then Max concurrency: the maximum level of parallelism. There are three routes; it automatically processes the three routes in parallel. Mostly we use target only if a target is needed; otherwise we leave everything default.
+
+Now we have to process the first, second and third routes in parallel. Can one do three in parallel? Take a real-life example: there are three tasks in the house. If one person must do all three, after completing the first task they do the second, then the third. One person can't do them at the same time. So we appoint three people for three tasks and they do them in parallel. Scatter-Gather does the same: one thread for the first route, one for the second, one for the third. That is what helps it process in parallel — assigning three people for three tasks. That is max concurrency. After that, we gather and respond.
+
+[screen: Debugger before the Scatter-Gather: payload "SG Payload", attributes, vars size 0 (a Set Payload added before it)]
+
+Let's put a breakpoint. We haven't entered the Scatter-Gather yet. What is the payload? "SG Payload". Attributes: our regular query params empty, URI params empty, some default headers. Variables: we haven't created anything, so none.
+
+[screen: Inside a route: every route receives the same input payload "SG Payload"]
+
+We can see it's a parallel process. Normally, in debugging, it goes here, next, here. See — route by route, we can see what came to each.
+
+[screen: After the Scatter-Gather: payload is a LinkedHashMap of size 3 — keys "0", "1", "2"]
+
+What is this? The collection of the first route response, the second route response and the third route response — combined. If a certification question asks "what is the output of Scatter-Gather?" — an object of all route responses.
+
+[screen: Scatter-Gather output: {"0": {attributes, payload: {"route1": …}}, "1": {…}, "2": {…}} — one Mule message per route]
+
+output json, payload — I convert it to JSON. Look: Ctrl+A, Ctrl+C [unclear]. An object, then the "0" route. We usually think of routes as route 1, 2, 3, but the first route is actually route "0". All its details are up to line 51. Then route "1" starts again, until line 101 — see the red arrow. In route 0 see the details: inbound attachment names, exception payload, inbound and outbound property names, then the payload — if you set a payload in the first route, see whether it comes.
+
+If you have to take the first route's payload and use it — consume it — how? Can you tell me the expression? [unclear] We have the same attributes too: query params, URI params and so on, the same way for the first route.
+
+[screen: Postman response unreadable — the gathered map is Java, so a Transform to JSON is needed after the Scatter-Gather]
+
+[screen: Final Transform Message after the Scatter-Gather: output application/json / payload]
+
+In Postman it came in an unreadable format. So we use a Transform Message and convert it to JSON.
+
+[screen: Postman → 200 with all three route results as JSON (keys 0, 1, 2)]
+
+[screen: Set Variable before the Scatter-Gather (test = "before SG") — visible inside every route]
+
+Now let's say there is a variable here, before the Scatter-Gather. What happens? Did you notice the attributes before the Scatter-Gather go into the second and third routes? Yes. Did the payload go? It went. Let me run it again. It's getting deployed. The request has come. Look at the first route: payload — the payload from before; attributes — the same; variables — the one we set. Then the second route: the same copy of payload, attributes and variables is passed to the first, second and third routes. See, the variable has come too. Am I modifying any variable here? No. So what is the variable? The same variable; nothing has changed.
+
+Now suppose I modify something in some route — what happens?
+
+— It won't change?
+
+Let's do it. Since it's a test, I modify the same "test" variable in route 1. One more thing: I create a new variable in a route, to see whether it is available afterwards. We call them route 1, 2, 3, but they are 0, 1, 2 — for counting it's the same.
+
+[screen: Set Variable inside a route ("inside route1 SG") — route variables are merged after the Scatter-Gather]
+
+So in route 1 I overwrite the existing variable. Is everyone okay? In the second route I create a new variable and also modify the same test variable — I change its value here too. So: I modified the variable from before the Scatter-Gather in route 1 and route 2, and I also created a new variable in route 2. Now we will see how these variables behave when the Scatter-Gather finishes.
+
+These are the kind of questions you face in interviews. Two, one and a half or three years ago they used to ask: what is the total time taken by the process? Now they don't ask that. Now: how do you handle errors in Scatter-Gather? There is a variable before the Scatter-Gather and I modified it in route 1 and route 2 — what is its value after the Scatter-Gather? How can a variable created in a route be accessed after it? These come up in interviews — a little advanced. So we are seeing all of them.
+
+Did I do anything in route 3? Nothing. If you create another variable in route 3 we'd see that too. Now I hit it. In the first route there is "before SG", in the second route "before SG", in the third route "before SG". Did it modify the test variable? Not yet — it hasn't come to the modifying component yet. Route 1 is already past it [unclear]; now in route 2 — has the test variable changed? It changed in route 2.
+
+— We modified the test variable before the Scatter-Gather; it should change after the component is crossed?
+
+You saw it when it was in that route — it changed. All three run in parallel, so in debugging it shows us like this, so that we can understand; otherwise it would go on to the next component in that route and we wouldn't see it. Wait, I'll show you.
+
+[screen: Debugger after the Scatter-Gather: vars from all routes present (test, route1 …)]
+
+Now see how many variables there are. Do we have the modified variable and the new one? The variable from before the Scatter-Gather — yes. The new variable we created in one of the routes — did we get it? We got it. Good. But what is the value of the test variable? It is the collection of the modified values: the first route's and the second route's. This is where people may ask you questions: I have a variable outside the Scatter-Gather, I modified it in the first route and the third route; what is that variable after the Scatter-Gather? A collection of the first route's value and the third route's value. You can write vars.test and see how it looks: converted to JSON, an array of the first value and the second value. Correct? Yes. This is what you have to understand. Why? When we implement Scatter-Gather, we need to know in depth what will happen.
+
+Scatter-Gather has the max concurrency parameter. What happens if I set it to 1? Will it accept only one route? No — it will do it in sequence, as we drew in the diagram: the first route executes, then the second route, then the third. With 1, the whole thing becomes sequential, not parallel. So if someone asks how to make a Scatter-Gather sequential: set max concurrency to 1, and it runs like a normal process. Is that clear to everyone? Any doubts?
+
+Take the generic example again: three tasks. We appoint three people for three tasks. But I am saying: don't select three people, just one — I set it to one. When max concurrency is empty, it automatically decides how many people to allocate; since there are three routes it tries to execute them in parallel. Since I set it to 1, even though it is a Scatter-Gather, it won't do all three things at the same time.
+
+— So it is one by one?
+
+Yes: the first route is executed and done, then the second route, then the third route — sequentially.
+
+— What if I want: if all the routes are successful, proceed? A Choice in the route?
+
+We got an error here in route 2 — an error in the Scatter-Gather, right? Where would I put a Choice? [unclear] What happens if there is an error? The error triggers the entire error handling. Let's see. All these are very important — observe them keenly.
+
+[screen: Error in route 2 — 1 * "a" → "You called the function '*' with these arguments: 1: Number (1) 2: String ("a")"]
+
+I take a Set Variable. What am I doing in it? 1 * "a" — multiplying a number with a string, which will fail. Save. Will I get an error in this route? Yes. Let's see what happens.
+
+If you want to handle a component-level error, do you remember what you can use?
+
+— The Try scope.
+
+Yes, Try. The request went: first route, second route, third route executing. Did the whole Scatter-Gather complete? Not yet. Did you notice what happened? The other routes completed — even after route 2 failed, it went on to the third route. It waits for the other routes. Then the total error came. Does this flow have an error handler? No, so the default error handler.
+
+[screen: Postman → 500 "Exception(s) were found for route(s): Route 2: … ExpressionRuntimeException" (COMPOSITE_ROUTING)]
+
+Look: "Exception(s) were found for route(s): Route 2. You called the function '*' with these arguments: Number, String, but it expects arguments of these types: Number, Number." Did you see which route was found? Yes, definitely. Did the flow go forward, or did it stop? It stopped. It waits until the whole Scatter-Gather is executed. For example, if route 3 has an error, are route 1 and route 2 executed? Yes. It waits for the other routes to execute and then errors out.
+
+[screen: Error handling with On Error Continue on the flow]
+
+Now, even if I get an error, I want to continue. How? Use the Try scope. Where? At the component level. You can use the Scatter-Gather inside a Try scope, or a Try inside the routes. We have received two suggestions; let's do both.
+
+First, I put the Scatter-Gather inside a Try. What should I do now? On Error Continue. I have not mentioned any error type here, so it continues for any type of error — I am not giving any type, so it is empty. Save. Will it come to this Transform Message now? It will continue.
+
+— One small doubt: it doesn't give any information about the error?
+
+It's okay, we just tell it to continue; you can do whatever you want later. First understand the main mechanism.
+
+What do we expect? We need to get the responses of the routes — and when it doesn't work, we need to find another way. So I drag-drop it out and delete it.
+
+[screen: A Try scope inside route 2 with its own On Error Continue (handles the error inside the route)]
+
+Now another idea: in route 3, I wrapped the logger and set variable in a Try and put On Error Continue there. Okay — you have put it in route 3. What about errors in route 2 or route 1 later? Did you understand my question?
+
+— Yes. So we have to put it in all the routes.
+
+Basically yes; otherwise it looks big to put it at the top. For now I put it only for route 3: all the components of route 3 in a Try with On Error Continue. Let's see what happens.
+
+See the payload now: size 3 means three payloads came. Let's convert and see — easier. The first route payload, the second route, and the third route: its payload is the one from before — the payload from the input. The error information is not in the payload; it stayed in the Try scope. The variables are the same. Clear.
+
+How should it be when we get an error? We have to capture it there. If we leave the On Error Continue empty, what payload is there for that route? Basically the same input payload. When we get an error, we need a Set Payload so that we can check whether the route failed. How do we know it failed? Did everyone understand my question?
+
+— We can see it in the response — if we put the error message.
+
+[screen: On Error Continue Set Payload: output json / {"errorMessage": error.description, "route1": "failed"}]
+
+What did I do? I put a Set Payload in the On Error Continue. What will route 3's payload be? This payload will come. Now I go to the new debugger and resume. We got an error and I resumed. Look at the Transform Message: what happened to route 3's payload? It failed — the error message, and that route 3 failed. Do we have clarity now which route failed? Yes.
+
+Now let's say I do the same for all three routes — this route and this route. Even if any route fails, we have clarity. Wrap in → Try, for each one.
+
+— Sir, we have to use a Try scope in each and every route?
+
+Yes, yes. They will ask this: what do you do if you want to continue without failing on an error? I can use a Try scope in each and every route with On Error Continue — tell them that. Ctrl+C, Ctrl+V; change the route name — this is route 1. For the second route, Wrap in → Try, then On Error Continue, Ctrl+V, and set route 2. Now, for example, let's make an error — I think I made the mistake in route 1. Is there any problem with route 1 now? No, because I put the Try everywhere. Clear to everyone?
+
+— Yes, clear.
+
+[screen: Gathered output: route 1 {"errorMessage": "You called the function '*' …", "route1": "failed"}, other routes succeed]
+
+I hit the request. Route 1 failed — correct. But "route 2 failed" also came — why? I copied it, so route 1's label came for both; let me arrange it. "Payload executed successfully with route 2" — why route 2? It shouldn't. Let me fix the labels: route 1, route 2, route 3. [unclear] Okay, now: if this fails it is route 1 failed, this one route 2 failed, this one route 3 failed.
+
+But did you see the change in the order? In "0", route 2 came first.
+
+— Yes sir, it is happening in parallel.
+
+Yes, in 0 route 2 came. Which came in 1? Route 3. In 2? Route 1. The order changed — nothing more than that. But whatever the order, each result is labelled with its route; if route 1 failed, we know and can go there. Overall, in Scatter-Gather you have to do error handling this way.
+
+[screen: Postman → 200 — the failed route's error message returned alongside the successful routes]
+
+To summarise. What is the Scatter-Gather response? The collection of all the properties of each route — objects of objects. Not an array of objects: objects of objects. You can observe it in Notepad too. That's what they ask: is it an array or an object? An object of objects. Remember that.
+
+If we create a variable outside and modify it in one route, it stays a single value. If we modify it in two routes, it becomes a collection of the modified values. If I create a new variable in any one or more routes, that variable is accessible outside the Scatter-Gather. And if we set max concurrency to 1, it obviously executes sequentially: first route, second route, third route. Please try to remember that. Any questions?
