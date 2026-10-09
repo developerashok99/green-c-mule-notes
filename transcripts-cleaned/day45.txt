@@ -1,0 +1,150 @@
+MuleSoft Telugu Course — Day 45 (cleaned transcript)
+Source: transcripts/day45.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class screens (slides/day45 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [screen: …] / [slide: …] / [drawing: …] mark text read from the video.
+
+---
+
+In the previous session we saw filter and filterObject. filter doesn't work on objects; it works on arrays. When an array comes and we want to filter, we use filter. To filter an object, we use filterObject. Input for filter is an array and the output is also an array. Input for filterObject is an object and the output is also an object. That is what we have to remember. In any interview, if they ask the difference between filter and filterObject, you should be able to explain it clearly. Simply: whenever you have an array, use the filter function; whenever you have an object, use the filterObject function. The output of filter is an array; the output of filterObject is an object.
+
+[screen: DataWeave tutorial 7.2 The map Function — map(Array<T>, ((T, Number) -> R)): Array<R>]
+
+Now the next one: the map function. map is very useful from an interview point of view. It iterates over all the items of an array, and we can transform each one. "This function satisfies a very common use case in integration development: transforming every item in an array to something else. Just like filter, map takes two parameters, an array and a lambda; however, the lambda is structured differently than the one in filter. Here is the type definition for it." That is a little harder to understand, so I never read it. Keep the lambda aside: simply, what should the input for map be? An array, and the output is an array. And there are two parameters: item and index. When you type map, item and index come. Then $ represents item and $$ index. If you remember that one thing, it's enough — when you go into a project and people write with dollars and double dollars, it is easy to understand.
+
+If we want to iterate every item and make a transformation on it, we go for map. For example, there are 10 items, and we have to do something common for each item — then map.
+
+[screen: Playground: payload map ((item, index) -> item + 1) on [1,2,3,4,5]]
+
+A simple example. I have an array of items: 1, 2, 3, 4, 5. What am I doing with them? Add 1 to each item: 1+1, 2+1, 3+1, 4+1, 5+1. We could take them one by one separately, but to do it once: the payload is the input. I write map here — see, item and index came automatically. I add 1 to each: item + 1. See — 2, 3, 4, 5, 6. Or multiply each by 2. If we want to do something for each and every item, we do it like this. Clear.
+
+[screen: Exercise: map each element to an object {"value": …, "index": …}]
+
+Now you want to transform each item so that the output comes like this. Another small thing I wanted to tell you, from the interview point of view: they ask us to screen share, and in their chat — Teams chat or Zoom chat — they give the input and output, or some give only the input. We open the DataWeave Playground and put the input here. If we go back to the chat to verify the output every time, it's not easy. So we keep the output here too, so we don't switch screens every time. Or put it in Notepad — copy from Teams to Notepad. Or below the payload as a comment — but that gets confusing. So we put it here, like a variable.
+
+[screen: Docs cookbook — Use Constant Directives (var baseUrl = … in the header, ++ to build URLs)]
+
+[screen: Docs — Set Reader and Writer Configuration Properties (e.g. output application/json indent=false)]
+
+[screen: Writer property indent=false compresses the JSON output onto one line]
+
+It is taking too much space, so let's arrange it. I gave the variable name "out". We have a directive to make it come in a single line, avoiding formatting — one second, I forgot the name: indent=false. We used it before. If we want it to look small, we do it like this: no formatting. Now it's a little easier for us; we keep it here.
+
+Now what do we want? Convert this into that. How? payload map — an array of numbers into an array of objects: value, index. I set item as i and index as ix; then here also change to i and ix. Let me see if it is correct. Yes, ix is correct. We use map regularly: when an array of items comes and we want to transform it, we do it like this.
+
+One more thing before the object case. If I don't define i and ix here, what happens? Can I put a dollar here? Why not — the item comes as $, and the index as $$. I don't prefer this way; generally I prefer the function with all the parameters. But if a project already does it and you get confused, that's why I'm showing it. See — is there any difference between what we did before and now? Both are the same. What did we do here? In the syntax we opened normal braces, and since we need an object we built an object. [unclear] $ + 1. The only confusion is how to use the brackets. The output is the same for both; just practise that a little.
+
+Normally what did we do? We gave map and the parameters came automatically; we added item + 1. With the object we gave an object and defined it. What you have to observe: as many items as there are, that many times it iterates. For example, let's add another number here — and now I remove two. You can see the background of map. I just wanted to show that.
+
+[screen: Tutorial 8.2 The mapObject function — transform each key/value of an object]
+
+[screen: payload mapObject (value, key, index) -> { (upper(key)): value } → all keys upper case]
+
+Next is mapObject — sorry for switching back. How did the output come? All the keys were made upper case. Each and every key of the object has to be capitalized — it has to be iterated. That's why it iterated and gave the output. How did they write it? mapObject, with value, key, index — three of them. Next, we have the upper function: it converts to upper case, whatever it is given. What should go in upper? The key. Where does the key go? On the left. And on the right side? The value.
+
+We did what we wanted, but it is not working. Let me see. When we mention it on the left side, it has to be in braces — the key. Even in braces there's a problem. Where? What is this error? We have to give a space after the c? Not even that. Look, "invalid input" — we have to give curly braces. We'll see that too. [unclear] Now we refer to it again — we gave curly braces.
+
+Say we use value, key, index, and we're using key — that's why we have to use these parentheses. Now I don't want upper; I want the key as it is. See what happened when I gave key without parentheses: it converts it like a string — the literal word. That's why, if you give it in parentheses like this, it's an indication: take this key — the actual key, without hardcoding — and use it on the left side. Then I apply upper. Do you understand? If we enclose it in normal parentheses, it takes the exact key; otherwise it is hardcoding. Understand, everyone?
+
+— Yes.
+
+Now if I give upper(value) instead, the values go to upper case. lower() — the right side doesn't need the parentheses; the left side needs them. Now let's write the mapObject with dollars. Help me: value is $, key is $$, index $$$. We have to do upper — upper($$) — and put it in parentheses again. Then colon, then $. [unclear]
+
+[screen: payload distinctBy $.id — removes duplicate items by a key]
+
+What will the output be? What happened here? On the left side input, an item appears twice. It removed the duplicate. On what basis? On id — the id was repeated, so it kept only one. Which one? [unclear] It's written in small letters with camel case: distinctBy. payload distinctBy — what should we write here? The id of the item. I used the dollar: $.id. "The distinctBy function is useful when you want to remove duplicate items from an array. Here is the function signature." You can also make it unique on the combination — you can concatenate the two id fields. No problem.
+
+[screen: Tutorial 7.4 The groupBy Function — groupBy(Array<T>, (T, Number) -> R): Object]
+
+Look at groupBy. "This function is useful for grouping together items in an array based on some value. groupBy does not return an array; it returns an object." Let's take an example to understand.
+
+[screen: Playground: payload groupBy (n, idx) -> isEven(n) on [1..10] → {"false": [1,3,5,7,9], "true": [2,4,6,8,10]}]
+
+What happened? What are they writing here? Checking even and odd numbers. When we check even and odd, we get boolean true and false, and the true numbers and false numbers are grouped together. Is it an array or an object? An object of arrays. groupBy groups the items based on a condition, with the lambda. Whenever you want to group the items in an array — the input should be an array.
+
+[screen: groupBy exercise — group calendar events by dayOfWeek]
+
+"Group these calendar events based on the day of the week." So we get Saturday as a group, Sunday as a group. What did it do? The output is an object: it takes the value of dayOfWeek as the key and puts the matching items in an array. See here: this is Wednesday, this is Wednesday, this is Wednesday — three. All three are grouped here, under the key Wednesday. Then Saturday. For example, I remove Sunday from here — how many come now? Saturday, Wednesday … And if I make this Monday again, we get another group. You can use it for grouping like that.
+
+[screen: Tutorial 7.5 reduce — (item, accumulator) -> …; first and second iterations explained]
+
+Next is reduce. "reduce is a general-purpose looping tool." You can do a lot of things with it. After you practise everything, take multiple use cases and try different things. I will show you just the simple things, but there are different use cases; you can spend more time on reduce. We use all these according to our project. For example, in my last project I used upper and lower a lot; in the previous project I used a lot of map and default. There were very few transformations — the data came to us as expected, so not much transformation was required. It all depends on the project. Data-intensive, complicated projects use different functions. The integration projects I have seen are mostly easy-to-medium; I have seen only one or two difficult-level projects. In those, if you look at the DataWeave, very few scripts are 50 or 100 lines.
+
+So what is reduce? A general-purpose looping tool. "It can be used to transform an array to any other type. It can be used to perform the task of map, filter, distinctBy, groupBy" and functions like these. But what they generally ask is: how do you convert an array into an object? You can use reduce. Whenever you want to group items, remove duplicates of an array — I can use reduce. And to convert an object into an array, there is pluck — did you see? There is pluck. It's enough to remember this: reduce is how we convert an array into an object, because it is regularly used for that use case.
+
+[screen: Playground: payload reduce ((n, total) -> total + n) on [1,2,3] → 6]
+
+They took a simple example for reduce. What did they do here? We can convert to any type, but in interviews they ask about objects. This is an array; what did we convert it to? The output is a number — we can convert an array to a number. That's this use case. 1, 2, 3. How does it perform? What are its parameters? item and accumulator. What are the items? The values — 1, 2, 3 are the items. What does the accumulator start with? With 1 — the first value? Yes, the first value.
+
+Now we keep 5, 2 and 3. What does the accumulator start with? 5. And the items? The items in the array. Suppose we want to sum up and the accumulator starts with 0 first. It takes 5: 0 plus 5. Then the accumulator holds 5 and takes 2: 5 plus 2. If you want an extra iteration for the addition, you can start with zero. If we don't define anything, the accumulator takes the first item by default, and the item starts from the second.
+
+Look here: "first iteration — no default value provided." Did we provide a default value? No. What did the accumulator take? It seems the item took the second value: 1, 2, 3 — the accumulator took 1. They wrote "value" — value means our item. The item took 2 here. So the first iteration is 1 plus 2. Let me write a for the accumulator and i for the item — easier for us. See what happens now: first a took 5 and i took 2. 5 plus 2 is 7. Where is 7 stored? In a. Next, i takes 3: 7 plus 3 is 10. Enough? We can write accumulator + item or item + accumulator, either way.
+
+Another small thing: I assigned a value to the accumulator. If we don't assign one, the accumulator takes the value of the first item in the array. If I assign a value, then the item starts from the first value. Now the accumulator is 12. The item in the first iteration is 5. 12 plus 5 is 17. Next 17 plus 2 is 19, then 19 plus 3. If we don't give an accumulator value, it takes the first item itself; if we give one, it uses what we defined. So we can define the accumulator value.
+
+[screen: MuleSoft tutorial: "DataWeave reduce function: How to loop through and transform an Array into a different type"]
+
+[screen: payload reduce ((item, acc = {}) -> acc ++ { (item.name): item.id }) — array of {id, name} turned into one object]
+
+Look at this example. Understand it once. Is there an array of objects? This is the input. The output should come like this: this is an object, and this is an array. See how it is converted. What did they do in reduce? What did they assign the accumulator to — an empty array or an empty object? An empty object. Since the output needs to be an object, that's what they did first. Key–value: the right side is the value, the id. This is a bit tricky. I put an item here, and the empty object here — that's my accumulator. What should I concatenate it with? An object. Just try to understand. What output do I want? dev, test, uat, prod as keys. Where are dev, test, prod? In name. My item here is i: i.name. Do you know how to write i.name as a key? Within parentheses. And the value is i.id. So there is an array of objects, and we converted it into an object. If you try, you can do a lot with reduce — reduce alone can take 2–3 hours. But we don't want to spend too much time learning; I just wanted you to understand.
+
+[screen: DZone: "DataWeave and the Reduce Operator: Part I" — sum of a list, more complex arithmetic, array-to-array]
+
+This is another example — copy this. Array to array. What do we have? An array of objects. What is he doing? He wants to convert the array into another array. Let's see. First he put a value into the reduce function: one item and one accumulator. He named the item "value". The accumulator — he assigned an empty array. Then accumulator ++. What does it do? The accumulator is an empty array; what does it add to it? value.country ++ "-" ++ value.capital. What is it doing? Concatenating the country and capital. So this is an array in the accumulator, and what is being added is a string. Does a string accumulate into an array? Yes.
+
+For example, if we remove the empty array — the default — the object gets concatenated with a string. I'll tell you. With the empty array, I am telling it to add this to the array. Understand? Without it, is it concatenated? No.
+
+— You are saying don't give the empty array? If we give an object there, it goes to an object?
+
+My question is why this error came. reduce — the accumulator default: we didn't give one, so what does the default take? See: "You called the function ++ with these arguments: Object, String." This is a string, this is an object. Why did it take an object? Is there a default in reduce? No, no — it takes the first item in the array, and that is an object. You concatenate an object with a string. I want to add something to this object — can I add a string? No, because the object also needs a key. If you only have key–value pairs, you add them as an object; only with an item can you add to an array. [unclear] Okay. This is what we understand: if we go a little deeper, we can actually get it. There are various things; we can try it. That's what I mean.
+
+[screen: DZone Part II: array to string (acc ++ character) and array to an object/map keyed by ClubID]
+
+This DZone article is also good. Why don't I prefer the official documentation? It's a bit complicated for many people to understand; these articles write it very simply. Here, an array should become a string — see how it's done. And array to object. We can try all these.
+
+[screen: Docs — orderBy (objects by value or key; arrays by criteria)]
+
+Next — we have done mapObject, reduce. Is orderBy somewhere? It's not in the tutorial, but we have to do orderBy too. What is orderBy? Ascending and descending. Copy to clipboard, the input. What did he do here? This is the whole script; he gave the input here. I can copy it and give it here. The letter is in the left side; it should be in quotes in the payload — it's okay without them in the script because it converts automatically. payload orderBy — let's see what it did. By default, alphabetical order, ascending. What if we want descending? How do we put a minus? orderBy $.letter … put a minus in the order. I put a bracket here — minus is here — it's working.
+
+[screen: Playground: payload orderBy ((item, index) -> item.age) on a list of people]
+
+— Do we need to put it here?
+
+No. We have to give item.letter. There are multiple keys inside the item; we have to say which key to order by. For example, age. If it is a single value — Ctrl+X — the same, right? Let's see: "You cannot compare a value of the type Object." We can sort objects by taking a key inside the object; we cannot order by the object itself. Clear?
+
+— Yes.
+
+Now i.age — see, 25, 30 came. If I order by name — Mahesh first. Now, how to invert this? orderBy -$.age — putting a minus here reverses it: ascending, and reverse is this. The only confusion is how to write the function. Now I wrote orderBy item.age with a minus here — it's working. Why didn't it work earlier? It's working now. Fine. That's orderBy. reduce, groupBy — we've seen all these, and sorting.
+
+[screen: Tutorial 8.3 The pluck function — turn an object into an array: payload pluck (v, k, idx) -> {(k): v}]
+
+What else? Let's see pluck, then update. What is pluck? "Transform an object into an array." When do we apply it? To convert an array into an object we use reduce; to convert an object into an array, we use pluck. This is the object; I want to convert it to an array. An object means value, key and index — three of them. What did he do here? He formed an object: (k): v. What happened? One by one, each key–value became an item — the object turned into an array of objects automatically. [unclear] You can try things out, but follow the standard practice.
+
+[screen: Tutorial 8.4 The update operator — change specific fields of an object]
+
+Now the update option. What is happening here? update … case age at .age … What happened? Status was asked to be updated: we added a new field to the existing object. Understand? There is already an object; we added a new "status" to it — was there a status before? No. Here he wrote .status with an exclamation mark and set it as "retired" — has it been added? Yes. And here he updates the existing one: he took a variable for age — why? Because he wants to update it to age plus one. Let's do one more: modify an existing field. Has the first name changed? Yes. Till now I haven't used update, even in real time. You can explore it, nothing more.
+
+This is sufficient. Most probably, whatever we discussed for DataWeave is more than sufficient to start; on the go there are many more and you can learn them.
+
+But let's see how to handle dates. [unclear] now() shows the time of the server. What is it showing now? Our time — Indian time? Yes. To convert, we have the >> symbol: for Indian Standard Time, IST; for GMT, GMT. CloudHub servers use the UTC time zone — keep that in mind.
+
+What is this now? A DateTime stamp. What does Date vs DateTime mean? You can give either. Now I have to convert this format. How? See, it has been converted: the format changed. You see yyyy-MM-dd. Now I made it dd-MM-yy. The MM should be caps; dd small; yy — sorry, it should be small. And for month names, MMM in caps. Keep that in mind. If I make this MMM, what happens? [unclear] If we want to convert it, we can.
+
+That is with a date. But how do we get a date in JSON? In string format. What is the type of this? typeOf — String. What happened? I have to give the format. Tell me how: give curly braces. First, this is a string — I convert it to a Date. How? This will be a bit confusing. Observe what I did.
+
+— So you converted the string to a date with the same format?
+
+Yes. I take it in the same format first; I don't change the format at first. Why not change the format directly? It doesn't coerce; it isn't supported. If you directly convert the string into a date in a different format, it won't work. First convert the string, in its existing format, into a Date, and then format it into the new format. Is it clear to everyone? It's a bit confusing; strings come a lot. Now I have this format and I want that format. Directly — it won't work, no matter how much you write. So: first, as it is, convert the existing format to a date; then change the format. Okay for everyone?
+
+— Yes.
+
+[screen: Salesforce help article — How to format numbers in DataWeave (as String {format: "#,###.00"})]
+
+[screen: MuleSoft blog — Training Talks: How to Format Numbers in DataWeave (# vs 0 in patterns)]
+
+Then 100 — can you format a number? Yes. [unclear] It asks to format it as a string instead of a number. Basically we have to convert it into a String: as String. But let's see what number formatting is available for us.
+
+[screen: Medium article — Coercing with as (price as Number, as Number {class: "java.lang.Double"}, as DateTime {format: …})]
+
+[screen: Playground: 100 as String {format: "#,##"}, then price as Number as String {format: "###.00"} → "100.00"]
+
+Even on Medium the articles are good — medium.com. This is one and this is the other. What did he do first? Some of these functions: "price" in double quotes, a var. Let's see how it is converted. We can add double zeros; we can also format numbers like this. That's how it works. This is mostly enough; what's important is how they work in combinations.
+
+Most probably we have covered the DataWeave topics. If we missed one or two things, we will try to cover them. How to deal with CSV and XML — both are pending; we will see them at the end. Any questions?
