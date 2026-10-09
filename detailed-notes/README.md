@@ -44,5 +44,26 @@ Every file includes: plain-English explanations with analogies, worked examples 
 | [day34.md](day34.md) | Client Credentials, Resource Owner Password, Object Store caching, and JWT |
 | [day35.md](day35.md) | Create an API instance, Autodiscovery, and deploying to CloudHub 2.0 |
 | [day36.md](day36.md) | Fixing the CloudHub 2.0 deployment, Basic Authentication and Client ID Enforcement |
+| [day37.md](day37.md) | IP allowlist/blocklist, threat protection, rate limiting, SLA tiers and spike control |
+| [day38.md](day38.md) | HTTP Caching policy and JWT validation with Auth0 |
+| [day39.md](day39.md) | MUnit intro: unit testing, coverage and recording a test |
+| [day40.md](day40.md) | MUnit continued: PATCH/POST tests, error-handler tests and full coverage |
+| [day41.md](day41.md) | Consuming a SOAP service with the Web Service Consumer |
+| [day42.md](day42.md) | Scatter-Gather: parallel routes, output, variables and error handling |
+| [day43.md](day43.md) | Async scope and DataWeave basics: Playground, script anatomy and selectors |
+| [day44.md](day44.md) | DataWeave: variables, operators, default, if/else, match, filter and filterObject |
+| [day45.md](day45.md) | DataWeave: map, mapObject, groupBy, reduce, orderBy, pluck, update, dates and numbers |
+| [day46.md](day46.md) | Salesforce connector part 1: CRM, objects, Basic Auth and a SOQL query |
+| [day47.md](day47.md) | Salesforce connector part 2: Create, Upsert, On New / On Modified Object and the Scheduler |
+| [day48.md](day48.md) | The For Each scope: collection, counter, batch size, rootMessage, errors and collecting results |
+| [day49.md](day49.md) | For Each with DB insert, Bulk insert, and Parallel For Each (propagation, errors, max concurrency) |
+| [day50.md](day50.md) | Batch processing: why batch, three phases, Batch Job / Step / Aggregator, On Complete |
+| [day51.md](day51.md) | JMS with ActiveMQ: queues vs. topics, JMS connector, acknowledgement modes, VM |
+| [day52.md](day52.md) | Object Store: key-value storage, access tokens, watermarking, transient vs. persistent |
+| [day53.md](day53.md) | Watermarking with the Object Store: Retrieve, select newer rows, Store the new max |
+| [day54.md](day54.md) | FTP with FileZilla: CSV to DB, DB rows to a file, File / SFTP connectors |
+| [day55.md](day55.md) | CI/CD with Jenkins: concepts, required software, creating the GitHub repository |
+| [day57.md](day57.md) | Amazon S3: buckets and objects, access keys, Create Bucket / Put Object / Get Object |
+| [day58.md](day58.md) | Logging levels, verbose logging, DataWeave flatten/flatMap, custom functions, XML and CSV |
 
 > 💡 GitHub renders the Mermaid diagrams in these files natively — just view them on github.com (diagrams won't render in a plain text editor or terminal `cat`).
