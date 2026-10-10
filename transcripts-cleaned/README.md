@@ -70,3 +70,4 @@ What was done to each day:
 | 57 | [day57.txt](day57.txt) |
 | 58 | [day58.txt](day58.txt) |
 | Interview Part 1 | [interview-part1.txt](interview-part1.txt) |
+| Interview Part 2 | [interview-part2.txt](interview-part2.txt) |
