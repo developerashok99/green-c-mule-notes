@@ -67,5 +67,6 @@ Every file includes: plain-English explanations with analogies, worked examples 
 | [day58.md](day58.md) | Logging levels, verbose logging, DataWeave flatten/flatMap, custom functions, XML and CSV |
 | [interview-part1.md](interview-part1.md) | Interview Preparation Part 1 — résumé, cover letter, self-introduction, web services / HTTP Q&A |
 | [interview-part2.md](interview-part2.md) | Interview Preparation Part 2 — RAML, API Manager and policies, OAuth 2.0 / JWT, error handling, DataWeave Q&A |
+| [interview-part3.md](interview-part3.md) | Interview Preparation Part 3 — DataWeave Q&A (continued), API-led, Runtime Manager, deployment, clustering / load balancers, HTTPS / TLS |
 
 > 💡 GitHub renders the Mermaid diagrams in these files natively — just view them on github.com (diagrams won't render in a plain text editor or terminal `cat`).

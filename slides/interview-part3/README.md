@@ -10,7 +10,7 @@ Screens and drawings from the third interview-preparation session: DataWeave que
 | 04 | 24:00 | DataWeave Q&A — concat (`++`), pluck, pluck vs mapObject, map vs mapObject, skipNullOn |
 | 05 | 33:53 | DataWeave Q&A — `log("WARNING", "Houston, we have a problem")`, calling sub-flows with lookup, joinBy / splitBy |
 | 06 | 35:07 | Playground — `output application/json skipNullOn = "everywhere"` example |
-| 07 | 35:57 | DataWeave Q&A — null checks with isEmpty, masking (`payload mask field("age") with "****"`), app.name / flow.name, if-else, readUrl |
+| 07 | 35:57 | DataWeave Q&A — null checks with isEmpty, masking (`payload mask field("age") with "***"`), app.name / flow.name, if-else, readUrl |
 | 08 | 48:33 | API-led Q&A — why more than one experience API, why follow API-led architecture, advantages and disadvantages |
 | 09 | 51:27 | API-led Q&A — system, process and experience layers explained |
 | 10 | 51:23 | Q&A — explain the API life cycle in MuleSoft (design, implementation, testing, deploy, monitor) |
@@ -27,7 +27,7 @@ Screens and drawings from the third interview-preparation session: DataWeave que
 | 21 | 83:38 | *Drawing:* client → load balancer URL → several workers / servers (10.1.2.5 … 10.1.2.8) |
 | 22 | 104:30 | Q&A — implementation URL vs proxy URL, Anypoint VPC, VPN, load balancer, shared (SLB) vs dedicated load balancer (DLB) and their ports |
 | 23 | 107:49 | Q&A — SLB vs DLB differences, domain projects, ways of deploying Mule applications, disabling CloudHub logs |
-| 24 | 112:31 | Studio — a domain project shared by several applications (Mule Domain Project settings) |
+| 24 | 112:31 | Studio — transaction-sapi MUnit suite: Set Input reads the recorded payload with `readUrl("classpath://…/set-event_payload.dwl")` (shown during the domain-project discussion) |
 | 25 | 117:28 | Q&A — CloudHub vs on-premise (control and runtime plane, maintenance, cost) |
 | 26 | 137:34 | HTTPS / TLS Q&A — steps to expose and consume HTTPS, generating certificates (keytool, OpenSSL), symmetric vs asymmetric encryption, digital and self-signed certificates |
 | 27 | 137:39 | Q&A — keystore vs truststore, private key, public key |
@@ -52,7 +52,7 @@ Screens and drawings from the third interview-preparation session: DataWeave que
 ### 06 — Playground — `output application/json skipNullOn = "everywhere"` example
 ![playground-skipnull](06-playground-skipnull.jpg)
 
-### 07 — DataWeave Q&A — null checks with isEmpty, masking (`payload mask field("age") with "****"`), app.name / flow.name, if-else, readUrl
+### 07 — DataWeave Q&A — null checks with isEmpty, masking (`payload mask field("age") with "***"`), app.name / flow.name, if-else, readUrl
 ![dw-mask-ifelse](07-dw-mask-ifelse.jpg)
 
 ### 08 — API-led Q&A — why more than one experience API, why follow API-led architecture, advantages and disadvantages
@@ -103,7 +103,7 @@ Screens and drawings from the third interview-preparation session: DataWeave que
 ### 23 — Q&A — SLB vs DLB differences, domain projects, ways of deploying Mule applications, disabling CloudHub logs
 ![domain-project-qa](23-domain-project-qa.jpg)
 
-### 24 — Studio — a domain project shared by several applications (Mule Domain Project settings)
+### 24 — Studio — transaction-sapi MUnit suite: Set Input reads the recorded payload with `readUrl("classpath://…/set-event_payload.dwl")` (shown during the domain-project discussion)
 ![domain-project-studio](24-domain-project-studio.jpg)
 
 ### 25 — Q&A — CloudHub vs on-premise (control and runtime plane, maintenance, cost)
