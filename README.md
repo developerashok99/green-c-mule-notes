@@ -69,6 +69,7 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 | [day55.md](day55.md) | CI/CD with Jenkins: concepts, required software, creating the GitHub repository |
 | [day57.md](day57.md) | Amazon S3: buckets and objects, access keys, Create Bucket / Put Object / Get Object |
 | [day58.md](day58.md) | Logging levels, verbose logging, DataWeave flatten/flatMap, custom functions, XML and CSV |
+| [interview-part1.md](interview-part1.md) | Interview Preparation Part 1 — résumé, cover letter, self-introduction, web services / HTTP Q&A |
 
 ## Topic Quick-Reference
 
@@ -141,6 +142,7 @@ Structured notes from a MuleSoft foundations course (Anypoint Platform / Mule 4)
 | CI/CD with Jenkins / GitHub | [day55](day55.md) |
 | Amazon S3 Connector | [day57](day57.md) |
 | Logging Levels / Verbose Logging / flatten / flatMap / XML & CSV | [day58](day58.md) |
+| Interview Prep: Résumé, Cover Letter, Tell Me About Yourself, REST/SOAP/HTTP Q&A | [interview-part1](interview-part1.md) |
 
 ---
 *Notes generated from Telugu-language lecture recordings, transcribed and translated to English via local speech-to-text (Whisper), then organized into structured notes.*

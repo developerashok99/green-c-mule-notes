@@ -65,5 +65,6 @@ Every file includes: plain-English explanations with analogies, worked examples 
 | [day55.md](day55.md) | CI/CD with Jenkins: concepts, required software, creating the GitHub repository |
 | [day57.md](day57.md) | Amazon S3: buckets and objects, access keys, Create Bucket / Put Object / Get Object |
 | [day58.md](day58.md) | Logging levels, verbose logging, DataWeave flatten/flatMap, custom functions, XML and CSV |
+| [interview-part1.md](interview-part1.md) | Interview Preparation Part 1 — résumé, cover letter, self-introduction, web services / HTTP Q&A |
 
 > 💡 GitHub renders the Mermaid diagrams in these files natively — just view them on github.com (diagrams won't render in a plain text editor or terminal `cat`).
