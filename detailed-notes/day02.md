@@ -1,6 +1,8 @@
 # Day 02 — Detailed Notes: Prerequisites, API vs. Integration, the Developer's Role
 
-> **Watch alongside:** this day draws the line between two words that get used almost interchangeably in casual conversation — "API" and "integration" — and then zooms out to show where a MuleSoft developer actually sits inside a real project team.
+> **Watch alongside:** this day draws the line between two words that get used almost interchangeably — "API" and "integration" — then walks the whole syllabus and zooms out to show where a MuleSoft developer sits inside a real project team.
+
+> **Video-verified:** written from the cleaned transcript and the class recording (29 Oct 2024). Slide images: [slides/day02](../slides/day02/).
 
 ---
 
@@ -8,135 +10,169 @@
 
 ```mermaid
 flowchart TB
-    A([Integration<br/>the broad category]) --> B["API<br/>(exposed, on-demand,<br/>request/response)"]
-    A --> C["Scheduled/batch integration<br/>(no external trigger,<br/>runs on a timer)"]
+    M([MuleSoft developer builds]) --> B["REST APIs<br/>(exposed, called on demand,<br/>request/response)"]
+    M --> C["Integrations<br/>(e.g. a scheduled job;<br/>not exposed to anyone)"]
 ```
 
-- **Integration** is the umbrella term: *any* program connecting two or more systems to move/transform data.
-- **API** is a specific *shape* of integration: it's exposed and waits to be called on-demand, returning a response.
-- The other common shape is a **scheduled job**: nothing calls it — it just runs on a timer (e.g. nightly) and does its work silently in the background.
+- **Integration** is the broad term: connecting two or more systems to move/transform data. "The API is also part of integration."
+- **API** is the kind that is exposed: a front-end sends a request and gets a response.
+- The other kind is a **scheduled job**: nothing calls it — it runs every night and does its work in the background.
+- Both are built the same way in MuleSoft: mostly drag-and-drop, with 10–20% of the time spent writing transformations.
 
-### Example A — a REST API (on-demand)
+### Example A — an API: ICICI balance check (board drawing)
 ```mermaid
 sequenceDiagram
-    participant Mobile as Mobile App
-    participant API as Balance Check API
-    participant DB as Database
+    participant MA as ICICI Mobile App (front-end)
+    participant API as API
+    participant DB as ICICI DB (back-end)
 
-    Mobile->>API: GET /balance?accountNumber=1234
-    API->>DB: SELECT balance FROM accounts WHERE account_number=1234
-    DB-->>API: 50000
-    API-->>Mobile: {"balance": 50000}
+    MA->>API: Req — Bal check (account no., customer ID)
+    API->>DB: Req
+    DB-->>API: Res — balance
+    API-->>MA: Res — account no. + balance
+    Note over MA: Shows "₹25,000 in your account"
 ```
-Someone actively asks for something, right now, and gets an immediate answer.
 
-### Example B — a scheduled integration (no on-demand trigger)
+### Why not connect the front-end straight to the database?
+1. **Different technologies** — the front-end is built with React/JavaScript, the back-end with something else (e.g., Java); they can't communicate with each other.
+2. **Security** — hackers could hit the database directly and steal the data. A layer in between is very important.
+
+### Example B — an integration: nightly Salesforce → database (board drawing: S → S → T → D)
 ```mermaid
 flowchart LR
-    S[Scheduler<br/>fires nightly at 11 PM] --> SF[Get data from Salesforce]
-    SF --> T[Transform data]
-    T --> DB[(Insert into Database)]
+    S[Scheduler<br/>every night, 10 or 11 PM] --> SF[Salesforce connector<br/>get data]
+    SF --> T[Transform]
+    T --> DB[(Database connector<br/>insert)]
 ```
-Nobody is waiting on a response — it just quietly keeps two systems in sync on a schedule. **This is still "integration," but it is not an API.**
+Nobody calls it and nobody waits for a response — "a regular job is going on." **It is an integration, but not an API.**
 
-> 🧠 **Interview framing:** *"An API is a kind of integration, but not all integration is an API."* Both are built the same way in MuleSoft (mostly drag-and-drop, with DataWeave for the transformation logic) — the difference is purely about **whether something is exposed to be called on-demand, or just runs autonomously**.
+> 🧠 **Interview framing:** *"An API is a kind of integration, but not all integration is an API."* The difference is whether it is exposed to be called on demand, or just runs on its own.
 
 ---
 
-## 2. API — The Precise Definition
+## 2. Prerequisites, Tools and Practice Setup
 
-**API = Application Programming Interface** — literally a piece of code (mostly auto-generated XML, since MuleSoft is low-code) that lets two or more systems communicate and exchange data.
+**Prerequisites (slide), taught from scratch over 3–4 sessions:** monolithic applications · microservices architecture · APIs, web services, REST and SOAP · API life cycle · different environments in real time (dev, testing, pre-prod, prod, DR) · JSON, CSV, XML · HTTP (requests, success/error responses).
 
 ```mermaid
 flowchart LR
-    FE[Front-End<br/>Mobile App] -->|"doesn't understand DB language"| API{{API}}
-    API -->|"translates & queries"| DB[(Database)]
-    DB -->|"raw DB response"| API
-    API -->|"converts to JSON"| FE
+    MS([MuleSoft]) --> AS["Anypoint Studio<br/>(development, IDE like Eclipse)"]
+    MS --> AP[Anypoint Platform]
+    AP --> DC[Design Center]
+    AP --> EX[Exchange]
+    AP --> RM[Runtime Manager]
+    AP --> AM[API Manager]
 ```
 
-### Why can't front-end and back-end just talk directly?
-1. **They don't speak the same language** — front-end (React/JavaScript) and back-end (often Java-based databases/services) use different data shapes and protocols.
-2. **Security** — exposing a raw database directly to the internet is a massive risk (a hacker could query it directly). The API acts as a **controlled, validated layer** in between.
+| Software to practise (slide) | Use |
+|---|---|
+| Anypoint Studio | IDE similar to Eclipse; development has lifetime access |
+| Active Anypoint Platform account | Lifecycle management; if it expires, create a new account with another email |
+| Mule Runtime | Practising on-premises |
+| Advanced REST Client (Postman) | Testing APIs |
+| Notepad++ | Editing |
+| FTP server | File/FTP sessions |
+| MySQL Database + Workbench | Database sessions |
+| ActiveMQ server | JMS sessions |
 
-### The Restaurant Analogy (a second, equally useful mental model)
-```mermaid
-flowchart LR
-    C[Customer] -->|Places order| W[Waiter]
-    W -->|Relays order| K[Kitchen / Chef]
-    K -->|Food ready| W
-    W -->|Serves food| C
-```
-- **Customer** = front-end (mobile/web app)
-- **Kitchen** = back-end (database/systems)
-- **Waiter** = API — mediates, neither side talks to the other directly.
-
-This maps onto *any* front-end: mobile app, iOS app, or a desktop net-banking site can all hit the **same** API, which is language-independent — it accepts a request in whatever format its design specifies and returns a response in whatever format its design specifies, regardless of which client called it.
-
-```mermaid
-flowchart TB
-    Android[Android App] --> API{{Balance Check API}}
-    iOS[iOS App] --> API
-    Web[Web / Net Banking] --> API
-    API --> DB[(Database)]
-```
-
-> 💡 **Why this matters:** without the API layer, you'd need a separate direct-to-database integration built for *each* client type (Android-specific, iOS-specific, web-specific) — tripling the work. One well-designed API serves all of them.
+- **System configuration (slide):** 8 GB RAM or above (16 GB ideal), Windows 10 or above, 2 GHz processor.
+- If Studio runs slowly, fix the configuration once — a slow machine slows your practice.
+- No charges are expected for practice.
 
 ---
 
 ## 3. Common Integration Project Requirements (the "80% rule")
 
-The instructor's repeated framing across the whole course: **~80% of real integration projects use the same handful of building blocks.** Master these deeply instead of spreading thin across all 300+ connectors:
+The instructor's repeated framing: **~80% of projects use the same handful of requirements** — focus on these 5–6 to cover 75–80% of a project.
 
 ```mermaid
 flowchart TB
-    Req([Common Integration<br/>Requirements]) --> R1["REST services<br/>(build + consume)"]
-    Req --> R2["SOAP services<br/>(consume only — legacy)"]
-    Req --> R3["File / FTP / SFTP"]
-    Req --> R4["Databases"]
-    Req --> R5["Messaging: JMS /<br/>ActiveMQ / Anypoint MQ"]
-    Req --> R6["System connectors:<br/>Salesforce (very common),<br/>AWS, Azure, etc."]
+    Req([Common Integration<br/>Project Requirements]) --> R1["Consume and provide<br/>REST services"]
+    Req --> R2["Consume SOAP service<br/>(not created)"]
+    Req --> R3["Consume File / FTP /<br/>SFTP services"]
+    Req --> R4["Consume Database<br/>service"]
+    Req --> R5["Consume JMS service<br/>(ActiveMQ)"]
+    Req --> R6["Consume system connectors<br/>(Salesforce + one more)"]
 ```
 
-- **REST**: built new, all the time — the dominant API style today.
-- **SOAP**: almost never *built* new — mostly just *consumed*, because it's what older/legacy systems still expose.
-- **Files/FTP/SFTP**: extremely common — moving a file from one server to another, transforming it along the way.
-- **Messaging (JMS-family)**: for decoupled, asynchronous communication — a producer publishes a message without needing the consumer to be immediately available.
-- **Salesforce**: singled out specifically because it's a very frequent interview topic, given MuleSoft's ownership relationship with Salesforce.
+- **REST**: what consumers ask for most — both provided and consumed.
+- **SOAP**: existing systems already expose it; we only consume it. Rare, but asked in interviews.
+- **Files/FTP/SFTP**: moving a file from an FTP/SFTP server to another system, transforming it. An FTP server will be installed.
+- **JMS**: queuing services with the ActiveMQ broker — decoupled, asynchronous.
+- **Salesforce**: the focus connector because it's asked a lot in interviews; one more (maybe AWS) will be added for this batch.
 
-> 🧠 **Practical implication for a new connector you've never used:** the instructor's own approach — read the official documentation, run a small POC (proof of concept), and only then start real implementation. Nobody, even with years of experience, has touched more than 10-15 connectors in depth — the skill is *learning a new one quickly*, not having memorized all 300+.
+### JMS preview (drawings shown in class; the audio is lost)
+```mermaid
+flowchart LR
+    P["Publisher / Producer /<br/>Sender"] -->|"message<br/>(headers + body)"| B["Broker / JMS server<br/>(ActiveMQ)<br/>queue or topic"]
+    B -->|consume| C["Subscriber / Consumer /<br/>Receiver"]
+```
+- **Queue**: a pipeline of messages, one-to-one. **Topic**: one message (e.g., a new employee) goes to finance/payroll, HR, marketing.
+- Operations: publish, consume, On New Message, publish-consume (synchronous).
+- Acknowledgement modes: auto, manual, immediate, dups_ok; DLQ.
+- Brokers: ActiveMQ, RabbitMQ, IBM MQ; Anypoint MQ needs an extra licence.
+
+> 🧠 **A connector you've never used:** the instructor's MongoDB example — read the official documentation, tell the team you'll do a POC, spend a few hours, then implement. In his whole career he used only 10–15 of the 300+ connectors; even Salesforce's ~100 operations come down to 3–4 used majorly.
 
 ---
 
-## 4. Where a MuleSoft Developer Sits in a Real Project
+## 4. The Course Content in One Picture
 
 ```mermaid
 flowchart TB
-    BA[Business Analyst] -->|"Functional Requirement<br/>Doc (BRD)"| Arch[Technical / Solution Architect]
-    Arch -->|"High-Level Design +<br/>Low-Level Design"| Lead[Team Lead]
-    Lead -->|"Assigns specific APIs<br/>to build"| Dev["MuleSoft Developer<br/>(you)"]
-    Dev -->|"Clarifying questions"| Lead
-    Dev -->|"Built API"| QA[Testing / QA Team]
-    QA -->|"Bugs found"| Dev
+    Pre[Prerequisites] --> M1["Mule ESB intro<br/>P2P vs ESB, orchestration,<br/>transformation, enrichment"]
+    M1 --> M2["Basics: Hello World app,<br/>Postman, project structure,<br/>debugging, DataWeave intro"]
+    M2 --> M3["Deployment: CloudHub,<br/>on-prem, hybrid; CI/CD"]
+    M3 --> M4["REST create/consume,<br/>SOAP consume, File/FTP/SFTP,<br/>MySQL"]
+    M4 --> M5["Properties, Object Store,<br/>routing (Choice, Scatter-Gather), JMS"]
+    M5 --> M6["DataWeave in depth,<br/>error handling, MUnit"]
+    M6 --> M7["API-led connectivity, RAML design,<br/>API policies, For Each / Batch / Async,<br/>code repository, one more connector"]
 ```
 
-**A developer's actual day-to-day workflow:**
-1. Receive an assigned API (e.g. from a lead who split a 150-API project across several developers).
-2. Read the **High-Level Design (HLD)**, **Low-Level Design (LLD)**, and **BRD (Business Requirements Document)** to understand exactly what request/response shape is expected.
-3. Ask clarifying questions to the lead/architect/BA if anything is ambiguous — **do not guess** on request/response shape, security, or field requirements.
-4. **Design** the API (RAML) if not already designed, or use an already-designed spec.
-5. **Implement** it in Anypoint Studio — this includes writing MUnit tests (unit testing is explicitly the developer's own responsibility, not a separate team's).
-6. **Deploy** and support the QA/testing team as they validate it, fixing any bugs raised.
-7. Participate in daily Agile **scrum calls** — status, blockers — communication is treated as equally important to raw technical skill.
+- **Properties**: each environment (Dev, testing, UAT, prod, pre-prod, DR) has its own servers — e.g., its own database. "Very, very important."
+- **Object Store**: database = permanent storage; Object Store = temporary storage.
+- **MUnit**: built with the recording option or manually; **unit testing is the developer's job**.
+- **RAML design** is the first lifecycle step — like an architect's blueprint for a house — done in Design Center.
+- **Policies**: Basic Auth, Client ID Enforcement, OAuth, Rate Limiting, Spike Control + 2–3 more (API Manager's policy list was shown).
+- **Code repository**: Studio generates XML in the background; Bitbucket/GitHub/GitLab keep it safe if Studio crashes.
+- **Certification**: MCD Level 1 (about 200 USD) is the developer target; MCIA/MCPA are architect level.
 
-**Task estimation** (e.g. "easy API = 3-5 days, medium = 5-7 days, complex = 7-10+ days") is typically a **lead/architect** responsibility, not something a developer calculates alone — though a developer's input on actual implementation difficulty feeds into that estimate.
+---
+
+## 5. Where a MuleSoft Developer Sits in a Real Project
+
+The board example: **TCS** (service company) delivering a MuleSoft project for **Airtel** (client).
+
+```mermaid
+flowchart TB
+    U["Airtel business users"] -->|workshops| BT["TCS business team +<br/>technical architect"]
+    BT --> BRD["BRD / FSD"]
+    BRD --> HLD["HLD (high-level design)"]
+    HLD --> LLD["LLD (low-level design)"]
+    LLD --> L["Leads<br/>(100–150 APIs split across 3–4)"]
+    L --> D["Developer (MuleSoft)"]
+    D --> S1[API design] --> S2["API implementation<br/>+ unit testing"] --> S3[Secure API] --> S4[Deploy] --> S5[Monitor]
+```
+
+**A developer's actual workflow:**
+1. Receive your slice from the lead (the drawing: 5 developers + 1 tester; 10 APIs, ~2 each).
+2. Read the **BRD**, **HLD** and **LLD** (the role slide also names the **TDD — Technical Design Document**) for the request, response and error response.
+3. Ask the **lead/architect** about technical doubts and the **business analyst** about business ones.
+4. **Design → implement (with MUnit unit tests) → secure with policies → deploy → monitor.**
+5. Fix bugs raised by the testing/BA teams; deploy to the environments (Dev → QA → UAT → Prod) through pipelines.
+6. Join the daily Agile **scrum calls** — status, blockers. Communication matters as much as technical skill.
+
+- **Dependencies:** if your API uses Salesforce and a database, you depend on those teams for their details.
+- **Task estimation** (working days): easy 3–5, medium 5–7, complex 7–10 (or 10–12). The **technical architect and lead** calculate it; it depends on the organisation.
+- **Front-end:** not your job — **Postman** stands in for it while you test your API.
+- **Why the developer role is easier:** the documents are already prepared; you follow them and ask the right questions.
 
 ---
 
 ## Quick Recap
 
-- **API ⊂ Integration**: every API is an integration, but scheduled/batch jobs are integrations too, without being APIs.
-- The **front-end/back-end/API** and **restaurant** analogies both describe the same core idea: a mediator layer that translates and secures communication between parties who can't (or shouldn't) talk directly.
-- Focus learning on the **80% common requirements** (REST, files, DB, messaging, Salesforce) rather than trying to cover all 300+ connectors — depth over breadth.
-- A developer's real job is downstream of BA/Architect/Lead decisions: read the design docs, clarify, implement, unit-test, support QA — not to independently invent requirements.
+- MuleSoft developers build **REST APIs and integrations**; an API is the exposed, request/response kind, while a nightly scheduler job is integration but not an API.
+- The API layer exists because the front-end and back-end use **different technologies**, and for **security**.
+- Focus on the **80% common requirements** (REST, SOAP consume, files, DB, JMS, Salesforce) — depth over breadth.
+- Practice set-up: Studio, a platform account, Mule Runtime, Postman, Notepad++, an FTP server, MySQL, ActiveMQ; 8 GB+ RAM.
+- A developer's job is downstream of BA/architect/lead work: read the design docs, clarify, implement with unit tests, secure, deploy, monitor — and practise every demo many times.

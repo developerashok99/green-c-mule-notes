@@ -1,5 +1,10 @@
 # Day 02 — Prerequisites, API vs. Integration, Course Content and the MuleSoft Developer's Role
 
+> **Sources:**
+> - Cleaned audio transcript ([transcripts-cleaned/day02.txt](../transcripts-cleaned/day02.txt)) and the class video (recorded 29 Oct 2024).
+> - Text marked *slide*, *screen* or *drawing* is read from the recording.
+> - Slide images: [slides/day02](../slides/day02/).
+
 ## 1. Overview
 
 Agenda of this session:
@@ -43,6 +48,8 @@ Both are built the same way in MuleSoft: mostly drag-and-drop, with roughly 10�
 ### 3.1 Scenario
 
 **Illustrative example (ICICI Bank):** A customer logs in to the bank's mobile or desktop application and taps **Check Balance**. The app sends a request and displays the response — for example **₹25,000**.
+
+The *drawing*: ICICI mobile app "Bal check" — Req (AcNo, CID) → API → Req → ICICI DB, with Res coming back; labelled *Frontend* and *Backend*.
 
 ```text
 Mobile / Desktop app   ──request──►   API   ──query──►   Database
@@ -89,7 +96,7 @@ The API acts as the **middle layer between the front-end system and the back-end
 **Requirement:** Every day, data must be copied from Salesforce into a database.
 
 ```text
-Scheduler (e.g., every night at 10 or 11 PM)
+Scheduler (e.g., every night at 10 or 11 PM)   (drawing: S → S → T → D)
       │
       ▼
 Salesforce connector ── get data
@@ -129,9 +136,10 @@ The **Anypoint Platform** is MuleSoft's web-based platform for the API lifecycle
 - **Runtime Manager**
 - **Visualizer**
 - **Monitoring**
+- **API Manager** (in the *drawing*)
 - and more
 
-The instructor intentionally keeps this brief here; it is explained on Day 07.
+The *drawing* puts **Anypoint Studio** on the development side and these modules under **Anypoint Platform**. The platform home *screen* was shown briefly: Anypoint Code Builder, Design Center, and the Management Center (API Manager, API Governance, Runtime Manager). The instructor intentionally keeps this brief — "if I say it now, it will be overwhelming"; it is explained in later sessions.
 
 ---
 
@@ -144,6 +152,7 @@ Since the batch contains non-IT students, IT students and freshers, these are ta
 | Monolithic application | What it is and its problems |
 | Microservices architecture | How the industry moved from monolithic to microservices, and how microservices are implemented in MuleSoft |
 | APIs and web services | What they are; REST vs. SOAP; why REST is used more |
+| API life cycle | Listed on the *slide* |
 | Integration | What integration is |
 | Environments | Development, testing, pre-production, production, disaster recovery — why they exist and the purpose of each |
 | Data formats | JSON, XML, CSV |
@@ -182,6 +191,21 @@ Also covered as part of the introduction: **orchestration, transformation and en
 
 > **Technical clarification:** The transcript expands JMS as "Java Messaging Services". The standard name is **Java Message Service**.
 
+**JMS preview drawings.** At this point the audio is lost in a speech-to-text repetition loop, but drawings from the JMS deck were shown:
+
+```text
+Publisher / Producer / Sender ──send message (headers + body)──► Broker / JMS server (ActiveMQ)
+                                                                   [ queue or topic ]
+                                                       ──consume message──► Subscriber / Consumer / Receiver
+                                                                             (further processing)
+```
+
+- **Queue** — a pipeline of messages; the sender pushes, the receiver consumes; one-to-one.
+- **Topic** — e.g., a new employee is published once and reaches finance/payroll, HR and operations/marketing; decoupled, asynchronous.
+- Operations: **publish, consume, On New Message, publish-consume** (synchronous).
+- **Acknowledgement modes** on the JMS listener (On New Message): auto, manual, immediate, dups_ok; a **DLQ**; persistent vs transient queues.
+- Brokers: Apache ActiveMQ, RabbitMQ, IBM MQ; **Anypoint MQ** needs an extra licence.
+
 ### 7.6 System connectors
 - Examples: Azure, Salesforce, AWS.
 - **Salesforce** is the main focus because it is asked frequently in interviews.
@@ -196,16 +220,18 @@ Also covered as part of the introduction: **orchestration, transformation and en
 | Software | Purpose |
 |---|---|
 | Anypoint Platform account | Web platform for design, Exchange, deployment and lifecycle management. Free trial account; if it expires you can create a new account with another email/username |
-| Anypoint Studio | The IDE where Mule applications are built. Development use has no time limit; deployment uses the platform |
+| Anypoint Studio | The IDE where Mule applications are built — *slide*: "IDE similar to Eclipse". Development use has lifetime access; deployment uses the platform |
 | Mule Runtime (standalone) | Needed to practise **on-premises** deployment locally |
-| Postman | Testing APIs (already used in the Day 01 demo) |
+| Advanced REST Client (Postman) | Testing APIs (already used in the Day 01 demo) |
 | Notepad++ | General text editing |
-| MySQL | Database practice |
-| FTP server software, ActiveMQ broker | For the File/FTP and JMS sessions |
+| MySQL Database and MySQL Workbench | Database practice |
+| FTP server, ActiveMQ server | For the File/FTP and JMS sessions |
+
+(List from the *slide* "Software requirements for practicing MuleSoft".)
 
 ### System configuration
-- Windows 10 or later, about a 2 GHz processor, and enough RAM to run Anypoint Studio smoothly.
-  > **Transcript unclear:** the RAM figure is lost ("a GB … one point five"); the exact recommended value could not be reliably recovered.
+- *Slide*: **8 GB RAM or above (16 GB is ideal)**, **Windows 10 or above**, **2 GHz processor**.
+  > **Transcript unclear:** the spoken RAM figure is lost; a student's "one point five" (system spec) is also unclear.
 - A student with a lower-spec machine was told to try it: if Studio installs and runs reasonably fast, it is fine; if it is slow, upgrade the configuration once, because a slow system makes practice slow.
 
 ---
@@ -218,26 +244,26 @@ The instructor walked through the full syllabus so students know what they will 
 |---|---|---|
 | 1 | Introduction | MuleSoft, API, integration; orchestration, transformation, enrichment; Anypoint Studio, Anypoint Platform and its modules |
 | 2 | Basics — building an application | Listener, Database, Logger, Transform Message and the Studio options for each (the Day 01 demo explained properly) |
-| 3 | Project structure | How a Mule project is organised |
+| 3 | Project structure | How a Mule project is organised (*screen*: Mule 4.x project structure) |
 | 4 | Testing with Postman | |
 | 5 | Debugging | Running the flow step by step from first to last component |
-| 6 | DataWeave | MuleSoft's transformation language; 2–4 sessions from basics |
-| 7 | Deployment strategies | **CloudHub** (cloud), on-premises, hybrid |
+| 6 | DataWeave | MuleSoft's transformation language; "3–4 sessions or 2–3 sessions" from basics |
+| 7 | Deployment strategies | **CloudHub** (cloud), on-premises, hybrid (*screen*: standalone server registered in Runtime Manager, deployed manually and through Runtime Manager) |
 | 8 | CI/CD pipelines | Continuous integration / continuous delivery / continuous deployment using tools such as Jenkins and Bamboo; deploying from a code repository |
 | 9 | Create and consume REST services | |
 | 10 | Consume SOAP services | Operations and how to call them |
-| 11 | File, FTP, SFTP | Differences, extra configuration, when to use each |
-| 12 | MySQL database operations | Install, connect, perform operations |
-| 13 | Properties | Different environments (Dev, Testing, UAT, Pre-prod, Prod, DR) use different servers — e.g., a separate database per environment. Properties keep these values out of code. "Very, very important"; 1–1.5 sessions |
-| 14 | Object Store | Database = permanent storage; **Object Store = temporary storage**. Not needed in every project, but you must know it when a requirement comes |
-| 15 | Routing | **Choice** router: "if condition 1 → these steps; if condition 2 → those steps". Also sending the **same request to multiple systems** |
+| 11 | File, FTP, SFTP | Differences, extra configuration, when to use each (a garbled remark says there is no provision for SFTP hands-on) |
+| 12 | MySQL database operations | Install, connect, perform operations (*screen*: Select, Update, Insert, Bulk Insert) |
+| 13 | Properties | Different environments (Dev, Testing, UAT, Pre-prod, Prod, DR) use different servers — e.g., a separate database per environment. *Screen*: externalization of properties, securing properties. "Very, very important"; 1–1.5 sessions |
+| 14 | Object Store | Database = permanent storage; **Object Store = temporary storage**. Not needed in every project, but you must know it when a requirement comes (*screen*: Module 8 — Object Store and watermarking) |
+| 15 | Routing | **Choice** router: "if condition 1 → these steps; if condition 2 → those steps". Also sending the **same request to multiple systems** (*screen*: Scatter-Gather router) |
 | 16 | JMS | Queue and topic; publish, consume, on-new-message, acknowledgement modes |
 | 17 | DataWeave in depth | Beyond the basics |
 | 18 | Error handling | Very important |
 | 19 | MUnit | MuleSoft's unit-testing framework. Two ways to build tests: **recording** option and **manual**. Each session ~1.5–2 hours. Unit testing is the **developer's responsibility**; every code change can break something, so tests are written regularly in real projects |
 | 20 | API-Led Connectivity | Architecture with **Experience, Process and System** layers |
 | 21 | API design with RAML | First step of the API lifecycle (see below) |
-| 22 | API security policies | Basic Authentication, Client ID Enforcement, OAuth, Rate Limiting, Spike Control, plus 2–3 more |
+| 22 | API security policies | Basic Authentication, Client ID Enforcement, OAuth, Rate Limiting, Spike Control, plus 2–3 more. API Manager's policy list was shown (*screen*: JWT Validation, Basic Authentication – Simple/LDAP, IP Allowlist/Blocklist, OAuth 2.0 access token enforcement, XML/JSON Threat Protection) |
 | 23 | Data processing | **For Each**, **parallel processing**, **Batch processing** for huge data, **asynchronous** processing — "very, very important" for interviews and real work |
 | 24 | Code repository | Bitbucket, GitHub, GitLab |
 | 25 | Additional connector | To be announced later (probably AWS) |
@@ -278,7 +304,7 @@ A student asked about **Anypoint Code Builder** (MuleSoft's newer IDE). **Instru
   - MCIA = MuleSoft Certified Integration Architect
   - MCPA = MuleSoft Certified Platform Architect
 - The exam costs about **US $200**. Free vouchers used to be available through classes; that is no longer the case.
-- **Instructor's suggestion:** you may mention MCD Level 1 readiness on your resume first, and pay for the exam after getting a job.
+- The *drawing* marks MCD Level 1 as the **entry** certification and crosses out MCIA/MCPA (architect level).
 - **Instructor's claim:** completing this course is enough to clear MCD Level 1, which is sufficient for developers.
 
 ---
@@ -287,14 +313,13 @@ A student asked about **Anypoint Code Builder** (MuleSoft's newer IDE). **Instru
 
 > **Instructor's market observation — not a guarantee.** Achieving the higher end requires significant effort.
 
-Rule of thumb given (example: 3 years of experience):
+Rule of thumb given (example: 3 years of experience), as written on the board:
 
 ```text
-General norm ≈ years × 2  →  3 × 2 = 6 LPA
-Maximum      ≈ years × 5  →  3 × 5 = 15 LPA
+Norm     years × 2  →  3 × 2 = 6 LPA
+Minimum  years × 3  →  3 × 3 = 9 LPA
+Maximum  years × 5  →  3 × 5 = 15 LPA
 ```
-
-> **Transcript unclear:** right after "3 × 2 = 6 LPA" the instructor says "minimum is 3 × 3, maximum 3 × 5 is 15 LPA", so it is not certain whether the lower bound is ×2 or ×3.
 
 LPA = lakhs per annum. Students also mentioned figures like ₹10–25 LPA for 3–5 years in their networks.
 
@@ -329,7 +354,8 @@ Developers, testers, BAs under each lead
 MuleSoft Developer (you)
 ```
 
-- **BRD** — Business Requirements Document
+- The *drawing* also shows a technical lead (→ LLD) with **5 developers + 1 tester**, 10 APIs at about 2 per developer, and the path Dev → QA → UAT → Prod.
+- **BRD** — Business Requirements Document (the *drawing*: "BRD or FSD — Functional Specification Doc")
 - **HLD** — High-Level Design
 - **LLD** — Low-Level Design
 
@@ -345,7 +371,7 @@ Main job: **develop APIs and integrations**, covering the lifecycle steps:
 
 To understand a requirement — what the request is, what the response is, what the error response is — the developer:
 
-1. reads the **HLD**, **BRD** and **LLD**,
+1. reads the **HLD**, **BRD** and **LLD** (the role *slide* says BRD and **TDD — Technical Design Document**),
 2. clarifies doubts with the **lead** and **architect**,
 3. clarifies business questions with the **Business Analyst**.
 

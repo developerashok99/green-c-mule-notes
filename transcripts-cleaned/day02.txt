@@ -1,0 +1,225 @@
+MuleSoft Telugu Course — Day 02 (cleaned transcript)
+Source: transcripts/day02.txt (Whisper medium, Telugu → English). Cleaned by Claude: misheard technical terms corrected from context and from the class slides (slides/day02 in the notes repo), repetition loops removed, punctuation and paragraphs added. Nothing added that was not said. [unclear] marks parts that could not be recovered; [slide: …] / [drawing: …] / [screen: …] mark text read from the video.
+
+---
+
+Good morning once again to everyone. In the previous session we saw the introduction. What we will do now is set the agenda for today's session, and then we will go to the content. [slide: Agenda — prerequisites, common integration requirements, course content, software requirements, system configurations, role of a MuleSoft developer, Q&A]
+
+Before learning MuleSoft, we need to discuss the prerequisites. Next is common integration requirements. Generally, what we do with MuleSoft is integration: we use MuleSoft to connect two or more systems. We build some APIs and integrations, and when we build them, we discuss the common integration requirements — what the common project requirements are.
+
+Next is course content. We will discuss in detail what we cover — 10 to 15 minutes; we will not take much time there. But some people have queries, right — what we cover; they have a lot of doubts. Such doubts are covered in the course content. Whatever will be helpful and useful in real time is already included, basically based on my experience and expertise, exactly. But still, you also have to be aware of what you are going to learn. So let's discuss the course content in detail.
+
+Next, what software do we need to practice MuleSoft? Are there any charges? We will tell you how to download and install it in this particular section. Most probably no charges are required at any point of time. We will take everything that is freely available and practice with it. So I will show all the software that we need for our practice. It's very important: we don't have to pay anything. No need to spend anything, exactly.
+
+Next, what are the system configurations? Why system configurations? When we practice, if we have these configurations, the system will work a little faster. Even if yours is less: when you download and install Anypoint Studio, check whether it is working properly and fast — then no problem. If it doesn't work, you have to change the system configuration again. It is better to do it once. If it works slowly, obviously you will not be able to practice fast.
+
+Then, in real time, what kind of activities does a MuleSoft developer do? The role of a MuleSoft developer. Then there is Q&A — questions and answers.
+
+First, what prerequisites do we need to learn MuleSoft? [slide: Pre-requisites for learning MuleSoft — Monolithic applications; Microservices architecture; APIs, web services, REST and SOAP services; API life cycle; Different environments in real-time; JSON, CSV and XML data formats; HTTP discussion] Basically, what do we do with MuleSoft? We develop two things, generally. [unclear] REST APIs — and the API is also part of integration only — and integrations. [unclear] If there are any questions, unmute yourself and talk, no problem.
+
+What do we do? We build REST APIs and integrations. What are APIs? What are web services? There are REST and SOAP in web services — why do we use REST more? Why is SOAP used less? Then what is integration? We discuss all these things in the prerequisites. Don't worry, I will take care of all of it. Because if we have those fundamentals, you will have that confidence, exactly. For that confidence I have already included extra classes in our curriculum; I will teach you the basics again. With MuleSoft we will build REST APIs and integrations. In the process of building these, basically —
+
+— Hello, Mr. Mahesh, this is Rose. [unclear]
+
+Yes, tell me. [unclear] Don't worry about it. See, course-wise, structure-wise, nothing to be worried about from your side, okay? I will take care of it based on my entire experience. You just have to digest the content — whatever we discuss in the class. Understand it, ask the right questions, and then practice it. That's it. If you do that, mostly that is more than enough. Because I have conducted almost 250-plus interviews. I am on the interview panel. What is the requirement from the market? How should a 3-years-experienced person come? How should a fresher come? How should a 5-years-experienced person come? There is clarity on everything. I have my colleagues on the panel, and I am there. And I attend interviews myself every year — every year I attend 5 to 10 interviews, just to evaluate the market and test whether we are in line with the market. I am in touch with the market, and students who attend interviews share their experiences. I keep that in mind and change the content from time to time. I design what you need. Nothing to be worried about. Okay, fine.
+
+Integrations — one by one, we will break it down and decompose everything. What each person in a project does, what a MuleSoft developer should do, what work they should have — we will discuss all this. Don't worry about it.
+
+And another one is the Anypoint Platform, exactly. In this Anypoint Platform, again, you have so many things — Design Center, Exchange, so many sub-tools like this: Design Center, Exchange, then Runtime Manager, next Visualizer, Monitoring, and many more. [drawing: MuleSoft → {REST APIs, Integrations} → Anypoint Studio (development); Anypoint Platform → Design Center, Exchange, Runtime Mgr, API Mgr]
+
+So what is an API and what is an integration? I will give you a brief. Now, we have ICICI Bank. In this bank, for example, we have a mobile application or a desktop application; we can log in and check the balance. We have an account and we can check the balance in that account. For example, if we log in to the mobile application, we click on the balance-check button. We click it, it sends a request and gets a response. For example, there are 25,000 rupees in our account — that response will display 25,000 rupees here.
+
+This is called the front end. Why is it called the front end? Because the customer is experiencing this particular system. You are experiencing your application — customer experience or user experience — in ICICI Bank, so it is a front-end system, or a user-experience system.
+
+Where will this balance be? Basically, it will be saved in a system in the back end. Let's say you are using a database for that purpose. In this database we have our customer data — our name and all the details — and our balance is also in this database. Now, obviously, front-end systems are mostly designed with React, JavaScript and such languages. What is the back-end system? This is the database; mostly it will depend on Java [unclear]. So there is one technology for this and a different technology for that. They will not be able to communicate with each other. And there may be hackers who directly hit this database and steal the data. So it is very important to have a layer in between these two systems. [drawing: ICICI (MA) "Bal check" — Req (AcNo, CID) → API → Req → ICICI DB; Res ← ; Frontend / Backend]
+
+Just understand it at a high level. When you send a request, the account number goes with it; if more details are needed, for example, the customer ID details go too. When the request is sent, the API changes the request for the database, and sends the response back. Here the request is sent and the response is received. What is the response? How much balance is in this particular person's account — the account number and balance are sent in the response. When the response is sent, what will the front-end system do? It takes the response and arranges it properly: it says there are 25,000 rupees in your account and presents it to us in detail.
+
+If you observe here, the API is acting as a middle layer between the front-end system and the back-end system — this is called the back-end system. In such situations, APIs are developed. We sent a request; the API processes that request with the help of the back-end system; then it sends a response to the front-end system. This is a scenario. This is an API.
+
+And integration. [unclear] We are trying to connect [unclear] with the help of an — [unclear] Every day I have to insert data into the database. What do I do now? Every day I run a scheduler job. What do I do by running this scheduler job? First I connect to the Salesforce system — actually, I get data from Salesforce. After getting the data from Salesforce, I make the necessary transformations. After that, I connect to the database and insert it into the database. Then what happens? Automatically — you can see here — I have a small integration ready. Here I have the scheduler; then I have Salesforce and got the data; then I have transformed it for the database; then I have put the database connector here; then I have inserted it into the database. [drawing: S | (S) → (T) → (D), with SF and DB above]
+
+It is not exposed for a different system to consume, exactly. A regular job is going on here. Every day at one time — one night at 10 o'clock or 11 o'clock — we schedule it. Automatically it triggers, gets some data from the Salesforce system, makes transformations — the MuleSoft application makes the changes — and then dumps it into the database, for example. This is called an API, and this is called an integration.
+
+Mostly, the work we do with MuleSoft is to develop REST APIs and integrations. We have different tools — sub-tools — to do such jobs. Maximum drag and drop. Yesterday we saw a small demo: we simply dragged and dropped to connect to a database, wrote a query, and automatically got the data. Most of the time it will be drag and drop; a very small amount of the time — 10 to 20 percent — we have to write the transformations, exactly. This is the overall view. What does the developer do? At a high level, they develop REST APIs and integrations.
+
+Okay, fine. I told you what the prerequisites are, right? First, what is a monolithic application? Then, what is microservices architecture? Then APIs, web services, REST and SOAP — we will discuss all of that in detail.
+
+Next, the different environments in real time. In our group we have non-IT students, IT students and freshers — different groups of people. For people in IT, there are different environments: for example, the development environment, testing environment, pre-prod, prod, disaster recovery. But still, there are so many people who are unaware of it, right? So why are there different environments? What are the environments? Plus, what is the significance of each environment? We will discuss that totally.
+
+Next, JSON, CSV, XML data formats. Generally, when we use MuleSoft, we use some data formats regularly — we will also discuss CSV and XML.
+
+I will tell you a small point now. REST APIs are developed a lot, and REST APIs depend on the HTTP protocol. How to send requests in the HTTP protocol? How will the response be? How will it behave when an error comes? How will it behave on success? How to respond to different errors in different ways? We need a lot of information, and we will cover all of it as part of the prerequisites. I will take three or four sessions for those. First of all, what is a monolithic application? How did the industry migrate to microservices architecture? After that, how do we implement microservices architecture in MuleSoft? We will discuss all these properly.
+
+Any questions so far? You can drop them in the chat box, or you can unmute yourself and ask. No questions — I take it as no questions. Someone has dropped something in. Thank you.
+
+Next, common integration requirements. [slide: Common integration project requirements — Consume and provide REST services; Consume SOAP service; Consume File, FTP and SFTP services; Consume database service; Consume JMS service; Consume system connectors] If we go to a project as a developer, most of the time this is the scope of what comes to us. Consume and provide REST APIs — [unclear] other systems, new systems, etc.
+
+If a system is already on SOAP, we consume those SOAP services, but we don't create them. So in the requirements that come with a project, we consume SOAP services, and in the course we consume SOAP services — if there is a SOAP service, how do we consume it? This is also a bit rare. But still, you have to understand and learn it, because it can be asked in interviews and such situations. That's why even that is included in the project requirements.
+
+Another common requirement in the industry is dealing with files. For example, there are different servers like FTP servers and SFTP servers. It is common to move a file from an FTP server to another system, transforming it into another data format. That is why File, FTP and SFTP are common in every project, and that is why we need to learn these three things. What we are going to do is download an FTP server, install it, see how it works and how to connect to it, and check when we need FTP or SFTP. We can do all these activities with the database as well. [unclear]
+
+Next is the JMS service. JMS is Java Messaging Services. Basically, these are queuing services. For those queuing services, we download the ActiveMQ broker and discuss when and in which context we use JMS and what operations are there in it. We will discuss all these things and try to work on it.
+
+And then system connectors. What are these system connectors? For example, there are Azure, Salesforce and AWS connectors — different connectors. Among those, the connector we use most is Salesforce. Salesforce comes up very regularly from the interview point of view and is asked a lot. That is why we use Salesforce. I am going to add another connector for this batch. Which connector? I'm still thinking — maybe I'll try to use AWS. So I will try to add one more connector, and then we'll connect to that system and handle its data.
+
+If we go into a project, we will see the same requirements in most projects — 80% of the time, the same requirements. If we focus on these and learn them well, what will happen? You can learn less and get more out of it, exactly. You can learn less and achieve more. Otherwise you will not be able to focus. So my intention is to focus more on these five to six requirements, exactly. If you do that, you can easily achieve 75 to 80 percent of the marks in a project. That's the thing. Any other questions? [drawing: "80%", "300+", "MongoDB → ✗", "10–15 connectors", JMS → ActiveMQ, Salesforce +]
+
+— So there's no worry, and I can easily understand it and go with that.
+
+Exactly. Yeah. Any other questions?
+
+— And the same database, but different companies' databases?
+
+Exactly. It will be very easy for us to understand, exactly. [unclear: repetition loop]
+
+[drawing: JMS overview — publisher (or) producer (or) sender → send message (headers, body) → broker or JMS server (ActiveMQ) — queue or topic → consume message → subscriber or consumer (receiver); "further processing can be handled"; new employee → API (BE) → DB, and → topic → finance, payroll, marketing]
+[drawing: Queue — pipeline of messages; sender pushes, receiver consumes; one-to-one]
+[drawing: JMS operations — publish, consume, On New Message, publish-consume (synchronous)]
+[drawing: new employee → topic → finance/payroll, HR, operations; decoupled, asynchronous]
+[drawing: Acknowledgement mode — JMS listener → On New Message: manual, immediate, auto, dups_ok; DLQ; queues — persistent / transient; RabbitMQ, IBM MQ, ActiveMQ]
+[drawing: JMS = Java Messaging Service — Apache ActiveMQ, RabbitMQ, IBM MQ; Anypoint MQ (extra licence cost)]
+
+Whenever you want to decouple systems — what is this, what is asynchronous, what is the full form, what types of services are there, what can you do with JMS, what is the publisher, what is the producer, what is the message — I'll explain each and every terminology. Publisher, producer, sender: some say only publisher; others say producer or sender. I've discussed all these terminologies neatly; you don't have to worry. This is recent. What is a queue? What is a topic? When should we use a queue? When should we use a topic? There are operations in it. Any other questions? Okay, fine. Next.
+
+[slide: Software requirements for practicing MuleSoft — Anypoint Studio (IDE similar to Eclipse); Active Anypoint Platform account; Mule Runtime; Advanced REST Client (Postman); Notepad++; FTP server; MySQL Database and MySQL Workbench; ActiveMQ server]
+
+First of all, to practice — if we want to learn MuleSoft, we need extra licensing, right? [unclear] We need software, basically. [unclear] For MuleSoft, if it is related to development, it will have lifetime access, but if we deploy it, [unclear]. [screen: Anypoint Platform sign-in] [screen: Anypoint Platform home — Anypoint Code Builder, Design Center; Management Center — API Manager, API Governance, Runtime Manager] So it's very easy for us to do it and complete the lifecycle management — and lifecycle management is the Anypoint Platform. We can do the different steps in that platform. I will discuss in detail the activities in the Anypoint Platform and what we can use it for. Don't worry about it — if I say it now, it will be overwhelming, so I am not going to discuss it now. And then you can change the username and create a new account again, or use a different email ID.
+
+Next, Mule Runtime. To practice on-premises, you need to download the Mule Runtime. And then download Postman for testing — we used it yesterday, right? After we built the API, [unclear] how to download it. Then you need software called Notepad++.
+
+[slide: System configurations for practicing MuleSoft — 8 GB RAM or above (16 GB is ideal); Windows 10 or above; 2 GHz processor] A system with [unclear] GB, Windows 10 or above, and a two-gigahertz processor.
+
+— [unclear] I have a system with one point five [unclear].
+
+What? It's fine, exactly. There is no worry. But [unclear] just — exactly. [unclear]
+
+[slide: Role of a MuleSoft developer — Go through BRD (Business Requirement Document) and TDD (Technical Design Document); Discuss all your queries with the business team and architect/technical lead; Design, develop, unit testing — developer; QA testing — testing team; UAT and production]
+
+But before going there, I'll just walk through the course content — what exactly we cover in the course — because many people have a small doubt about which topics we cover. That will be clear from this course content, no problem. That's why I'm discussing it.
+
+[screen: course content in Notepad++ — Pre-requisites discussion; Module 1 — Introduction of Mule ESB (Enterprise Service Bus): P2P integration and its problems, ESB introduction and how it overcomes P2P problems, what is orchestration, transformation, enrichment, what is MuleSoft, what is Anypoint Studio and Anypoint Platform; Module 2 — Mule ESB basics: Mule flow intro (Hello World application), Mule event intro, Anypoint Studio intro, Postman intro (API testing), Mule 4.x project structure, how to debug a MuleSoft project, DWL intro (DataWeave, zero level to mid-level); Module 3 — Deployment strategies: standalone server, registering a standalone (on-premise) server in Runtime Manager, deploying manually and through Runtime Manager (hybrid), CloudHub deployment]
+
+Okay, first we said we would cover the prerequisites, right? We have already gone through the prerequisites — we will cover all of these before going to the course. We will also discuss orchestration, transformation and enrichment in detail. We will also discuss MuleSoft in depth — Anypoint Studio, Anypoint Platform, its different modules. All of these go into the introduction part.
+
+Then the basics. What do we do? How do we build an application in MuleSoft? Yesterday we built a demo application. How do we build it? What is this Listener? What is this Database? What is this Logger? What is this Transform Message? What options should we use in Studio? You will see everything in detail. If you have any questions — we will give you all the recordings; after every session we will upload it and give it to you.
+
+Next: how the structure of a project will be; how to do the testing in Postman; how to debug a project. Debug means step by step — from the first to the last step, we'll see how it works and how to debug it, basically.
+
+After that, in MuleSoft there's a language for writing the transformations, called the DataWeave language. We'll use it and do some transformations. We'll focus on the DataWeave language for 3–4 sessions, or 2–3 sessions, and try to start from the basics.
+
+And then deployment strategies. After we prepare an application, we have to deploy it in different environments. For example, the cloud-based solution is called CloudHub, and we have to deploy it there. If it is on-premises, how to do it on-premises, basically. If it is a hybrid server, how to deploy it in hybrid. We will discuss all these deployment models and how to deploy the application. What do we do in the Studio — [unclear] but CI/CD pipelines: continuous integration and continuous delivery or continuous deployment models, with Jenkins, Bamboo and different tools. I'm going to talk about how to deploy the application through the CI/CD pipeline. I'll also discuss the code repository — Bitbucket or GitHub — and the Jenkins pipeline.
+
+Next, create and consume REST services. Next, consume SOAP services — we will discuss how to write it, how to do it, what the operations are, etc. After that, [unclear] we don't have the provision for SFTP, that's why we are not doing it — [unclear]. What is the difference between this and this? What extra configurations do we need? We will discuss that. Then when to use File, when to use the File connector, when to use FTP, when to use SFTP — we will discuss all these differences.
+
+[screen: Module 4 — Consume REST and SOAP web services; Module 5 — File, FTP and SFTP endpoints; Module 6 — Database endpoint: configure the DB connector, operations Select, Update, Insert and Bulk Insert; Module 7 — Externalization of properties: implement externalization, securing properties; Module 8 — Object Store and watermarking; Module 9 — Routing or flow control: Scatter-Gather router, Choice router; Module 10 — Messaging and JMS endpoint: queue, topic and ActiveMQ intro, configure the JMS connector, publish and consume messages]
+
+MySQL database. So basically, all these operations are done by downloading a MySQL database, installing it, connecting to the database and doing all these operations.
+
+Next, there is an explanation of properties. What is this? For example, in real time we have different environments like Dev, testing, UAT, production, pre-production, disaster recovery. Different environments use different servers. For example, if you have a database, there is a database for development, a database for UAT and a database for production. [unclear] The properties — very, very important. So one session, or one and a half sessions.
+
+Next, the Object Store connector. [unclear] The database is used for permanent storage, but for temporary storage there is a concept called Object Store — how to use that Object Store and what it is. We don't have regular requirements for it, but there will be a requirement sometime, and when there is, we shouldn't be unaware of the Object Store. So we will try to understand the Object Store concept as well.
+
+Next, routing concepts. For example, if this condition is okay, we have to do these particular steps; if it is the second condition, we have to do those steps. For that there is a router called Choice — a component we can use to do it. And: I have to send the same request to multiple systems, exactly. So we're going to discuss this. [unclear] sessions.
+
+Queue and topic: you can use them to publish, consume, On New Message, acknowledgement modes. We will do all the operations like this.
+
+Next is DataWeave. We will have just started the basics of DataWeave; here we go into the details in depth.
+
+Next is error handling. Error handling is very, very important. And we have to test an application: MUnit has already been developed by MuleSoft, and we have to use it to build MUnits. When we build MUnits, we have to follow [unclear] steps; it takes a session, almost one and a half to two hours. We have the recording option — it is very easy for us — and the other option is to do it manually in some scenarios. How to do that? We will do all these in the MUnit section. The responsibility of unit testing is the developer's only. [unclear] MUnit is needed in real-time work, even if less from the interview or preparation point of view. That is why these concepts are important. Once you crack your job, you have to write unit tests every day. When you change something, it breaks again — how do we handle that? This is also related to unit testing. What is unit testing? How does it help? What is a unit? How can we do it with recording? How can we do it manually? We will cover all these.
+
+API-led connectivity architecture: experience layer, process layer, system layer.
+
+What I will do — I told you about the API lifecycle, right? There are different steps: design, implementation, secure, monitor, deploy, etc. The first step is actually to design an API. When we construct a house, we go to the architect and draw a blueprint, right? The same way, when we build an API — when we build our REST API — the first step is to design the API using RAML. How will the request be? How will the success response be? How will the error response be? We design all these. For designing there is a modeling language called RAML. The modeling language is very simple, English-like. We will use that language, and we will do it in the Anypoint Platform, in Design Center. We will take a use case and explain it.
+
+Next, we have to secure our APIs. To do that there are many policies. What are those policies? Basic authentication, client ID enforcement, OAuth, rate limiting, spike control. Not only these — we will cover 2–3 more policies here. We will include all of that. [screen: API Manager — API Administration (Sandbox), oauth-demo-api (v1) — Policies] [screen: add policy — JWT Validation (applied), Basic Authentication – Simple, IP Allowlist, OAuth 2.0 Access Token Enforcement using Mule OAuth Provider, XML Threat Protection, Basic Authentication – LDAP, IP Blocklist, JSON Threat Protection, Detokenization]
+
+There are different ways to process data. We have to break it up and handle each one singly: we use For Each and parallel processing. We use batch processing when we get huge data. How to use them, when to use them, what the use cases are. Then there is asynchronous. Exactly. Actually, these are very, very important in terms of the interview as well as real-time work.
+
+So this is the activity we created: we build this pipeline and deploy the application through that pipeline.
+
+Next is the code repository. Some people don't know what a code repository is, right? It's for code. For example, in this Studio, when we drag and drop, the code is automatically generated in the background — basically XML code. What do we do with it? If the Studio crashes or gets corrupted, [unclear] the code repository. Tools like Bitbucket, GitHub, GitLab — we use those tools to store the code in the cloud. How do we push the code there? Basically, there are some commands for that. What is the significance of the tool? Let's take an example — GitHub, or Bamboo. What are the steps for it? Why do we use it? We will see all that. CI/CD deployment — all these will be covered.
+
+What else did I say? I will also introduce another connector. Which connector? I will add it for your batch and release it at a later point of time — another connector. These are the total course content. What are the doubts on the course content?
+
+— Will you explain from the Code Builder?
+
+[unclear] Yes, there will be hands-on. [unclear] Someone asked a question in the chat. We will take every use case and understand it theoretically. After understanding it theoretically, we will go to the Studio and deploy the application. For example, think of the JMS connector. [unclear] It is not required at this point of time; you can learn it in the future when you need it — [unclear] we will discuss it in Anypoint Code Builder [unclear] application. Don't waste your time there. Basically, when you are in the job, you can [unclear] learn it then. Is that clear?
+
+— Yes.
+
+I see some questions; I will take them up. Vishnu, you already asked about certifications — I already told you; if you attended the session yesterday, you will have an idea. There are four certifications: MCD Level 1, MCD Level 2, MCIA and MCPA. [drawing: MCD Level 1 → Entry → 200 USD; MCD Level 2; MCIA, MCPA ✗]
+
+I'll tell you one technique: the first time, you don't spend these two hundred dollars to do MCD Level 1; you generally put it in the resume, and after you get a job, then spend it and do it. We used to explain it in the classes and get a free voucher for the exam, exactly, but now there is no such situation — everyone has to pay the 200 US dollars and do it. But if you complete our course, you will be able to clear MCD Level 1 easily, and this is more than enough for developers, exactly.
+
+Next, error handling and [unclear: "bulkification"]. Error handling is a clear topic for us. There is a batch process: to handle huge data we use the batch process and this Parallel For Each.
+
+Salaries came up in a discussion, and then Narendra already [unclear].
+
+— Approximately, for example, three to five years —
+
+10 to 25 — [unclear]. Okay.
+
+— Five years [unclear]. Five and a half to six years.
+
+Okay. Salaries — it's in great demand, exactly. You can demand good salaries. I am not saying it is the same for everyone. But what is the norm in the market? Generally — take an example and consider experience 3: a person with 3 years of experience. 3 into 2 is the norm, that is 6 LPA — 6 lakhs per annum. Generally this is followed first. Minimum is 3 × 3, maximum 3 × 5 is 15 LPA. The minimum is here and the maximum is here; this is achievable with MuleSoft. You have to put in a lot of effort. [drawing: Exp — 3 years; 3 × 2 = 6 LPA; Min 3 × 3 = 9 LPA; Max 3 × 5 = 15 LPA]
+
+— I can't [unclear].
+
+Okay. Yeah, I think I'll move on to the next topic. This is a discussion [unclear]. Yeah. Thank you. Exactly.
+
+[drawing: MS — Airtel (users) and TCS (business team + technical architect) → workshops → BRD (Business Requirement Doc) or FSD (Functional Specification Doc) → HLD (High Level Design); 50 APIs, 5 integrations; technical lead → LLD; + 5 developers + 1 tester; 10 APIs (1 dev — 2 APIs) → Dev → QA (testing) → UAT → Prod]
+
+[unclear] Business analysts, delivery managers, technical architects, and people who have knowledge of MuleSoft — and along with that, if they use any other technologies, those people — they will combine and form a team from TCS. Then from Airtel, the users of this particular project will conduct workshops regularly, basically. What will they do? They conduct workshops and give the entire requirements very clearly to the business team and the solution architect team, exactly.
+
+What they do is: the business team documents the functional specification documents and documents the requirements neatly. After that, the technical architect discusses whether this is possible or not, and they [unclear] will have diagrams — go from here to there. There are three systems; which architecture you should follow, what you need — they discuss and design it at a high level. Then they break it down and design it at a low level. For example, you will have to develop many APIs — what to do in each API, how to integrate them — that low-level and high-level design.
+
+So what does an architect do? Now there is a structure. After a project comes — for example, a requirement for 100 or 150 APIs — what do they do? They divide it among leads: for example, divide it into 3–4 teams, one lead, another lead, another lead and so on. Under these leads there are developers, testers, BAs — business analysts — all of them. They use them and give us the requirements. We got a lead; that lead got 10 APIs or 20 APIs. Now he has developers, basically, and we are one of the MuleSoft developers among them.
+
+[drawing: Airtel (business users) + TCS (business team + technical architect) → BRD (FSD) → HLDs (technical) → LLDs → Leads → Developer (MuleSoft) → API design → API implementation + unit testing → secure API → deploy → monitor]
+
+Now, what is our job, basically? Most of the time — what did I say? Developing APIs plus developing integrations. In that, all the steps will be there. First we design the API. Then we implement the API. Then we secure it using API policies, then we deploy the application, and then we monitor it. And unit testing is also part of implementation. What is implementation? It is development — API implementation is API development. We do all these things, exactly, and deploy our application.
+
+When we gather these requirements, we interact with our lead: what is the requirement for this API? What is the request? What is the response? We go to the high-level design document, we also read the BRD, and we also check the low-level design document. If there are any doubts, we discuss them with the lead and the architect. If there are any other doubts, we discuss them with the business analyst. Everything will be ready and clear in front of our eyes. Compared to the lead and architect, the developer job is very easy, because they need to prepare all of this — how the request should be, how the response should be, how the error response should be — all of it leads us to a document. We need to see all these and do it, basically. We need to use a little bit of knowledge. So why is the MuleSoft developer job easy? They have prepared everything and put it there. We see it and, step by step, ask them the right questions and implement it. We can easily handle all these topics in real time if we follow them properly. This is the role of a MuleSoft developer.
+
+We have a testing team, a business analyst team, [unclear] and they do the overall testing. If they raise any bugs, we have to fix them. If there are different environments, we have to deploy the applications, and the pipelines. All these activities are done by the MuleSoft developer. We have daily scrum calls in Agile methodology — status, blockers, etc. Communication plays a major role: communication and technical knowledge. If we are confident in both, it will be easier for us.
+
+I am done with my session — almost all the concepts are covered. If there are any questions, we will take them up.
+
+[unclear] You need information about different systems as well. For example, in our API, it should connect to Salesforce and a database. Now the Salesforce team has to give you the information related to Salesforce — you are dependent on that team. And the database team should give you the information related to the database — you are dependent on that team, exactly. Because of that, they will plan the time based on all these. If it is an easy API, it will take 3 to 5 days. If it is medium difficulty, 5 to 7 days — I am talking about working days. If it is a bit more complex, it will take 7 to 10 days, or 10 to 12 days. They will have a calculation. [unclear] The technical architect and the lead will have the calculation [unclear] of time. It depends on the organization as well as the lead. Yeah, is that clear?
+
+— [unclear] 300-plus connectors in the industry — [unclear]
+
+Nobody is going to understand all of them — in my total experience. It's not so difficult. See, that is why we are mostly focusing on 80% of the requirements. If I go to a new project — for example, I have to use the MongoDB connector, and till now I have not used the MongoDB connector — I already have experience with these other connectors. I will go to the official documentation of the MongoDB connector, study it, learn it, and then do it. And you can clearly say it in the meetings itself: "I haven't used the MongoDB connector; I'll do a POC first and then start working on it." You need to spend a few hours. [unclear] Now, there are 300-plus connectors; you can't learn 300-plus, right? In my total experience, the connectors I worked with were 10 to 15. Not more than that. That's what I'm saying. [unclear] That's why I told you 80% — that 80% will be covered here, actually. [unclear] The requirements revolve around these, actually.
+
+See, the focus should always be: learn less, and more marks should come to us. For example, there is an exam with 10 chapters; if you learn 3 chapters, 70% will come. [unclear] It is your wish, but I don't suggest [unclear]. With this knowledge, it is very easy to pick up a new connector. It doesn't take much time, basically. And when you work with that connector, you will understand a few more details of it; when you work, you get more information about it. And nobody is perfect in any connector. Now, if you click on the Salesforce connector — Salesforce has 100 operations. [unclear] Of those, 3–4 operations are used majorly, and we will discuss those 3–4 operations. So it's very important to understand. Any other questions? Exactly. Okay. Next.
+
+— I don't know what to do with the front end. Do we use it or not?
+
+We don't have a relationship with the front end. That's why we use Postman. For example, we discussed an example here — what did we do in this example? Who is developing this front-end application? That is not in our hands. We developed our API and prepared it, and then Postman comes into the picture: we test our API and keep it ready. If they are ready, they will test it together. That's it. Or the tester will test it and report the issues: the tester goes to the front-end application and checks whether the response is correct; if the response is not coming correctly, they report it to the front-end team.
+
+[unclear] See, when you have recorded sessions, what you have to do is practice the concepts we discussed. Listen in class, check the recording once again, and next — you will have theory and demonstration in every class, right? If there is theory, learn the theory; if there is a demonstration, do it hands-on.
+
+— What is the tool — the MuleSoft tool? Other than the recorded sessions, have you made any other assignments?
+
+First of all, do this — it's enough if you do it. You don't have to do more than that. If you have done it and you want it to be even better, then tell me. Otherwise it will be enough for us.
+
+Another point: you have a small Hello World application, or a demonstration application — this is the one we built yesterday, the DB application, exactly. If you build that DB application 20 times, you can learn different things in those 20 times. And another point I have to say: hands-on is very, very important. Like how children practice maths — the more we practice a tool, the more hands-on we get; the more hands-on we get, the better we can perform in interviews and work in real time. Just by watching videos, nothing will come. I'll tell you that very clearly: if you just watch the videos and think you've got it, it's a drama. Until you start in real time — for example, if you open Studio, you won't even know where to go. So it's very, very important to practice, practice, practice. The more times you practice, the more you will learn. And if you have any doubts, you can ask all the questions. Any other questions?
+
+— What are the three different types of APIs in your topic?
+
+Experience API, Process API and System API. Finally, an API is an API — experience, process, system. But we need to know when to use the experience, when to use the process and when to use the system. That is what I am discussing.
+
+— So you are talking about the technical implementation?
+
+Yes, that is what I am talking about. You have given the requirement here; I discuss it at the end. "It's a system API" — we discuss when we use it, why we use it and how we use it when we discuss the architecture of the API. But finally, an API is an API, that's it.
+
+— So is the design of the API the same?
+
+Yes, it's the same. Because the experience API will be exposed to the external world, actually —
+
+— Okay. [unclear]
+
+What kind of policy you can use, what kind of security you can use — I will tell you all that in the policies. You can use it with the experience layer. There are no hard and fast rules. Some people don't even secure it. What is the reason? They are consuming it internally — inside the organization. There are some banks [unclear] compulsory RBI rules: if you want to expose it, you compulsorily have to have security on the API. It depends on the industry and the organization we are working in, for example.
+
+Course duration — I have already told you: 55 to 60 sessions will be there. Plus, every day a one-and-a-half-hour session, from Monday to Thursday. That means 6 hours of content per week — not one hour, one and a half hours. From Monday to Thursday, a one-and-a-half-hour session. [drawing: recap — MuleSoft → REST APIs and integrations; front end → API → back end; Anypoint Studio and Anypoint Platform modules]
