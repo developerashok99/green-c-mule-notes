@@ -1,0 +1,16 @@
+/* Comfortable reading width and slightly larger text for long study sessions */
+.md-grid { max-width: 1320px; }
+.md-typeset { font-size: 0.82rem; line-height: 1.7; }
+
+/* Slide images: framed, readable in both themes */
+.md-typeset img {
+  border-radius: 6px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  max-width: 100%;
+}
+
+/* Mermaid diagrams centred and scrollable on small screens */
+.md-typeset .mermaid { text-align: center; overflow-x: auto; }
+
+/* Tables: keep wide tables scrollable instead of squashed */
+.md-typeset table:not([class]) { font-size: 0.78rem; }
