@@ -122,6 +122,111 @@ def rewrite(text, kind):
     return text
 
 
+# --- mind maps --------------------------------------------------------------
+MARKMAP_JS = "https://cdn.jsdelivr.net/npm/markmap-autoloader@0.18"
+SKIP_SECTIONS = re.compile(r"terminology|interview question|must remember|next session|sources|quick recap|"
+                           r"checklist|glossary|references", re.I)
+
+
+def slugify(value, sep="-"):
+    """Same algorithm as Python-Markdown's toc.slugify (what MkDocs uses for heading ids)."""
+    import unicodedata
+    value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+    value = re.sub(r"[^\w\s-]", "", value).strip().lower()
+    return re.sub(r"[{}\s]+".format(sep), sep, value)
+
+
+def heading_plain(text):
+    text = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", text)     # links/images → text
+    text = re.sub(r"<[^>]+>", "", text)                           # html tags
+    return text.replace("`", "").replace("*", "").strip()
+
+
+def outline(md_text):
+    """[(level, text, anchor)] for every heading, with ids as MkDocs generates them."""
+    seen, out, fence = {}, [], False
+    for line in md_text.split("\n"):
+        if re.match(r"^\s*(```|~~~)", line):
+            fence = not fence
+            continue
+        m = None if fence else re.match(r"^(#{1,6})\s+(.+?)\s*#*\s*$", line)
+        if not m:
+            continue
+        text = m.group(2)
+        slug = slugify(heading_plain(text)) or "_"
+        if slug in seen:
+            seen[slug] += 1
+            slug = f"{slug}_{seen[slug]}"
+        else:
+            seen[slug] = 0
+        out.append((len(m.group(1)), text, slug))
+    return out
+
+
+def topic_label(text):
+    text = re.sub(r"^\d+(\.\d+)*\.?\s+", "", text)               # drop "4.1 " numbering
+    return text.replace("[", "(").replace("]", ")")
+
+
+def lecture_topics(sid):
+    """[(label, anchor, [(label, anchor), ...])] from the super-detailed notes (topics only)."""
+    f = REPO / "super-detailed-notes" / f"{sid}.md"
+    if not f.exists():
+        return []
+    topics, cur = [], None
+    for level, text, anchor in outline(normalize_lists(f.read_text(encoding="utf-8"))):
+        if level == 2:
+            cur = None if SKIP_SECTIONS.search(text) else (topic_label(text), anchor, [])
+            if cur:
+                topics.append(cur)
+        elif level == 3 and cur:
+            cur[2].append((topic_label(text), anchor))
+    return topics
+
+
+def markmap_block(md, expand):
+    opts = "---\nmarkmap:\n  initialExpandLevel: %d\n  maxWidth: 320\n  autoFit: true\n---\n" % expand
+    return ('<div class="markmap mm-full">\n<script type="text/template">\n'
+            + opts + md + "\n</script>\n</div>\n\n"
+            + f'<script src="{MARKMAP_JS}"></script>\n')
+
+
+MM_HELP = ("*Click a circle to expand or collapse a branch · scroll to zoom · drag to move · "
+           "click a topic to open it in the notes.*")
+
+
+def lecture_mindmap_page(sid):
+    notes = f"../../lectures/{sid}/notes/"
+    lines = [f"# [{label(sid)} — {short_title(sid)}](../../lectures/{sid}/)"]
+    for t, a, subs in lecture_topics(sid):
+        lines.append(f"## [{t}]({notes}#{a})")
+        for st, sa in subs:
+            lines.append(f"### [{st}]({notes}#{sa})")
+    return (f"# {label(sid)} — Mind Map\n\n{MM_HELP}\n\n"
+            f"[:octicons-arrow-left-24: Back to the lecture](../lectures/{sid}/index.md)\n\n"
+            + markmap_block("\n".join(lines), 3))
+
+
+def course_mindmap_page(ids):
+    lines = ["# MuleSoft Course"]
+    groups = [(f"Phase {i} — {n}", [f"day{d:02d}" for d in r]) for i, (n, r, _) in enumerate(PHASES, 1)]
+    groups.append((f"Phase {len(PHASES) + 1} — Interview Preparation", INTERVIEW))
+    for gname, sids in groups:
+        lines.append(f"## {gname}")
+        for sid in sids:
+            if sid not in ids:
+                continue
+            lines.append(f"### [{label(sid)} — {short_title(sid)}]({sid}/)")
+            for t, a, _ in lecture_topics(sid):
+                lines.append(f"#### [{t}](../lectures/{sid}/notes/#{a})")
+    toc = ["", "## Mind map for each lecture", ""]
+    for gname, sids in groups:
+        toc += [f"**{gname}**", ""] + [f"- [{label(s)} — {short_title(s)}]({s}.md)" for s in sids if s in ids] + [""]
+    return ("# Course Mind Map\n\nThe whole course on one page: phases → lectures → main topics. "
+            "Open a lecture's own map for its subtopics.\n\n" + MM_HELP + "\n\n"
+            + markmap_block("\n".join(lines), 2) + "\n".join(toc))
+
+
 def slides_page(sid):
     readme = REPO / "slides" / sid / "README.md"
     if not readme.exists():
@@ -165,7 +270,12 @@ def main():
     for sid in ids:
         base = DOCS / "lectures" / sid
         pages = [("Summary", "index.md")]
-        write(base / "index.md", rewrite((REPO / f"{sid}.md").read_text(encoding="utf-8"), "summary"))
+        summary = rewrite((REPO / f"{sid}.md").read_text(encoding="utf-8"), "summary")
+        head, _, rest = summary.partition("\n")
+        summary = (head + "\n\n[:material-graph-outline: Mind map of this lecture](../../mindmaps/"
+                   f"{sid}.md){{ .md-button }}\n" + rest)
+        write(base / "index.md", summary)
+        write(DOCS / "mindmaps" / f"{sid}.md", lecture_mindmap_page(sid))
         for kind, folder, name, lab in [("detailed", "detailed-notes", "detailed.md", "Detailed Notes"),
                                         ("notes", "super-detailed-notes", "notes.md", "Super-Detailed Notes")]:
             f = REPO / folder / f"{sid}.md"
@@ -181,6 +291,7 @@ def main():
     # lectures index + study plan
     write(DOCS / "lectures" / "index.md", lectures_index(ids))
     write(DOCS / "plan.md", plan_page(ids))
+    write(DOCS / "mindmaps" / "index.md", course_mindmap_page(ids))
 
     # nav → mkdocs.gen.yml (inherits mkdocs.yml)
     def entry(sid):
@@ -195,6 +306,13 @@ def main():
         {"Lectures": lectures_nav},
         {"Interview Prep": [entry(i) for i in INTERVIEW if i in nav_sessions]},
     ]
+    mm_nav = [{"Course Map": "mindmaps/index.md"}]
+    for name, rng, _ in PHASES:
+        mm_nav.append({name: [{f"{label(s)} — {short_title(s)}": f"mindmaps/{s}.md"}
+                              for s in (f"day{d:02d}" for d in rng) if s in nav_sessions]})
+    mm_nav.append({"Interview Prep": [{f"{label(s)} — {short_title(s)}": f"mindmaps/{s}.md"}
+                                      for s in INTERVIEW if s in nav_sessions]})
+    nav.append({"Mind Maps": mm_nav})
     gen = "INHERIT: mkdocs.yml\nnav: " + json.dumps(nav, ensure_ascii=False) + "\n"
     (HERE / "mkdocs.gen.yml").write_text(gen, encoding="utf-8")
     print(f"built {len(ids)} sessions into {DOCS}")

@@ -12,5 +12,18 @@
 /* Mermaid diagrams centred and scrollable on small screens */
 .md-typeset .mermaid { text-align: center; overflow-x: auto; }
 
+/* Mind maps: tall canvas, readable in light and dark themes */
+.md-typeset .markmap.mm-full {
+  height: 78vh;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 8px;
+  background: var(--md-default-bg-color);
+}
+.md-typeset .markmap > svg { width: 100%; height: 100%; }
+.markmap { color: var(--md-default-fg-color); --markmap-text-color: var(--md-default-fg-color); }
+.markmap a { color: var(--md-typeset-a-color); text-decoration: none; }
+.markmap a:hover { text-decoration: underline; }
+.markmap code { background: var(--md-code-bg-color) !important; color: var(--md-code-fg-color) !important; }
+
 /* Tables: keep wide tables scrollable instead of squashed */
 .md-typeset table:not([class]) { font-size: 0.78rem; }
