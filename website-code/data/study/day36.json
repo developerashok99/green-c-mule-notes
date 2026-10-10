@@ -1,0 +1,93 @@
+{
+  "quiz": [
+    {
+      "q": "You rename a Mule project in Anypoint Studio (Refactor → Rename). What happens to the artifactId in pom.xml?",
+      "options": ["It is renamed to match the new project name", "It stays the same — you must edit pom.xml yourself", "It is removed and regenerated on the next build", "It becomes the API instance ID"],
+      "answer": 1,
+      "explain": "Refactor → Rename changes only the project name. The artifactId in pom.xml is unchanged, and repositories identify a project by its artifactId."
+    },
+    {
+      "q": "Two projects in your workspace have the same groupId and artifactId. What error does Studio show?",
+      "options": ["Duplicate flow name", "Conflicting Maven coordinates", "Port already in use", "Invalid Autodiscovery ID"],
+      "answer": 1,
+      "explain": "Studio reports \"Conflicting Maven coordinates\" when two projects share groupId + artifactId."
+    },
+    {
+      "q": "Which property keys must the deployed app use so it can connect to API Manager?",
+      "options": ["anypoint.platform.clientid / anypoint.platform.clientsecret", "anypoint.platform.client_id / anypoint.platform.client_secret", "api.client.id / api.client.secret", "mule.client_id / mule.client_secret"],
+      "answer": 1,
+      "explain": "The keys need underscores: anypoint.platform.client_id and anypoint.platform.client_secret. Typing clientid was one of the reasons the Day 35 deployment hung."
+    },
+    {
+      "q": "Which deployment option keeps the old version running until the new one is up, so there is no downtime?",
+      "options": ["Recreate", "Rolling update", "Blue-green cutover", "Restart"],
+      "answer": 1,
+      "explain": "Rolling update keeps the old version serving until the new version runs. Recreate kills the old one first, causing a brief gap."
+    },
+    {
+      "q": "After deploying an app whose Autodiscovery has the right API instance ID, what status does the API show in API Manager?",
+      "options": ["Unregistered", "Active", "Pending", "Deprecated"],
+      "answer": 1,
+      "explain": "The status changes from Unregistered to Active once the running app connects to API Manager through Autodiscovery."
+    },
+    {
+      "q": "With the Basic Authentication – Simple policy, how many sets of credentials are there?",
+      "options": ["One username/password shared by all consumers", "One client ID and secret per consumer", "One token per request", "None — it uses IP addresses"],
+      "answer": 0,
+      "explain": "Basic Authentication – Simple checks a single shared username and password for every consumer."
+    },
+    {
+      "q": "A request fails the Basic Authentication policy. Where does the rejection happen?",
+      "options": ["In the Mule flow's error handler", "At the API gateway, before the app", "In the HTTP Request connector", "In Runtime Manager logs only"],
+      "answer": 1,
+      "explain": "The gateway rejects it with 401, so the request never reaches the app and doesn't appear in the app's logs."
+    },
+    {
+      "q": "How does Postman build the header for Basic Auth?",
+      "options": ["Authorization: Bearer <token>", "Authorization: Basic <Base64(username:password)>", "client_id: <username>", "X-Auth: <username>/<password>"],
+      "answer": 1,
+      "explain": "The header is Authorization: Basic followed by Base64 of username:password. The word Basic must be written exactly."
+    },
+    {
+      "q": "Where does a consumer get a client ID and secret for an API protected by Client ID Enforcement?",
+      "options": ["Runtime Manager → Settings", "Exchange → Request access (creates an application)", "Access Management → Business Groups", "Design Center → API specification"],
+      "answer": 1,
+      "explain": "Request access in Exchange creates an application with its own client ID and secret. The secret is shown under Exchange → My applications."
+    },
+    {
+      "q": "What does API Manager create each time a consumer's request for access is approved?",
+      "options": ["A policy", "A contract", "A new API instance", "A new environment"],
+      "answer": 1,
+      "explain": "Each request for access creates a contract in API Manager — the record of that application's approved access."
+    },
+    {
+      "q": "What error does Client ID Enforcement return for a wrong or missing client ID?",
+      "options": ["403 Forbidden", "401 \"Invalid Client\"", "429 Too Many Requests", "500 Internal Server Error"],
+      "answer": 1,
+      "explain": "A wrong or missing client ID/secret returns 401 with \"Invalid Client\"."
+    },
+    {
+      "q": "In the class demo, the custom-expression headers were renamed. What must the consumer do?",
+      "options": ["Send client_id and client_secret anyway", "Send the headers exactly as defined in the policy (c_id / c_secret)", "Send them as query parameters", "Nothing — names are case-insensitive aliases"],
+      "answer": 1,
+      "explain": "The policy reads credentials from the expression you configure, so consumers must send exactly those header names — c_id and c_secret in the demo."
+    }
+  ],
+  "cards": [
+    {"front": "artifactId", "back": "The project's unique ID in Maven and repositories, in pom.xml — separate from the display name. Renaming a project does not change it."},
+    {"front": "\"Conflicting Maven coordinates\"", "back": "Studio error when two projects share the same groupId + artifactId."},
+    {"front": "Property keys for connecting a deployed app to API Manager", "back": "anypoint.platform.client_id and anypoint.platform.client_secret (with underscores) — the organization's credentials from Access Management."},
+    {"front": "Rolling update vs. Recreate", "back": "Rolling update: old version keeps running until the new one is up — no downtime. Recreate: old version is killed first — brief downtime."},
+    {"front": "Unregistered → Active", "back": "API Manager status changes to Active once a deployed app with that API instance ID connects through Autodiscovery."},
+    {"front": "Basic Authentication – Simple", "back": "Policy that checks one username/password shared by all consumers."},
+    {"front": "Client ID Enforcement", "back": "Policy that checks a client ID and secret per consumer, so you know who called and can revoke one consumer."},
+    {"front": "Where do client ID and secret come from?", "back": "Exchange → Request access creates an application with its own ID/secret; the secret is under Exchange → My applications."},
+    {"front": "Contract (API Manager)", "back": "The record of an application's approved access to an API — one is created for each request for access."},
+    {"front": "How can consumers send client credentials?", "back": "As HTTP Basic (ID as username, secret as password) or in custom headers defined by the policy's expression, e.g. client_id / client_secret."},
+    {"front": "Does a request rejected by a policy reach the Mule app?", "back": "No — the gateway rejects it (401), so it doesn't appear in the app's logs."},
+    {"front": "Authorization: Basic header", "back": "Authorization: Basic <Base64(username:password)> — the word Basic must be written exactly."},
+    {"front": "On CloudHub 2.0, 0.1 vCore comes with how much memory?", "back": "1.2 GB."},
+    {"front": "Why did the Day 35 deployment hang?", "back": "Wrong property keys (clientid), stray digits in the API instance ID, and an app name clashing with an Exchange asset — fixed by renaming the project and its artifactId."},
+    {"front": "Wrong or missing client ID — what response?", "back": "401 \"Invalid Client\"."}
+  ]
+}

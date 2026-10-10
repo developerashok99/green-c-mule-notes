@@ -227,6 +227,106 @@ def course_mindmap_page(ids):
             + markmap_block("\n".join(lines), 2) + "\n".join(toc))
 
 
+# --- quizzes, flashcards, practice -------------------------------------------
+STUDY = HERE / "data" / "study"          # one <sid>.json per lecture: {"quiz": [...], "cards": [...]}
+DATAWEAVE = HERE / "data" / "dataweave.json"
+
+
+def validate_study(sid, d):
+    errs = []
+    quiz, cards = d.get("quiz", []), d.get("cards", [])
+    if not isinstance(quiz, list) or not isinstance(cards, list):
+        return [f"{sid}: 'quiz' and 'cards' must be lists"]
+    for n, q in enumerate(quiz, 1):
+        if not isinstance(q.get("q"), str) or not q["q"].strip():
+            errs.append(f"{sid} quiz {n}: missing 'q'")
+        opts = q.get("options")
+        if not isinstance(opts, list) or not 3 <= len(opts) <= 6 or not all(isinstance(o, str) and o.strip() for o in opts):
+            errs.append(f"{sid} quiz {n}: 'options' must be 3–6 non-empty strings")
+        elif len(set(opts)) != len(opts):
+            errs.append(f"{sid} quiz {n}: duplicate options")
+        a = q.get("answer")
+        if not isinstance(a, int) or not isinstance(opts, list) or not 0 <= a < len(opts):
+            errs.append(f"{sid} quiz {n}: 'answer' must be a valid 0-based option index")
+        if not isinstance(q.get("explain"), str) or not q["explain"].strip():
+            errs.append(f"{sid} quiz {n}: missing 'explain'")
+    for n, c in enumerate(cards, 1):
+        if not (isinstance(c.get("front"), str) and c["front"].strip() and isinstance(c.get("back"), str) and c["back"].strip()):
+            errs.append(f"{sid} card {n}: needs non-empty 'front' and 'back'")
+    return errs
+
+
+def load_study(sid):
+    f = STUDY / f"{sid}.json"
+    if not f.exists():
+        return None
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        raise SystemExit(f"{f}: invalid JSON — {e}")
+    errs = validate_study(sid, d)
+    if errs:
+        raise SystemExit("\n".join(errs))
+    return d
+
+
+def embed(kind, data):
+    blob = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+    return f'<div data-study="{kind}">\n<script type="application/json">{blob}</script>\n</div>\n'
+
+
+def quiz_page(sid, d):
+    return (f"# {label(sid)} — Quiz\n\n{len(d['quiz'])} questions on {short_title(sid)}. "
+            "Options are shuffled each time; after each answer you'll see why.\n\n" + embed("quiz", d["quiz"]))
+
+
+def cards_page(sid, d):
+    return (f"# {label(sid)} — Flashcards\n\n{len(d['cards'])} cards. Read the front, answer in your head, "
+            "then flip. **Again** sends the card to the back of the deck; **Know it** removes it.\n\n"
+            + embed("cards", d["cards"]))
+
+
+def phase_of(sid):
+    if not sid.startswith("day"):
+        return "Interview Preparation"
+    n = int(sid[3:])
+    for name, rng, _ in PHASES:
+        if n in rng:
+            return name
+    return "Other"
+
+
+def drill_data(ids):
+    out = []
+    for sid in ids:
+        d = load_study(sid)
+        if d:
+            for c in d["cards"]:
+                out.append({"front": c["front"], "back": c["back"], "phase": phase_of(sid),
+                            "lecture": label(sid), "src": f"../../lectures/{sid}/"})
+    return out
+
+
+def dataweave_page():
+    if not DATAWEAVE.exists():
+        return None
+    data = json.loads(DATAWEAVE.read_text(encoding="utf-8"))
+    for n, x in enumerate(data, 1):
+        for k in ("title", "level", "task", "input", "answer"):
+            if not isinstance(x.get(k), str) or not x[k].strip():
+                raise SystemExit(f"dataweave.json item {n}: missing '{k}'")
+        if x["level"] not in ("easy", "medium", "hard"):
+            raise SystemExit(f"dataweave.json item {n}: level must be easy/medium/hard")
+        if x.get("sid"):
+            x["lecture"], x["src"] = label(x["sid"]), f"../../lectures/{x['sid']}/notes/"
+    counts = {lv: sum(1 for x in data if x["level"] == lv) for lv in ("easy", "medium", "hard")}
+    return ("# DataWeave Practice\n\n"
+            f"{len(data)} exercises ({counts['easy']} easy, {counts['medium']} medium, {counts['hard']} hard), "
+            "built from the DataWeave sessions (Days 43–45, 58) and the interview Q&A. "
+            "Try each one in the [DataWeave Playground](https://dataweave.mulesoft.com/learn/dataweave) "
+            "before opening the answer.\n\n" + embed("dataweave", data))
+
+
 def slides_page(sid):
     readme = REPO / "slides" / sid / "README.md"
     if not readme.exists():
@@ -286,6 +386,13 @@ def main():
         if sp:
             write(base / "slides.md", sp)
             pages.append(("Slides", "slides.md"))
+        sd = load_study(sid)
+        if sd and sd["quiz"]:
+            write(base / "quiz.md", quiz_page(sid, sd))
+            pages.append(("Quiz", "quiz.md"))
+        if sd and sd["cards"]:
+            write(base / "flashcards.md", cards_page(sid, sd))
+            pages.append(("Flashcards", "flashcards.md"))
         nav_sessions[sid] = pages
 
     # lectures index + study plan
@@ -313,6 +420,23 @@ def main():
     mm_nav.append({"Interview Prep": [{f"{label(s)} — {short_title(s)}": f"mindmaps/{s}.md"}
                                       for s in INTERVIEW if s in nav_sessions]})
     nav.append({"Mind Maps": mm_nav})
+
+    practice = []
+    dw = dataweave_page()
+    if dw:
+        write(DOCS / "practice" / "dataweave.md", dw)
+        practice.append({"DataWeave Practice": "practice/dataweave.md"})
+    drill = drill_data(ids)
+    if drill:
+        write(DOCS / "assets" / "drill.json", json.dumps(drill, ensure_ascii=False))
+        write(DOCS / "practice" / "drill.md",
+              "# Interview Drill\n\n"
+              f"{len(drill)} flashcards from every lecture with a deck, shuffled together. "
+              "Pick a phase to focus on, or drill everything.\n\n"
+              '<div data-study="drill" data-src="../../assets/drill.json"></div>\n')
+        practice.append({"Interview Drill": "practice/drill.md"})
+    if practice:
+        nav.append({"Practice": practice})
     gen = "INHERIT: mkdocs.yml\nnav: " + json.dumps(nav, ensure_ascii=False) + "\n"
     (HERE / "mkdocs.gen.yml").write_text(gen, encoding="utf-8")
     print(f"built {len(ids)} sessions into {DOCS}")
@@ -337,6 +461,8 @@ def lectures_index(ids):
 def row(sid):
     links = [f"[Summary]({sid}/index.md)", f"[Detailed]({sid}/detailed.md)",
              f"[Notes]({sid}/notes.md)", f"[Slides]({sid}/slides.md)"]
+    if (STUDY / f"{sid}.json").exists():
+        links += [f"[Quiz]({sid}/quiz.md)", f"[Flashcards]({sid}/flashcards.md)"]
     return f"| **{label(sid)}** | {short_title(sid)} | {' · '.join(links)} |"
 
 

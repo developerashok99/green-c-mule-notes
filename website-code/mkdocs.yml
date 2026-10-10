@@ -43,6 +43,9 @@ theme:
     - content.code.copy
     - toc.follow
 
+extra_javascript:
+  - assets/study.js
+
 extra_css:
   - assets/extra.css
 
