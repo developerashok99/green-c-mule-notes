@@ -1,0 +1,98 @@
+{
+  "quiz": [
+    {
+      "q": "What does the For Each scope return to the next processor?",
+      "options": ["An array of each iteration's result", "Nothing — the payload after For Each is the same as before it", "The last iteration's payload", "The counter value"],
+      "answer": 1,
+      "explain": "For Each has no response. Its input is kept in rootMessage, so the payload after the scope is unchanged."
+    },
+    {
+      "q": "What is the default value of the For Each Collection setting?",
+      "options": ["`#[vars.rootMessage]`", "`#[payload]`", "`#[attributes]`", "It has no default and must be set"],
+      "answer": 1,
+      "explain": "Collection defaults to `#[payload]`; it can also be a variable such as `vars.employees`."
+    },
+    {
+      "q": "Which two variables does For Each create automatically?",
+      "options": ["`index` and `item`", "`counter` and `rootMessage`", "`batch` and `size`", "`successResponse` and `errorResponse`"],
+      "answer": 1,
+      "explain": "`counter` (iteration number) and `rootMessage` (the original input) are created at the start and removed when For Each finishes."
+    },
+    {
+      "q": "What is the value of `counter` in the first iteration?",
+      "options": ["0", "1", "-1", "The batch size"],
+      "answer": 1,
+      "explain": "The counter starts at 1 — it is 1 in the first iteration and 8 in the eighth."
+    },
+    {
+      "q": "With Batch Size 2 and collection `[1,2,3,4,5]`, what does the last iteration receive?",
+      "options": ["`5`", "`[5]`", "`[4,5]`", "Nothing — 5 is dropped"],
+      "answer": 1,
+      "explain": "With batch size > 1 each iteration gets an array, even a single leftover: `[1,2]`, `[3,4]`, `[5]`."
+    },
+    {
+      "q": "Inside For Each with Batch Size 2 you still have `payload * 10`. What happens?",
+      "options": ["Each element is multiplied by 10", "It fails — an array can't be multiplied", "Only the first element is multiplied", "The batch size is ignored"],
+      "answer": 1,
+      "explain": "Each iteration now gets an array, so the processing must change to match the batch size."
+    },
+    {
+      "q": "The collection is `[1, 2, \"a\", 4, \"b\"]` and the scope multiplies by 20, with no error handling. What happens?",
+      "options": ["All five are processed and \"a\" and \"b\" are skipped", "1 and 2 are processed, then the loop stops at \"a\" and the error goes to error handling", "Only numbers are processed in parallel", "\"a\" and \"b\" become 0"],
+      "answer": 1,
+      "explain": "For Each stops on error — everything after the failing item is not processed."
+    },
+    {
+      "q": "How do you make the For Each continue when one item fails?",
+      "options": ["Set Batch Size to 0", "Wrap the inner logic in a Try scope with On Error Continue", "Use On Error Propagate on the flow", "Set the counter to skip"],
+      "answer": 1,
+      "explain": "Try + On Error Continue inside the loop logs the failure and lets the next iteration run."
+    },
+    {
+      "q": "You set `successResponse` with Set Variable only inside the loop, assigning the current payload. What is its value after the For Each?",
+      "options": ["An array of all successes", "Only the last iteration's value", "It is not accessible outside", "An empty array"],
+      "answer": 1,
+      "explain": "Created inside, it is reset each iteration; it's accessible outside but holds only the last value (e.g. 100)."
+    },
+    {
+      "q": "What is the correct way to collect all successful results across iterations?",
+      "options": ["Read them from rootMessage after the loop", "Initialise `successResponse = []` before the loop and set the same variable to `vars.successResponse ++ payload` inside", "Use the counter variable", "Set Target Variable on the For Each"],
+      "answer": 1,
+      "explain": "Initialise empty arrays outside and accumulate with `++` using the same name inside; a different name would start from empty each time."
+    },
+    {
+      "q": "The For Each Collection is set to a variable `vars.employees`. What does `rootMessage` hold?",
+      "options": ["The flow's original payload", "The value of `vars.employees`", "Only the first employee", "The attributes"],
+      "answer": 1,
+      "explain": "rootMessage holds the For Each's input; if the collection is a variable, it holds that variable's value."
+    },
+    {
+      "q": "In the employee design, which validation runs before the For Each to reject an empty array?",
+      "options": ["Is not null", "Is not empty collection", "Is true", "Is empty string"],
+      "answer": 1,
+      "explain": "The Validation operation Is not empty collection on `#[payload]` fails with \"No data to process\"."
+    }
+  ],
+  "cards": [
+    {"front": "For Each", "back": "A scope that splits a collection and runs all its components once per item (an iteration), **sequentially** in array order."},
+    {"front": "What does For Each return?", "back": "Nothing — it has no response. The payload after it is the same as before."},
+    {"front": "Why isn't the payload changed after For Each?", "back": "The input is stored in `rootMessage` and restored, and For Each produces no output."},
+    {"front": "Variables For Each creates", "back": "`counter` and `rootMessage` — both removed automatically when it finishes."},
+    {"front": "counter", "back": "Auto-created iteration-number variable; starts at **1**. Handy while debugging."},
+    {"front": "rootMessage", "back": "Auto-created variable holding the For Each's original input (the collection, which may be a variable)."},
+    {"front": "For Each configuration defaults", "back": "Collection `#[payload]`, Counter Variable Name `counter`, Batch Size `1`, Root Message Variable Name `rootMessage`."},
+    {"front": "What does batch size do?", "back": "Sets items per iteration. With 2, `[1,2,3,4,5]` → `[1,2]`, `[3,4]`, `[5]` — each an array, so the inner logic must handle arrays."},
+    {"front": "Batch size > 1 with a single-record DB Insert", "back": "Won't work — Insert takes one record. Use **bulk insert** for batches."},
+    {"front": "What happens when one item fails in For Each?", "back": "The loop stops; the rest aren't processed — unless the inner logic is wrapped in **Try + On Error Continue**."},
+    {"front": "How do you return which records succeeded and failed?", "back": "Initialise empty arrays before the loop; accumulate with `vars.successResponse ++ …` and, in On Error Continue, `vars.errorResponse ++ …`; build the response after."},
+    {"front": "Why must the accumulator use the same variable name inside the loop?", "back": "A different name would start from empty each time instead of adding to the array initialised outside."},
+    {"front": "Variable created inside For Each", "back": "Accessible outside, with the **last iteration's** value."},
+    {"front": "Variable created outside, modified inside For Each", "back": "Comes out with the **modified** value."},
+    {"front": "Is For Each sequential or parallel?", "back": "Sequential, in array order. Parallel For Each is the multi-threaded one."},
+    {"front": "Flow Reference inside For Each", "back": "Goes to that flow, does the work, returns, completes the iteration, then the next — synchronous."},
+    {"front": "`++` in DataWeave", "back": "Concatenation — e.g. `[] ++ 20` → `[20]`; adds items to an array."},
+    {"front": "Salesforce Create inside For Each", "back": "DB Insert takes a single record, but Create takes an **array** — wrap the single object in an array. Create accepts at most 200 records."},
+    {"front": "Is not empty collection", "back": "Validation operation that fails on an empty array — used before For Each (message \"No data to process\")."},
+    {"front": "Instructor's advice before building a loop", "back": "Understand the business scenario first — how much data, which steps — then choose For Each, bulk insert or Scatter-Gather."}
+  ]
+}

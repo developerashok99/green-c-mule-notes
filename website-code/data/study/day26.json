@@ -1,0 +1,100 @@
+{
+  "quiz": [
+    {
+      "q": "Why is a finished API specification published to Exchange in industry?",
+      "options": ["Exchange runs the mock service", "Studio imports the spec from Exchange and API Manager creates the API asset (for policies) from it", "Exchange deploys the app to CloudHub", "Design Center deletes unpublished specs"],
+      "answer": 1,
+      "explain": "Exchange is a shared repository used by developers and by other Anypoint modules such as Studio imports and API Manager."
+    },
+    {
+      "q": "You need to share the spec with a partner outside your organisation so they can view and test it. What do you use?",
+      "options": ["Collaborators (invite by email)", "Exchange public portal", "Shared with me", "Design Center Share"],
+      "answer": 1,
+      "explain": "Making the asset public gives a public portal URL that anyone can open. Collaborators and Design Center sharing are for people inside the organisation."
+    },
+    {
+      "q": "When creating the Mule project, which API implementation option is used most?",
+      "options": ["Import RAML from local file", "Download RAML from Design Center", "Import a published API (from Exchange)", "Create flows manually"],
+      "answer": 2,
+      "explain": "Import a published API is most used. Importing a local ZIP is for organisations that block Studio–platform connectivity."
+    },
+    {
+      "q": "Your company logs in to Anypoint Platform through SSO on its own domain. How do you add the account in Studio?",
+      "options": ["Use a trial account instead", "Choose custom domain and enter the organisation's domain name, then log in", "Paste the organisation ID into pom.xml", "Use the public portal URL"],
+      "answer": 1,
+      "explain": "Pick custom domain, enter the org's domain (found in Access Management or from colleagues), continue and log in."
+    },
+    {
+      "q": "What does scaffolding generate from the specification?",
+      "options": ["Only a pom.xml", "A main flow (Listener + APIkit Router), one flow per resource-method, and an error handler", "A domain project", "A Postman collection"],
+      "answer": 1,
+      "explain": "Scaffolding saves you from creating a separate listener and flow for every method yourself."
+    },
+    {
+      "q": "What does the APIkit Router do with an incoming request?",
+      "options": ["Load-balances it across workers", "Validates it against the spec and routes it to the matching flow", "Applies API Manager policies", "Logs it and returns 200"],
+      "answer": 1,
+      "explain": "It checks resource, method, headers, body schema, etc.; valid requests are routed, invalid ones are rejected with APIkit errors."
+    },
+    {
+      "q": "A teammate renames the generated flow post:\\employees:application\\json:hr-employees-sapi-7303-config to createEmployee. What happens?",
+      "options": ["Nothing — names are cosmetic", "The router can no longer route POST requests to it", "Studio regenerates the name on save", "Only the console flow breaks"],
+      "answer": 1,
+      "explain": "The name encodes method : resource : media type : config, and the router uses it to find the flow. Never rename generated flows."
+    },
+    {
+      "q": "Which flow type has no source but can have error handling?",
+      "options": ["Main flow", "Private flow", "Sub flow", "Console flow"],
+      "answer": 1,
+      "explain": "A private flow has no source but has error handling; a sub flow has neither. The generated resource flows are private flows."
+    },
+    {
+      "q": "You call http://localhost:8081/api/employees1 on the scaffolded app. What do you get?",
+      "options": ["The Listener rejects it before the router", "404 Not Found — \"Resource not found\" from the router", "400 Bad Request", "201 Created"],
+      "answer": 1,
+      "explain": "The Listener accepts /api/*; the router finds no such resource in the spec and rejects it."
+    },
+    {
+      "q": "You POST a slightly wrong body to /api/employees without writing any implementation. What is returned?",
+      "options": ["201 with the example response", "400 Bad Request — the router validated the body against the schema", "500 Internal Server Error", "501 Not Implemented"],
+      "answer": 1,
+      "explain": "The router validates the body against the spec's schema and rejects it — no implementation code needed."
+    },
+    {
+      "q": "In the scaffolded error handling, what status does the Listener's Error Response use if vars.httpStatus is not set?",
+      "options": ["200", "400", "404", "500"],
+      "answer": 3,
+      "explain": "Status code = vars.httpStatus, defaulting to 500. Each APIkit On Error Propagate sets httpStatus and a payload message."
+    },
+    {
+      "q": "Which dependencies are added to pom.xml after importing the spec and scaffolding?",
+      "options": ["The HTTP connector only", "The API specification (and its fragment) from Exchange, and the APIkit module", "The Database connector", "The Secure Properties module"],
+      "answer": 1,
+      "explain": "pom.xml gains the spec dependency (classifier raml, type zip) and mule-apikit-module (mule-plugin)."
+    }
+  ],
+  "cards": [
+    {"front": "Why publish a spec to Exchange?", "back": "Studio imports it for implementation and API Manager uses it to apply policies; it's also shared across the organisation."},
+    {"front": "Exchange", "back": "Central repository where MuleSoft assets are saved and published."},
+    {"front": "Exchange sections", "back": "All assets, your organisation, Provided by MuleSoft, Shared with me, My applications, Public portal."},
+    {"front": "Asset types", "back": "Connectors, custom, DataWeave libraries, examples, policies, fragments, REST APIs, SOAP APIs, templates…"},
+    {"front": "Sharing from Exchange", "back": "**Collaborators** (org users by email → Shared with me) or **Public portal** (URL anyone can view/test)."},
+    {"front": "Three API implementation options", "back": "Import a published API (most used), Import RAML from local file (ZIP), Download RAML from Design Center."},
+    {"front": "When to import RAML from a local file?", "back": "When the organisation blocks Studio–platform connectivity (e.g. SSL restrictions). Rarely needed."},
+    {"front": "How do you start implementing from RAML?", "back": "New Mule project → Import a published API from Exchange → keep **Scaffold flows** checked → Finish."},
+    {"front": "Scaffolding", "back": "Generates a main flow (Listener + APIkit Router), one flow per resource-method and an error handler from the spec."},
+    {"front": "APIkit Router", "back": "Validates requests against the spec (resource, method, headers, query params, body) and routes them; invalid ones raise APIkit errors."},
+    {"front": "Router configuration / API definition", "back": "Global config pointing to the imported spec (root RAML, data types, examples, fragment)."},
+    {"front": "Can you rename scaffolded flows?", "back": "**No.** The router relies on the names (method : resource : media type : config); renaming breaks routing."},
+    {"front": "Console flow", "back": "Generated flow for console-based testing; per the instructor, usually deleted in real projects."},
+    {"front": "Main / private / sub flow", "back": "Main: source + error handling. Private: no source, has error handling. Sub flow: no source, no error handling."},
+    {"front": "Generated APIkit errors", "back": "APIKIT:BAD_REQUEST, NOT_FOUND, METHOD_NOT_ALLOWED, NOT_ACCEPTABLE, UNSUPPORTED_MEDIA_TYPE, NOT_IMPLEMENTED."},
+    {"front": "`vars.httpStatus`", "back": "Set by scaffolded error handlers; the Listener's Error Response uses it as the status code (default **500**)."},
+    {"front": "What do generated flows return?", "back": "A Transform Message with the spec's **example** response. GET also stores the URI parameter in a variable."},
+    {"front": "Scaffolded listener path", "back": "`/api/*` — the Listener accepts it and the router validates the resource."},
+    {"front": "Enhancement — new resource", "back": "Update and republish the spec, update the dependency in Studio, implement the new flow; don't touch existing generated names."},
+    {"front": "Implementation folder structure", "back": "Generated flows only Flow Reference to `implementation/` flows; `common/` holds the error handler and global config."},
+    {"front": "Postman Bulk edit", "back": "Paste many headers as text instead of adding each key."},
+    {"front": "Install Runtimes", "back": "Studio option to install other Mule runtime versions (e.g. 4.3 … 4.8)."}
+  ]
+}

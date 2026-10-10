@@ -1,0 +1,99 @@
+{
+  "quiz": [
+    {
+      "q": "A rate-limited API has reached its limit for the current window. What happens to the next request?",
+      "options": ["It is queued and retried later", "It is rejected immediately with 429 Too Many Requests", "It is rejected with 503 Service Unavailable", "It is served from the cache"],
+      "answer": 1,
+      "explain": "Rate limiting rejects requests beyond the limit immediately with 429. Queuing extra requests is what Spike Control does."
+    },
+    {
+      "q": "Why is 429 a 4xx (client-side) code rather than a 5xx?",
+      "options": ["Because the gateway crashed", "Because the limit is a contract with the consumer — exceeding it is the client's problem", "Because the request body failed RAML validation", "Because the database timed out"],
+      "answer": 1,
+      "explain": "Rate limiting is a contract: \"we told you not to send more than this.\" The application itself is fine, so it is a client-side error."
+    },
+    {
+      "q": "An app with a rate limit of 95/minute is deployed at 10:05, and the first request arrives at 10:06. When does the first window run?",
+      "options": ["10:05–10:06", "10:06–10:07", "10:00–10:01", "From the next full clock hour"],
+      "answer": 1,
+      "explain": "The fixed window starts at the first request, not at deploy time or at a clock boundary. After a redeploy it starts again from the first request."
+    },
+    {
+      "q": "Three consumers send 30, 40 and 60 requests within one minute to an API with plain rate limiting set to 95/min. What happens?",
+      "options": ["Each consumer gets its own 95 quota, so nothing is rejected", "The limit counts all consumers together, so requests after the 95th are rejected whoever sent them", "Only the consumer that sent 60 is blocked", "The extra requests are queued"],
+      "answer": 1,
+      "explain": "By default the limit protects the API's total capacity, so it counts requests from all consumers combined."
+    },
+    {
+      "q": "How is the right rate-limit value usually decided?",
+      "options": ["By performance/load testing to find the capacity, then setting the limit below it", "It is always 100 per minute by default", "By the number of SLA tiers", "From the RAML file"],
+      "answer": 0,
+      "explain": "Load testing (e.g. 500, 1000, 2000 requests/hour) finds where the system breaks; the limit is set below that. A third-party API's own limit can also drive it."
+    },
+    {
+      "q": "You commercialise your API with silver, gold and diamond memberships, each allowed a different number of requests per minute. Which policy fits?",
+      "options": ["Rate Limiting", "Rate Limiting SLA", "Spike Control", "HTTP Caching"],
+      "answer": 1,
+      "explain": "Rate Limiting SLA applies different limits per consumer based on SLA tiers, with consumers told apart by their client IDs. Plain rate limiting has one limit for everyone."
+    },
+    {
+      "q": "Which algorithm does Spike Control use?",
+      "options": ["Fixed window", "Sliding window", "Round robin", "Token bucket per consumer tier"],
+      "answer": 1,
+      "explain": "Spike Control uses the sliding window algorithm: for each request it looks back over the configured period from that moment. Rate limiting uses the fixed window."
+    },
+    {
+      "q": "A team wants Spike Control to queue requests for 3–4 minutes. Why is that a bad idea?",
+      "options": ["Spike Control cannot queue requests", "APIs are request–reply, so consumers waiting minutes is bad experience and leads to timeouts", "The queue is limited to one request", "Queued requests skip the gateway"],
+      "answer": 1,
+      "explain": "Spike Control is designed for short time frames (seconds); plan to respond within about 5–10 seconds."
+    },
+    {
+      "q": "A bank pays ₹10 per PAN-verification call, and the same person applies for three loans on the same day. Which policy saves cost?",
+      "options": ["HTTP Caching", "JSON Threat Protection", "IP Blocklist", "Rate Limiting SLA"],
+      "answer": 0,
+      "explain": "HTTP Caching returns the stored response for the same request within the cache period, so only the first call reaches the paid service."
+    },
+    {
+      "q": "How long should an HTTP cache typically be kept, according to the class?",
+      "options": ["About 1–2 days, depending on the data", "15 days or more", "Forever, until redeploy", "Exactly 1 minute"],
+      "answer": 0,
+      "explain": "Keep it short: 15 days would store thousands of responses and pressure cache memory. Typically 1–2 days."
+    },
+    {
+      "q": "The RAML already validates the request body. Why add JSON Threat Protection?",
+      "options": ["It rejects oversized/malicious JSON at the gateway, before it enters the app", "It converts JSON to XML", "It replaces the APIkit Router", "It only logs the payload"],
+      "answer": 0,
+      "explain": "RAML/APIkit validation runs after the request is inside the application and using memory; the policy rejects it at the gateway."
+    },
+    {
+      "q": "An IP allowlist contains 10.1.25.1, 10.1.25.2 and 10.1.25.3. A request arrives from 10.1.25.50. What happens?",
+      "options": ["It is accepted because it is in the same subnet", "The gateway rejects it because it is not in the list", "It is queued", "It is accepted and logged"],
+      "answer": 1,
+      "explain": "An allowlist accepts requests only from listed IPs; everything else is rejected at the gateway."
+    }
+  ],
+  "cards": [
+    {"front": "Rate Limiting", "back": "Limits the number of requests per time window; extra requests are rejected immediately with **429 Too Many Requests**."},
+    {"front": "Fixed window algorithm — when does the window start?", "back": "At the **first request** (not at deploy time or a clock boundary). After a redeploy/restart it starts again from the next first request."},
+    {"front": "Why is 429 a 4xx error?", "back": "The limit is a contract with the consumer; exceeding it is a client-side issue."},
+    {"front": "Is the rate limit per consumer?", "back": "No — by default it counts requests from all consumers together."},
+    {"front": "Who retries a rejected (429) request?", "back": "The consumer. Rejected requests aren't processed or tracked by us; if complaints grow, add capacity (workers) and raise the limit."},
+    {"front": "How is the rate limit decided?", "back": "By performance/load testing to find capacity (or a third-party API's own limit), then setting the limit below it."},
+    {"front": "Where is rate limiting enforced?", "back": "At the gateway (API Manager) — the request is rejected before it reaches the application."},
+    {"front": "SLA", "back": "Service Level Agreement."},
+    {"front": "Rate Limiting SLA", "back": "Different limits per consumer based on their **SLA tier** (e.g. silver/gold/diamond); consumers are identified by client ID/secret."},
+    {"front": "Rate Limiting vs. Rate Limiting SLA", "back": "Rate limiting: one limit for the whole API, rejects regardless of consumer. SLA: limit per consumer tier; only the consumer over **their** limit gets 429."},
+    {"front": "Spike Control", "back": "Enforces a limit but **queues** extra requests and retries them instead of rejecting immediately. Also called **throttling**."},
+    {"front": "Rate Limiting vs. Spike Control", "back": "Rate limiting rejects extra requests (fixed window). Spike control queues and retries them (sliding window), only for short durations."},
+    {"front": "Why keep spike control time frames short?", "back": "APIs are request–reply; consumers waiting minutes is bad experience and leads to timeouts. Aim for about 5–10 seconds."},
+    {"front": "Sliding window algorithm", "back": "For each new request, count the requests in the configured period backward from that moment; the window moves with time."},
+    {"front": "HTTP Caching", "back": "Stores a response temporarily; the same request within the cache period gets the stored response without processing again."},
+    {"front": "When use HTTP Caching?", "back": "For frequently requested data that doesn't change often — e.g. a paid PAN-verification call repeated the same day. Keep the cache short (1–2 days)."},
+    {"front": "JSON Threat Protection", "back": "Sets limits on JSON structure (properties per object, array size, string length, nesting depth) and rejects violating requests at the gateway."},
+    {"front": "Why JSON Threat Protection if RAML validates the body?", "back": "RAML validation runs inside the application (memory already used); the policy rejects oversized/malicious JSON before it enters."},
+    {"front": "IP allowlist vs. blocklist", "back": "Allowlist: accept **only** listed IPs. Blocklist: reject listed IPs, accept all others."},
+    {"front": "Most-used policies", "back": "Basic Auth, Client ID Enforcement, Rate Limiting, Spike Control, OAuth. OAuth on experience APIs; client ID/basic auth internally."},
+    {"front": "Wrong username/password on Basic Auth", "back": "**401 Unauthorized**."}
+  ]
+}

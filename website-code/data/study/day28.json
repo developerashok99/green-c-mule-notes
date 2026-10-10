@@ -1,0 +1,230 @@
+{
+  "quiz": [
+    {
+      "q": "Why capture headers, query params and the original payload into variables at the start of the request?",
+      "options": [
+        "Variables are faster than attributes",
+        "Connectors like HTTP Request overwrite payload and attributes, but variables persist",
+        "APIkit requires variables to route",
+        "Attributes can't be logged"
+      ],
+      "answer": 1,
+      "explain": "Variables aren't overwritten unless you deliberately do it, so the values stay available for logging, mapping and calling other systems."
+    },
+    {
+      "q": "The class puts the initial-variables step in the main flow before the APIkit Router. Which value will be empty there?",
+      "options": [
+        "attributes.headers",
+        "attributes.queryParams",
+        "attributes.uriParams",
+        "payload"
+      ],
+      "answer": 2,
+      "explain": "Before routing, URI parameters aren't extracted yet (the Listener path is /api/*). The class captured attributes.uriParams.empid inside the resource flows instead."
+    },
+    {
+      "q": "Why is the initial-variables logic a sub flow called via Flow Reference?",
+      "options": [
+        "Sub flows run asynchronously",
+        "It only creates variables and needs no source or error handling of its own",
+        "Only sub flows can use Transform Message",
+        "Private flows can't be called before the router"
+      ],
+      "answer": 1,
+      "explain": "A sub flow has no source and no error handling, which fits a step that just sets variables."
+    },
+    {
+      "q": "A query-param variable's value depends on a URI-param variable. Can both be created in the same Transform Message?",
+      "options": [
+        "Yes, always",
+        "No — create the first, then the dependent one in a later component",
+        "Only with Set Variable",
+        "Only in the main flow"
+      ],
+      "answer": 1,
+      "explain": "One Transform Message with several targets works only when the variables are independent."
+    },
+    {
+      "q": "What is a key advantage of JSON Logger over the plain Logger?",
+      "options": [
+        "It writes logs synchronously",
+        "It has a global connector configuration applied to every logger in the project",
+        "It needs no Exchange import",
+        "It removes the need for log levels"
+      ],
+      "answer": 1,
+      "explain": "With the plain Logger every logger must be filled manually with IDs; JSON Logger's global config applies to all loggers. It's a custom connector shared via Exchange."
+    },
+    {
+      "q": "In JSON Logger, what does setting indent = false do?",
+      "options": [
+        "Disables logging",
+        "Prints the JSON on a single line — less readable but lightweight",
+        "Pretty-prints over several lines",
+        "Masks sensitive fields"
+      ],
+      "answer": 1,
+      "explain": "Indent defaults to true (multi-line, readable); false gives a single line."
+    },
+    {
+      "q": "You copy a logger that uses flow.name into another flow. What does it print?",
+      "options": [
+        "The original flow's name",
+        "The name of the flow it's now in",
+        "The application name",
+        "Nothing until you edit it"
+      ],
+      "answer": 1,
+      "explain": "flow.name gives the current flow's name, so copied loggers report the right flow automatically. app.name gives the app's name."
+    },
+    {
+      "q": "Which trace point fits a logger placed just before a Database Insert?",
+      "options": [
+        "START",
+        "END",
+        "BEFORE_REQUEST (class: BEFORE_DB)",
+        "FLOW"
+      ],
+      "answer": 2,
+      "explain": "BEFORE_REQUEST/AFTER_REQUEST surround external calls; the class used BEFORE_DB and AFTER_DB."
+    },
+    {
+      "q": "How do you reference the transaction-id header stored in vars.headers in DataWeave?",
+      "options": [
+        "vars.headers.transaction-id",
+        "vars.headers.'transaction-id'",
+        "vars.headers[transaction_id]",
+        "vars.headers.transactionId"
+      ],
+      "answer": 1,
+      "explain": "Keys with hyphens must be quoted; otherwise DataWeave treats the hyphen as a minus sign."
+    },
+    {
+      "q": "Your app runs on CloudHub and logs now(). Which time zone does it use by default?",
+      "options": [
+        "The developer's laptop time zone",
+        "UTC",
+        "The region's local time",
+        "IST"
+      ],
+      "answer": 1,
+      "explain": "now() uses the server's time zone; locally that's your laptop, on CloudHub it's UTC by default."
+    },
+    {
+      "q": "Don't many loggers slow down a Mule API?",
+      "options": [
+        "Yes — each logger blocks until written",
+        "No significant impact — logging is asynchronous and written in the background",
+        "Only INFO loggers slow it",
+        "Only on CloudHub"
+      ],
+      "answer": 1,
+      "explain": "The flow hands the message to the logger and moves on, like sending pages to a printer queue."
+    },
+    {
+      "q": "Why must data like Aadhaar, PAN, mobile numbers and salary not appear in full in logs?",
+      "options": [
+        "Logs have a size limit",
+        "They can be misused, and regulators such as the RBI can audit production logs",
+        "JSON Logger can't print numbers",
+        "They break log4j2 patterns"
+      ],
+      "answer": 1,
+      "explain": "Sensitive information must be masked (e.g. show only the last 4 digits) using DataWeave's mask function, covered next session."
+    }
+  ],
+  "cards": [
+    {
+      "front": "Why capture headers and params into variables at the start?",
+      "back": "Connectors overwrite payload and attributes; variables persist through the flow."
+    },
+    {
+      "front": "Where to create common initial variables?",
+      "back": "Once, in the main flow **before the APIkit Router** (via a sub flow) — but URI params are only available after routing."
+    },
+    {
+      "front": "`initialize-variables-sub-flow`",
+      "back": "Sub flow with one Transform Message setting `queryParams`, `uriParams`, `headers`, `startTime`, `requestPayload`; payload untouched."
+    },
+    {
+      "front": "`default`",
+      "back": "Fallback value when an expression is null, e.g. `attributes.queryParams default \"\"`."
+    },
+    {
+      "front": "Ways to create initial variables",
+      "back": "One Transform Message with several targets, several Set Variables, or one object variable (e.g. `vars.originalRequest.queryParams`). No right or wrong."
+    },
+    {
+      "front": "Dependency rule for variables",
+      "back": "If one variable depends on another, create them in separate components."
+    },
+    {
+      "front": "JSON Logger",
+      "back": "Custom connector producing structured JSON logs, with a global configuration applied to every logger."
+    },
+    {
+      "front": "Custom connector",
+      "back": "Connector built by an organisation and shared via **Exchange** — build once, reuse many times."
+    },
+    {
+      "front": "Why JSON Logger over the default Logger?",
+      "back": "Structured JSON, global config, trace points, consistent fields (correlation/transaction IDs), masking support."
+    },
+    {
+      "front": "Indent",
+      "back": "Default **true** = pretty multi-line JSON; **false** = single line, lightweight."
+    },
+    {
+      "front": "Core Logger levels",
+      "back": "INFO, DEBUG, WARN, ERROR, TRACE. Default is INFO; DEBUG prints only if that category is set to DEBUG (e.g. in log4j2.xml)."
+    },
+    {
+      "front": "`app.name` / `flow.name`",
+      "back": "Current application / flow names — copied loggers report the right flow automatically."
+    },
+    {
+      "front": "Trace points",
+      "back": "START, END, BEFORE_REQUEST, AFTER_REQUEST (class: BEFORE_DB / AFTER_DB), FLOW."
+    },
+    {
+      "front": "Where should loggers go?",
+      "back": "At START and END of processing and **before/after every external call**."
+    },
+    {
+      "front": "Hyphenated keys in DataWeave",
+      "back": "Quote them: `vars.headers.'transaction-id'`; otherwise the hyphen is a minus sign."
+    },
+    {
+      "front": "`now()`",
+      "back": "DataWeave function returning the current date-time (with milliseconds) of the server."
+    },
+    {
+      "front": "CloudHub time zone",
+      "back": "**UTC** by default."
+    },
+    {
+      "front": "Measuring DB time",
+      "back": "Set `startDbTime = now()` before the call; after it, `now() - vars.startDbTime`."
+    },
+    {
+      "front": "Asynchronous logging",
+      "back": "The flow hands the message to the logger and moves on; writing happens in the background (printer-queue analogy)."
+    },
+    {
+      "front": "log4j2.xml in class",
+      "back": "RollingFile appender to `<app>.log`, 10 MB size trigger, max 10 rollovers; `AsyncRoot` at INFO."
+    },
+    {
+      "front": "Sensitive information",
+      "back": "Data that must not be exposed: Aadhaar, PAN, mobile, salary, card numbers, email IDs."
+    },
+    {
+      "front": "Why mask sensitive data in logs?",
+      "back": "To prevent misuse and meet regulatory/audit requirements (e.g. RBI audits of production logs)."
+    },
+    {
+      "front": "Masking",
+      "back": "Hiding part of a value (e.g. show only the last 4 digits). DataWeave has a `mask` function."
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "quiz": [
+    {
+      "q": "In real projects, how are Mule apps mostly deployed?",
+      "options": ["By exporting the jar and uploading it in Runtime Manager", "Through a CI/CD pipeline built by the DevOps team", "By copying the project folder to the server", "From Anypoint Exchange"],
+      "answer": 1,
+      "explain": "So far the class uploaded jars directly; in real time deployment mostly happens through a CI/CD pipeline developed by DevOps."
+    },
+    {
+      "q": "What is Jenkins?",
+      "options": ["A code repository", "A popular open-source CI/CD tool", "A static code analyzer", "MuleSoft's deployment target"],
+      "answer": 1,
+      "explain": "Jenkins is an open-source CI/CD tool that automates deployment steps; Bamboo, AWS and Azure pipelines are alternatives."
+    },
+    {
+      "q": "What is the order of the pipeline steps shown in class?",
+      "options": ["Build → commit → deploy → test", "Commit → build → test → stage → deploy", "Test → commit → build → deploy", "Deploy → test → build → commit"],
+      "answer": 1,
+      "explain": "Code is committed to the repository, built, tested, moved through staging, and deployed to production."
+    },
+    {
+      "q": "The build step fails in the pipeline. What happens?",
+      "options": ["The pipeline skips to deploy", "The pipeline stops — the deployment fails", "Jenkins redeploys the previous jar", "Only the test step is skipped"],
+      "answer": 1,
+      "explain": "If a step fails, the pipeline stops and the deployment fails."
+    },
+    {
+      "q": "Ultimately, what is a project created in Anypoint Studio?",
+      "options": ["A binary image", "XML code", "Java classes", "A JSON document"],
+      "answer": 1,
+      "explain": "The visual view generates XML code (the Configuration XML tab), which is what goes into the repository."
+    },
+    {
+      "q": "Version 2 of your app fails after deployment. How does a code repository help?",
+      "options": ["It automatically fixes version 2", "You retrieve version 1 from the repository and redeploy it until version 2 is fixed", "It blocks the deployment", "It deletes version 2"],
+      "answer": 1,
+      "explain": "Version management: Studio overwrites version 1, but the repository keeps both."
+    },
+    {
+      "q": "Which environments are called staging environments?",
+      "options": ["Only production", "Dev, SIT and UAT", "Only UAT", "Production and DR"],
+      "answer": 1,
+      "explain": "Dev, SIT and UAT are the bridge between development and live production, where the public can't use the feature yet."
+    },
+    {
+      "q": "A pipeline runs SonarQube and the code scores below the threshold. What happens?",
+      "options": ["The code is auto-formatted", "The pipeline fails — \"your code is not according to standard practices\"", "It deploys with a warning", "It skips to UAT"],
+      "answer": 1,
+      "explain": "Static code analysis checks best practices against a threshold (e.g. 60–70%); below it, the pipeline fails."
+    },
+    {
+      "q": "Why do Java and Maven need to be installed for this setup when Studio already embeds them?",
+      "options": ["Studio's versions are outdated", "Jenkins needs them installed on the system, in compatible versions", "GitHub requires them", "Postman uses Maven"],
+      "answer": 1,
+      "explain": "Jenkins needs Java and Maven on the system in versions compatible with the Jenkins version — Java 11 and Maven 3.8.6 in class."
+    },
+    {
+      "q": "After setting `MAVEN_HOME` and adding Maven's bin to Path, `mvn -v` doesn't work yet. What step did the class say is needed?",
+      "options": ["Reinstall Java", "Restart the system", "Run `java -jar jenkins.war`", "Create a user variable instead"],
+      "answer": 1,
+      "explain": "Java works without a restart, but Maven needs one; then verify with `mvn -v`."
+    },
+    {
+      "q": "How do you run Jenkins from the war file on a port other than the default 8080?",
+      "options": ["`java -jar jenkins.war -p 8899`", "`java -jar jenkins.war --httpPort=8899`", "`mvn jenkins:run 8899`", "`jenkins start --port 8899`"],
+      "answer": 1,
+      "explain": "`java -jar jenkins.war` runs on 8080; `--httpPort=8899` changes the port."
+    },
+    {
+      "q": "What is the role of Git (as opposed to GitHub)?",
+      "options": ["It is the remote repository website", "It is the mediator that pushes code from local to the remote repository and brings it back", "It builds the Mule jar", "It deploys to CloudHub"],
+      "answer": 1,
+      "explain": "GitHub is the remote repository; Git moves code between your local system and it (via Git Bash commands)."
+    }
+  ],
+  "cards": [
+    {"front": "What is CI/CD?", "back": "**Continuous Integration** — frequent merges into a shared repository with automated builds/tests catching bugs early. **Continuous Deployment** — a change passing all checks is released automatically with minimal manual steps."},
+    {"front": "How are Mule apps deployed in real projects?", "back": "Through a CI/CD pipeline (e.g. Jenkins) built by DevOps: push to GitHub/Bitbucket → build → test → deploy to CloudHub."},
+    {"front": "Jenkins", "back": "A popular open-source CI/CD tool. Alternatives: Bamboo, AWS pipeline, Azure pipeline."},
+    {"front": "Pipeline", "back": "Ordered, automated steps (commit → build → test → stage → deploy). A failed step stops it."},
+    {"front": "Why use a code repository like GitHub?", "back": "Save and share code centrally, collaborate (merging features), and manage versions — e.g. roll back to version 1 if version 2 fails."},
+    {"front": "Code repository tools", "back": "GitHub (most popular), Bitbucket, GitLab; Azure has its own."},
+    {"front": "Git vs. Git Bash", "back": "Git moves code between local and the remote repository; Git Bash is the command prompt for git commands."},
+    {"front": "What does Jenkins need installed?", "back": "Java and Maven in versions compatible with the Jenkins version (Studio's embedded ones aren't used)."},
+    {"front": "What is a staging environment?", "back": "Dev, SIT and UAT — between development and production; the public can't use the feature yet."},
+    {"front": "What is static code analysis in a pipeline?", "back": "A step (e.g. **SonarQube**) that checks code against best practices and a threshold; below it, the pipeline fails."},
+    {"front": "What is `.gitignore`?", "back": "A file listing files Git should not push to the remote repository."},
+    {"front": "README", "back": "A documentation file in a repository (rules, restrictions)."},
+    {"front": "Branch", "back": "A separate line of code in a repository. Some orgs use one per environment: `develop` (Dev), `qa` (SIT), `main`/`master` (production)."},
+    {"front": "Public or private repository in organizations?", "back": "**Private** — visible only to the organization. Repositories are usually created by DevOps, one per project."},
+    {"front": "Maven environment variables", "back": "System variable `MAVEN_HOME` = the Maven folder, add Maven's `bin` to `Path`, restart, then verify with `mvn -v`."},
+    {"front": "User vs. system environment variables", "back": "User variables apply only to your user; system variables apply to the whole system — use these."},
+    {"front": "Running Jenkins", "back": "`java -jar jenkins.war` runs on 8080; `--httpPort=8899` changes the port."},
+    {"front": "Versions used in class", "back": "Java 11 (for Jenkins compatibility) and Maven 3.8.6; Jenkins as the generic Java package (`jenkins.war`)."},
+    {"front": "Java versions and MuleSoft", "back": "Was 1.8, then 11, now 17 — especially on CloudHub 2.0, where apps must become 17-compatible."},
+    {"front": "Main files in a Mule project folder", "back": "`pom.xml` and `mule-artifact.json`; flows live in `src/main/mule`, config like `log4j2.xml` in `src/main/resources`."},
+    {"front": "CloudHub deployment with Jenkins", "back": "Push to GitHub → Jenkins builds → saves to a repository → deploys to CloudHub. Jenkins needs connections to the code repo, a repository and CloudHub."}
+  ]
+}

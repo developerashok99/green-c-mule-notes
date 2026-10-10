@@ -1,0 +1,98 @@
+{
+  "quiz": [
+    {
+      "q": "What kind of data is Amazon S3 designed for?",
+      "options": ["Structured rows and columns", "Unstructured data such as files, photos, videos, logs and sensor data", "Only relational tables", "Only message queues"],
+      "answer": 1,
+      "explain": "S3 is cloud-based object storage for unstructured data; structured data goes to databases (e.g. AWS RDS)."
+    },
+    {
+      "q": "What are S3's equivalents in Azure and GCP?",
+      "options": ["Azure SQL and BigQuery", "Azure Blob Storage and Google Cloud Storage", "Azure Files and Firestore", "Azure Service Bus and Pub/Sub"],
+      "answer": 1,
+      "explain": "Azure has Blob Storage and GCP has Google Cloud Storage (GCS)."
+    },
+    {
+      "q": "Which three parts make up an S3 object?",
+      "options": ["Bucket, region and key", "Data, metadata and a unique identifier (name)", "Header, body and footer", "Access key, secret key and data"],
+      "answer": 1,
+      "explain": "An object is the file's data, its metadata (size, extension…) and a unique identifier such as `employee.csv`."
+    },
+    {
+      "q": "In S3, what is a bucket?",
+      "options": ["A single file", "A container that holds and organizes objects, like a folder", "An IAM user", "A region"],
+      "answer": 1,
+      "explain": "You create a bucket first, then store objects in it."
+    },
+    {
+      "q": "How does the Mule Amazon S3 connector authenticate?",
+      "options": ["Username and password", "Access key and secret key, plus the region", "OAuth client ID and secret", "A security token"],
+      "answer": 1,
+      "explain": "The connection uses an access key and secret key, and the region endpoint must match the bucket."
+    },
+    {
+      "q": "You clicked Done after creating an access key without saving the secret. What can you do?",
+      "options": ["Retrieve it from Actions → Show secret", "Delete the key and create a new one — the secret can't be recovered", "Reset it by email", "Use the access key alone"],
+      "answer": 1,
+      "explain": "The secret is shown only once; afterwards Actions offers only Deactivate and Delete."
+    },
+    {
+      "q": "You try to create a third access key and can't. Why?",
+      "options": ["Free accounts can't create keys", "Only two access keys are allowed — deactivate and delete an old one first", "Keys must be created by root only", "The region is wrong"],
+      "answer": 1,
+      "explain": "The instructor deactivated and then deleted an old key to create a new one."
+    },
+    {
+      "q": "In Put Object, what goes in Object key and Content?",
+      "options": ["Object key = bucket name, Content = file name", "Object key = the file name, Content = `#[payload]`", "Object key = access key, Content = metadata", "Object key = region, Content = `#[attributes]`"],
+      "answer": 1,
+      "explain": "The class used `#[attributes.queryParams.fileName]` as the key and the request body as the content."
+    },
+    {
+      "q": "Get Object's output through `output application/json` / `payload` gives one big string. Why, and what's the fix?",
+      "options": ["The file is XML — use `output application/xml`", "Get Object returns binary `application/octet-stream`; use `read(payload, 'application/json')`", "The bucket is private — make it public", "Use Put Object instead"],
+      "answer": 1,
+      "explain": "Parsing with the underlying format turns it into proper JSON, ready for a database."
+    },
+    {
+      "q": "An employee JSON file lands on an FTP server daily and must be stored in S3. Which flow fits?",
+      "options": ["Listener → S3 Get Object → FTP Write", "Scheduler → FTP Read → S3 Put Object", "S3 On New Object → FTP Read", "Scheduler → S3 Create Bucket"],
+      "answer": 1,
+      "explain": "Scheduler (e.g. every day at 8) → FTP Read → S3 Put Object."
+    },
+    {
+      "q": "Which S3 connector component triggers a flow when a file is uploaded to a bucket?",
+      "options": ["Get Object", "On New Object (source)", "List Objects", "Put Object"],
+      "answer": 1,
+      "explain": "On New Object polls the bucket (fixed frequency 1000 ms in class); On Deleted Object fires for deletions."
+    },
+    {
+      "q": "Who usually creates the S3 bucket in a real project?",
+      "options": ["The MuleSoft developer, always", "The AWS/S3 team, who give you the bucket name (though Mule can create one if needed)", "The front-end team", "Anypoint Platform automatically"],
+      "answer": 1,
+      "explain": "Like a database table, the bucket is usually already created by the responsible team; ask them for permissions, keys and the bucket name."
+    }
+  ],
+  "cards": [
+    {"front": "What is Amazon S3?", "back": "**Amazon Simple Storage Service** — AWS's cloud-based object storage for unstructured data (files, images, videos, logs). Data is stored as objects in buckets."},
+    {"front": "Structured vs. unstructured data", "back": "Structured (rows and columns) → databases. Unstructured (JSON/CSV files, video, audio, photos, logs) → object storage."},
+    {"front": "Bucket vs. object", "back": "A bucket is a container; an object is a file stored in it — data, metadata and a unique name (key)."},
+    {"front": "Object key", "back": "The object's name in the bucket — e.g. `employee.json`."},
+    {"front": "Saving a file with an existing name in a bucket", "back": "Doesn't work — use a different name, or overwrite."},
+    {"front": "S3 equivalents", "back": "Azure **Blob Storage**; GCP **Google Cloud Storage (GCS)**."},
+    {"front": "RDS", "back": "AWS Relational Database Service — for structured data in the cloud."},
+    {"front": "EC2", "back": "AWS compute (virtual server) service — e.g. a server to deploy a Mule app."},
+    {"front": "How does the Mule S3 connector authenticate?", "back": "AWS **access key** and **secret key**, plus the **region**. The secret is shown only once — save or download the .csv."},
+    {"front": "Where do you create access keys?", "back": "Your name (top-right) → **Security credentials** → Access keys → Create access key. Only two are allowed."},
+    {"front": "Region Endpoint", "back": "Must match the bucket's region — ask which region (defaults are often US East 1)."},
+    {"front": "What to ask the AWS/S3 team", "back": "Permissions for the bucket, the access key, secret key and bucket name."},
+    {"front": "S3 connector operations", "back": "Create/Delete Bucket, Put Object, Get Object, Copy Object, Delete Object(s), List Buckets, List Objects; sources On New Object and On Deleted Object."},
+    {"front": "How do you upload a file with Put Object?", "back": "Bucket name, **Object key** = file name, **Content** = `#[payload]`."},
+    {"front": "Put Object response", "back": "A Java object with eTag, versionId, serverSideEncryption (AES256) — add a Transform for a JSON response."},
+    {"front": "Get Object returned a string instead of JSON — fix?", "back": "It returns binary (`application/octet-stream`). Parse it: `read(payload, 'application/json')`."},
+    {"front": "Making S3 flows generic", "back": "Take bucket name and file name from `attributes.queryParams` instead of hardcoding."},
+    {"front": "How do you trigger a flow when a file lands in a bucket?", "back": "The **On New Object** source with the bucket name and a polling frequency."},
+    {"front": "How would you move a daily FTP file into S3?", "back": "Scheduler → FTP Read → S3 Put Object."},
+    {"front": "Get Object then DB insert", "back": "Transform and insert — Bulk insert if the content isn't large, For Each if there's a lot."}
+  ]
+}

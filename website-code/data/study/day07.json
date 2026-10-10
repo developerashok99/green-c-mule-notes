@@ -1,0 +1,42 @@
+{
+  "quiz": [
+    {"q": "Which three parts make up a Mule event (ignoring error information)?", "options": ["Message, flow and connector", "Payload, attributes and variables", "Source, process and error handling", "Body, headers and URL"], "answer": 1, "explain": "A Mule event has payload, attributes and variables; payload + attributes together are the Mule message. Error info is added when an error is raised."},
+    {"q": "Inside a Mule app, where do the HTTP request's query parameters and headers end up?", "options": ["In `vars`", "In the error object", "In `attributes`", "In `payload`"], "answer": 2, "explain": "The body becomes the payload; headers, query params, URI params, method and path go into attributes."},
+    {"q": "A request arrives at the Listener. How many variables does the Mule event contain at that point?", "options": ["One per header", "One per query parameter", "It depends on the body size", "Zero — variables start empty and are created only inside the flow"], "answer": 3, "explain": "Nothing from outside goes into variables; the debugger showed Vars = 0 until Set Variable was added."},
+    {"q": "Which expression reads the query parameter `empid`?", "options": ["`payload.queryParams.empid`", "`attributes.queryParams.empid`", "`attributes.QueryParams.empid`", "`vars.queryParams.empid`"], "answer": 1, "explain": "Query params are in attributes, and the key is `queryParams` with lower-case q — expressions are case-sensitive."},
+    {"q": "`attributes.headers.'Content-Type'` returns nothing in the debugger. Why?", "options": ["Header keys are stored in lower case, so it should be `attributes.headers.'content-type'`", "Headers must be read with `vars.headers`", "Headers are stored in the payload", "Content-Type is never sent by Postman"], "answer": 0, "explain": "Header names are stored lower case, and names containing `-` must be in quotes."},
+    {"q": "After the Database Select runs, what happens to the original payload and attributes?", "options": ["The payload is overwritten with the DB result and attributes become null; variables are unchanged", "Nothing changes", "Both are kept and the DB result goes into a variable", "Only variables are cleared"], "answer": 0, "explain": "Connectors to external systems can overwrite payload and attributes. Variables survive, which is why they exist."},
+    {"q": "You need the query parameter after the Database Select. Where should you place the Set Variable?", "options": ["After the final Logger", "In the error-handling section", "After the Select", "Before the Select, while the attributes are still available"], "answer": 3, "explain": "After the Select the attributes are cleared, so the value must be saved in a variable before it."},
+    {"q": "Which component can set the payload, variables and attributes?", "options": ["Set Payload", "Transform Message", "Set Variable", "Logger"], "answer": 1, "explain": "Set Payload sets only the payload, Set Variable sets one variable; Transform Message can target payload, variables and attributes."},
+    {"q": "How can you create a variable without the Set Variable component?", "options": ["Set Payload with a `vars` prefix", "Logger with expression mode", "Add a query parameter in Postman", "Transform Message → Add new target → Variable"], "answer": 3, "explain": "Transform Message's 'Add new target' lets you write output to a variable."},
+    {"q": "At the end of the flow, what does the HTTP Listener use as the response body by default?", "options": ["The current payload, with `200 OK` for a successful flow", "The value of all variables", "The attributes", "The original request body"], "answer": 0, "explain": "The Listener converts the Mule event back to an HTTP response: body ← payload, status 200 OK by default."},
+    {"q": "Which Anypoint Platform module is the central repository where API specs, connectors and templates are published as assets?", "options": ["Exchange", "Access Management", "API Manager", "Runtime Manager"], "answer": 0, "explain": "Exchange stores assets; saving there is called publishing. Runtime Manager deploys apps; API Manager applies policies."},
+    {"q": "Where are policies, SLAs and alerts for APIs managed?", "options": ["Design Center", "Runtime Manager", "Secrets Manager", "API Manager"], "answer": 3, "explain": "API Manager manages APIs that reside in Exchange — all policies are applied there, plus alerts and SLA tiers."}
+  ],
+  "cards": [
+    {"front": "Mule event", "back": "The object processed by the Mule runtime as it travels through a flow: **message** (payload + attributes), **variables**, and **error** info when an error occurs."},
+    {"front": "Mule message", "back": "Payload + attributes."},
+    {"front": "HTTP request → Mule event mapping", "back": "Body → **payload**; headers, query params, URI params, method, path → **attributes**; variables start **empty**."},
+    {"front": "What does the HTTP Listener do?", "back": "Converts the HTTP request into a Mule event, passes it on, and at the end converts the event back into an HTTP response."},
+    {"front": "Expressions for event parts", "back": "`payload.field`, `attributes.queryParams.x`, `attributes.uriParams.x`, `attributes.headers.'x'`, `vars.x` — all case-sensitive."},
+    {"front": "Header key case", "back": "Header keys are stored in **lower case**; names with `-` must be quoted: `attributes.headers.'content-type'`."},
+    {"front": "Do variables come from the request?", "back": "No. They are always empty at the start and are created inside the flow."},
+    {"front": "Why do we need variables?", "back": "Connectors like Database or HTTP Request overwrite payload and attributes. Values needed later are stored in variables, which persist."},
+    {"front": "Variable lifetime", "back": "Until the end of the flow/event, unless removed with **Remove Variable** or overwritten."},
+    {"front": "Ways to create a variable", "back": "Set Variable component, or Transform Message → **Add new target** → Variable."},
+    {"front": "Set Payload vs. Set Variable vs. Transform Message", "back": "Set Payload: payload only. Set Variable: one variable. Transform Message: payload, variables **and** attributes."},
+    {"front": "Is there a Set Attributes component?", "back": "No — attributes can only be created through Transform Message (rarely needed)."},
+    {"front": "Expression mode (fx)", "back": "Field mode that enables DataWeave, e.g. `#[ attributes.queryParams.empid ]`."},
+    {"front": "Evaluate expression (x+y)", "back": "Mule Debugger button that runs a DataWeave expression against the current event — useful for learning syntax."},
+    {"front": "Why was the variable's value a string \"123\"?", "back": "Query parameters always arrive as text."},
+    {"front": "Anypoint Studio", "back": "User-friendly IDE for implementing and testing Mule applications. Recent versions embed Java and Maven."},
+    {"front": "Design Center", "back": "Designs API specifications in RAML (0.8 or 1.0) or OAS (2.0 or 3.0, formerly Swagger). MuleSoft projects mostly use RAML."},
+    {"front": "Anypoint Exchange", "back": "Central repository for assets — API specs, connectors, templates, examples, policies, fragments. Saving there = **publishing**."},
+    {"front": "Runtime Manager", "back": "Deploys and manages apps from one place (cloud, hybrid, on-prem): deploy, start, stop, restart, logs, basic stats."},
+    {"front": "API Manager", "back": "Manages APIs in Exchange: applies **policies**, alerts, clients and SLAs."},
+    {"front": "SLA", "back": "Service Level Agreement — tiered limits, e.g. free tier 1,000 requests/day vs. premium 10,000."},
+    {"front": "Anypoint Monitoring", "back": "Dashboards for CPU, memory, performance, requests and responses — more detail than Runtime Manager."},
+    {"front": "Modules developers mainly use", "back": "Design Center, Exchange, Runtime Manager and API Manager."},
+    {"front": "Mule 3.x → 4.x migration", "back": "The Mule Migration Agent converts about 60–70% automatically; the rest is manual."}
+  ]
+}

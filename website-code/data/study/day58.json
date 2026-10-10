@@ -1,0 +1,230 @@
+{
+  "quiz": [
+    {
+      "q": "What is the default level of the Logger component?",
+      "options": [
+        "DEBUG",
+        "INFO",
+        "WARN",
+        "TRACE"
+      ],
+      "answer": 1,
+      "explain": "The Logger prints at INFO by default; its dropdown has DEBUG, ERROR, INFO, TRACE, WARN — FATAL isn't there."
+    },
+    {
+      "q": "What is the order of log levels from least to most severe?",
+      "options": [
+        "DEBUG < TRACE < INFO < ERROR < WARN < FATAL",
+        "TRACE < DEBUG < INFO < WARN < ERROR < FATAL",
+        "INFO < DEBUG < TRACE < WARN < ERROR < FATAL",
+        "FATAL < ERROR < WARN < INFO < DEBUG < TRACE"
+      ],
+      "answer": 1,
+      "explain": "TRACE < DEBUG < INFO < WARN < ERROR < FATAL."
+    },
+    {
+      "q": "An app's logging level is set to INFO. Which levels are printed?",
+      "options": [
+        "INFO only",
+        "INFO, WARN and ERROR",
+        "DEBUG and INFO",
+        "Everything including TRACE"
+      ],
+      "answer": 1,
+      "explain": "A selected level prints itself and everything more severe."
+    },
+    {
+      "q": "A request fails in production and info/error logs don't show why. Which level do you usually enable?",
+      "options": [
+        "WARN",
+        "DEBUG",
+        "FATAL",
+        "ERROR"
+      ],
+      "answer": 1,
+      "explain": "In real time DEBUG is usually enabled for such cases; TRACE is more in-depth and rarely needed."
+    },
+    {
+      "q": "In Runtime Manager → Settings → Logging, you set DEBUG for package `org.mule`. What gets debug logs?",
+      "options": [
+        "Only the HTTP listener",
+        "The whole application — listener, logger, transforms and all connectors",
+        "Only the Salesforce connector",
+        "Nothing — the package is invalid"
+      ],
+      "answer": 1,
+      "explain": "`org.mule` covers the whole app; a connector's own package (e.g. `org.mule.extension.http`) limits it to that connector."
+    },
+    {
+      "q": "Why shouldn't verbose logging stay on?",
+      "options": [
+        "It hides errors",
+        "It prints a lot and slows the app, causing performance issues",
+        "It deletes old logs",
+        "It is not supported on CloudHub"
+      ],
+      "answer": 1,
+      "explain": "Enable it briefly, for one connector's package, only when you can't find or replicate the issue — then disable it."
+    },
+    {
+      "q": "What does `flatten([1, 2, 3, [4, 5], [8]])` return?",
+      "options": [
+        "`[1, 2, 3, [4, 5], [8]]`",
+        "`[1, 2, 3, 4, 5, 8]`",
+        "`[[1, 2, 3], [4, 5, 8]]`",
+        "An error — mixed types"
+      ],
+      "answer": 1,
+      "explain": "`flatten` removes the first level of inner arrays and merges their values into the main array."
+    },
+    {
+      "q": "`arr flatMap $.empId` failed with \"Expecting type Array\". Why?",
+      "options": [
+        "flatMap only works on strings",
+        "The flatMap mapper must return an array for each item, but it returned a single value",
+        "empId was null",
+        "flatMap needs output application/xml"
+      ],
+      "answer": 1,
+      "explain": "flatMap = map + flatten; per its signature the mapper returns `Array<R>`."
+    },
+    {
+      "q": "How do you declare a custom (named) function in DataWeave?",
+      "options": [
+        "`function add(n, m) { n + m }` in the body",
+        "`fun add(n, m) = n + m` in the header",
+        "`var add = n + m` after `---`",
+        "`def add(n, m): n + m`"
+      ],
+      "answer": 1,
+      "explain": "Use the `fun` keyword in the header, then call `add(1, 2)` in the body."
+    },
+    {
+      "q": "Inside `payload.bookstore.*book map ((item, index) -> …)`, how do you get each book's own `category` attribute?",
+      "options": [
+        "`payload.bookstore.book.@category`",
+        "`item.@category`",
+        "`item.category`",
+        "`item.*category`"
+      ],
+      "answer": 1,
+      "explain": "`payload.bookstore.book.@category` gives only the first book's value (\"cooking\" for all); `item.@category` reads each one."
+    },
+    {
+      "q": "JSON → XML fails with \"Trying to output second root, bookstore, while writing Xml\". What's the rule?",
+      "options": [
+        "XML needs a header",
+        "XML allows only one root element — wrap the output in a single-key object, e.g. `{ bookstore: { book: payload } }`",
+        "XML can't contain arrays",
+        "Attributes must be removed"
+      ],
+      "answer": 1,
+      "explain": "XML can have only one root element, given as a key–value inside an object."
+    },
+    {
+      "q": "How do you remove the header row from CSV output?",
+      "options": [
+        "`output application/csv noHeader=true`",
+        "`output application/csv header=false`",
+        "`payload - header`",
+        "`output text/plain`"
+      ],
+      "answer": 1,
+      "explain": "By default the header row (the keys) is included; `header=false` removes it."
+    }
+  ],
+  "cards": [
+    {
+      "front": "Log levels and their order",
+      "back": "TRACE < DEBUG < INFO < WARN < ERROR < FATAL. A selected level prints itself and everything more severe."
+    },
+    {
+      "front": "Logger default level",
+      "back": "**INFO**. FATAL isn't in the Logger dropdown."
+    },
+    {
+      "front": "A Logger set to ERROR",
+      "back": "Prints only when there is an error. Choose INFO to print every time."
+    },
+    {
+      "front": "WARN",
+      "back": "Potentially harmful situations; mostly ignored because they don't affect the process."
+    },
+    {
+      "front": "DEBUG vs. TRACE",
+      "back": "DEBUG gives detailed component/connector info when info/error logs aren't enough; TRACE is even deeper, uses more space, and is used very rarely."
+    },
+    {
+      "front": "How do you get more detail for a production issue on CloudHub?",
+      "back": "Runtime Manager → app → Settings → Logging → DEBUG for a package (the connector's, not `org.mule`) → Apply Changes, reproduce, then turn it off."
+    },
+    {
+      "front": "`org.mule` vs. `org.mule.extension.http`",
+      "back": "`org.mule` = debug logs for the whole app; `org.mule.extension.http` = only HTTP listener and request."
+    },
+    {
+      "front": "Where do you find a connector's package name?",
+      "back": "Open that connector's configuration and copy its package name."
+    },
+    {
+      "front": "Verbose logging",
+      "back": "Detailed logging — slows the app. Enable briefly, for one connector's package, and disable right after."
+    },
+    {
+      "front": "`log4j2.xml`",
+      "back": "The app's logging configuration file."
+    },
+    {
+      "front": "`flatten`",
+      "back": "Removes **one** level of nested arrays: `flatten([1,2,3,[4,5],[8]])` → `[1,2,3,4,5,8]`."
+    },
+    {
+      "front": "`flatten(a + b)` with two arrays of employees",
+      "back": "`a + b` adds b as one inner array; `flatten` removes it, giving one array of all employee objects."
+    },
+    {
+      "front": "flatten vs. flatMap",
+      "back": "`flatten` removes one level of nesting. `flatMap` maps each item and flattens in one step; its mapper must return an array."
+    },
+    {
+      "front": "Custom (named) function",
+      "back": "Declared in the header: `fun add(n, m) = n + m`; call `add(1, 2)` → 3."
+    },
+    {
+      "front": "XML root element",
+      "back": "The single top-level tag (e.g. `bookstore`) holding everything. XML allows only one."
+    },
+    {
+      "front": "XML attribute",
+      "back": "Metadata in the opening tag, value in double quotes — e.g. `category=\"cooking\"`."
+    },
+    {
+      "front": "XML siblings",
+      "back": "Elements at the same level under one parent — book 1, book 2, book 3."
+    },
+    {
+      "front": "`*` multi-value selector",
+      "back": "Returns all repeated elements as an array — `payload.bookstore.*book`."
+    },
+    {
+      "front": "How do you read an XML attribute?",
+      "back": "With `@` — `item.@category` inside a map over `*book`."
+    },
+    {
+      "front": "XML → JSON with just `payload`",
+      "back": "Elements come through, but attributes (like `category`) don't."
+    },
+    {
+      "front": "Why does JSON → XML fail with \"second root\"?",
+      "back": "Only one root element is allowed. Wrap the output: `{ bookstore: { book: payload } }`."
+    },
+    {
+      "front": "How do you write an attribute when producing XML?",
+      "back": "`name @(lastName: person.LastName, age: person.Age): person.name`"
+    },
+    {
+      "front": "How do you drop the header row in CSV output?",
+      "back": "`output application/csv header=false`."
+    }
+  ]
+}

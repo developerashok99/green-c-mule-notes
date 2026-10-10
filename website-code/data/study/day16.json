@@ -1,0 +1,100 @@
+{
+  "quiz": [
+    {
+      "q": "An error handler has On Error Propagate type=ANY first, then HTTP:NOT_FOUND, then MULE:EXPRESSION. A MULE:EXPRESSION error occurs. Which handler runs?",
+      "options": ["The MULE:EXPRESSION handler", "The ANY handler", "Mule's default error handler", "Both ANY and MULE:EXPRESSION handlers"],
+      "answer": 1,
+      "explain": "Handlers are checked in order and the first match wins. ANY matches every error, so placed first it catches the MULE:EXPRESSION error — which is why ANY must always be last."
+    },
+    {
+      "q": "A flow has handlers for HTTP:NOT_FOUND, MULE:EXPRESSION and ANY (last). A wrong weather host causes HTTP:CONNECTIVITY. Where does it go?",
+      "options": ["The HTTP:NOT_FOUND handler", "The MULE:EXPRESSION handler", "The ANY handler", "Mule's default error handler, because no specific handler exists"],
+      "answer": 2,
+      "explain": "No specific handler matches HTTP:CONNECTIVITY, so the catch-all ANY handler takes it. Without ANY it would have gone to the default error handler."
+    },
+    {
+      "q": "The ANY handler is changed to On Error Continue and its Transform Message sets statusCode = 500. A connectivity error occurs. What does the client receive?",
+      "options": ["500 Internal Server Error", "200 OK", "502 Bad Gateway", "No response — the request times out"],
+      "answer": 1,
+      "explain": "On Error Continue sends a success to the next level, so the Listener's success Response section is used (200 by default). That section does not use the error status variables."
+    },
+    {
+      "q": "A child flow called via Flow Reference raises an error and has no matching handler. What happens?",
+      "options": ["The error is silently ignored", "The error propagates to the parent flow's error handler", "The child flow retries the failed component", "The application stops"],
+      "answer": 1,
+      "explain": "If the child has no matching handler, the error propagates to the parent; if the parent's handler matches, it executes and the Listener returns its Error Response."
+    },
+    {
+      "q": "You add an error mapping on an HTTP Request: HTTP:CONNECTIVITY → WEATHER:CONNECTIVITY. An existing handler is typed HTTP:CONNECTIVITY. What happens on a connectivity failure?",
+      "options": ["The HTTP:CONNECTIVITY handler still matches", "The HTTP:CONNECTIVITY handler no longer matches; a handler must use WEATHER:CONNECTIVITY", "Both types are raised, so both handlers run", "Error mapping only changes the description, not the type"],
+      "answer": 1,
+      "explain": "After mapping, the error object carries WEATHER:CONNECTIVITY, so handlers must match the new type. In the demo it fell through to ANY."
+    },
+    {
+      "q": "How do you make one named Error Handler apply to every flow in the application?",
+      "options": ["Copy it into each flow's error-handling section", "Global Elements → Configuration → set Default Error Handler to the named handler", "Put it in the pom.xml", "Name it 'default' in the Error Handler properties"],
+      "answer": 1,
+      "explain": "Create a named Error Handler in a separate Mule configuration file and set it as Default Error Handler in a Configuration global element (or reference it per flow)."
+    },
+    {
+      "q": "Why can't you drag On Error Propagate directly onto the canvas of a new common-error-handler.xml file?",
+      "options": ["It must be inside an Error Handler component", "It must be inside a Try scope", "It needs a Listener first", "Global files only accept On Error Continue"],
+      "answer": 0,
+      "explain": "On Error Propagate can't be dropped at top level; you first drag an Error Handler (a box/scope) and put the handlers inside it."
+    },
+    {
+      "q": "You want an HTTP Request and a Transform Message to fail without stopping the rest of the flow. Which approach matches the class?",
+      "options": ["Wrap them in a Try scope with On Error Continue", "Add an ANY On Error Propagate at flow level", "Use a Choice router with a Default route", "Add Raise Error after them"],
+      "answer": 0,
+      "explain": "Try gives component-level error handling. With On Error Continue inside, the error is handled in Try and processing continues after it."
+    },
+    {
+      "q": "A loan applicant's age is 67. Nothing technically failed, but the business rule says reject. Which component raises this error?",
+      "options": ["Validation success status code", "Raise Error", "Error mapping", "On Error Propagate"],
+      "answer": 1,
+      "explain": "Technical errors are raised automatically; business errors are raised with Raise Error using your own namespace:identifier type and a description."
+    },
+    {
+      "q": "The Raise Error type is set to BUSINESS:<identifier>. In this type, what is BUSINESS?",
+      "options": ["The identifier", "The namespace (main category)", "The error description", "The HTTP status"],
+      "answer": 1,
+      "explain": "The type format is namespace:identifier — the namespace is the main category (BUSINESS) and the identifier is the specific error."
+    },
+    {
+      "q": "A Choice router has route 1 (age 18–29), route 2 (age 30–40), route 3 (age 41–65) and Default. The request has age 35. What runs?",
+      "options": ["Route 1 and route 2", "Route 2 only", "Routes 2 and 3", "Default"],
+      "answer": 1,
+      "explain": "Choice evaluates routes in order and runs only the first one whose condition is true; later routes are skipped."
+    },
+    {
+      "q": "You paste copied components into a new handler and Studio asks about duplicate doc IDs. What should you do?",
+      "options": ["Click No to keep the same IDs", "Click Yes to regenerate them", "Delete the pasted components", "Rename the flow"],
+      "answer": 1,
+      "explain": "Every component has a unique doc ID in the XML; clicking Yes regenerates the duplicates."
+    }
+  ],
+  "cards": [
+    {"front": "ANY (error type)", "back": "Matches all errors. Use it as a catch-all handler and always place it **last**."},
+    {"front": "Go to XML", "back": "Right-click a component → **Go to XML** to jump to its XML. Used to copy components without \"Copy of\" names."},
+    {"front": "Dummy component trick", "back": "An empty handler is a self-closing tag. Drag a dummy Logger in to get opening/closing tags, paste between them, then delete the dummy."},
+    {"front": "Doc ID", "back": "The unique ID of each component in the XML. When pasting duplicates, accept Studio's offer to regenerate them."},
+    {"front": "Parent / child flow", "back": "The parent is the calling flow; the child is the flow called via **Flow Reference**."},
+    {"front": "On Error Propagate vs On Error Continue?", "back": "Propagate handles the error and re-throws it to the next level (Listener Error Response). Continue handles it and returns **success** (Listener Response, 200 by default)."},
+    {"front": "Why must ANY be last?", "back": "Handlers are evaluated in order and the first match wins. ANY matches everything, so specific handlers after it are never reached."},
+    {"front": "Child flow error — where is it handled?", "back": "In the child's matching handler (then propagated up); if none matches, in the parent's handler; ultimately the Listener's Error Response."},
+    {"front": "How often is On Error Continue used?", "back": "Roughly 10–25% of the time, mainly with the **Try** scope (e.g. inside For Each or Scatter-Gather). On Error Propagate is used most of the time."},
+    {"front": "Error mapping", "back": "A connector-operation setting that converts its error type into a custom one, e.g. `HTTP:CONNECTIVITY` → `WEATHER:CONNECTIVITY`. Handlers must then match the new type. Rare in practice, but asked in certification."},
+    {"front": "Three levels of error handling", "back": "**Flow** level (flow's error section), **application/global** level (named Error Handler), **component** level (Try scope)."},
+    {"front": "Error Handler (component)", "back": "A container of On Error Continue/Propagate handlers; routes an error to the **first matching** handler. Can be named and global."},
+    {"front": "Default Error Handler", "back": "Set in Global Elements → Configuration (`defaultErrorHandler-ref`). Applies a named Error Handler to all flows in the app."},
+    {"front": "Flow-level handler and Flow Reference", "back": "If flow A calls flow B via Flow Reference, A's handler also applies to errors propagated from B. Independent flows don't share flow-level handlers."},
+    {"front": "Try scope", "back": "Component-level error handling for one or a group of components. Create via select → right-click → **Wrap in → Try**."},
+    {"front": "Empty On Error Continue inside Try", "back": "Allowed — it just swallows the error and the flow continues."},
+    {"front": "Raise Error", "back": "Raises a custom (business) error with type `NAMESPACE:IDENTIFIER` and a description, e.g. age not within limits."},
+    {"front": "Raise Error with no error handler — response?", "back": "Goes to the default handler: in the demo, **500 Server Error** with the description as the body."},
+    {"front": "Choice router", "back": "Conditional routing like if / else if / else. Routes evaluated in order, **first match** runs, **Default** runs if none match."},
+    {"front": "Error handling components in Mule 4", "back": "On Error Propagate, On Error Continue, Raise Error, Error Handler, Try scope."},
+    {"front": "App won't start because of a port", "back": "Another app was still running in Studio. Stop it first (Debug mode also uses port 6666)."},
+    {"front": "Status for unknown errors in the ANY handler", "back": "Keep **500 Internal Server Error**, since unknown errors are usually server-side."}
+  ]
+}

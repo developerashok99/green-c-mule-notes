@@ -1,0 +1,38 @@
+{
+  "quiz": [
+    {"q": "You need to fetch one specific employee by a value that uniquely identifies them. How should that value be passed?", "options": ["As a query parameter, e.g. `/employees?name=Mahesh`", "As a URI (path) parameter, e.g. `/employees/101`", "As the HTTP method", "In a custom header"], "answer": 1, "explain": "URI parameters are part of the path and identify a unique, mandatory resource. A name isn't unique — 10 people may be called Mahesh."},
+    {"q": "A request asks for all employees who have left: `GET /employees?status=inactive`. Why is `status` a query parameter rather than a URI parameter?", "options": ["URI parameters cannot hold text", "Query parameters are faster", "It can match 0, 5 or 20 employees — it filters a collection and is optional", "Status must always be in the body"], "answer": 2, "explain": "A URI parameter narrows to exactly one unique resource; status filters a collection, so it's a query parameter."},
+    {"q": "Which expression reads the URI parameter `empId` from `/employees/{empId}`?", "options": ["`attributes.queryParams.empId`", "`payload.empId`", "`vars.uriParams.empId`", "`attributes.uriParams.empId`"], "answer": 3, "explain": "URI params arrive in attributes; the key is `uriParams` (lower-case u, upper-case P) and must match the path name exactly."},
+    {"q": "What does `attributes.queryParams` return when no key is given?", "options": ["All query parameters as key–value pairs", "An error", "The request body", "Only the first query parameter"], "answer": 0, "explain": "Without a key, `attributes.queryParams` (or `attributes.uriParams`) returns all of them."},
+    {"q": "Which three purposes are query parameters used for?", "options": ["Route, transform and log", "Authenticate, authorize and audit", "Filter, sort and paginate", "Create, update and delete"], "answer": 2, "explain": "The slide: query params filter, sort and paginate the collection of a result."},
+    {"q": "With `limit=100`, which `offset` returns records 201–300?", "options": ["300", "200", "100", "3"], "answer": 1, "explain": "offset = records to skip; page n with limit L has offset (n−1)×L, so page 3 → 200."},
+    {"q": "How is the page size for pagination usually decided?", "options": ["Randomly by the developer", "It is fixed at 100 by HTTP", "Through discussion and performance testing", "By the number of query parameters in RAML"], "answer": 2, "explain": "E.g. 25 records may load in 75 ms while a larger page is too slow for customers."},
+    {"q": "RAML declares 5 query parameters and a client sends 125. What happens by default?", "options": ["They are rejected automatically with 400", "The extra parameters are accepted", "The API crashes immediately", "Only the first 5 are forwarded"], "answer": 1, "explain": "Rejecting them automatically is a myth; you must enable query parameters strict validation in the APIkit Router."},
+    {"q": "Where do you enable rejection of undeclared query parameters and headers?", "options": ["HTTP Listener's allowed methods", "APIkit Router configuration: Query parameters / Headers Strict Validations", "pom.xml properties", "Runtime Manager settings"], "answer": 1, "explain": "With strict validation on, only parameters/headers declared in the spec are allowed; others get 400 Bad Request."},
+    {"q": "How do you make a RAML type reject fields in the request body that aren't defined?", "options": ["Mark every property `required: true`", "Set `additionalProperties: false` on the type", "Nothing — extra fields are rejected by default", "Enable Headers Strict Validations"], "answer": 1, "explain": "`additionalProperties` defaults to true, so extra fields are accepted unless set to false."},
+    {"q": "An insider with valid credentials sends 5 lakh characters in one query parameter. What prevents the crash?", "options": ["The username/password check", "Using GET instead of POST", "HTTPS encryption", "Length restrictions such as `minLength`/`maxLength` in the spec"], "answer": 3, "explain": "Security passes because the credentials are valid; validation of lengths rejects oversized input before processing."},
+    {"q": "Why is strict validation not needed for URI parameters?", "options": ["They are part of the fixed path — extra ones can't be added without changing the path", "URI parameters are always encrypted", "URI parameters are optional", "APIkit ignores URI parameters"], "answer": 0, "explain": "The path either matches the defined resource or not."}
+  ],
+  "cards": [
+    {"front": "URI parameter", "back": "Also called a **path parameter**. Part of the path that uniquely identifies a resource, e.g. `/employees/101`. Mandatory."},
+    {"front": "Query parameter", "back": "`?key=value&key2=value2` after the path; optional; used to **filter, sort, paginate**."},
+    {"front": "URI vs. query parameter — the rule", "back": "Mandatory value that identifies a unique resource → URI param. Optional filter/sort/paginate value → query param."},
+    {"front": "Reading params in Mule", "back": "`attributes.uriParams.<name>` and `attributes.queryParams.<name>`. Without a key, you get all of them."},
+    {"front": "Multiple URI parameters", "back": "`/departments/{deptId}/employees/{empId}` → `attributes.uriParams.deptId`, `attributes.uriParams.empId`."},
+    {"front": "Filter example", "back": "`GET /employees?status=inactive` → `SELECT * FROM employees WHERE status = :status`."},
+    {"front": "Sort example", "back": "`GET /employees?status=active&orderBySalary=asc` (or `desc`)."},
+    {"front": "Pagination", "back": "Returning results in consecutive chunks (pages) so a UI doesn't load thousands of records at once."},
+    {"front": "offset / limit", "back": "`limit` = records per page; `offset` = records to skip. Page n → offset (n−1)×limit."},
+    {"front": "How is page size decided?", "back": "Through discussion and performance testing, not randomly."},
+    {"front": "Extra query params beyond the RAML — rejected by default?", "back": "No. By default they're accepted. Enable **Query parameters Strict Validations** in the APIkit Router."},
+    {"front": "Headers Strict Validations", "back": "APIkit Router option that rejects headers not declared in the API spec (400 Bad Request)."},
+    {"front": "APIkit Router", "back": "Component generated from the RAML that routes and validates requests; its config holds the strict-validation options."},
+    {"front": "`additionalProperties`", "back": "RAML type option controlling undeclared body fields. Default **true** (accepted); set **false** to reject them."},
+    {"front": "`minLength` / `maxLength`", "back": "String length restrictions in RAML; e.g. `transaction-id` with both = 20 accepts exactly 20 characters."},
+    {"front": "`enum` in RAML", "back": "Restricts a value to a fixed list, e.g. `origin` accepts only `mobile` or `webApp`."},
+    {"front": "Why validate if the API is secured?", "back": "A caller with valid credentials can still send huge values that crash the app; validation rejects them first."},
+    {"front": "When is strict validation most important?", "back": "When the API has external/third-party consumers or is exposed to the internet (e.g. a bank's API used by NBFCs)."},
+    {"front": "Where are body vs. header/query restrictions set?", "back": "Body: in RAML (`additionalProperties`, lengths). Headers and query params strictness: in the APIkit Router."},
+    {"front": "HTTP Listener vs. HTTP Request", "back": "Listener **exposes** your API; Request **calls** another API (consuming a third-party service)."}
+  ]
+}

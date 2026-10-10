@@ -1,0 +1,101 @@
+{
+  "quiz": [
+    {
+      "q": "What is the correct order of steps in the Design stage of the API lifecycle?",
+      "options": ["Design → Simulate → Feedback → Validate", "Develop → Test → Deploy → Monitor", "Simulate → Design → Validate → Feedback", "Design → Deploy → Secure → Monitor"],
+      "answer": 0,
+      "explain": "Design is design → simulate (mock) → feedback → validate, producing the API specification. Develop/test belong to implementation; deploy/secure/monitor to management."
+    },
+    {
+      "q": "In the Simulate step, what lets users see how requests and responses will look before the API is built?",
+      "options": ["A mocking service created from the specification", "A Runtime Manager deployment", "An API Manager policy", "A domain project"],
+      "answer": 0,
+      "explain": "Simulate means creating a mocking service from the spec so users can send requests and check responses and errors."
+    },
+    {
+      "q": "Which module do you use to apply policies to secure an API?",
+      "options": ["Design Center", "Exchange", "API Manager", "Runtime Manager"],
+      "answer": 2,
+      "explain": "API Manager applies policies. Runtime Manager deploys, starts/stops, shows logs and scales; the spec is first published to Exchange."
+    },
+    {
+      "q": "What does RAML stand for?",
+      "options": ["RESTful API Modeling Language", "Remote API Markup Language", "REST Application Mapping Layer", "Runtime API Management Language"],
+      "answer": 0,
+      "explain": "RAML is the RESTful API Modeling Language, a YAML-based language for describing RESTful APIs."
+    },
+    {
+      "q": "Which RAML version should you say you know in an interview, per the instructor?",
+      "options": ["RAML 0.8", "RAML 1.0", "RAML 2.0", "RAML 3.0"],
+      "answer": 1,
+      "explain": "Design Center supports 0.8 and 1.0; 1.0 has been used in the market for 5–6 years. Versions 2.0/3.0 belong to OAS."
+    },
+    {
+      "q": "Which statement about OAS is correct?",
+      "options": ["It is MuleSoft's own language and replaced RAML", "Its old name is Swagger; it comes in JSON and YAML, versions 2.0 and 3.0", "It only supports SOAP services", "Design Center doesn't support it"],
+      "answer": 1,
+      "explain": "OAS (OpenAPI Specification, formerly Swagger) is widely used in non-MuleSoft projects; Design Center supports both RAML and OAS."
+    },
+    {
+      "q": "In a table analogy, the column names and types that never change correspond to the…",
+      "options": ["Example", "Schema", "Resource", "Method"],
+      "answer": 1,
+      "explain": "The schema is the structure (columns). The changing row values are data — an example shows sample values."
+    },
+    {
+      "q": "On promotion, only designation and salary change out of 10–20 employee fields. Which method fits the update?",
+      "options": ["POST", "PUT", "PATCH", "GET"],
+      "answer": 2,
+      "explain": "PATCH is for a partial update. POST creates and GET fetches."
+    },
+    {
+      "q": "In the Employee use case, which is the target system?",
+      "options": ["The HR web/mobile app", "Postman", "The employees database", "The Experience API"],
+      "answer": 2,
+      "explain": "Source is where the request comes from (the HR app, Postman for testing); target is where it's finally processed/saved — the employees DB."
+    },
+    {
+      "q": "The Employee requirement has little business logic. What does the class say about including a Process API?",
+      "options": ["It is always mandatory in API-led", "It can be skipped when not needed — each extra API costs vCores — unless kept for future extension", "It replaces the System API", "It must be deployed on 1 vCore"],
+      "answer": 1,
+      "explain": "API-led architecture is flexible: three layers at 0.1 vCore each = 0.3 vCore, so skipping one saves 0.1 vCore."
+    },
+    {
+      "q": "Which security did the instructor suggest for the Experience API, which is exposed to the internet?",
+      "options": ["Plain HTTP with no policy", "HTTPS + OAuth", "Basic authentication only", "Domain project credentials"],
+      "answer": 1,
+      "explain": "The Experience API is the first layer attacked, so HTTPS + OAuth; internal layers get lighter policies like client ID enforcement or basic auth."
+    },
+    {
+      "q": "A colleague asks \"Is the RAML ready?\". What do they actually mean?",
+      "options": ["Is the RAML language installed?", "Is the API specification ready?", "Is the app deployed?", "Is the mock service stopped?"],
+      "answer": 1,
+      "explain": "RAML is the language, not the document; the official term is \"API specification is ready\" — like saying \"Xerox\" for a photocopy."
+    }
+  ],
+  "cards": [
+    {"front": "Explain the API lifecycle", "back": "**Design** (design, simulate, feedback, validate → spec), **Implementation** (develop and test in Studio), **Management** (secure in API Manager, deploy/monitor in Runtime Manager/Anypoint Monitoring)."},
+    {"front": "Simulate / mocking service", "back": "A fake API generated from the specification so users can test requests and responses early."},
+    {"front": "Feedback / validate", "back": "Users test the mock and give feedback; changes are validated and the design repeated if needed."},
+    {"front": "Output of the design stage", "back": "The **API specification**, prepared by the developer."},
+    {"front": "Anypoint Platform", "back": "The console for management activities — a package of modules: Design Center, Exchange, API Manager, Runtime Manager, Anypoint Monitoring."},
+    {"front": "Anypoint Monitoring", "back": "High-level monitoring (performance) of APIs."},
+    {"front": "Anypoint Code Builder vs Studio", "back": "Code Builder is newer; per the instructor it's used mostly for demos — real projects use **Studio**."},
+    {"front": "RAML", "back": "RESTful API Modeling Language — a **YAML-based** language to define RESTful API specifications."},
+    {"front": "Which RAML version do you use?", "back": "**RAML 1.0** (Design Center also supports 0.8)."},
+    {"front": "OAS / Swagger", "back": "OpenAPI Specification (old name Swagger). JSON and YAML formats; versions 2.0 and 3.0. Common in non-MuleSoft projects."},
+    {"front": "API specification", "back": "A **contract between consumer and provider**: resources, methods, requests, responses, errors, schemas, examples, security."},
+    {"front": "Schema vs example", "back": "Schema = structure (fields and types). Example = sample values."},
+    {"front": "Resource", "back": "An API entity, e.g. `/employees`."},
+    {"front": "\"RAML ready\"", "back": "Casual for \"API specification ready\" — RAML is the language, not the document."},
+    {"front": "Employee use case methods", "back": "**POST** create, **PATCH** update (partial), **GET** fetch — on `/employees` and `/employees/{empid}`."},
+    {"front": "Why REST for the Employee API?", "back": "No very high security need; REST is lightweight, scalable and supports caching. SOAP is rarely used."},
+    {"front": "Source vs target", "back": "Source = where the request comes from (HR app). Target = where it's finally processed/saved (employees DB)."},
+    {"front": "Partial update", "back": "Changing only some fields — use **PATCH**."},
+    {"front": "One resource or several?", "back": "If methods clearly distinguish operations, use one resource with multiple methods; otherwise use different resources."},
+    {"front": "Do you always need all three API-led layers?", "back": "No. Skip a layer (e.g. Process) when not needed — every API costs vCores."},
+    {"front": "Security per layer (instructor)", "back": "Experience: **HTTPS + OAuth**. Process/System: lighter policies such as client ID enforcement or basic auth."},
+    {"front": "Microservices via API-led", "back": "Breaking a big service into small, meaningful, reusable services, e.g. separate API sets for customers, employees, vendors."},
+    {"front": "What developers receive from architects", "back": "A document with request, response and error schemas per API, methods, protocol and policies — used to write the RAML."}
+  ]
+}

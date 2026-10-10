@@ -1,0 +1,99 @@
+{
+  "quiz": [
+    {
+      "q": "Zomato's server needs Domino's pizza types, protected by OAuth. No user data or browser is involved. Which grant type fits?",
+      "options": ["Authorization code grant", "Client credentials grant", "Resource owner password grant", "Refresh token grant"],
+      "answer": 1,
+      "explain": "Client credentials is for server-to-server communication on common data that no individual owns; the token is generated from client ID + secret alone."
+    },
+    {
+      "q": "Why can the client credentials flow have fewer steps than the authorization code flow?",
+      "options": ["It doesn't use tokens at all", "No browser is involved — it is server-to-server over a secure network", "The resource server skips validation", "It reuses the user's Facebook session"],
+      "answer": 1,
+      "explain": "With no browser front end nothing is exposed, so the client sends its credentials directly to the token endpoint without an authorization code."
+    },
+    {
+      "q": "A client's token is valid 10:00–11:00. It sends a request at 11:05 with the same token. What happens?",
+      "options": ["The request succeeds because the token was valid earlier", "The token is invalid (expired), so the client must generate a new token", "The resource server refreshes the token automatically", "The request is queued until 12:00"],
+      "answer": 1,
+      "explain": "After expiry the token is invalid; the client generates a new one and reuses it until that one expires."
+    },
+    {
+      "q": "In which HTTP header is the access token sent?",
+      "options": ["Content-Type", "Authorization", "client_id", "Accept"],
+      "answer": 1,
+      "explain": "The token is sent in the Authorization header with each API request."
+    },
+    {
+      "q": "Your experience API calls an OAuth-protected process API. Where should Mule keep the token for reuse across requests?",
+      "options": ["In a flow variable", "In an Object Store", "In a database table", "In the payload"],
+      "answer": 1,
+      "explain": "A variable lives only for one request/event; a database works but every read/write is a costly external call. Object Store is temporary storage reusable across requests."
+    },
+    {
+      "q": "A client caches a token that is valid for 1 hour. How long should it cache it, per the class?",
+      "options": ["Slightly less than the lifetime, e.g. about 55 minutes", "Exactly 2 hours", "Only for the current request", "Forever, until the server rejects it"],
+      "answer": 0,
+      "explain": "Caching a bit less than the validity (e.g. 55 of 60 minutes) means the cached token expires before the real one, and a new token is then generated."
+    },
+    {
+      "q": "Zomato's backend sends client credentials plus Ramesh's username/password to its own token endpoint to fetch his order history. Which grant is this?",
+      "options": ["Client credentials grant", "Authorization code grant", "Resource owner password grant", "JWT validation"],
+      "answer": 2,
+      "explain": "The resource owner's password is sent to get the token, to access the user's own data. Its drawback: less secure, since the client handles the user's password."
+    },
+    {
+      "q": "What are the three parts of a JWT, in order?",
+      "options": ["Header, payload, signature", "Header, body, footer", "Client ID, secret, token", "Payload, signature, scope"],
+      "answer": 0,
+      "explain": "A JWT is header.payload.signature — Base64-encoded and separated by dots."
+    },
+    {
+      "q": "You paste a JWT into jwt.io and can read the payload. What does that tell you?",
+      "options": ["The token is broken", "Base64 is encoding, not encryption — anyone can decode the header and payload", "The private key was leaked", "The token has expired"],
+      "answer": 1,
+      "explain": "JWT security comes from the signature (tampering is detected), not from hiding the content, so don't put secrets in the payload."
+    },
+    {
+      "q": "A client sends 10,000 requests per hour with an OAuth token. What problem does the JWT validation policy remove?",
+      "options": ["Generating a new token for every request", "Calling the authorization server to validate the token on every request", "Sending the client secret on every request", "Caching the token in Object Store"],
+      "answer": 1,
+      "explain": "With plain OAuth validation the API asks the authorization server to validate each request; JWT validation verifies the signature locally at the gateway."
+    },
+    {
+      "q": "With JWT validation, what is configured in API Manager to verify tokens?",
+      "options": ["The authorization server's private certificate", "The authorization server's public certificate", "The client's secret", "The consumer's username/password"],
+      "answer": 1,
+      "explain": "The authorization server signs the JWT with its private certificate (never shared) and gives the matching public certificate, which the gateway uses to check the signature."
+    },
+    {
+      "q": "The authorization server rotates its private certificate, but your JWT policy uses a manually configured public certificate that nobody updates. What happens?",
+      "options": ["Nothing — old certificates stay valid", "All requests fail", "Only one request fails, then it self-heals", "The gateway falls back to calling the authorization server"],
+      "answer": 1,
+      "explain": "With a static certificate, all requests fail until someone updates it. Automatic fetching from a URL means at most one or two requests fail."
+    }
+  ],
+  "cards": [
+    {"front": "Client credentials grant", "back": "Client sends client ID + client secret to the token endpoint to get a token. Server-to-server, no user involved — the grant mostly used for APIs."},
+    {"front": "Why client credentials instead of authorization code for APIs?", "back": "No user or browser is involved and the data isn't owned by an individual user; authorization code is for users granting a third-party app access to their data."},
+    {"front": "Resource owner password grant", "back": "Client sends client credentials + the user's username/password to get a token, to access that user's own data. Drawback: less secure — the client handles the password."},
+    {"front": "Compare the three grant types", "back": "**Authorization code**: third-party sign-in, user-owned data. **Client credentials**: server-to-server, common data. **Password**: user's own data on the client's own system."},
+    {"front": "What do we give a client of our OAuth-protected API?", "back": "Client ID/secret, the token endpoint details (how to request a token), and our API details."},
+    {"front": "Token endpoint", "back": "URL of the authorization server that issues tokens."},
+    {"front": "How should a client handle token expiry?", "back": "Reuse the token while valid (cache it slightly shorter than its lifetime, e.g. 55 of 60 min); regenerate after expiry."},
+    {"front": "Why not keep a token in a variable?", "back": "A variable lives only while one request is processed; the next request has no access to it."},
+    {"front": "Where to store an OAuth token in Mule?", "back": "In an **Object Store** — variables die after each request, and a database adds costly external calls."},
+    {"front": "Advantages of caching tokens", "back": "Less load on the authorization server, more speed, less resource use."},
+    {"front": "Single sign-on (SSO)", "back": "One login across company apps via an identity provider (e.g. Okta, Auth0) — often also used as the OAuth authorization server."},
+    {"front": "JWT", "back": "JSON Web Token: a compact, self-contained token — **header.payload.signature**, Base64-encoded and dot-separated."},
+    {"front": "Is a JWT encrypted?", "back": "No — it is Base64 encoded; anyone can decode it (e.g. on jwt.io). The signature protects integrity."},
+    {"front": "Base64", "back": "A reversible encoding format — not encryption (which uses a key/algorithm)."},
+    {"front": "jwt.io colours", "back": "Red = header, purple = payload, blue = signature."},
+    {"front": "JWT validation vs. OAuth token validation", "back": "OAuth validation calls the authorization server for each request; JWT validation verifies the signature locally at the gateway with the public certificate."},
+    {"front": "Private vs. public certificate in JWT", "back": "Authorization server signs with the **private** one (never shared); the **public** one is configured in API Manager to verify signatures."},
+    {"front": "Why fetch the public certificate automatically?", "back": "If the issuer rotates its private key, a manually configured certificate breaks all requests; automatic refresh picks up the new one."},
+    {"front": "JWT letter analogy", "back": "I give you a sample of my signature (public cert) first; if a postman forges the letter, you compare signatures and detect it."},
+    {"front": "HS256 vs. RS256", "back": "HS256: symmetric — same shared secret signs and verifies. RS256: asymmetric — private key signs, public key verifies."},
+    {"front": "Client credentials summary slide", "back": "Token generated using client credentials · no ownership of resources, data is common to everyone · server-to-server communication."}
+  ]
+}

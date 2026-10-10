@@ -1,0 +1,222 @@
+{
+  "quiz": [
+    {
+      "q": "Which Database operations implement POST, PATCH and GET in the Employee API?",
+      "options": [
+        "Insert, Update, Select",
+        "Insert, Merge, Query",
+        "Bulk insert, Update, Stored procedure",
+        "Select, Insert, Delete"
+      ],
+      "answer": 0,
+      "explain": "POST inserts the employee, PATCH updates it, GET selects it by employee ID."
+    },
+    {
+      "q": "Where does the class put the actual processing for each operation?",
+      "options": [
+        "Directly in the scaffolded resource flow",
+        "In a private flow in an implementation XML, called from the scaffolded flow via Flow Reference",
+        "In the APIkit console flow",
+        "In global-config.xml"
+      ],
+      "answer": 1,
+      "explain": "Scaffolded flows stay thin and use a Flow Reference; after processing, control returns to the main flow and the Listener responds."
+    },
+    {
+      "q": "You moved the Listener and APIkit router configs into global-config.xml. Does the Listener still find its configuration?",
+      "options": [
+        "No — configs must stay in the same file as the flow",
+        "Yes — global elements are available to the whole project wherever they are",
+        "Only after renaming them",
+        "Only if global-config.xml is in src/main/resources"
+      ],
+      "answer": 1,
+      "explain": "Global elements are project-wide; best practice is to keep all of them in one XML."
+    },
+    {
+      "q": "After moving global elements, Studio still shows \"name must be unique\", even after saving and refreshing. What fixed it in class?",
+      "options": [
+        "Deleting global-config.xml",
+        "Closing and reopening the project",
+        "Renaming the Listener config",
+        "Changing the runtime version"
+      ],
+      "answer": 1,
+      "explain": "It was a Studio display glitch; closing and reopening the project cleared it."
+    },
+    {
+      "q": "You move a scaffolded resource flow into another XML file in the project. What happens to routing?",
+      "options": [
+        "It breaks — flows must be in the router's XML",
+        "It still works — the router routes by flow name, not file location",
+        "It works only for GET",
+        "Studio moves it back automatically"
+      ],
+      "answer": 1,
+      "explain": "The router uses the generated flow name; the flow can live in any XML of the project."
+    },
+    {
+      "q": "Why did the instructor delete the APIkit console flow?",
+      "options": [
+        "It causes a port conflict",
+        "It's a web UI for testing generated from the RAML, and testing is done with Postman",
+        "It's required only on CloudHub",
+        "It blocks the error handler"
+      ],
+      "answer": 1,
+      "explain": "The APIkit console isn't needed when you test with Postman."
+    },
+    {
+      "q": "Where should loggers go around a Database Insert, according to best practice?",
+      "options": [
+        "Only at the end of the flow",
+        "Before and after the external call, plus start and end loggers for the flow",
+        "Only in the error handler",
+        "Loggers aren't needed for DB calls"
+      ],
+      "answer": 1,
+      "explain": "A DB call leaves the Mule app (external call). Loggers before and after show from logs exactly where processing stopped."
+    },
+    {
+      "q": "You copy post-employee.xml to create patch-employee.xml and Studio says \"Flow name should be unique\". What's the fix?",
+      "options": [
+        "Delete the POST flow",
+        "Rename the copied flow — flow names must be unique in the project",
+        "Move it to src/main/resources",
+        "Add a Flow Reference"
+      ],
+      "answer": 1,
+      "explain": "The copy kept the same flow name. Rename each flow and also fill in the operation-specific SQL."
+    },
+    {
+      "q": "A Database operation shows \"Required element SQL query text is missing\". What's the cause?",
+      "options": [
+        "The JDBC driver is missing",
+        "The SQL query hasn't been written in the operation yet",
+        "The MySQL service is stopped",
+        "The connector config has a default name"
+      ],
+      "answer": 1,
+      "explain": "Copy-paste builds structure, but each operation still needs its own SQL."
+    },
+    {
+      "q": "Which JDBC driver option did the class use for the MySQL connection?",
+      "options": [
+        "Use local file",
+        "Maven dependency",
+        "Add recommended libraries",
+        "Download from Exchange"
+      ],
+      "answer": 2,
+      "explain": "All three options exist; the class used Add recommended libraries. The driver establishes the connection between Mule and the DB."
+    },
+    {
+      "q": "While scrolling, the Secure Properties algorithm drop-down changed from AES/CBC. What's the risk?",
+      "options": [
+        "None — any algorithm can decrypt",
+        "Decryption fails because algorithm and mode must match what was used to encrypt",
+        "The app runs without encryption",
+        "Only the port changes"
+      ],
+      "answer": 1,
+      "explain": "Keep AES/CBC unchanged; it must match the encryption settings."
+    },
+    {
+      "q": "A student's OAuth token returns 400 / invalid token. Which is one of the checks suggested?",
+      "options": [
+        "Increase the worker size",
+        "Check whether it is sent exactly as specified — e.g. a missing or extra Bearer word",
+        "Delete the anchor file",
+        "Switch the API to SOAP"
+      ],
+      "answer": 1,
+      "explain": "Also check the generation parameters, whether it expired, and whether it's a one-time token."
+    }
+  ],
+  "cards": [
+    {
+      "front": "Operation → DB mapping",
+      "back": "POST → **Insert**, PATCH → **Update**, GET → **Select**."
+    },
+    {
+      "front": "How do you structure a Mule project's code?",
+      "back": "Thin scaffolded flows → Flow Reference → implementation flows in separate XMLs; global elements in `global-config`; shared error handler in `common`; properties in `src/main/resources`."
+    },
+    {
+      "front": "Implementation flow",
+      "back": "A private flow with the actual processing, called via Flow Reference from the scaffolded flow."
+    },
+    {
+      "front": "Global config",
+      "back": "One XML (e.g. `global-config`) holding all global elements, kept in the `common` folder."
+    },
+    {
+      "front": "Studio shows stale errors after moving configs",
+      "back": "Close and reopen the project. (Package Explorer showed files properly when Project Explorer didn't.)"
+    },
+    {
+      "front": "Reusing an error handler",
+      "back": "Copy a tested error-handler XML from a previous project into `common`, adapt the payload structure, and remove the generated handler."
+    },
+    {
+      "front": "APIkit console",
+      "back": "A web-based UI to test APIs, generated from the RAML. Deleted when testing with Postman."
+    },
+    {
+      "front": "Must resource flows stay in the router's XML?",
+      "back": "No — the router routes by flow name; flows can be in any XML."
+    },
+    {
+      "front": "Flow naming",
+      "back": "Use **kebab-case**, e.g. `post-employee-implementation-flow`; names must be unique in the project."
+    },
+    {
+      "front": "Naming Flow Reference components",
+      "back": "Rename them, e.g. \"Flow reference to post employee\", so you can see where they go without clicking."
+    },
+    {
+      "front": "External call",
+      "back": "A call leaving the Mule app (DB, HTTP…). Put a logger **before and after** it."
+    },
+    {
+      "front": "Why loggers before and after external calls?",
+      "back": "Logs show whether the call started and completed — i.e. where a failure occurred."
+    },
+    {
+      "front": "DB module operations used most",
+      "back": "90–95% of the time only 4–5: select, insert, update, delete…"
+    },
+    {
+      "front": "Why name connector configs meaningfully?",
+      "back": "So anyone can tell which system is used; defaults like `Database_Config_1` confuse people."
+    },
+    {
+      "front": "DB details in properties",
+      "back": "Use keys like `${database.host}`; sensitive ones via `${secure::database.username}` / `${secure::database.password}`."
+    },
+    {
+      "front": "JDBC driver",
+      "back": "Library that connects Mule to the DB. Options: local file, Maven dependency, **Add recommended libraries**."
+    },
+    {
+      "front": "Who provides DB details in real projects?",
+      "back": "The **database team** creates DB/tables and sends host, port, DB name, username, password."
+    },
+    {
+      "front": "MySQL Workbench / SQL Developer",
+      "back": "UIs for MySQL / Oracle — write select, insert, update, delete, create table."
+    },
+    {
+      "front": "services.msc",
+      "back": "Windows services manager: start/stop/restart the MySQL service and set its startup type."
+    },
+    {
+      "front": "Can configs be shared across apps on CloudHub?",
+      "back": "No. Domain projects are on-prem only; CloudHub/RTF workers are isolated containers."
+    },
+    {
+      "front": "Troubleshooting an invalid token",
+      "back": "Check generation params, how it's sent (header, `Bearer`), expiry, and whether it's one-time use."
+    }
+  ]
+}

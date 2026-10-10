@@ -1,0 +1,100 @@
+{
+  "quiz": [
+    {
+      "q": "A variable is declared in a DataWeave header as `var demo = payload.message`. How do you use it in the body?",
+      "options": ["`vars.demo`", "`demo`", "`$demo`", "`payload.demo`"],
+      "answer": 1,
+      "explain": "Script variables are used by name only. `vars.name` is for Mule variables created with Set Variable."
+    },
+    {
+      "q": "Where is a script `var` available?",
+      "options": ["Everywhere in the Mule app", "Only inside that DataWeave script — not after the Transform/Set Variable", "Only in the next component", "Only in the error handler"],
+      "answer": 1,
+      "explain": "The scope of a `var` is the script it's declared in."
+    },
+    {
+      "q": "What does `\"1\" == 1` return, and what does `\"1\" ~= 1` return?",
+      "options": ["true / true", "false / true", "true / false", "false / false"],
+      "answer": 1,
+      "explain": "`==` requires the same type and value; the similar operator `~=` coerces one value to the other's type first."
+    },
+    {
+      "q": "`if (typeOf(payload.number1) == \"Number\") \"number\" else \"not a number\"` always returns \"not a number\", even for numbers. Why?",
+      "options": ["typeOf only works on strings", "typeOf returns a type, not a string, so `==` with \"Number\" is always false — use `~=`", "The if syntax is wrong", "numbers are always strings in JSON"],
+      "answer": 1,
+      "explain": "Comparing a Type with a String using `==` is always false; with `~=` the comparison works."
+    },
+    {
+      "q": "`payload.test1 ++ payload.test2` fails with \"Unable to call ++ with (String, Null)\" because test2 is missing. What's the fix?",
+      "options": ["`payload.test1 ++ (payload.test2 default \"\")`", "`payload.test1 + payload.test2`", "`payload.test1 ~= payload.test2`", "`payload.test1 ++ null`"],
+      "answer": 0,
+      "explain": "A missing key gives null; `default` supplies a fallback value — here an empty string."
+    },
+    {
+      "q": "What does `++` do when used on two objects?",
+      "options": ["Returns an error", "Merges them into one object", "Returns an array of the two objects", "Compares them"],
+      "answer": 1,
+      "explain": "`++` concatenates strings and arrays and merges objects into one object."
+    },
+    {
+      "q": "With `var action = if (payload.price < 100) \"buy\" else \"hold\"` and a price of 120, what is `action`?",
+      "options": ["\"buy\"", "\"hold\"", "\"sell\"", "null"],
+      "answer": 1,
+      "explain": "120 is not below 100, so the else branch gives \"hold\"."
+    },
+    {
+      "q": "`if ((payload.price < 100) and payload.action == \"buy\") \"buy\" else \"hold\"` is run with price 80 but no `action` field. What's the result?",
+      "options": ["\"buy\"", "\"hold\"", "An error", "null"],
+      "answer": 1,
+      "explain": "The missing `action` is null, so null == \"buy\" is false, and with `and` the whole condition is false → \"hold\"."
+    },
+    {
+      "q": "What does `payload filter ((item, index) -> isEven(item))` return on `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]`?",
+      "options": ["[1, 3, 5, 7, 9]", "[2, 4, 6, 8, 10]", "true", "{2, 4, 6, 8, 10}"],
+      "answer": 1,
+      "explain": "filter takes an array and returns a new array with only the items for which the condition is true."
+    },
+    {
+      "q": "In `payload filter ($.salary > 50000)`, what does `$` stand for?",
+      "options": ["The index", "The current item", "The whole payload", "The key"],
+      "answer": 1,
+      "explain": "In filter, `$` is the item and `$$` is the index."
+    },
+    {
+      "q": "`payload filterObject (value, key, index) -> key == \"age\"` returns `{}`. Why?",
+      "options": ["filterObject works only on arrays", "Object keys are of type Key, not String — use `~=` or `(key as String) == \"age\"`", "The parameter order is wrong", "`age` must be in uppercase"],
+      "answer": 1,
+      "explain": "All object keys in DataWeave are of type Key, so `==` against a String is false."
+    },
+    {
+      "q": "Which function should you use to keep only some key-value pairs of an **object**?",
+      "options": ["filter", "filterObject", "map", "match"],
+      "answer": 1,
+      "explain": "filter/map are for arrays; filterObject/mapObject are for objects, with parameters value, key, index."
+    }
+  ],
+  "cards": [
+    {"front": "`var` in DataWeave", "back": "Script-level variable declared in the header (`var name = expr`), used by name — not `vars.name`."},
+    {"front": "Scope of a `var`", "back": "Only that script; it isn't available after the Transform/Set Variable."},
+    {"front": "`do` in DataWeave", "back": "Creates a locally scoped variable for one part of the script — a rare requirement."},
+    {"front": "Logical operators", "back": "`>`, `<`, `>=`, `<=`, `==`, `!=`, `~=`, `not`/`!`, `and`, `or`."},
+    {"front": "`==` vs. `~=`", "back": "`==` requires the same type and value; `~=` (similar) coerces one value to the other's type first, so `\"1\" ~= 1` is true."},
+    {"front": "`typeOf`", "back": "Returns a value's **type** (e.g. Object, Number, Boolean) — not a string, so compare with `~=`."},
+    {"front": "`default` operator", "back": "Fallback when an expression is null, e.g. `payload.number2 default 0`. Can be any value — number, string, array, object."},
+    {"front": "\"Unable to call ++ with (String, Null)\"", "back": "A field is missing (null); fix with `(payload.test2 default \"\")`."},
+    {"front": "`++` operator", "back": "Concatenates strings and arrays; merges objects into one object."},
+    {"front": "if / else if / else syntax", "back": "`if (cond) value else if (cond) value else value`. String comparisons are case sensitive."},
+    {"front": "Buy/hold/sell exercise", "back": "price < 100 → buy; 100–140 → hold; > 140 → sell."},
+    {"front": "`match`", "back": "Pattern matching, like switch: `match { case \"buy\" -> … else -> … }`. Rarely used."},
+    {"front": "`filter`", "back": "Array in → array out; keeps items where the lambda `(item, index) -> Boolean` is true."},
+    {"front": "Parameter order in filter", "back": "Item first, then index. Names can change (`x`, `i`) but must be used consistently."},
+    {"front": "`$` and `$$` in filter", "back": "`$` = item, `$$` = index."},
+    {"front": "`filterObject`", "back": "Works on objects; parameters value, key, index (`$`, `$$`, `$$$`); returns an object."},
+    {"front": "filter vs. filterObject", "back": "filter: arrays (item, index) → array. filterObject: objects (value, key, index) → object."},
+    {"front": "Why does `key == \"age\"` fail in filterObject?", "back": "Keys are of type **Key**, not String. Use `~=` or `(key as String) == \"age\"`."},
+    {"front": "`as`", "back": "Converts types (e.g. `as String`, `as Number`); errors if it can't convert."},
+    {"front": "Even/odd without isEven", "back": "`(item mod 2) == 0` (even) / `!= 0` (odd); or `isOdd(item)`."},
+    {"front": "Is there a for loop in DataWeave?", "back": "For Each is a Mule **scope**, not a DataWeave function."},
+    {"front": "Can you use filter on a string?", "back": "No — the class got \"You called the function filter with these arguments…\". filter is for arrays."}
+  ]
+}

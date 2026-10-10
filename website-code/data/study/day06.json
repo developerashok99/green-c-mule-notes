@@ -1,0 +1,41 @@
+{
+  "quiz": [
+    {"q": "What does HTTPS protect?", "options": ["Only data stored in the database", "Data permanently, even after the API processes it", "Only the URL, not the body", "Data while it travels from consumer to API; it is decrypted at the API"], "answer": 3, "explain": "HTTPS encrypts data in transit so an interceptor sees gibberish; once it reaches the API it is decrypted and processed normally."},
+    {"q": "Employee 102 exists. You send all of 102's details with a new email and phone, replacing the whole record. Which method fits?", "options": ["PUT", "PATCH", "POST", "GET"], "answer": 0, "explain": "PUT replaces the entire resource (or creates it if it doesn't exist). PATCH would update only specific fields."},
+    {"q": "You need to change only employee 102's phone number, leaving all other fields untouched. Which method is the standard choice?", "options": ["DELETE", "PATCH", "POST", "PUT"], "answer": 1, "explain": "PATCH is a partial update; PUT replaces the whole resource."},
+    {"q": "What is the difference between POST and PUT according to the lecture?", "options": ["They are identical", "POST updates partially; PUT deletes", "POST fetches data; PUT creates data", "POST creates a new resource (error if it exists, by design); PUT replaces it if it exists or creates it if not"], "answer": 3, "explain": "PUT is also idempotent — sending the same PUT twice gives the same result — while POST is not."},
+    {"q": "As a standard, how should a GET request pass the employee ID?", "options": ["Through query or URI parameters, not a body", "In the Authorization section", "In the JSON body", "In the port number"], "answer": 0, "explain": "GET should not carry a body; use `?employeeId=123` (query) or `/employees/123` (URI parameter)."},
+    {"q": "In `http://localhost:8081/empdetails?employeeId=123&dept=IT`, what is `employeeId=123&dept=IT`?", "options": ["Resource path", "Headers", "Query parameters", "URI parameters"], "answer": 2, "explain": "Query parameters start with `?` and are `key=value` pairs separated by `&`, typically for filtering, sorting or pagination."},
+    {"q": "What do headers carry in an HTTP request?", "options": ["The main message of the request", "Metadata — data about data, e.g. Content-Type or source system", "Only the HTTP method", "The resource path"], "answer": 1, "explain": "The body carries the main message; headers carry metadata like `Content-Type: application/json` or `source: mobile-application`."},
+    {"q": "A consumer sends correct credentials but calls a resource they have no access to. Which status code fits?", "options": ["403 Forbidden", "400 Bad Request", "404 Not Found", "401 Unauthorized"], "answer": 0, "explain": "401 means credentials are missing or wrong; 403 means authenticated but not permitted for that resource."},
+    {"q": "The API accepts only JSON but the client sends an XML body. Which status code should be returned?", "options": ["400 Bad Request", "405 Method Not Allowed", "500 Internal Server Error", "415 Unsupported Media Type"], "answer": 3, "explain": "415 is for an unsupported body format; 405 is for a wrong HTTP method."},
+    {"q": "A client sends a correct request, but the API's database is down. Which series of status code applies?", "options": ["2xx — success", "4xx — client-side error", "5xx — server-side error", "3xx — redirection"], "answer": 2, "explain": "The client did nothing wrong; the problem is on the API side, so a 5xx (e.g. 500) is returned."},
+    {"q": "By the HTTP standard, a gateway that doesn't receive a timely response from the upstream API returns which code?", "options": ["408 Request Timeout", "504 Gateway Timeout", "502 Bad Gateway", "503 Service Unavailable"], "answer": 1, "explain": "504 = no timely response; 502 = the gateway received an invalid response (or couldn't connect)."},
+    {"q": "In JSON, what is the type of the value in `\"resigned\": \"true\"`?", "options": ["String", "Boolean", "Number", "Null"], "answer": 0, "explain": "Booleans are written without quotes (`true`/`false`). A quoted `\"true\"` is a string."}
+  ],
+  "cards": [
+    {"front": "HTTP", "back": "HyperText Transfer Protocol — used to structure and transfer requests and responses over the internet; data travels as readable plain text."},
+    {"front": "HTTPS", "back": "HTTP Secure — encrypts data **in transit** with a key and algorithm. Decrypted at the API. In Mule it's the same HTTP connector with TLS configuration."},
+    {"front": "GET / POST / PUT / PATCH / DELETE", "back": "GET fetch · POST create · PUT replace fully (or create if absent) · PATCH partial update · DELETE remove."},
+    {"front": "POST vs. PUT", "back": "POST creates a new resource (by design, error if it exists). PUT replaces if it exists or creates if not; PUT is idempotent."},
+    {"front": "PUT vs. PATCH", "back": "PUT replaces the entire resource; PATCH changes only the fields sent."},
+    {"front": "Are HTTP methods enforced?", "back": "Only if the API is designed to restrict them. They're standards — like traffic rules — follow them so everyone understands."},
+    {"front": "URL structure", "back": "`protocol://host:port/resource-path`, e.g. `http://localhost:8081/empdetails`. All parts must match the Listener."},
+    {"front": "Parts of an HTTP request", "back": "Protocol, host, port, resource path (URL), method, query/URI parameters, headers, authorization, body."},
+    {"front": "Body vs. headers", "back": "Body = the main message (JSON, XML, text). Headers = metadata, \"data about data\" (Content-Type, source system)."},
+    {"front": "Query parameters", "back": "`?key=value&key2=value2` at the end of the URL — used to filter, sort or paginate."},
+    {"front": "URI parameters", "back": "Part of the path that uniquely identifies a resource, e.g. `/employees/{empid}` → `/employees/100`."},
+    {"front": "Who decides which request parts are mandatory?", "back": "The API owner, at **design** time: methods, body fields, headers, query params, security."},
+    {"front": "Status code series", "back": "1xx informational · 2xx success · 3xx redirection · 4xx client error · 5xx server error. 1xx/3xx are rare in APIs."},
+    {"front": "200 / 201 / 204", "back": "200 OK — data returned · 201 Created — new resource created · 204 No Content — success, nothing to return."},
+    {"front": "400 Bad Request", "back": "Request malformed or invalid — e.g. a mandatory field missing or salary sent as text `\"80000\"` instead of a number."},
+    {"front": "401 vs. 403", "back": "401: credentials missing or wrong. 403: credentials valid, but not allowed to access that resource."},
+    {"front": "404 / 405 / 415", "back": "404 resource not found (e.g. `/empdetails1`) · 405 method not allowed · 415 unsupported media type (body format)."},
+    {"front": "500 / 501 / 503", "back": "500 internal server error (e.g. DB down) · 501 functionality not implemented · 503 service unavailable."},
+    {"front": "502 vs. 504", "back": "502 Bad Gateway: gateway got an invalid response (or couldn't connect). 504 Gateway Timeout: no timely response from upstream."},
+    {"front": "API gateway", "back": "Component in front of the API — like a security guard — that checks credentials and forwards valid requests."},
+    {"front": "JSON", "back": "JavaScript Object Notation — simple text format. Object = `{ }`, array = `[ ]`; keys in double quotes; key and value separated by `:`, properties by `,`."},
+    {"front": "JSON data types", "back": "String, number, boolean, null, object, array. `true`/`false`/`null` are unquoted. **No date type** — dates are strings."},
+    {"front": "Why an array for hobbies?", "back": "One key with `[...]` handles any number of values of the same kind, instead of `hobby1`, `hobby2`, `hobby3`."}
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "quiz": [
+    {
+      "q": "Three independent calls take 250 ms, 350 ms and 400 ms, and the rest of the flow takes 200 ms. With Scatter-Gather, what is the total time?",
+      "options": ["1200 ms", "600 ms", "400 ms", "1000 ms"],
+      "answer": 1,
+      "explain": "The Scatter-Gather takes as long as the slowest route (400 ms), plus 200 ms of other processing = 600 ms. Sequentially it would be 1200 ms."
+    },
+    {
+      "q": "Flipkart's call needs Amazon's response as its input. Should you use Scatter-Gather for these two calls?",
+      "options": ["Yes — it is always faster", "No — Scatter-Gather is for independent calls; a dependency means sequential", "Yes, with Max Concurrency 2", "Only if you set a Target variable"],
+      "answer": 1,
+      "explain": "You can't use Scatter-Gather when one call depends on another's response or must run after it."
+    },
+    {
+      "q": "What is the minimum number of routes in a Scatter-Gather?",
+      "options": ["One", "Two", "Three", "Five"],
+      "answer": 1,
+      "explain": "At least two — with one route there's no point. The instructor has used 4–5 and hasn't seen a maximum."
+    },
+    {
+      "q": "What does each Scatter-Gather route receive as input?",
+      "options": ["Only the payload", "The same copy of payload, attributes and variables", "The output of the previous route", "An empty event"],
+      "answer": 1,
+      "explain": "The event is scattered: every route gets the same copy of payload, attributes and variables."
+    },
+    {
+      "q": "What does the Scatter-Gather return after all routes finish?",
+      "options": ["An array of route payloads", "An object (LinkedHashMap) keyed \"0\", \"1\", \"2\"…, each holding that route's Mule message", "Only the last route's payload", "The first route's payload"],
+      "answer": 1,
+      "explain": "It's an object of objects — one Mule message per route, keys starting at \"0\" — not an array."
+    },
+    {
+      "q": "Postman shows an unreadable response after the Scatter-Gather. What's the fix used in class?",
+      "options": ["Set Max Concurrency to 1", "Add a Transform with `output application/json` and `payload` after it", "Set a Timeout", "Add a Target variable"],
+      "answer": 1,
+      "explain": "The gathered map is Java; a Transform converting `payload` to JSON makes it readable."
+    },
+    {
+      "q": "Which Scatter-Gather property stores the whole result in a variable instead of overwriting the payload?",
+      "options": ["Timeout", "Target", "Max Concurrency", "Reconnection strategy"],
+      "answer": 1,
+      "explain": "Target is the target variable. Timeout is the per-route wait; Max Concurrency limits parallel routes."
+    },
+    {
+      "q": "How do you make a Scatter-Gather run its routes sequentially?",
+      "options": ["Set Timeout to 0", "Set Max Concurrency to 1", "Remove all but one route", "Wrap it in a Try scope"],
+      "answer": 1,
+      "explain": "Max Concurrency 1 runs route 1, then 2, then 3 — it doesn't limit it to one route."
+    },
+    {
+      "q": "A variable `test` set before the Scatter-Gather is modified in two routes. What is `vars.test` afterwards?",
+      "options": ["The value set before the Scatter-Gather", "The value from the last route to finish", "A collection of both modified values", "null"],
+      "answer": 2,
+      "explain": "Modified in two routes → a collection (array) of the values. Modified in one route → that single value."
+    },
+    {
+      "q": "A new variable is created inside route 2. Is it available after the Scatter-Gather?",
+      "options": ["Yes — new route variables are accessible afterwards", "No — route variables are discarded", "Only if Target is set", "Only if Max Concurrency is 1"],
+      "answer": 0,
+      "explain": "In class, all variables (including the new one from a route) were present after the Scatter-Gather."
+    },
+    {
+      "q": "Route 2 fails with an expression error and there's no error handling. What happens?",
+      "options": ["The other routes are cancelled immediately", "The other routes still finish, then a COMPOSITE_ROUTING error is raised and the flow stops (500)", "Route 2 is skipped and the flow returns 200", "The Scatter-Gather retries route 2"],
+      "answer": 1,
+      "explain": "The Scatter-Gather waits for all routes, then raises COMPOSITE_ROUTING, naming the failed route; the default handler returns 500."
+    },
+    {
+      "q": "You want the flow to continue and still see the successful routes' results when one route fails. What do you do?",
+      "options": ["Put the whole Scatter-Gather inside a Try with On Error Continue", "Put a Try with On Error Continue inside each route, with a Set Payload describing the error", "Use On Error Propagate on the flow", "Set a shorter Timeout"],
+      "answer": 1,
+      "explain": "A Try around the whole Scatter-Gather continues but loses the routes' responses. A Try + On Error Continue in every route keeps all results and shows which route failed."
+    }
+  ],
+  "cards": [
+    {"front": "Scatter-Gather", "back": "Router that sends the same copy of the event to all routes in parallel and gathers the results."},
+    {"front": "When do you use Scatter-Gather?", "back": "When independent calls can run in parallel — e.g. prices from three e-commerce APIs. Time = slowest route + the rest of the flow."},
+    {"front": "When can't you use Scatter-Gather?", "back": "When one call depends on another's response or must run after it."},
+    {"front": "Minimum routes", "back": "Two — with one there's no point."},
+    {"front": "What does Scatter-Gather return?", "back": "An object (LinkedHashMap) keyed \"0\", \"1\", \"2\"…, each holding that route's Mule message — an object of objects, not an array."},
+    {"front": "Route numbering in the output", "back": "Starts at **\"0\"**; the order can change because routes run in parallel — use labels to tell them apart."},
+    {"front": "Timeout (Scatter-Gather)", "back": "Milliseconds to wait for **each route**; default waits for the longest route."},
+    {"front": "Target (Scatter-Gather)", "back": "Variable to hold the whole result instead of overwriting the payload."},
+    {"front": "Max Concurrency", "back": "Maximum routes running at once. **1 = sequential**; empty = decided automatically, parallel."},
+    {"front": "Threads in Scatter-Gather", "back": "One thread per route."},
+    {"front": "Variable modified in one route vs. two routes", "back": "One route → that single value. Two routes → a collection of the modified values."},
+    {"front": "New variable created inside a route", "back": "Accessible after the Scatter-Gather."},
+    {"front": "COMPOSITE_ROUTING", "back": "Error raised after all routes finish when one or more routes failed; the message names the failed route(s)."},
+    {"front": "What happens if one route fails?", "back": "Other routes still finish, then COMPOSITE_ROUTING is raised and the flow stops (500 by default)."},
+    {"front": "Scatter-Gather inside a Try with On Error Continue", "back": "The flow continues, but the routes' responses are lost."},
+    {"front": "How do you continue even if a route fails?", "back": "Try scope with On Error Continue in **each** route, plus a Set Payload with the error (e.g. `error.description`) so the result shows which route failed."},
+    {"front": "Empty On Error Continue inside a route", "back": "That route's payload is just the input payload — no error information."},
+    {"front": "Converting the gathered output", "back": "It's a Java map; add a Transform with `output application/json` and `payload`."}
+  ]
+}

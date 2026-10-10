@@ -1,0 +1,100 @@
+{
+  "quiz": [
+    {
+      "q": "Which of these processes records asynchronously?",
+      "options": ["For Each", "Parallel For Each", "Batch Job", "Scatter-Gather"],
+      "answer": 2,
+      "explain": "For Each (single thread) and Parallel For Each (multi-thread) are synchronous; Batch Job is multi-threaded and asynchronous."
+    },
+    {
+      "q": "In an interview, what is the best answer to \"when do you use batch processing?\"",
+      "options": ["Whenever there are more than 100 records", "When the data set is larger than the app's memory can handle, or when you need reliability", "Only for CSV files", "Whenever you need a response per record"],
+      "answer": 1,
+      "explain": "\"Large\" is relative to memory; batch is also worth it for less data when you need reliability."
+    },
+    {
+      "q": "The app restarts while processing record 50 of 100. Which option resumes from where it stopped?",
+      "options": ["For Each", "Parallel For Each", "Batch Job", "None of the scopes"],
+      "answer": 2,
+      "explain": "Batch saves records in persistent (disk) queues, so after a restart it resumes; For Each and Parallel For Each lose the rest."
+    },
+    {
+      "q": "Which batch phase is automatic and not visible in Studio?",
+      "options": ["Load and Dispatch", "Process Records", "On Complete", "Aggregation"],
+      "answer": 0,
+      "explain": "Load and Dispatch splits the input and saves it into persistent queues in the background."
+    },
+    {
+      "q": "What is the default value of Max Failed Records, and what does it mean?",
+      "options": ["0 — stop at the first failure", "-1 — continue no matter how many records fail", "100 — stop after 100 failures", "1 — allow one failure"],
+      "answer": 1,
+      "explain": "-1 is the default (no limit); 0 stops at the first failure; N stops once more than N fail."
+    },
+    {
+      "q": "What does Batch Block Size control (default 100)?",
+      "options": ["How many records each thread takes from the queue at a time", "How many threads run in parallel", "How many records the aggregator groups", "The maximum records per job"],
+      "answer": 0,
+      "explain": "Each thread takes a block of records from the queue, processes them one by one, then takes the next block. Max concurrency sets the thread count."
+    },
+    {
+      "q": "You want a second batch step that only handles records which failed in step 1. Which Accept Policy do you set?",
+      "options": ["NO_FAILURES", "ONLY_FAILURES", "ALL", "FAILED_FIRST"],
+      "answer": 1,
+      "explain": "ONLY_FAILURES accepts only records that failed in earlier steps — e.g. to insert them into a failure table."
+    },
+    {
+      "q": "What is the default Accept Policy of a Batch Step?",
+      "options": ["ALL", "ONLY_FAILURES", "NO_FAILURES", "There is no default"],
+      "answer": 2,
+      "explain": "NO_FAILURES is the default — only records that haven't failed enter the step."
+    },
+    {
+      "q": "A step has a Batch Aggregator of size 4. Which records reach it?",
+      "options": ["All records, including failures", "Only successfully processed records, in groups of 4 (with a smaller leftover group at the end)", "Only failed records", "Exactly 4 records, then the job stops"],
+      "answer": 1,
+      "explain": "Failed records never reach the aggregator; a smaller leftover group is passed on at the end."
+    },
+    {
+      "q": "Where can a Batch Aggregator be placed?",
+      "options": ["Anywhere in the flow", "Only in a batch step's aggregator section", "Only in On Complete", "Only before the Batch Job"],
+      "answer": 1,
+      "explain": "The aggregator is optional and can only go in a step's aggregator section."
+    },
+    {
+      "q": "What does On Complete give you?",
+      "options": ["Each record's response", "A BatchJobResult summary — loaded, processed, successful and failed records, elapsed time", "The original input", "Only the failed records' payloads"],
+      "answer": 1,
+      "explain": "Batch gives only a summary, not each record's response."
+    },
+    {
+      "q": "What is the main flow's payload right after the Batch Job component?",
+      "options": ["The processed results", "The job instance info (e.g. record count, status executing)", "null", "The BatchJobResult"],
+      "answer": 1,
+      "explain": "Batch is asynchronous, so it doesn't overwrite the main flow's payload with results; the class saw the instance info with 8 records, executing."
+    }
+  ],
+  "cards": [
+    {"front": "When would you use batch over For Each / Parallel For Each?", "back": "When the data set is larger than the app's memory can handle, or when you need reliability — batch persists records, resumes after restart and runs asynchronously."},
+    {"front": "Reliability (in batch)", "back": "Not losing data: batch remembers where it failed and resumes after a restart."},
+    {"front": "Synchronous vs. asynchronous", "back": "Synchronous waits until every processor finishes before responding; asynchronous returns while the work continues in the background."},
+    {"front": "The three batch phases", "back": "**Load and Dispatch** (split into a persistent queue, invisible) → **Process Records** (batch steps) → **On Complete** (summary)."},
+    {"front": "Persistent vs. in-memory queue", "back": "In-memory data is deleted on restart; persistent queues are saved on disk so processing continues from where it stopped."},
+    {"front": "Batch components", "back": "Batch Job, Batch Step and Batch Aggregator (Core). Process Records has one step by default."},
+    {"front": "What input formats does a Batch Job accept?", "back": "Java, JSON or XML — otherwise add a Transform first. Java is ideal."},
+    {"front": "Max Failed Records", "back": "-1 (default) = no limit; 0 = stop at the first failure; N = stop once more than N fail."},
+    {"front": "Batch Block Size", "back": "Records each thread takes from the queue at a time (default **100**). Leave the default unless you test performance."},
+    {"front": "Max Concurrency (batch)", "back": "Number of parallel threads — same formula as Parallel For Each."},
+    {"front": "Job Instance Id", "back": "Unique ID of a batch run; generated automatically, can be custom with a `#[ ]` expression."},
+    {"front": "Accept Expression", "back": "A filter on which records enter a step — e.g. accept only numbers with `isNumber(payload)`."},
+    {"front": "Accept Policy values", "back": "**NO_FAILURES** (default), **ONLY_FAILURES**, **ALL**."},
+    {"front": "How do you process only failed records?", "back": "Add another batch step with Accept Policy **ONLY_FAILURES**."},
+    {"front": "Do failed records reach the Batch Aggregator?", "back": "No — only successfully processed records."},
+    {"front": "Batch Aggregator", "back": "Optional; groups successful records within a step (aggregator size, e.g. 4) to act on them together."},
+    {"front": "Does batch return each record's response?", "back": "No — On Complete gives only a **BatchJobResult** summary."},
+    {"front": "BatchJobResult fields", "back": "`loadedRecords`, `processedRecords`, `successfulRecords`, `failedRecords`, `elapsedTimeInMillis`, `failedOnCompletePhase`."},
+    {"front": "Error handling in batch vs. Parallel For Each", "back": "PFE needs Try + On Error Continue; batch continues automatically on failed records."},
+    {"front": "Order of record processing in batch", "back": "Out of order — it's multi-threaded."},
+    {"front": "Weekly customer CSV use case", "back": "Scheduler (cron, Friday 10 PM) → FTP Read → CSV to Java → Batch Job (step 1: DB insert + Salesforce create; step 2 ONLY_FAILURES → failure table) → On Complete."},
+    {"front": "EDI in MuleSoft", "back": "Handled with **Anypoint Partner Manager** (licensed separately) and the **X12 connector**; mostly manufacturing and healthcare."}
+  ]
+}

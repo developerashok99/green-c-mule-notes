@@ -1,0 +1,99 @@
+{
+  "quiz": [
+    {
+      "q": "The file to read sits in a folder on the same server as the Mule runtime. Which connector do you use?",
+      "options": ["FTP", "SFTP", "File", "HTTP Request"],
+      "answer": 2,
+      "explain": "The File connector is for files local to the Mule server — it needs only a path, no username or password."
+    },
+    {
+      "q": "What is the default FTP port the connector used in class?",
+      "options": ["14147", "21", "22", "8081"],
+      "answer": 1,
+      "explain": "21 is the FTP server itself; 14147 was FileZilla's admin UI port (like MySQL 3306 vs. Workbench)."
+    },
+    {
+      "q": "Why is the CSV converted to Java before the For Each?",
+      "options": ["Java is smaller", "For Each can't process the CSV format; Java (an array of objects) can be iterated", "The DB connector only accepts XML", "CSV can't be logged"],
+      "answer": 1,
+      "explain": "For Each won't accept CSV for processing, so a Transform with `output application/java` comes first."
+    },
+    {
+      "q": "The FTP config has a working directory. What can the Read operation's file path be?",
+      "options": ["It must always be the full absolute path", "Just the file name — working directory + file name — or the full path", "Only the alias", "A URL starting with ftp://"],
+      "answer": 1,
+      "explain": "With a working directory set, the file path can be just the file name; or give the entire path."
+    },
+    {
+      "q": "The debugger shows \"Path '/EMP/employees.csv' doesn't exist\". What was the cause in class?",
+      "options": ["The FTP server was down", "The path wasn't right relative to the user's home (shared) folder", "Port 21 was blocked", "The file was CSV instead of JSON"],
+      "answer": 1,
+      "explain": "The file was in the emp folder while the user's home folder was the FTP folder; fixing the relative path solved it."
+    },
+    {
+      "q": "The employee CSV is known to be small (around a hundred rows at most). What is the simpler option instead of For Each?",
+      "options": ["Batch Job", "Bulk insert without splitting", "Parallel For Each", "Scatter-Gather"],
+      "answer": 1,
+      "explain": "For a small file, Bulk insert sends the whole list in one call (≈120 ms vs ≈500 ms for 5 records in For Each)."
+    },
+    {
+      "q": "After inserting the file's rows, you want the file gone from its FTP location. Which operation fits?",
+      "options": ["List", "Move (or Delete)", "Rename", "Create directory"],
+      "answer": 1,
+      "explain": "Once processing is done, Move the file to another path (or Delete / Copy)."
+    },
+    {
+      "q": "In FTP/SFTP connector version 2.x, what does List return?",
+      "options": ["File names and contents", "Only file names — combine List with Read", "Only folder names", "The file sizes"],
+      "answer": 1,
+      "explain": "In 1.x List returns names and contents; in 2.x only names, so you read each listed file."
+    },
+    {
+      "q": "Which source triggers a flow when a file arrives or changes, and what is its Auto delete default?",
+      "options": ["On New Object — true", "On New or Updated File — false", "Scheduler — true", "On New Message — false"],
+      "answer": 1,
+      "explain": "On New or Updated File polls the directory; Auto delete (delete after processing) defaults to false."
+    },
+    {
+      "q": "Using Write mode Append with `select * from employees` every run produced repeated rows. What should you do?",
+      "options": ["Switch to Create new", "Fetch only the delta since the last run (e.g. watermarking / object store)", "Use a larger file", "Disable the scheduler"],
+      "answer": 1,
+      "explain": "With Append, fetch only delta data or the old records are written again each time."
+    },
+    {
+      "q": "Which Write mode replaces the file content each run?",
+      "options": ["Append", "Overwrite", "Create new", "Copy"],
+      "answer": 1,
+      "explain": "Overwrite replaces the content (day 2's 150 replace day 1's 100); Append adds; Create new makes a new file."
+    },
+    {
+      "q": "Which is NOT one of the questions to ask before building a file integration?",
+      "options": ["What's the data volume?", "How frequently should it run (cron)?", "Is the port open from the Mule server?", "Which FTP server product should we install ourselves?"],
+      "answer": 3,
+      "explain": "Installing/configuring FTP servers is the FTP team's job. Ask about volume, frequency, an FTP user (and SPOC) and open ports."
+    }
+  ],
+  "cards": [
+    {"front": "FTP", "back": "**File Transfer Protocol** — files are placed on FTP servers and integrations read or write them periodically."},
+    {"front": "SFTP", "back": "Secure File Transfer — FTP plus security configuration (e.g. preferred authentication methods, known hosts file). Same operations."},
+    {"front": "When do you use File, FTP or SFTP connectors?", "back": "File — on the same server as the Mule runtime (path only, no credentials). FTP — on an FTP server. SFTP — on an SFTP server. Operations are the same."},
+    {"front": "DB server vs. FTP server", "back": "A DB server stores **data** permanently; an FTP server stores **files** to access them again."},
+    {"front": "Who installs and configures the FTP server?", "back": "A separate FTP server team — not the MuleSoft developer. You collect username, password and working directory from them."},
+    {"front": "CSV", "back": "Comma-separated values: a header row of field names, then one record per row. Separators can also be pipe or tab."},
+    {"front": "How do you load a CSV from FTP into a database?", "back": "Scheduler → FTP Read → transform CSV to Java → For Each with Insert (or Bulk insert for a small file)."},
+    {"front": "Why convert CSV to Java before For Each?", "back": "For Each can't process the CSV format; Java (an array of objects) can be iterated."},
+    {"front": "FTP connector default port and mode", "back": "Port **21**; transfer mode **BINARY** (default); Passive true (default)."},
+    {"front": "Working directory", "back": "Base folder in the connector config; the file path is relative to it (working directory + file name)."},
+    {"front": "Alias (FileZilla)", "back": "A short server path such as `/emp` for a shared folder, used instead of the full path."},
+    {"front": "FTP operations", "back": "Copy, Create directory, Delete, List, Move, Read, Rename, Write, and the source On New or Updated File."},
+    {"front": "What changed in List between FTP 1.x and 2.x?", "back": "1.x returns file names and contents; 2.x only names — combine List with Read."},
+    {"front": "How do you process files as soon as they arrive?", "back": "On New or Updated File source with a polling frequency, optionally **Auto delete** (default false)."},
+    {"front": "Write modes", "back": "**Overwrite** (replace), **Append** (add), **Create new** (new file)."},
+    {"front": "Overwrite vs. Append", "back": "Overwrite replaces the file each run; Append adds to it. With Append, fetch only delta data or records repeat."},
+    {"front": "Delta data", "back": "Only the records changed since the last run — e.g. via object store, date or incremental watermarking."},
+    {"front": "What do you ask before building a file integration?", "back": "Data volume, frequency/cron, whether an FTP user exists for MuleSoft (and the SPOC), and whether the port is open from the Mule server."},
+    {"front": "SPOC", "back": "Single point of contact in another team."},
+    {"front": "If the Excel (xlsx) output is broken", "back": "The instructor's suggestion: use CSV — it works."},
+    {"front": "Is FTP in the Studio palette by default?", "back": "No — Add Modules → FTP."}
+  ]
+}

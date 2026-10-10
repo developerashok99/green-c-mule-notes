@@ -1,0 +1,331 @@
+{
+  "quiz": [
+    {
+      "q": "A DataWeave global variable is declared with `var` in the header of a Transform Message. Where can it be used?",
+      "options": [
+        "Anywhere in the Mule event, like Set Variable",
+        "Throughout that script only — not outside that Transform Message",
+        "Only inside a `using` block",
+        "In every flow of the project"
+      ],
+      "answer": 1,
+      "explain": "A DWL global variable covers the whole script but isn't accessible outside that Transform Message; Set Variable, target variables etc. live on the Mule event."
+    },
+    {
+      "q": "A date arrives in JSON and `as Date {format: ...}` on it doesn't work. Why?",
+      "options": [
+        "DataWeave has no Date type",
+        "JSON dates arrive as strings — first convert the string to a Date in its current format, then format it",
+        "CloudHub blocks date functions",
+        "`format` only works with XML"
+      ],
+      "answer": 1,
+      "explain": "This confuses most people: parse the string with its current format first, then reformat the Date."
+    },
+    {
+      "q": "You need to convert an object into an array of its values. Which function?",
+      "options": [
+        "`reduce`",
+        "`pluck`",
+        "`mapObject`",
+        "`joinBy`"
+      ],
+      "answer": 1,
+      "explain": "pluck: object → array. reduce: array → object. mapObject outputs an object."
+    },
+    {
+      "q": "In `mapObject`, what do `$`, `$$` and `$$$` refer to?",
+      "options": [
+        "item, index, key",
+        "value, key, index",
+        "key, value, index",
+        "index, value, key"
+      ],
+      "answer": 1,
+      "explain": "Count the lambda parameters `(value, key, index)` in order. For `map`, `$` = item and `$$` = index."
+    },
+    {
+      "q": "How do you stop null fields from appearing in the DataWeave output?",
+      "options": [
+        "`output application/json skipNullOn = \"everywhere\"`",
+        "`payload - null`",
+        "`default null`",
+        "`isEmpty(payload)` in the body"
+      ],
+      "answer": 0,
+      "explain": "skipNullOn goes on the output line, above `---`; values are attributes, elements or everywhere."
+    },
+    {
+      "q": "In the API-led architecture, which layer applies the business logic?",
+      "options": [
+        "System",
+        "Process",
+        "Experience",
+        "Gateway"
+      ],
+      "answer": 1,
+      "explain": "System fetches data with no business logic; process applies it; experience is a wrapper with the non-functional policies."
+    },
+    {
+      "q": "Three systems and two consumers that need different data. What is the minimum number of APIs?",
+      "options": [
+        "3",
+        "5",
+        "6",
+        "9"
+      ],
+      "answer": 2,
+      "explain": "3 system + 1 process + 2 experience = 6; it would be 5 if one experience API served both consumers."
+    },
+    {
+      "q": "Request size grows from 10 KB to 25–40 KB. Which scaling fits?",
+      "options": [
+        "Horizontal — add workers",
+        "Vertical — increase the worker's vCore size",
+        "Add a server group",
+        "Enable a domain project"
+      ],
+      "answer": 1,
+      "explain": "Vertical scaling for larger payloads; horizontal (more workers) for more requests and high availability."
+    },
+    {
+      "q": "Which set of CloudHub worker numbers is correct?",
+      "options": [
+        "2 apps per worker; 0.2–8 vCores; max 16 workers",
+        "1 app per worker; 0.1–16 vCores; max 8 workers for one app",
+        "10 apps per worker; 1–10 vCores; max 4 workers",
+        "1 app per worker; 0.1–8 vCores; unlimited workers"
+      ],
+      "answer": 1,
+      "explain": "Also: up to 10 apps per vCore, since the smallest worker is 0.1 vCore."
+    },
+    {
+      "q": "In the hybrid deployment model, who runs the control plane and the runtime plane?",
+      "options": [
+        "MuleSoft runs both",
+        "The client runs both",
+        "MuleSoft runs the control plane; the client runs the runtime plane",
+        "The client runs the control plane; MuleSoft runs the runtime"
+      ],
+      "answer": 2,
+      "explain": "CloudHub: MuleSoft both; on-premise: client both; hybrid: apps on client servers managed with Anypoint Platform."
+    },
+    {
+      "q": "What distinguishes a cluster from a server group?",
+      "options": [
+        "A server group has failover; a cluster doesn't",
+        "Cluster nodes are aware of each other, share state and fail over; server group instances are isolated and only simplify deployment",
+        "Clusters allow different Mule runtime versions",
+        "Server groups can only have 2 servers"
+      ],
+      "answer": 1,
+      "explain": "Both are single deployment targets, and all servers must run the same Mule runtime version. A cluster has up to 8 servers."
+    },
+    {
+      "q": "Requests exceed the shared load balancer's regional rate limit. What do consumers get?",
+      "options": [
+        "429 Too Many Requests",
+        "503 Service Unavailable",
+        "502 Bad Gateway",
+        "401 Unauthorized"
+      ],
+      "answer": 1,
+      "explain": "The SLB returns 503 (not 429) over its limit; a dedicated load balancer inside a VPC avoids the lower limit."
+    },
+    {
+      "q": "What is the difference between a keystore and a truststore?",
+      "options": [
+        "A keystore holds trusted CA certificates; a truststore holds your private key",
+        "A keystore holds your private key and certificates that identify you; a truststore holds certificates you trust",
+        "They are the same file",
+        "A truststore is only used by servers"
+      ],
+      "answer": 1,
+      "explain": "When consuming HTTPS, the client checks the server's certificate against its truststore."
+    },
+    {
+      "q": "In two-way TLS (mTLS), what does the server need besides its keystore?",
+      "options": [
+        "Nothing — only the client verifies",
+        "A truststore with the clients' public certificates",
+        "The client's private key",
+        "A self-signed CA"
+      ],
+      "answer": 1,
+      "explain": "In mutual authentication both sides verify each other, so the server's truststore holds the client public certificates."
+    },
+    {
+      "q": "What are the steps to consume an HTTPS service from Mule?",
+      "options": [
+        "Generate a keystore and set it on the HTTP Listener",
+        "Configure HTTPS on the HTTP Request connector and set the truststore in its TLS section",
+        "Add a Basic Auth policy",
+        "Enable a DLB"
+      ],
+      "answer": 1,
+      "explain": "To expose HTTPS you put the keystore on the Listener's TLS section; to consume, the truststore on the Requester's."
+    }
+  ],
+  "cards": [
+    {
+      "front": "`default` in DataWeave",
+      "back": "Sets a value when the payload or field is absent or null: `fullName: payload.name default \"XYZ Bank\"`."
+    },
+    {
+      "front": "Custom function in DataWeave",
+      "back": "In the header with `fun`: `fun myfunction(p1) = upper(p1)`, then call `myfunction(\"Hello\")` → \"HELLO\"."
+    },
+    {
+      "front": "Ways to create variables",
+      "back": "Set Variable, target variable on components, Transform Message (output to a variable), Scripting — all Mule event scope. DW global `var` (that script only) and DW local (`using`, its scope only)."
+    },
+    {
+      "front": "DataWeave selectors",
+      "back": "`.key` single, `.*key` multi (one level), `..key` descendants, `[i]` index (`[-1]` last), `[0 to 2]` range, `.@attr` attribute, `.@` all attributes."
+    },
+    {
+      "front": "Date-time functions",
+      "back": "`now()`, `now() >> \"IST\"` (time zone), `as Date {format: \"yyyy-MMM-dd\"}`, `now() + |PT15M|` (time), `now() + |P10D|` (date), `.year/.month/.day`."
+    },
+    {
+      "front": "PT vs. P in durations",
+      "back": "**PT** = hours, minutes, seconds; **P** = years, months, days. Written between pipes in capitals; use `-` to subtract."
+    },
+    {
+      "front": "pluck vs. mapObject",
+      "back": "Both iterate over an object; pluck outputs the values into an **array**, mapObject outputs an **object**."
+    },
+    {
+      "front": "map vs. mapObject shorthand",
+      "back": "map: `$` = item, `$$` = index (array → array). mapObject: `$` = value, `$$` = key, `$$$` = index (object → object)."
+    },
+    {
+      "front": "Skip null values",
+      "back": "`output application/json skipNullOn = \"everywhere\"` (or attributes / elements)."
+    },
+    {
+      "front": "Config properties in DataWeave",
+      "back": "`p('propertyname')`; secure: `p('secure::propertyname')`."
+    },
+    {
+      "front": "joinBy vs. splitBy",
+      "back": "joinBy: array → string with a separator (`[\"a\",\"b\",\"c\"] joinBy \"-\"` → \"a-b-c\"). splitBy: string → array."
+    },
+    {
+      "front": "Null check / masking",
+      "back": "`isEmpty()` works on array, object or string. Mask: `payload mask field(\"age\") with \"***\"`."
+    },
+    {
+      "front": "`app.name` / `flow.name`",
+      "back": "Get the application and flow name — in Mule 4 they work only in the Logger."
+    },
+    {
+      "front": "readUrl",
+      "back": "Reads a URL or file and returns its content — e.g. `readUrl(\"classpath://file.json\", \"application/json\")`; used by MUnit-recorded files in src/test/resources."
+    },
+    {
+      "front": "API-led layers",
+      "back": "**System**: connects to systems, no business logic. **Process**: business logic. **Experience**: wrapper exposed to clients, with all non-functional policies."
+    },
+    {
+      "front": "Why more than one experience API?",
+      "back": "Only when consumers need different data or policies (e.g. mobile needs less than web, or a third party needs an extra policy)."
+    },
+    {
+      "front": "API-led pros and cons",
+      "back": "Pros: reusability, a break affects limited functionality, faster time to market in the long run, easy to maintain. Cons: more initial time, more vCores → more cost."
+    },
+    {
+      "front": "How do API-led layers communicate?",
+      "back": "99% via the HTTP Request connector; alternatively publish an API to Exchange as a connector."
+    },
+    {
+      "front": "API lifecycle",
+      "back": "Design → Implementation → Testing → Deploy → Monitor."
+    },
+    {
+      "front": "What is Runtime Manager?",
+      "back": "An Anypoint Platform module to deploy and manage Mule apps on CloudHub, on-premise or RTF: deploy/undeploy, stop/restart, change runtime version, worker size, check logs, scale."
+    },
+    {
+      "front": "vCore",
+      "back": "A unit of compute capacity on CloudHub; max 10 apps per vCore (0.1 vCore each)."
+    },
+    {
+      "front": "Worker features",
+      "back": "Capacity (by vCores), isolation (separate container), manageability (independent), locality (a specific region)."
+    },
+    {
+      "front": "Horizontal vs. vertical scaling",
+      "back": "Horizontal: more workers — more requests, high availability. Vertical: bigger vCore size — larger payloads (or more requests)."
+    },
+    {
+      "front": "Mule runtime",
+      "back": "A runtime engine to host and run Mule apps, like an application server; on-premises or in the cloud; can host several apps."
+    },
+    {
+      "front": "RTF",
+      "back": "Runtime Fabric — container-based (Kubernetes and Docker) deployment and orchestration on the client's premises or cloud."
+    },
+    {
+      "front": "Control plane vs. runtime plane",
+      "back": "Control plane: Design Center, Exchange, Management Center (design, deploy, manage). Runtime plane: Mule runtime, connectors, supporting services."
+    },
+    {
+      "front": "CloudHub vs. on-premise",
+      "back": "CloudHub: MuleSoft runs both planes, max 10 apps/vCore, no domain project, less maintenance, Anypoint MQ available. On-premise: client runs both, more apps/vCore, domain project, more maintenance, more data control."
+    },
+    {
+      "front": "Cluster",
+      "back": "Up to 8 servers acting as one deployment target and HA unit; nodes are aware of each other, share info, and fail over."
+    },
+    {
+      "front": "How is clustering achieved on CloudHub?",
+      "back": "Deploy to 2+ workers — they're spread across data centers and the load balancer distributes requests round robin."
+    },
+    {
+      "front": "Implementation URL vs. proxy URL",
+      "back": "Implementation URL: generated by CloudHub on deploy. Proxy URL: of a proxy on top of the API, where policies are applied."
+    },
+    {
+      "front": "Anypoint VPC vs. VPN",
+      "back": "VPC: a dedicated, isolated cloud space inside CloudHub (extra cost). VPN: a secure connection between the MuleSoft VPC and the on-premise network."
+    },
+    {
+      "front": "Shared vs. dedicated load balancer",
+      "back": "SLB: default, shared per region, 8081/8082, no custom certs, lower rate limit → 503. DLB: optional within a VPC, 8091/8092, custom certs, single domain, two-way auth."
+    },
+    {
+      "front": "Domain project",
+      "back": "A common project holding shared property files and connector configs for multiple apps — on-premise only."
+    },
+    {
+      "front": "Ways to deploy Mule apps",
+      "back": "JAR → Runtime Manager; deploy from Studio; CI/CD pipeline (Jenkins); drop the JAR into an on-premise runtime (an `.anchor` file appears on success)."
+    },
+    {
+      "front": "Disabling CloudHub logs",
+      "back": "Possible — then only system logs remain in Runtime Manager; app logs go to an external service like Splunk. CloudHub keeps about 100 MB."
+    },
+    {
+      "front": "SSL vs. TLS",
+      "back": "Both are cryptographic protocols. SSL (Secure Sockets Layer) is the old one; TLS (Transport Layer Security) is the improved, more secure version used today."
+    },
+    {
+      "front": "One-way vs. two-way TLS",
+      "back": "One-way: only the client verifies the server (client truststore holds the server certificate). Two-way (mTLS): both verify — each side has a keystore and a truststore."
+    },
+    {
+      "front": "Steps to expose an API as HTTPS",
+      "back": "Generate a keystore (`keytool -genkey`), set the HTTP Listener protocol to HTTPS, and configure the keystore in its TLS section."
+    },
+    {
+      "front": "Symmetric vs. asymmetric encryption",
+      "back": "Symmetric: one shared secret key. Asymmetric (public-key): a key pair — more secure."
+    },
+    {
+      "front": "Self-signed certificate",
+      "back": "Signed by the developer/company, not a public CA — fine for agreed internal use, unsafe for public apps."
+    }
+  ]
+}

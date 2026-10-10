@@ -1,0 +1,97 @@
+{
+  "quiz": [
+    {
+      "q": "A DB Insert inside For Each returns only `affectedRows`. How did the class keep the employee record available to capture its ID?",
+      "options": ["Set a target variable (`dbResponse`) on the insert so the payload isn't overwritten", "Read it from `attributes.queryParams`", "Use Parallel For Each", "Switch the insert to Select"],
+      "answer": 0,
+      "explain": "With a target variable the payload keeps the record, so `payload.empId` still works. rootMessage or a variable set before the insert also work."
+    },
+    {
+      "q": "What should you accumulate in the success variable for each inserted employee?",
+      "options": ["The full employee record", "Only the employee ID, e.g. `vars.successResponse ++ [payload.empId]`", "The `affectedRows` count", "The counter value"],
+      "answer": 1,
+      "explain": "Capture only the ID — accumulating full records for many employees wastes memory."
+    },
+    {
+      "q": "The run fails with \"Cannot coerce Array ([]) to Number\" on `payload.empId as Number`. What was wrong?",
+      "options": ["empId was a string", "The expression ran on the whole array instead of one record inside the For Each", "The database was down", "The batch size was 1"],
+      "answer": 1,
+      "explain": "The expression was evaluated on the array; once the For Each config was saved, the payload inside became a single object."
+    },
+    {
+      "q": "A record reuses an existing employee ID. With Try + On Error Continue inside the For Each, what happens?",
+      "options": ["The whole request fails with 500", "The duplicate-key error is captured in `errorResponse` and the loop continues", "The record overwrites the existing row", "Parallel For Each starts automatically"],
+      "answer": 1,
+      "explain": "The class saw \"Duplicate entry '1003' for key 'employees_info.PRIMARY'\" in the error list while the other IDs succeeded."
+    },
+    {
+      "q": "For Each with batch size 2 feeding a Bulk insert receives 9 records. How many bulk inserts run?",
+      "options": ["9", "4", "5", "2"],
+      "answer": 2,
+      "explain": "One Bulk insert per batch: four batches of 2 and a last batch of 1 makes 5."
+    },
+    {
+      "q": "Why is Bulk insert faster than inserting records one by one?",
+      "options": ["It skips validation", "It uses one connection lifecycle (create, establish, insert, close) for many records", "It runs on multiple threads", "It doesn't commit"],
+      "answer": 1,
+      "explain": "Five single inserts repeat the connection lifecycle five times; bulk does it once."
+    },
+    {
+      "q": "After a Parallel For Each (no target variable), what is the payload?",
+      "options": ["The same as before, like For Each", "An aggregated array of Mule messages, one per iteration", "The last iteration's payload", "null"],
+      "answer": 1,
+      "explain": "Parallel For Each captures every iteration's result and overwrites the payload with the aggregated output, unless a target variable is set."
+    },
+    {
+      "q": "A variable that existed before a Parallel For Each is modified inside it. What is its value afterwards?",
+      "options": ["The modified value", "The last thread's value", "The original, unmodified value", "An array of all values"],
+      "answer": 2,
+      "explain": "With records processed in parallel in no fixed order there's no single 'last' modification, so outside variables stay unmodified."
+    },
+    {
+      "q": "A variable created inside a Parallel For Each is used after it. What happened in class?",
+      "options": ["It held the last value", "It wasn't accessible — Postman got 500 \"Expecting Array or Object but got Null\"", "It held an array of all values", "It held the first value"],
+      "answer": 1,
+      "explain": "Variables created inside a Parallel For Each are not accessible outside it."
+    },
+    {
+      "q": "One iteration fails in a Parallel For Each without a Try. What happens?",
+      "options": ["It stops immediately and kills the other threads", "It waits for the other running threads, then stops and propagates the error", "It retries the failed record forever", "It ignores the failure"],
+      "answer": 1,
+      "explain": "Parallel For Each waits for the running threads, doesn't start the next iteration, then propagates."
+    },
+    {
+      "q": "A DB-calling task runs on 4 cores and waits 100 ms of every 400 ms. Roughly what max concurrency does the formula give?",
+      "options": ["4", "About 5", "16", "100"],
+      "answer": 1,
+      "explain": "Blocking factor 0.25 → cores / (1 − 0.25) = 4 / 0.75 ≈ 5.3, about 5 threads."
+    },
+    {
+      "q": "For a CPU-intensive task (heavy DataWeave), what should max concurrency be?",
+      "options": ["cores / (1 − blocking factor)", "At most the number of available cores", "Always 100", "Equal to the number of records"],
+      "answer": 1,
+      "explain": "CPU-intensive: max concurrency ≤ cores. The blocking-factor formula is for I/O tasks like DB, HTTP or Salesforce."
+    }
+  ],
+  "cards": [
+    {"front": "Non-functional requirement", "back": "The expected load (requests per day/hour) stated by the business team, used for performance testing. Test higher than that before going live."},
+    {"front": "Target variable", "back": "Stores a component's result in a variable without overwriting the payload."},
+    {"front": "How do you know which records were inserted inside a For Each?", "back": "Use a target variable (or rootMessage, or a variable) to keep the record, collect `payload.empId` into an accumulator, and collect errors in On Error Continue."},
+    {"front": "Why is Bulk insert faster?", "back": "One connection lifecycle (create, establish, insert, close) for many records instead of one per record."},
+    {"front": "For Each batch size with Bulk insert", "back": "Each iteration gets an array of N records; `map` the keys to DB names, then one Bulk insert per batch."},
+    {"front": "For Each propagation summary", "back": "Payload not overwritten; modified vars come out modified; new vars available outside; `counter`/`rootMessage` removed."},
+    {"front": "Parallel For Each", "back": "Multi-threaded For Each: processes items in parallel in any order and returns an aggregated output."},
+    {"front": "For Each vs. Parallel For Each", "back": "For Each: single thread, sequential, payload unchanged, propagates modified vars. PFE: multi-threaded, faster, more memory, aggregated output overwrites payload, outside vars unmodified, inside vars hidden."},
+    {"front": "Parallel For Each output", "back": "An array of Mule messages (payload, attributes, exceptionPayload…), one per iteration, in the order given — though processing order is random."},
+    {"front": "What happens on an error in Parallel For Each?", "back": "It waits for the other running threads to finish, then stops and propagates the error."},
+    {"front": "When does Parallel For Each become a problem?", "back": "When storing every iteration's response exhausts memory — then use **batch processing**."},
+    {"front": "Parallel For Each settings", "back": "Collection (default payload), Timeout (per route), Max concurrency, Target (store the aggregated result in a variable)."},
+    {"front": "Max concurrency", "back": "The maximum number of parallel threads. Set automatically by default — never give random values like 100."},
+    {"front": "How do you choose max concurrency?", "back": "CPU-intensive: ≤ number of cores. Blocking/I/O: **cores / (1 − blocking factor)**. E.g. 4 cores, 0.25 → ~5."},
+    {"front": "Blocking factor", "back": "The fraction of time a task waits on I/O; must be **> 0 and < 1** (at 1 the divisor is 0)."},
+    {"front": "CPU-intensive vs. blocking task", "back": "CPU-intensive is bound by CPU (e.g. DataWeave); blocking waits on I/O (Database, HTTP request, Salesforce)."},
+    {"front": "100 records × 150 ms each in For Each vs. PFE with concurrency 5", "back": "For Each ≈ 15 seconds; PFE runs 5 at a time — about a fifth of the time."},
+    {"front": "Error captured in On Error Continue", "back": "`vars.errorResponse ++ [{\"errorReason\": error.description} ++ payload]`"},
+    {"front": "Day 49 assignment", "back": "Insert 100 records with For Each and with Parallel For Each in run mode, log start/end timestamps, and compare."}
+  ]
+}

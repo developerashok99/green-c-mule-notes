@@ -1,0 +1,98 @@
+{
+  "quiz": [
+    {
+      "q": "You recorded a POST test with employee ID 1050 and now want to record the POST implementation flow. Why must you use a different ID (e.g. 1051)?",
+      "options": ["MUnit only allows one test per ID", "The second insert with the same ID would fail, and a failed run isn't recorded", "The mock overwrites the first record", "IDs must be sequential for coverage"],
+      "answer": 1,
+      "explain": "Recording executes the flow for real; a duplicate insert errors and the recording fails, so each POST recording needs a new ID."
+    },
+    {
+      "q": "In the POST implementation flow test, the DB processor is mocked. During **recording**, does the flow still hit the database?",
+      "options": ["No — mocks apply during recording", "Yes — recording captures what actually ran; the mock only applies when the test runs later", "Only if the DB is local", "Only for GET requests"],
+      "answer": 1,
+      "explain": "Recording captures a successful real run; when the test later runs, Mock when replays the saved response from `mock_payload.dwl` instead of calling the DB."
+    },
+    {
+      "q": "How do you create a test for an error handler?",
+      "options": ["Record the flow while the database is down", "Create a blank test, add Mock when that raises an error type, and set the expected error type", "Use the Spy processor on the error handler", "Generate it from the coverage report"],
+      "answer": 1,
+      "explain": "Error scenarios can't be recorded. A blank test with Mock when returning an error (e.g. `APIKIT:BAD_REQUEST`) drives the flow into the handler."
+    },
+    {
+      "q": "A blank test's execution has a Flow Reference to the main flow (which has an HTTP Listener). Where does execution start?",
+      "options": ["At the HTTP Listener", "At the first component of the process section — the APIkit Router", "At the error handler", "At the last processor"],
+      "answer": 1,
+      "explain": "A flow reference to a flow with a source starts at the first processor of the process section; the source isn't executed, so no need to hit the listener."
+    },
+    {
+      "q": "Which Mock when section do you fill to make the mocked processor raise an error?",
+      "options": ["Payload", "Attributes", "Error (error type ID)", "Variables"],
+      "answer": 2,
+      "explain": "Mock when has payload, attributes and error sections; setting an error type ID in the error section raises that error."
+    },
+    {
+      "q": "An error test mocks the router to raise `APIKIT:BAD_REQUEST`, and the test's Expected error type is `APIKIT:BAD_REQUEST`. What's the result?",
+      "options": ["The test fails because an error was raised", "The test passes — getting the same error is the expected outcome", "The test is ignored", "The test times out"],
+      "answer": 1,
+      "explain": "Expected error type is the simplest error-test validation: if the flow raises that error, the test succeeds."
+    },
+    {
+      "q": "You need one error test per error type (NOT_FOUND, NOT_IMPLEMENTED, DB errors, ANY…). What was the instructor's suggested approach?",
+      "options": ["Copy the test in XML, then edit the name, Mock when error type and expected error type in the UI", "Record each one", "Write each from scratch in XML", "Use one test with all error types"],
+      "answer": 0,
+      "explain": "Use the XML only for copying; editing in the UI avoids bracket and double-quote mistakes. Duplicate test names must be changed."
+    },
+    {
+      "q": "Which right-click option runs only the selected test in a suite?",
+      "options": ["Ignore test", "Enable test", "Ignore other tests", "Run MUnit suite"],
+      "answer": 2,
+      "explain": "Ignore test skips that test, Enable test runs it again, and Ignore other tests leaves only this one running."
+    },
+    {
+      "q": "Which validation processor compares an actual expression like `#[vars.httpStatus]` with an expected value like 500?",
+      "options": ["Assert expression", "Assert equals", "Set Event", "Mock when"],
+      "answer": 1,
+      "explain": "Assert equals = actual vs. expected. Assert expression (payload/attributes/vars) was described as more complicated."
+    },
+    {
+      "q": "A manual test needs input but you don't want to write `readUrl` expressions by hand. What was the hack?",
+      "options": ["Use a flow variable instead", "Record a test for the flow and copy its Set Event", "Disable the Transform Message", "Put the input in pom.xml"],
+      "answer": 1,
+      "explain": "Recording generates a Set Event with the `.dwl` files; copying it saves writing it manually — just make sure you open the right recorded files."
+    },
+    {
+      "q": "The MUnit run configuration lists only the error test suite. How do you run all suites?",
+      "options": ["Add each suite manually", "Remove it so the list is empty — empty means all suites and all tests", "Right-click and Ignore other tests", "Generate a coverage report first"],
+      "answer": 1,
+      "explain": "An empty suite list runs everything; also provide `mule.env` / `secure.key` (or have them as global properties)."
+    },
+    {
+      "q": "In the MUnit coverage report, what does the Weight column show?",
+      "options": ["The number of tests in the suite", "This XML's components as a share of the whole project's components", "The test timeout", "The percentage of failed tests"],
+      "answer": 1,
+      "explain": "Containers are flows, Weight is the XML's share of project components, and Coverage is the percentage of this XML's components covered."
+    }
+  ],
+  "cards": [
+    {"front": "Can error scenarios be recorded?", "back": "No. Recording captures only successful runs; error tests are built manually with Mock when raising an error."},
+    {"front": "How do you test an error handler?", "back": "Blank test with a flow-ref to the main flow, mock the APIkit Router (or DB processor) to return an error type, and set the expected error type — or assert on message and status."},
+    {"front": "Where does a flow reference start in a flow with a source?", "back": "At the first processor of the process section — the source isn't executed."},
+    {"front": "Why can't you record two POST tests with the same input?", "back": "The insert would fail the second time (duplicate), and a failed run isn't recorded."},
+    {"front": "What to mock in main vs. implementation flow tests", "back": "Main flow tests: mock the **flow reference**. Implementation flow tests: mock the **DB processor**."},
+    {"front": "How a DB mock works", "back": "Recording saves the DB response; in behaviour, Mock when returns it from `mock_payload.dwl` (via `classpath`) so the test never calls the DB."},
+    {"front": "Blank test", "back": "Manually built test (Create blank test for this flow): empty behaviour/validation and a flow-ref in execution."},
+    {"front": "Mock when", "back": "Replaces a processor's result — payload, attributes or an error. The target is picked by config-ref or doc ID."},
+    {"front": "Expected error type", "back": "Test attribute — the test passes if the flow raises this error."},
+    {"front": "Assert equals", "back": "Validation comparing an actual expression (e.g. `#[payload.message]`, `#[vars.httpStatus]`) with an expected value."},
+    {"front": "Ignore test / Enable test / Ignore other tests", "back": "Skip this test / run it again / run only this one."},
+    {"front": "Copying tests — instructor's tip", "back": "Use XML only for copying; edit names and error types in the UI to avoid bracket/quote mistakes."},
+    {"front": "Set Event hack", "back": "Record a test for the flow and copy its Set Event instead of writing `readUrl` by hand."},
+    {"front": "How do you run all MUnit suites?", "back": "Run Configurations → MUnit → clear the selected suites (empty = all), with `mule.env`/`secure.key` provided."},
+    {"front": "Coverage report columns", "back": "Containers = flows; Weight = this XML's share of project components; Coverage = % of this XML's components covered."},
+    {"front": "Is the Choice router counted in coverage?", "back": "No — the Choice itself isn't counted as a component."},
+    {"front": "What coverage is acceptable?", "back": "The org's benchmark — commonly at least 80%. 100% is hard on big projects."},
+    {"front": "DB:CONNECTIVITY status in the common error handler", "back": "**500**."},
+    {"front": "Class result for the full run", "back": "18 tests, all green, 100% coverage."},
+    {"front": "When an MUnit error message is unclear", "back": "Go back to basics: check the raised error type, the expected error type and the validation."}
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "quiz": [
+    {
+      "q": "What kind of storage does the Mule Object Store provide?",
+      "options": ["Relational tables", "Simple key-value storage", "A message queue", "A file system"],
+      "answer": 1,
+      "explain": "The Object Store is a Mule component for simple key-value storage, mainly for watermarks and temporary data like access tokens."
+    },
+    {
+      "q": "Why use an Object Store instead of a database for temporary data?",
+      "options": ["Databases can't store strings", "A database call is a costly external operation, better for permanent information", "The Object Store is encrypted", "Databases are not allowed in Mule flows"],
+      "answer": 1,
+      "explain": "Database operations are costly and suited to permanent data; temporary data is cheaper in the object store."
+    },
+    {
+      "q": "A token is valid for 1 hour and your API gets 25 requests in that hour. With an Object Store, how many times do you call the token server?",
+      "options": ["25", "24", "1", "0"],
+      "answer": 2,
+      "explain": "The first request generates and stores the token; requests 2–25 retrieve it — 1 call instead of 25."
+    },
+    {
+      "q": "A student asks why the token can't simply be kept in a variable. What is the answer?",
+      "options": ["Variables can't hold strings", "Variables live only for that request's instance, so the next request can't see them", "Variables are always persistent", "Variables are limited to 1 KB"],
+      "answer": 1,
+      "explain": "When a request finishes its variables are killed; the object store is shared across requests."
+    },
+    {
+      "q": "The endpoint replies \"invalid token\" because the stored token expired. What did the class suggest?",
+      "options": ["Restart the app", "Wrap the call in Try; in On Error Continue, Flow Reference the token sub-flow to regenerate and store it, then call again", "Switch to a persistent store", "Use On Error Propagate to return 401"],
+      "answer": 1,
+      "explain": "The same token sub-flow is reused through a flow reference, then the endpoint is called again."
+    },
+    {
+      "q": "Where is a transient Object Store kept, and what happens on restart?",
+      "options": ["Disk — kept", "Memory — lost", "Disk — lost", "Memory — kept"],
+      "answer": 1,
+      "explain": "Transient is in memory: faster, but lost on restart, redeploy or crash. Persistent is on disk and kept."
+    },
+    {
+      "q": "Which storage type did the instructor choose for an access token?",
+      "options": ["Persistent, so it is never lost", "Transient — faster, and losing it costs only one extra token call", "A database table", "A flow variable"],
+      "answer": 1,
+      "explain": "If the app restarts, the only cost is one extra token call, while every retrieve is faster from memory."
+    },
+    {
+      "q": "In the employee sync, what is the watermark?",
+      "options": ["The Salesforce record ID", "The last processed point (e.g. the highest employee ID) so the next run selects only newer records", "The scheduler's cron expression", "The token expiry time"],
+      "answer": 1,
+      "explain": "\"Where we stop — where we mark — is the watermark.\" The next query uses `employee ID > watermark`."
+    },
+    {
+      "q": "The watermark is 104 after 25 Jan, and employees 105–108 are added. What does the 26 Jan run do?",
+      "options": ["Selects all employees 100–108", "Selects `employee ID > 104`, picks 105–108 and stores 108", "Selects `employee ID > 99` again", "Stores 105"],
+      "answer": 1,
+      "explain": "The query is dynamic — it uses the stored value, then the max of the new IDs is stored."
+    },
+    {
+      "q": "The watermark is kept in a transient store and the app restarts at 10 pm. What happens on the next run?",
+      "options": ["It continues from the last ID", "It falls back to the default (99), reprocesses everything and creates duplicates / Salesforce errors", "It skips the run", "It reads the watermark from Salesforce automatically"],
+      "answer": 1,
+      "explain": "That's why watermarks need persistent storage — there's no system to \"get it again\"."
+    },
+    {
+      "q": "Which Mule feature uses an object store in the background?",
+      "options": ["The Cache module (including HTTP caching)", "The Logger", "Scatter-Gather", "The Validation module"],
+      "answer": 0,
+      "explain": "Cache is also temporary storage, and its data is stored in an object store underneath."
+    }
+  ],
+  "cards": [
+    {"front": "Object Store", "back": "A Mule component for simple **key-value** storage — mainly for watermarks and temporary data like access tokens. A generic concept, not MuleSoft-specific."},
+    {"front": "What is the Object Store used for?", "back": "Temporary or synchronization data — typically **access tokens** and **watermarks** — without the cost of a database call."},
+    {"front": "Why not store temporary data in a database?", "back": "A database call is a costly external operation, right for permanent information. The object store is cheaper for temporary data."},
+    {"front": "Why not store the token in a variable?", "back": "Variables live only for one request; the next request can't see them. The object store is shared across requests."},
+    {"front": "Access token flow with an Object Store", "back": "Retrieve → nothing there → generate token → Store → call API. Later requests: Retrieve → found → call API directly."},
+    {"front": "How do you handle an expired token?", "back": "Wrap the call in Try; on \"invalid token\", On Error Continue calls the token sub-flow (Flow Reference) to regenerate and store it, then retries."},
+    {"front": "Transient vs. persistent", "back": "Transient = memory, faster, lost on restart. Persistent = disk, a bit slower, kept after restart/redeploy/crash."},
+    {"front": "Transient or persistent for an access token?", "back": "**Transient** — faster, and losing it costs only one more token call."},
+    {"front": "Transient or persistent for a watermark?", "back": "**Persistent** — losing it after a restart would reprocess everything and create duplicates."},
+    {"front": "Watermarking", "back": "Remembering where the last run stopped (e.g. max employee ID) so the next run selects only newer records: `where id > :watermark`, then store the new max."},
+    {"front": "Watermark flow", "back": "Scheduler → Object Store **Retrieve** (default value) → DB Select `> watermark` → Salesforce Create → Object Store **Store** the max ID."},
+    {"front": "Why is a default value needed on the first run?", "back": "Nothing is stored yet, so Retrieve returns the default (e.g. 99) and the query picks up all employees."},
+    {"front": "Why not insert all employees every run?", "back": "The employee ID is unique, so inserting the same employee twice errors. Send everything the first time, then only new ones."},
+    {"front": "Cache module and Object Store", "back": "Cache (and HTTP caching) stores its data in an object store in the background."},
+    {"front": "Key / value", "back": "The name under which data is stored / the stored data — e.g. a whole address saved as the value under one key."},
+    {"front": "Token server", "back": "The server that issues access tokens for an OAuth/JWT-protected API."}
+  ]
+}

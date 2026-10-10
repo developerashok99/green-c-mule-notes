@@ -1,0 +1,99 @@
+{
+  "quiz": [
+    {
+      "q": "By default, where do the IP Allowlist/Blocklist policies read the caller's IP from?",
+      "options": ["The `X-Forwarded-For` header", "The `client_id` header", "The request body", "The `Host` header"],
+      "answer": 0,
+      "explain": "The IP expression is `#[attributes.headers['x-forwarded-for']]`. Postman sends this header automatically even if you don't add it."
+    },
+    {
+      "q": "A request comes from an IP that is not on the IP Allowlist. What response does the caller get?",
+      "options": ["401 Unauthorized", "403 Forbidden — \"The IP Address is invalid\"", "429 Too Many Requests", "400 Bad Request"],
+      "answer": 1,
+      "explain": "The IP policies reject with 403 and the message \"The IP Address is invalid: <ip>\"."
+    },
+    {
+      "q": "You need to allow 100 developers whose IPs are in a range like 10.1.25.1–10.1.25.100. How do you configure the allowlist?",
+      "options": ["Use a CIDR range (with a slash), adding more rows for more ranges", "Only one IP is allowed per policy", "Apply 100 separate IP Allowlist policies", "Put the range in the X-Forwarded-For header"],
+      "answer": 0,
+      "explain": "A range is given in CIDR notation, and there's no limit on rows — add more rows for more IPs or ranges."
+    },
+    {
+      "q": "Why can IP allowlisting be tricky for a consumer hosted in the cloud?",
+      "options": ["Cloud apps cannot send X-Forwarded-For", "When a worker crashes and the app moves to a new worker, it gets a different IP", "Cloud IPs are always blocked", "CIDR doesn't work in the cloud"],
+      "answer": 1,
+      "explain": "For availability another worker is started after a crash, and the new worker has a different IP, so it no longer matches the allowed list."
+    },
+    {
+      "q": "In JSON Threat Protection, what does the default value -1 mean?",
+      "options": ["Reject everything", "No limit — applying all defaults is the same as not applying the policy", "Allow only one level", "Use the RAML's limits"],
+      "answer": 1,
+      "explain": "Any negative number means no limit."
+    },
+    {
+      "q": "JSON Threat Protection has Maximum container depth = 1, and the request body is an object containing an array. What happens?",
+      "options": ["It is accepted", "It is rejected with 400 — container depth exceeded, because object + array is depth 2", "It is rejected with 429", "The array is silently removed"],
+      "answer": 1,
+      "explain": "First level object, second level array = depth 2. The class saw 400 \"Container depth has been exceeded. Maximum allowed is: 1\"."
+    },
+    {
+      "q": "A student asks why JSON Threat Protection is needed when the APIkit Router validates the body. What's the answer?",
+      "options": ["APIkit Router can't validate JSON", "APIkit validates only after the request is inside the app, when memory is already allocated; the policy rejects it at the gateway", "The policy is faster because it skips the Listener's port", "They do exactly the same thing"],
+      "answer": 1,
+      "explain": "Between the Listener and the APIkit Router, memory is already used for attributes and payload; the policy stops the request before it reaches the app."
+    },
+    {
+      "q": "Rate Limiting is set to 3 requests per 1 minute. What does the 4th request in that minute get?",
+      "options": ["200 after a short delay", "429 Too Many Requests — \"Quota has been exceeded\"", "403 Forbidden", "503 Service Unavailable"],
+      "answer": 1,
+      "explain": "Requests over the limit are rejected straight away with 429; after the minute passes it works again."
+    },
+    {
+      "q": "You try to add Rate Limiting SLA to an API that already has a separate Client ID Enforcement policy. What happens?",
+      "options": ["Both apply fine together", "A conflict is highlighted — Rate Limiting SLA already includes client ID enforcement", "Client ID Enforcement is converted to SLA automatically", "Rate Limiting SLA ignores client IDs"],
+      "answer": 1,
+      "explain": "Rate Limiting SLA is client ID enforcement + rate limiting combined, so it can't coexist with a separate Client ID Enforcement policy."
+    },
+    {
+      "q": "An existing consumer must be moved to the gold SLA tier. How was this done in class?",
+      "options": ["Edit the tier field on the existing contract", "Revoke and delete the old contract, then request access again in Exchange choosing the tier", "Change the client secret", "Redeploy the app with a new property"],
+      "answer": 1,
+      "explain": "A tier is chosen when requesting access, so an existing consumer needs a new contract. Manual-approval tiers must then be approved in Contracts."
+    },
+    {
+      "q": "In Spike Control, when is a queued request finally rejected?",
+      "options": ["Immediately when over the limit", "When the queue is full or the delay attempts are exhausted with no quota available", "After exactly one minute", "Never — it is always processed eventually"],
+      "answer": 1,
+      "explain": "Spike Control (throttling) queues extra requests and retries after the delay time; it rejects only when the queuing limit is reached or attempts run out."
+    },
+    {
+      "q": "Which policy order did the class describe as logical?",
+      "options": ["Basic auth → JSON threat protection → rate limiting", "Rate limiting → JSON threat protection → basic auth", "JSON threat protection → basic auth → rate limiting", "Order doesn't matter"],
+      "answer": 1,
+      "explain": "Policies run in the listed order (reorder with the arrows); rate limiting, then threat protection, then authentication."
+    }
+  ],
+  "cards": [
+    {"front": "IP Allowlist vs. IP Blocklist", "back": "Allowlist lets only listed IPs/ranges through; blocklist rejects the listed ones. Both read `X-Forwarded-For` by default and reject with **403**."},
+    {"front": "IP expression used by IP policies", "back": "`#[attributes.headers['x-forwarded-for']]`"},
+    {"front": "CIDR range", "back": "An IP range given with a slash, so the whole range is allowed. Add more rows for more IPs or ranges."},
+    {"front": "Why is IP allowlisting tricky for cloud consumers?", "back": "Cloud workers get new IPs when replaced (e.g. after a crash), so a consumer's IP can change and stop matching."},
+    {"front": "JSON Threat Protection fields", "back": "Max container depth, max string value length, max object entry name length, max object entry count, max array element count."},
+    {"front": "-1 in JSON Threat Protection", "back": "No limit. Applying the policy with all -1 defaults is the same as not applying it."},
+    {"front": "Container depth of an object containing an array", "back": "**2** — first level object, second level array."},
+    {"front": "Threat protection rejection code", "back": "**400 Bad Request** at the gateway, e.g. \"Container depth has been exceeded\"."},
+    {"front": "Why JSON Threat Protection if RAML already validates?", "back": "RAML/APIkit validation happens inside the app after memory is allocated; the policy rejects oversized/deeply nested bodies at the gateway."},
+    {"front": "XML Threat Protection", "back": "Same idea for XML bodies: max node depth, attribute count, child count, text length, attribute length, comment length."},
+    {"front": "Rate Limiting exceeded", "back": "**429 Too Many Requests** — \"Quota has been exceeded\"."},
+    {"front": "Rate Limiting SLA", "back": "Client ID enforcement + rate limiting per SLA tier, chosen per client application's contract — limits are per consumer."},
+    {"front": "SLA tier", "back": "A named limit (e.g. silver 2/30 s, gold 3/30 s, diamond 5/30 s) with manual or automatic approval, chosen when requesting access."},
+    {"front": "Change a consumer's SLA tier", "back": "Revoke and delete the existing contract, then request access again in Exchange with the new tier."},
+    {"front": "Does policy order matter?", "back": "Yes — policies run in the listed order; reorder with the arrows. Logical: rate limiting → threat protection → authentication."},
+    {"front": "Spike Control", "back": "Throttling: queues extra requests and retries them after a delay for a set number of attempts (sliding window)."},
+    {"front": "Spike Control fields", "back": "Number of requests, time period (ms), delay time (ms), delay attempts, queuing limit."},
+    {"front": "Delay time / delay attempts / queuing limit", "back": "Delay: wait between retries (keep small, ~1 s). Attempts: retries before rejecting (2–3). Queuing limit: how many requests may wait."},
+    {"front": "Rate Limiting vs. Spike Control", "back": "Rate limiting rejects extra requests immediately (429). Spike control queues and retries; rejects only when the queue is full or attempts run out."},
+    {"front": "CloudHub 1.0 vs. 2.0 (high level)", "back": "2.0 uses replicas, doesn't support the VM concept, and has a smaller 0.05 vCore size (1.0's smallest is 0.1 → max 10 apps per vCore)."},
+    {"front": "How many policies to apply?", "back": "Only what's required — too many policies hurt performance."}
+  ]
+}

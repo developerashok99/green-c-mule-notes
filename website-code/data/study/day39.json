@@ -1,0 +1,98 @@
+{
+  "quiz": [
+    {
+      "q": "What is MUnit?",
+      "options": ["MuleSoft's testing framework for automated tests of Mule apps, integrated with Maven", "A load-testing tool for CloudHub workers", "A DataWeave debugger", "An API Manager policy for monitoring"],
+      "answer": 0,
+      "explain": "MUnit is MuleSoft's application testing framework (Mule's answer to Java's JUnit) and is integrated with Maven so it runs in CI/CD."
+    },
+    {
+      "q": "What are the three sections of an MUnit test?",
+      "options": ["Source, Process, Error handling", "Behaviour, Execution, Validation", "Setup, Run, Teardown", "Mock, Spy, Verify"],
+      "answer": 1,
+      "explain": "Behaviour defines mocks and inputs, Execution triggers the flow, and Validation holds the expected output. Mock/Spy/Verify are processors, not sections."
+    },
+    {
+      "q": "A project has 40 components and the tests cover 30. The pipeline benchmark is 80%. What happens?",
+      "options": ["Coverage is 75%, so the deployment fails", "Coverage is 75%, which passes", "Coverage is 133%, which passes", "Coverage doesn't affect deployment"],
+      "answer": 0,
+      "explain": "Coverage = covered ÷ total = 30/40 = 75%, below the 80% benchmark, so the pipeline fails. Covering 35 of 40 (87.5%) would pass."
+    },
+    {
+      "q": "You need a test for an error/failure scenario. Which way of creating it works?",
+      "options": ["Recording", "Manual (Create blank test)", "Either — recording handles errors well", "Coverage report"],
+      "answer": 1,
+      "explain": "Recording (Mule 4.3+) works for success cases; failure cases must be created manually."
+    },
+    {
+      "q": "While recording a test, the database call fails mid-way. What happens?",
+      "options": ["The recording saves the error as expected output", "Recording fails — it only records if the request completes successfully", "Recording skips the DB step", "The test is created with a mock automatically"],
+      "answer": 1,
+      "explain": "Recording happens only if the request completes successfully; that's why you test the app first."
+    },
+    {
+      "q": "Why was the Flow Reference mocked in the recorded GET test?",
+      "options": ["To make the test run slower", "The pipeline (e.g. Jenkins) has no database connectivity, so the real call would fail", "Flow references cannot be executed in MUnit", "To increase coverage of the implementation flow"],
+      "answer": 1,
+      "explain": "Mocking returns the recorded response without going into the flow, so the test doesn't depend on external systems."
+    },
+    {
+      "q": "Which MUnit processor behaves like the real component and returns the same result without the actual call?",
+      "options": ["Spy", "Mock", "Verify", "Assert That"],
+      "answer": 1,
+      "explain": "Mock fakes a processor's result and is used the most. Spy watches the process; Verify is used in validation."
+    },
+    {
+      "q": "Where do MUnit test files and their input resources live?",
+      "options": ["`src/main/mule` and `src/main/resources`", "`src/test/munit` and `src/test/resources`", "`target/test` and `config/`", "`src/main/test` only"],
+      "answer": 1,
+      "explain": "Tests go in `src/test/munit`; inputs like the `.dwl` files go in `src/test/resources`."
+    },
+    {
+      "q": "What does the Set Event processor set?",
+      "options": ["Only the payload", "An event: payload, attributes and variables", "The test timeout", "The coverage benchmark"],
+      "answer": 1,
+      "explain": "Set Event sets the input event — payload + attributes + variables — read from `.dwl` files via `readUrl` with `classpath`."
+    },
+    {
+      "q": "The MUnit test turns red while debugging and MUnit Errors shows a timeout. What is the default test timeout?",
+      "options": ["30,000 ms", "60,000 ms", "120,000 ms", "600,000 ms"],
+      "answer": 2,
+      "explain": "Default is 120,000 ms (2 minutes); you can raise it via the test's Test timeout field."
+    },
+    {
+      "q": "You record a test for a flow in a different XML file. What happens to the suite?",
+      "options": ["It is added to the existing suite automatically", "A different suite file is created, named after that XML + `-suite`", "The old suite is overwritten", "No suite is created"],
+      "answer": 1,
+      "explain": "A suite holds the tests for one XML; suite name = XML name + `-suite`, so a different XML gets a different suite."
+    },
+    {
+      "q": "The GET implementation flow has a Choice with two routes and the first recorded test covered only one. How do you reach 100% for that flow?",
+      "options": ["Increase the test timeout", "Record another test that goes through the default route", "Mock the Choice router", "Tag the existing test"],
+      "answer": 1,
+      "explain": "Cover every Choice route with its own test; the class recorded a second test for the default route."
+    }
+  ],
+  "cards": [
+    {"front": "MUnit", "back": "MuleSoft's testing framework for automated unit/integration tests of Mule apps, integrated with Maven so it runs in CI/CD."},
+    {"front": "Sections of an MUnit test", "back": "**Behaviour** (mocks and inputs), **Execution** (runs the flow), **Validation** (asserts the result)."},
+    {"front": "Coverage", "back": "Components touched by tests ÷ total components. Below the org's benchmark (e.g. 80%) the pipeline fails."},
+    {"front": "Recording vs. manual tests", "back": "Recording (Mule 4.3+) captures a successful run's inputs and responses; error scenarios must be written manually."},
+    {"front": "Why mock external calls?", "back": "The pipeline (e.g. Jenkins) usually has no connectivity to DBs or other systems; mocking returns the recorded response."},
+    {"front": "Mock / Spy / Verify", "back": "Mock: fakes a processor's result (used most). Spy: watches whether the process happens correctly. Verify: used in validation."},
+    {"front": "Other MUnit capabilities", "back": "Ignore a test, tag tests (e.g. error vs. success), and a coverage report in Studio."},
+    {"front": "Where do MUnit tests and resources live?", "back": "`src/test/munit` (tests) and `src/test/resources` (inputs, own `log4j2`)."},
+    {"front": "Dependencies MUnit adds", "back": "`munit-runner` and `munit-tools` (test scope) plus the `munit-maven-plugin`."},
+    {"front": "Suite", "back": "A file holding a set of tests for one XML, named `<xml>-suite`."},
+    {"front": "Set Event", "back": "Sets the input event — payload + attributes + variables — from `.dwl` files via `readUrl(classpath)`."},
+    {"front": "Assert Expression vs. Assert That", "back": "Assert Expression compares the final payload/attributes/vars to the expected; Assert That checks a single thing."},
+    {"front": "Default MUnit test timeout", "back": "120,000 ms (2 minutes); change via the test's Test timeout field."},
+    {"front": "MUnit Errors view", "back": "Window → Show View → Other → MUnit Errors — shows why a test failed (e.g. timeout)."},
+    {"front": "Unit testing vs. QA (SIT) testing", "back": "Developers unit-test their own flows (and rerun after changes); QA/SIT tests the whole integration — errors, bad data, systems down."},
+    {"front": "Environments after development", "back": "SIT (testing/QA), UAT (user acceptance), performance testing, production."},
+    {"front": "Covered processors in Studio", "back": "Show green tick marks after a run; mocked flows aren't covered."},
+    {"front": "Recording time window", "back": "After the pop-up you have about 1–2 minutes to send the input, else start again."},
+    {"front": "Why was API Autodiscovery commented out for local recording?", "back": "To run the app locally without connecting to the Anypoint platform."},
+    {"front": "How to run all tests in a suite", "back": "Right-click white space → **Run MUnit suite**; result shows tests run / failed / errors."}
+  ]
+}

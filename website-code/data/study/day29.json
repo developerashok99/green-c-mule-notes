@@ -1,0 +1,226 @@
+{
+  "quiz": [
+    {
+      "q": "In the DataWeave Playground, payload mask field(\"mobileNumber\") with \"*****\" returns \"Unable to resolve reference of: mask\". What's missing?",
+      "options": [
+        "output application/java",
+        "import * from dw::util::Values",
+        "import * from dw::core::Strings",
+        "The JSON Logger module"
+      ],
+      "answer": 1,
+      "explain": "mask isn't available by default; import the dw::util::Values module (capital V) that contains it."
+    },
+    {
+      "q": "How do you mask both mobileNumber and memberId in one expression?",
+      "options": [
+        "payload mask field(\"mobileNumber\", \"memberId\") with \"*****\"",
+        "(payload mask field(\"mobileNumber\") with \"*****\") mask field(\"memberId\") with \"*****\"",
+        "mask(payload, [\"mobileNumber\",\"memberId\"])",
+        "payload - \"mobileNumber\" - \"memberId\""
+      ],
+      "answer": 1,
+      "explain": "The result of one mask is the input to the next; brackets make the order clear."
+    },
+    {
+      "q": "You need masking in 50 of 100 JSON Logger loggers. What's the better approach?",
+      "options": [
+        "Write mask in all 50 loggers",
+        "Configure the fields to mask once in the JSON Logger global configuration",
+        "Turn off INFO logging",
+        "Use indent = false"
+      ],
+      "answer": 1,
+      "explain": "Every JSON Logger uses the global config, so comma-separated fields to mask there apply everywhere — once is better than 50 times."
+    },
+    {
+      "q": "You insert a second employee with the same emp_id (the primary key). What happens?",
+      "options": [
+        "The old record is overwritten",
+        "The insert fails — a primary key must be unique and not null",
+        "A new row is added with a suffix",
+        "MySQL ignores the request silently"
+      ],
+      "answer": 1,
+      "explain": "A primary key can't be null and must be unique, so the duplicate insert is rejected."
+    },
+    {
+      "q": "Your Mule app is deployed to CloudHub, and the MySQL database is on a colleague's laptop. Can it connect?",
+      "options": [
+        "Yes, with the right host and port",
+        "No — there is no network connection; real projects set up connectivity between the DB location and CloudHub",
+        "Yes, via the Shared Load Balancer",
+        "Only with a domain project"
+      ],
+      "answer": 1,
+      "explain": "Locally it works because app and DB are on one machine. In real projects DB servers are in a shared location with connectivity to CloudHub (e.g. a private network)."
+    },
+    {
+      "q": "Which reconnection strategy does the class recommend for the DB config used mid-transaction?",
+      "options": [
+        "Forever",
+        "Standard (e.g. 3 attempts every 2 seconds)",
+        "None",
+        "Exponential"
+      ],
+      "answer": 1,
+      "explain": "Forever could keep the caller waiting; use it only when nothing depends on the result (source or async step at the end)."
+    },
+    {
+      "q": "Which account should a Mule application use to connect to the database?",
+      "options": [
+        "The root user",
+        "A developer's personal DB account",
+        "A service account with only the needed permissions",
+        "Any account with create-table rights"
+      ],
+      "answer": 2,
+      "explain": "Root can do everything, and a human account breaks integrations when the person leaves. App-to-app communication should use service accounts."
+    },
+    {
+      "q": "Test Connection on the Database Config fails with \"Couldn't find configuration property value for key ${mule.env}\" even though it's in the Run Configuration. What fixed it?",
+      "options": [
+        "Restarting MySQL",
+        "Creating Global Property elements for mule.env and secure.key",
+        "Changing reconnection to Forever",
+        "Renaming the DB config"
+      ],
+      "answer": 1,
+      "explain": "Studio's design-time tooling doesn't see run-configuration arguments. Global Properties are for local testing only — remove them before pushing code."
+    },
+    {
+      "q": "The Insert query is insert into EMPLOYEES_INFO values (:emp_id, :emp_name, …). What must be true of the input parameters?",
+      "options": [
+        "Keys must match the :placeholders, and the field must be in fx (expression) mode",
+        "They must be written as plain text",
+        "They must be in a separate properties file",
+        "Keys must be in uppercase"
+      ],
+      "answer": 0,
+      "explain": "Input parameter keys bind to the placeholders; payload.x is an expression so fx mode is needed. Using the DB column names avoids confusion."
+    },
+    {
+      "q": "The app fails to deploy with \"Could not find ErrorType for the given identifier: 'DATABASE:NO_DATA_FOUND'\". Why?",
+      "options": [
+        "The Database connector version is wrong",
+        "A handler references a custom error type that nothing in the app can raise yet",
+        "The MySQL service is stopped",
+        "The error handler is missing ANY"
+      ],
+      "answer": 1,
+      "explain": "A custom type can't be referenced in a handler until something (e.g. Raise Error) can raise it; the class commented the handler out."
+    },
+    {
+      "q": "The same POST is sent twice and the second fails with \"Duplicate entry '1000' for key 'employees_info.PRIMARY'\". Which error type is it?",
+      "options": [
+        "DB:CONNECTIVITY",
+        "DB:QUERY_EXECUTION",
+        "APIKIT:BAD_REQUEST",
+        "HTTP:CONNECTIVITY"
+      ],
+      "answer": 1,
+      "explain": "It's DB:QUERY_EXECUTION, matched by the DB:BAD_SQL_SYNTAX/DB:QUERY_EXECUTION handler and returned as 400."
+    },
+    {
+      "q": "You stop the MySQL80 service and send a POST. What does the class's error handler return?",
+      "options": [
+        "400 Bad Request",
+        "500 with \"Could not obtain connection from data source\" via the DB:CONNECTIVITY handler",
+        "201 Created",
+        "404 Resource not found"
+      ],
+      "answer": 1,
+      "explain": "The DB:CONNECTIVITY On Error Propagate sets statusCode 500 with error.description."
+    }
+  ],
+  "cards": [
+    {
+      "front": "How do you mask a field in DataWeave?",
+      "back": "`import * from dw::util::Values` then `payload mask field(\"fieldName\") with \"****\"`."
+    },
+    {
+      "front": "`dw::util::Values`",
+      "back": "DataWeave module containing `mask` (capital V). Without the import: \"Unable to resolve reference of: mask\"."
+    },
+    {
+      "front": "Masking several fields",
+      "back": "Chain them with brackets: `(payload mask field(\"a\") with \"*\") mask field(\"b\") with \"*\"`. Field names must match exactly."
+    },
+    {
+      "front": "Masking consistently in logs",
+      "back": "Set the fields to mask (comma-separated) in the **JSON Logger global configuration** — applies to all loggers."
+    },
+    {
+      "front": "How to learn the documentation",
+      "back": "Start with DZone articles and YouTube; aim to understand official docs in 3–4 months; search docs for which library to import."
+    },
+    {
+      "front": "Database",
+      "back": "Stores data permanently. One DB server can host many logical databases."
+    },
+    {
+      "front": "RDBMS vs NoSQL",
+      "back": "RDBMS: structured data in tables (Oracle, SQL Server, MySQL). NoSQL: unstructured/objects (MongoDB)."
+    },
+    {
+      "front": "Primary key",
+      "back": "A column that can't be null and must be unique; a duplicate insert fails."
+    },
+    {
+      "front": "Basic SQL in class",
+      "back": "`CREATE DATABASE`, `USE`, `CREATE TABLE`, `INSERT`, `SELECT`."
+    },
+    {
+      "front": "No DB access — what to ask the DB team?",
+      "back": "Table name, column names, data types and maximum lengths."
+    },
+    {
+      "front": "Local DB and CloudHub",
+      "back": "A DB on a laptop isn't reachable from CloudHub; real projects set up network connectivity (e.g. private network)."
+    },
+    {
+      "front": "Mule has 4 environments, DB team 3",
+      "back": "Discuss with the teams and agree which DB environment each Mule environment uses."
+    },
+    {
+      "front": "Reconnection for the DB config",
+      "back": "**Standard** (instructor: 3 attempts every 2 s). Forever only for sources or async end steps."
+    },
+    {
+      "front": "Service account",
+      "back": "Non-human account created for an application. Use it for app-to-app access — never root or personal accounts."
+    },
+    {
+      "front": "Why not the root user?",
+      "back": "Root can do everything (create, delete…). The DB team should grant only needed permissions."
+    },
+    {
+      "front": "Global Property (local testing)",
+      "back": "Global element defining e.g. `mule.env` / `secure.key`; picked up by design-time tools. Remove before pushing code."
+    },
+    {
+      "front": "Input parameters",
+      "back": "Values bound to `:placeholders` in DB queries; keys must match placeholders; must be in **fx** mode."
+    },
+    {
+      "front": "Why use input parameters in DB queries?",
+      "back": "Values come dynamically from the request and map cleanly to placeholders — better than concatenating values into SQL."
+    },
+    {
+      "front": "Custom error type in a handler",
+      "back": "Can't be referenced until something in the app can raise it, or the app fails to deploy."
+    },
+    {
+      "front": "Duplicate primary key error",
+      "back": "`DB:QUERY_EXECUTION` (Duplicate entry …), mapped to **400** by the error handler."
+    },
+    {
+      "front": "DB down error",
+      "back": "`DB:CONNECTIVITY` — \"Could not obtain connection from data source\", returned as **500**."
+    },
+    {
+      "front": "How do you test the reconnection strategy?",
+      "back": "Stop the DB, send a request, start the DB during the retry window — a later attempt succeeds."
+    }
+  ]
+}

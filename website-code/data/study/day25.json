@@ -1,0 +1,100 @@
+{
+  "quiz": [
+    {
+      "q": "A JSON request body needs a date of joining. How is it accepted, given JSON has no date type?",
+      "options": ["As a date-only type", "As a string", "As an integer timestamp only", "It can't be sent in JSON"],
+      "answer": 1,
+      "explain": "date-only and time-only are RAML types, but JSON has no date type, so for a JSON body a date is accepted as a string."
+    },
+    {
+      "q": "Which keyword pair declares traits in the root RAML and applies them to a method?",
+      "options": ["types / type", "traits / is", "uses / apply", "resourceTypes / type"],
+      "answer": 1,
+      "explain": "traits declares/imports traits; is applies them to a method. types/type is the equivalent pair for data types."
+    },
+    {
+      "q": "Which of these can a trait hold?",
+      "options": ["Only the request body", "Common method-level properties such as description, headers, query parameters, security schemes, responses", "Only resource paths", "Only the API title and version"],
+      "answer": 1,
+      "explain": "A trait is a reusable method-level component — like a function — holding any repeating method-level pieces."
+    },
+    {
+      "q": "How do you apply two traits, traitA and traitB, to a method?",
+      "options": ["is: traitA + traitB", "is: [ traitA, traitB ]", "traits: traitA, traitB under the method", "type: [ traitA, traitB ]"],
+      "answer": 1,
+      "explain": "Multiple traits are applied as a list under is."
+    },
+    {
+      "q": "After moving headers into a trait, a GET without the origin header is sent via Try it. What's returned?",
+      "options": ["200 with the example", "Request validation error: required header origin is missing", "201 created", "The trait is ignored by the mock"],
+      "answer": 1,
+      "explain": "The trait's headers are still enforced: origin is mandatory, so the mock reports it missing."
+    },
+    {
+      "q": "The experience, process and system APIs all need the same headers trait. What's the right tool?",
+      "options": ["A trait file copied into each spec", "A fragment published to Exchange", "A domain project", "A Postman collection"],
+      "answer": 1,
+      "explain": "A trait inside a spec is reusable only in that API. A fragment can be used across any API spec in the organisation."
+    },
+    {
+      "q": "Which statement about fragments is correct?",
+      "options": ["A fragment can be documented and tested on its own like an API", "A fragment is a separate Design Center project, published to Exchange, used as part of API specs", "Fragments can only hold data types", "Fragments are created with New API Specification"],
+      "answer": 1,
+      "explain": "Fragments (created via New Fragment) can hold security schemes, libraries, resource types, traits and data types, but don't behave as an API on their own."
+    },
+    {
+      "q": "You publish a fragment to Exchange while it's still changing. Which lifecycle state fits?",
+      "options": ["Stable", "Development", "Deprecated", "Draft-only"],
+      "answer": 1,
+      "explain": "Development = still changing; Stable = finalised."
+    },
+    {
+      "q": "You change the fragment and republish it (it was 1.0.0). What version does it get?",
+      "options": ["2.0.0", "1.1.0", "1.0.1", "It overwrites 1.0.0"],
+      "answer": 2,
+      "explain": "Republishing after a change creates 1.0.1, then 1.0.2, … Consumers must update their reference."
+    },
+    {
+      "q": "After adding a fragment as a dependency, where does it appear in the API project?",
+      "options": ["Under traits/", "Under exchange_modules", "Under examples/", "Under domains/"],
+      "answer": 1,
+      "explain": "Dependencies appear under exchange_modules; you then include the fragment's file under traits (or types)."
+    },
+    {
+      "q": "Business users don't have Anypoint Platform access but need to test the spec. What do you do?",
+      "options": ["Share the Design Center project", "Make the mocking service public and share its URL (or a Postman collection)", "Deploy to CloudHub", "Publish the spec as Stable"],
+      "answer": 1,
+      "explain": "Documentation → Mocking service configuration → Make public gives a public mock URL. Sharing the project only works for colleagues with platform access."
+    },
+    {
+      "q": "Why should you be careful logging in to Postman with company APIs?",
+      "options": ["Postman deletes collections on logout", "Logged-in data is saved in Postman's cloud, a risk for sensitive company information", "Logged-in Postman can't send headers", "It disables the mock URL"],
+      "answer": 1,
+      "explain": "Especially on a free account; follow the company's practice (e.g. office email if approved)."
+    }
+  ],
+  "cards": [
+    {"front": "Data types", "back": "Describe and validate data in the spec, e.g. \"a string of 20 characters\", \"a number\"."},
+    {"front": "RAML built-in types", "back": "`string`, `number`, `integer`, `boolean`, `date-only`, `time-only`, etc. Custom types are built from them."},
+    {"front": "Dates in a JSON body", "back": "JSON has no date type, so a date is accepted as a **string**."},
+    {"front": "`types` vs `type`", "back": "`types` declares/imports data types in the root RAML; `type` uses one at a body/property."},
+    {"front": "Trait", "back": "A reusable RAML component (like a function) declaring common method-level properties: description, headers, query params, security schemes, responses."},
+    {"front": "`traits` vs `is`", "back": "`traits` declares traits in the root RAML; `is` applies them to a method, e.g. `is: [ headersTraits ]`."},
+    {"front": "Benefits of traits", "back": "Readability, less redundancy (headers once, not three times), consistency. Root file went ~330 → ~100 lines."},
+    {"front": "Trait file header", "back": "`#%RAML 1.0 Trait`"},
+    {"front": "Trait vs fragment", "back": "A trait in a spec is reusable only in that API. A fragment is a separate project in Exchange, reusable by any API spec in the org."},
+    {"front": "Fragment", "back": "Reusable RAML asset shared across APIs via Exchange; can hold security schemes, libraries, resource types, traits, data types."},
+    {"front": "Creating a fragment", "back": "Design Center → **Create → New Fragment** → choose the type (e.g. Trait) → add content → Publish to Exchange."},
+    {"front": "Exchange", "back": "The central repository for saving and sharing MuleSoft assets in the organisation."},
+    {"front": "Lifecycle state", "back": "**Development** (still changing) or **Stable** (finalised)."},
+    {"front": "Asset version", "back": "e.g. 1.0.0; republishing after a change → 1.0.1 → 1.0.2. Keep default group/asset IDs."},
+    {"front": "Using a fragment in an API spec", "back": "Dependencies → **Add dependency**; it appears under `exchange_modules`; include its file under `traits`/`types`."},
+    {"front": "What happens when a fragment changes?", "back": "Publish a new version; each consuming API updates its dependency/reference."},
+    {"front": "Mocking service", "back": "A dummy service on a dummy server returning responses from the spec's examples."},
+    {"front": "Make public", "back": "Mocking service configuration option that exposes the mock URL to users without platform access."},
+    {"front": "Sharing a spec with colleagues", "back": "Design Center → **Share** → choose people (they need Anypoint Platform access)."},
+    {"front": "Postman collection", "back": "A saved set of requests; export to a file and share; colleagues import it."},
+    {"front": "Format vs Minify", "back": "Format = pretty JSON over several lines; Minify = single line."},
+    {"front": "Other testing tools", "back": "Most teams use **Postman**; **SoapUI** mostly for SOAP. Concepts are the same in every tool."}
+  ]
+}

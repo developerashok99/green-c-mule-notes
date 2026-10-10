@@ -1,0 +1,102 @@
+{
+  "quiz": [
+    {
+      "q": "A company uses MuleSoft's Runtime Manager, API Manager and Exchange, but its Mule runtimes run on its own servers. Which deployment model is this?",
+      "options": ["CloudHub", "Hybrid", "On-premises", "Runtime Fabric only"],
+      "answer": 1,
+      "explain": "Hybrid = MuleSoft control plane + your own runtime plane. On-premises would mean the control plane is also your own."
+    },
+    {
+      "q": "A bank runs Mule runtimes in its own AWS account (Indian region) and manages them from MuleSoft's Runtime Manager. Which model is it?",
+      "options": ["CloudHub, because it runs on AWS", "Hybrid", "On-premises", "Private CloudHub"],
+      "answer": 1,
+      "explain": "The runtime is self-managed even though it's in the cloud, so it's hybrid. In CloudHub, MuleSoft itself has made the cloud Mule-ready and manages it."
+    },
+    {
+      "q": "Which components belong to the control plane?",
+      "options": ["Mule runtime, connectors, logging", "Runtime Manager, API Manager, Exchange", "Workers, load balancers, vCores", "Studio, Maven, Java"],
+      "answer": 1,
+      "explain": "The control plane manages Mule apps: Runtime Manager, API Manager and Exchange (the Anypoint Management Center). The runtime plane is the Mule runtime, connectors and logs."
+    },
+    {
+      "q": "According to the instructor, why don't Indian banks use CloudHub?",
+      "options": ["Cloud is banned for banks", "There was no CloudHub region in India, and RBI rules require banking data to stay in India", "CloudHub doesn't support HTTPS", "CloudHub only allows one worker"],
+      "answer": 1,
+      "explain": "It's about data residency, not a cloud ban: without an in-country region, data and logs would be stored outside India."
+    },
+    {
+      "q": "An app is deployed on two workers behind a load balancer. What is the main reason for the second worker?",
+      "options": ["Each request is processed twice as fast", "High availability — if one worker goes down, traffic goes to the other", "It's required to use HTTPS", "To store logs separately"],
+      "answer": 1,
+      "explain": "Processing speed doesn't improve; the main reason is high availability. The load balancer automatically sends all traffic to the healthy worker."
+    },
+    {
+      "q": "With round-robin load balancing and 2 workers, how are requests 1, 2, 3, 4 distributed?",
+      "options": ["All to worker 1 until it is full", "1→W1, 2→W2, 3→W1, 4→W2", "Randomly", "To whichever worker has the least CPU"],
+      "answer": 1,
+      "explain": "Round robin distributes requests in turn, so with 1,000 requests a day each worker handles about 500."
+    },
+    {
+      "q": "Your CloudHub app goes through a Dedicated Load Balancer over HTTPS. Which listener port does it need?",
+      "options": ["8081", "8082", "8091", "8092"],
+      "answer": 3,
+      "explain": "SLB uses 8081 (HTTP) / 8082 (HTTPS); DLB uses 8091 (HTTP) / 8092 (HTTPS)."
+    },
+    {
+      "q": "Which statement about the Shared Load Balancer is correct?",
+      "options": ["It is premium and configured by your team", "It is used by many companies in CloudHub and provided by default", "Only your organisation's traffic goes through it", "It uses ports 8091/8092"],
+      "answer": 1,
+      "explain": "The SLB is shared by many customers and provided by default. The DLB is the premium one dedicated to your organisation."
+    },
+    {
+      "q": "Each worker handles ~5,000 requests/day. A festive week brings 20,000/day. What does the class suggest?",
+      "options": ["Keep 2 workers and accept errors", "Scale up to about 5 workers, then scale down afterwards", "Switch to on-premises", "Add a second region"],
+      "answer": 1,
+      "explain": "Scale up (e.g. 5 workers = 25,000 capacity with headroom) in Runtime Manager, then scale back down to 2–3 after the festival."
+    },
+    {
+      "q": "What is auto-scaling in this lecture?",
+      "options": ["A free default that adds workers on every deployment", "A premium feature that adds/removes workers based on traffic", "Round-robin distribution", "Moving an app between regions automatically"],
+      "answer": 1,
+      "explain": "Auto-scaling needs extra licensing; without it you increase workers manually in Runtime Manager."
+    },
+    {
+      "q": "Who decides how many workers an application needs?",
+      "options": ["The developer, based on the number of flows", "The architect, based on non-functional requirements and performance testing", "MuleSoft support", "The load balancer automatically"],
+      "answer": 1,
+      "explain": "Architects use NFRs (traffic, policies) and performance testing; cost matters too since workers consume vCores."
+    },
+    {
+      "q": "What is special about Runtime Fabric (RTF)?",
+      "options": ["It runs only in MuleSoft's cloud", "It runs in containers on your own servers, with MuleSoft applying patches and Mule updates automatically", "It replaces the control plane", "It is always faster than CloudHub"],
+      "answer": 1,
+      "explain": "RTF runs on your infrastructure in containers, connected to MuleSoft's control plane; data and logs stay under your control. It isn't inherently faster."
+    }
+  ],
+  "cards": [
+    {"front": "Deployment strategies", "back": "**CloudHub**, **on-premises**, **hybrid**, plus **Runtime Fabric**."},
+    {"front": "CloudHub", "back": "MuleSoft-managed cloud for running Mule apps: MuleSoft provides both the control plane and the runtime plane."},
+    {"front": "On-premises", "back": "Own runtime **and** own control plane. Chosen by highly regulated industries; more secure, high cost and maintenance."},
+    {"front": "Hybrid", "back": "MuleSoft control plane + your own runtime (physical servers or your own cloud account)."},
+    {"front": "Control plane", "back": "Components that manage Mule apps: **Runtime Manager**, **API Manager**, **Exchange** (Anypoint Management Center)."},
+    {"front": "Runtime plane", "back": "Where the app executes: **Mule runtime**, connectors and components, logging."},
+    {"front": "Mule runtime", "back": "The software that executes Mule applications — a Mule app runs on a server with the Mule runtime installed."},
+    {"front": "How do you decide the deployment model?", "back": "By who provides each plane: both MuleSoft → CloudHub; MuleSoft control + own runtime → hybrid; both own → on-premises."},
+    {"front": "Why might a bank not use CloudHub?", "back": "Data must stay in the country; with no CloudHub region there, data and logs would leave it. Such banks use hybrid or on-premises."},
+    {"front": "What CloudHub is built on", "back": "MuleSoft's Mule-ready infrastructure on top of cloud providers (AWS; the instructor also mentioned Azure)."},
+    {"front": "Worker", "back": "A mini server in CloudHub where your Mule application runs. A trial account can use only **one** worker."},
+    {"front": "Region", "back": "Geographic location of CloudHub infrastructure (e.g. US, Europe/London), chosen at deployment."},
+    {"front": "Data centre", "back": "A facility housing servers. Some companies rent servers from data-centre businesses, like co-working office space."},
+    {"front": "Load balancer", "back": "Sits in front of multiple workers and decides which server receives each request."},
+    {"front": "Round robin", "back": "Requests are distributed to servers in turn (most used method)."},
+    {"front": "Why multiple workers?", "back": "**High availability**: if one worker fails, the load balancer sends traffic to the others. Not faster requests."},
+    {"front": "SLB vs DLB", "back": "Shared LB: many customers, provided by default. Dedicated LB: only your org, premium, configured by your team."},
+    {"front": "CloudHub load balancer ports", "back": "SLB: HTTP **8081**, HTTPS **8082**. DLB: HTTP **8091**, HTTPS **8092**."},
+    {"front": "Scaling up / down", "back": "Adding/removing workers (in Runtime Manager in the cloud). On own servers it means buying and setting up hardware."},
+    {"front": "Auto-scaling", "back": "Premium feature that adds workers when traffic rises and removes them when it falls."},
+    {"front": "vCore", "back": "CPU/memory unit; MuleSoft charges by vCore, so more workers mean more cost."},
+    {"front": "Who decides worker count?", "back": "The architect, using non-functional requirements and performance testing. Important apps get **at least two** workers."},
+    {"front": "Runtime Fabric", "back": "Container-based runtime on your own servers; MuleSoft applies patches/updates automatically; connected to MuleSoft's control plane."},
+    {"front": "Self-hosted control plane", "back": "Technically MuleSoft's **Anypoint Platform Private Cloud Edition**. Many teams calling themselves on-prem are really hybrid."}
+  ]
+}

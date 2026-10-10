@@ -1,0 +1,100 @@
+{
+  "quiz": [
+    {
+      "q": "A loan is approved in ~500 ms, but uploading the scanned documents to an FTP server takes ~4 seconds. How should the upload be done?",
+      "options": ["Inside an Async scope, so the consumer gets the response immediately and the upload runs in the background", "Inside a Scatter-Gather with one route", "Before the eligibility check", "Inside a Try scope with On Error Propagate"],
+      "answer": 0,
+      "explain": "Wrap the document upload in Async: the response goes back without waiting while the upload happens in the background."
+    },
+    {
+      "q": "The parent flow calls the child flow with a plain Flow Reference (no Async). The child sets the payload to \"child flow payload\". What does Postman receive?",
+      "options": ["\"parent flow payload\"", "\"child flow payload\"", "An empty body", "A 500 error"],
+      "answer": 1,
+      "explain": "A plain Flow Reference waits for the child; its payload and variables come back to the parent."
+    },
+    {
+      "q": "The same Flow Reference is now wrapped in an Async scope. What does Postman receive?",
+      "options": ["\"child flow payload\"", "\"parent flow payload\" — the child's payload/vars don't come back", "Both payloads in an array", "Nothing until the child completes"],
+      "answer": 1,
+      "explain": "Async is fire and forget: a copy of the event goes into it, and the parent continues with its own payload and variables."
+    },
+    {
+      "q": "Two flows in one app each have an HTTP Listener on the same path. What happens on deploy?",
+      "options": ["The second flow is ignored silently", "Error: \"Already exists a listener matching that path and methods\"", "Both flows receive every request", "Port 8081 is changed automatically"],
+      "answer": 1,
+      "explain": "Fix it by deleting the child's listener (not needed for a Flow Reference) or by giving different paths with the same listener config."
+    },
+    {
+      "q": "Where does a Flow Reference start executing in the target flow?",
+      "options": ["At the target flow's source (Listener)", "At the first component of the process section", "At its error handler", "At the last component"],
+      "answer": 1,
+      "explain": "A Flow Reference always goes to the first processor, not the source — so the child's source can be removed."
+    },
+    {
+      "q": "You need to test a DataWeave expression on a banking payload. What did the instructor advise?",
+      "options": ["Paste it into the online Playground", "Use Studio's Preview or the debugger's evaluate expression instead of the online Playground", "Email it to the team", "Convert it to CSV first"],
+      "answer": 1,
+      "explain": "The Playground is online; pasting banking/financial data there can break guidelines."
+    },
+    {
+      "q": "In a DataWeave script, what does `---` do?",
+      "options": ["Starts a comment", "Separates the header (directives) from the body", "Subtracts two values", "Ends the script"],
+      "answer": 1,
+      "explain": "A script is header (`%dw 2.0`, optional `input`, `output`) → `---` delimiter → body."
+    },
+    {
+      "q": "What is DataWeave's default internal MIME type?",
+      "options": ["JSON", "XML", "Java", "CSV"],
+      "answer": 2,
+      "explain": "The default is Java; convert to JSON/XML/CSV only when needed, since converting back and forth costs a little performance."
+    },
+    {
+      "q": "`output application/json skipNullOn=\"everywhere\"` is changed to CSV output with the same property. What happens?",
+      "options": ["Nulls are removed from the CSV", "It errors — skipNullOn isn't a CSV property", "Empty strings are removed", "The header row is dropped"],
+      "answer": 1,
+      "explain": "skipNullOn is for JSON/XML; on CSV the class saw an error. It also removes only nulls, not empty strings."
+    },
+    {
+      "q": "The payload is `[\"prod\", \"qa\", \"dev\"]`. What does `payload[2]` return?",
+      "options": ["\"qa\"", "\"dev\"", "\"prod\"", "null"],
+      "answer": 1,
+      "explain": "Arrays index from 0, so index 2 is the third element, \"dev\"."
+    },
+    {
+      "q": "With the payload `[\"prod\", \"qa\", \"dev\", …]`, what does `payload[0 to 1]` return?",
+      "options": ["\"prod\"", "[\"prod\", \"qa\"]", "[\"qa\", \"dev\"]", "An error — ranges need negative numbers"],
+      "answer": 1,
+      "explain": "The range selector `[a to b]` returns elements a through b inclusive. Note `payload[3-1]` is subtraction, i.e. `payload[2]`."
+    },
+    {
+      "q": "The key `echo` appears at the first level and also nested deeper. Which selector returns the values at any depth?",
+      "options": ["`payload.echo`", "`payload.*echo`", "`payload..echo`", "`payload[echo]`"],
+      "answer": 2,
+      "explain": "`.` returns the first match, `.*` returns all matches at the current level only, and `..` (descendants) finds the key at any depth."
+    }
+  ],
+  "cards": [
+    {"front": "Synchronous vs. asynchronous", "back": "Synchronous: the caller waits for each step's response, in sequence. Asynchronous: work runs independently without making anyone wait."},
+    {"front": "What does the Async scope do?", "back": "Runs its processors independently on a **copy** of the event, so the flow continues and responds without waiting (fire and forget)."},
+    {"front": "Does the async part's payload come back to the parent?", "back": "No — the parent continues with its own payload and variables."},
+    {"front": "Use case for Async", "back": "Uploading loan documents to an FTP server after approval — respond immediately, upload in the background."},
+    {"front": "Errors in the Async part", "back": "They don't reach the consumer; publish them to a queue or check logs and correct. Design for **reliability** (no message loss)."},
+    {"front": "\"Port already in use\"", "back": "Another process uses that port (e.g. 8081); change the listener to a vacant port."},
+    {"front": "\"Already exists a listener matching that path and methods\"", "back": "Two flows have a Listener on the same path; delete one or use different paths."},
+    {"front": "DataWeave", "back": "MuleSoft's expression language for transforming messages — format conversion (JSON ↔ XML, CSV ↔ JSON…) and enrichment."},
+    {"front": "DataWeave Playground", "back": "Online editor (input / script / output panes) with a tutorial for practising DataWeave. Don't paste sensitive data."},
+    {"front": "Structure of a DataWeave script", "back": "Header with directives (`%dw 2.0`, optional `input`, `output`), the `---` delimiter, then the body."},
+    {"front": "Is the `input` directive needed in Studio?", "back": "No — it's optional; Studio already knows the metadata before the Transform."},
+    {"front": "Default MIME type", "back": "**Java**. Convert only when needed, for performance."},
+    {"front": "`header=false`", "back": "CSV output property that drops the header row."},
+    {"front": "`skipNullOn`", "back": "Writer property (`elements`, `attributes`, `everywhere`) that removes nulls in JSON/XML — not CSV, and not empty strings."},
+    {"front": "Mixed types in DataWeave arrays", "back": "Allowed — an array can hold strings, numbers etc. together."},
+    {"front": "Single value selector `.`", "back": "Returns the value of a key; with two keys of the same name, only the **first**."},
+    {"front": "Index selector `[n]`", "back": "Arrays index from 0; negative indexes count from the end — `payload[-1]` is the last element."},
+    {"front": "Range selector `[a to b]`", "back": "Returns elements a through b, e.g. `payload[0 to 1]`. Use `to`, not `-` (which subtracts)."},
+    {"front": "Single value vs. multi-value selector", "back": "`.` returns the first matching value; `.*` returns all matching values at that level as an **array** (even if only one)."},
+    {"front": "Multi-value vs. descendants selector", "back": "`.*` checks only the current level; `..` finds the key at any depth."},
+    {"front": "Wrong selector path result", "back": "Returns **null**."},
+    {"front": "Most-used selectors", "back": "Single value + index combination; range and multi-value are rare."}
+  ]
+}

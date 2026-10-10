@@ -1,0 +1,95 @@
+{
+  "quiz": [
+    {
+      "q": "Where do you get the Object Store operations in Studio?",
+      "options": ["They are in the Core palette by default", "Add Modules → Object Store", "From the Database connector", "From the HTTP connector's Advanced tab"],
+      "answer": 1,
+      "explain": "The Object Store isn't in the palette by default; add it through Add Modules."
+    },
+    {
+      "q": "Which two Object Store operations does the watermark use case need?",
+      "options": ["Contains and Remove", "Store and Retrieve", "Retrieve All and Clear", "Retrieve All Keys and Store"],
+      "answer": 1,
+      "explain": "Retrieve gets the last watermark; Store saves the new one under the same key."
+    },
+    {
+      "q": "On the very first run, no watermark has been stored yet. What makes the Retrieve still work?",
+      "options": ["Its Default value (e.g. 99)", "Entry TTL", "Max entries", "The Contains operation"],
+      "answer": 0,
+      "explain": "Retrieve returns the configured default value when the key doesn't exist yet."
+    },
+    {
+      "q": "What is the default of the Persistent checkbox in the Object Store config?",
+      "options": ["Unchecked — transient", "Checked — persistent", "There is no such setting", "It depends on the runtime"],
+      "answer": 1,
+      "explain": "Persistent is checked by default; unchecking it makes the store transient."
+    },
+    {
+      "q": "A watermark is stored at 10:00 with Entry TTL 1 hour. What happens at 11:00?",
+      "options": ["It is deleted immediately", "It expires, but is only removed when the expiration interval's background check runs", "It is renewed automatically", "It moves to a persistent store"],
+      "answer": 1,
+      "explain": "Expiring doesn't remove the entry — the expiration interval's periodic cleanup deletes expired entries."
+    },
+    {
+      "q": "TTL is 1 hour and the expiration interval is 2 hours. What is the effect?",
+      "options": ["Expired entries may stay up to an extra hour before cleanup", "Entries never expire", "Entries expire after 2 hours", "The config fails to deploy"],
+      "answer": 0,
+      "explain": "Created 10:00, expires 11:00, next check at 12:00 → it stays an extra hour. Keep the interval less than the TTL."
+    },
+    {
+      "q": "Which query selects only new employees using the watermark variable?",
+      "options": ["`select * from EMPLOYEES_INFO where emp_id < :emp_id`", "`select * from EMPLOYEES_INFO where emp_id > :emp_id` with `emp_id = vars.empWatermark`", "`select max(emp_id) from EMPLOYEES_INFO`", "`select * from EMPLOYEES_INFO`"],
+      "answer": 1,
+      "explain": "Only records newer than the stored watermark come back."
+    },
+    {
+      "q": "What value is stored after the records are created in Salesforce?",
+      "options": ["`sizeOf(payload)`", "`max(payload.emp_id)` under the same key", "`payload[0].emp_id`", "The current timestamp"],
+      "answer": 1,
+      "explain": "Storing the highest ID under the same key overwrites the old watermark."
+    },
+    {
+      "q": "The first run in class retrieved 120 instead of the default 99. Why?",
+      "options": ["The default was misconfigured", "An earlier run had stored 120, and the persistent store kept it across the redeploy", "The DB auto-incremented it", "TTL had expired"],
+      "answer": 1,
+      "explain": "Persistent values survive stopping and redeploying the app."
+    },
+    {
+      "q": "A run finds no new records and fails: \"You called the function 'max' with these arguments: 1: Null\". What is the fix?",
+      "options": ["Change the default value to 0", "Wrap Create and Store in a Choice that runs only when records came back (`sizeOf(payload) > 0`), else log \"no data\"", "Make the store transient", "Use Retrieve All"],
+      "answer": 1,
+      "explain": "An empty payload makes `payload.emp_id` null, so `max(null)` fails; a Choice guards it."
+    },
+    {
+      "q": "What kind of column makes a good watermark?",
+      "options": ["Any text column such as name", "A sequential, incremental column like an auto-increment ID or serial number", "A random UUID", "A boolean status flag"],
+      "answer": 1,
+      "explain": "The watermark column must be sequential and incremental; gaps are fine."
+    },
+    {
+      "q": "For checking only whether the payload is empty, which function is better?",
+      "options": ["`sizeOf`", "`isEmpty`", "`max`", "`typeOf`"],
+      "answer": 1,
+      "explain": "`sizeOf` works out the whole payload's size; `isEmpty` is better just to check emptiness."
+    }
+  ],
+  "cards": [
+    {"front": "How do you implement watermarking in Mule?", "back": "Scheduler → Object Store **Retrieve** (default value) → DB Select `where id > :lastId` → process → **Store** `max(payload.id)` under the same key. Use a persistent store."},
+    {"front": "Object Store operations", "back": "Store, Retrieve, Retrieve All, Retrieve All Keys, Contains, Remove, Clear."},
+    {"front": "Store", "back": "Saves a value under a key; storing under the same key overwrites the old value."},
+    {"front": "Retrieve", "back": "Gets the value for a key; returns the **default value** if the key doesn't exist yet."},
+    {"front": "Retrieve target variable in class", "back": "`empWatermark` — the same as the key name, easier to remember."},
+    {"front": "Persistent setting default", "back": "Checked (persistent). Uncheck it for a transient store."},
+    {"front": "Max entries", "back": "Limit on how many entries the store can hold."},
+    {"front": "Entry TTL", "back": "**Time to live** — how long a value is valid (seconds, minutes, hours or days)."},
+    {"front": "Expiration interval", "back": "How often a background check runs to **delete** expired entries."},
+    {"front": "Entry TTL vs. expiration interval", "back": "TTL = validity; the interval = how often expired entries are actually deleted. Keep the interval shorter than the TTL."},
+    {"front": "Persistent vs. transient object store", "back": "Persistent (default) keeps values across restarts and redeploys — needed for watermarks. Transient loses them — fine for a short-lived token."},
+    {"front": "What breaks when there are no new records?", "back": "`max(payload.emp_id)` gets null and fails (\"expects Array\"). Guard it with a Choice — `sizeOf(payload) > 0` (or `isEmpty`)."},
+    {"front": "What column makes a good watermark?", "back": "A sequential, incremental one — an auto-increment ID or serial number. Gaps are fine."},
+    {"front": "Why did the first run use 120 instead of the default 99?", "back": "An earlier run had stored it, and the persistent store kept it across the redeploy."},
+    {"front": "Default Object Store retention (per instructor)", "back": "\"Around 30 days\" — the instructor wasn't sure. A watermark must not expire."},
+    {"front": "`sizeOf` vs. `isEmpty`", "back": "`sizeOf` returns the size; `isEmpty` is better just to check whether the payload is empty."},
+    {"front": "Day 53 homework", "back": "Implement the access-token use case with a **transient** store (uncheck Persistent)."}
+  ]
+}

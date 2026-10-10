@@ -1,0 +1,99 @@
+{
+  "quiz": [
+    {
+      "q": "In the Salesforce Create operation, what goes in the Type field?",
+      "options": ["The connection type, e.g. Basic Authentication", "The target object, e.g. Account (its API name)", "The MIME type of the payload", "The batch size"],
+      "answer": 1,
+      "explain": "Type is the object to insert into; if the drop-down doesn't appear after refresh, type the object's API name."
+    },
+    {
+      "q": "Which output format is the recommended practice for the Transform before a Salesforce Create?",
+      "options": ["application/json", "application/java", "application/xml", "text/plain"],
+      "answer": 1,
+      "explain": "With dates, JSON sends strings while Java has a date type, so JSON can cause type conflicts. Always send Java for inserts."
+    },
+    {
+      "q": "`annualRevenue` arrives as a string, but the Salesforce field is a number. What does the class Transform do?",
+      "options": ["Leaves it — Salesforce always converts", "`item.annualRevenue as Number`", "Wraps it in quotes", "Uses `as String {format: \"#\"}`"],
+      "answer": 1,
+      "explain": "Resolve type conflicts before sending with `as Number`. Salesforce converted strings in one test, but some fields won't accept that, so convert anyway."
+    },
+    {
+      "q": "A source system sends 500 accounts in one request. What happens if you pass them straight to Create?",
+      "options": ["All 500 are inserted", "It fails — Create accepts up to 200 records per call", "Only the first 200 are inserted silently", "Salesforce queues them as a bulk job automatically"],
+      "answer": 1,
+      "explain": "Create takes at most 200 records. Split into batches (e.g. For Each with a batch size), ask the source to limit, or use bulk Create Job."
+    },
+    {
+      "q": "Which bulk option submits a job and returns a job ID that you check later?",
+      "options": ["Upsert", "Create Job", "On New Object", "Query All"],
+      "answer": 1,
+      "explain": "The bulk Create Job operation returns a job ID, and you check the job status with it."
+    },
+    {
+      "q": "After Create, which expression tells you whether ALL records succeeded?",
+      "options": ["`payload.items.successful`", "`payload.successful`", "`payload.items[0].id`", "`attributes.statusCode`"],
+      "answer": 1,
+      "explain": "`payload.successful` is true only if every record succeeded; `payload.items[n].successful` gives each record's result."
+    },
+    {
+      "q": "Create returns SALESFORCE:CONNECTIVITY, but Test Connection succeeds. What does that suggest?",
+      "options": ["The security token has expired", "The problem is the data (e.g. a value over the field's limit) — ask the Salesforce team to check the logs", "The Mule app needs reconnection forever", "The org's trial has ended"],
+      "answer": 1,
+      "explain": "In class, an Annual Revenue value too large for Currency(18) gave a misleading CONNECTIVITY error. If it connects, the issue is something else."
+    },
+    {
+      "q": "One of three records has Annual Revenue \"abcde\". What does the Create response look like?",
+      "options": ["The whole call fails with no records inserted", "INVALID_TYPE_ON_FIELD_IN_RECORD for that record; `successful` is false, and the other items are true", "SALESFORCE:CONNECTIVITY", "All three succeed because Salesforce ignores the field"],
+      "answer": 1,
+      "explain": "It is a partial success: overall `successful: false`, with `items` showing which record failed."
+    },
+    {
+      "q": "What does Upsert do?",
+      "options": ["Always inserts a new record", "Updates the record if it exists in Salesforce, otherwise creates it", "Deletes and re-creates the record", "Only updates existing records"],
+      "answer": 1,
+      "explain": "Upsert = update + insert: it updates an existing record or creates a new one."
+    },
+    {
+      "q": "A user edits the website of an existing Account. Which source fires?",
+      "options": ["On New Object", "On Modified Object", "Both", "Neither — only the Scheduler picks it up"],
+      "answer": 1,
+      "explain": "On Modified Object fires for updated records; an update is not picked up by On New Object."
+    },
+    {
+      "q": "Which reconnection strategy should you use on a source like On New Object?",
+      "options": ["None", "Standard", "Forever", "Exponential"],
+      "answer": 2,
+      "explain": "On a source, forever keeps trying until it connects and nothing waits on it. On Create inside a request, forever would block the response."
+    },
+    {
+      "q": "You need a flow to run every day at 8 PM IST. What do you configure?",
+      "options": ["Fixed frequency 24 hours with a start delay", "A cron expression such as `0 0 20 * * ?` with time zone `Asia/Kolkata`", "On New Object with frequency 1000 ms", "A cron expression with no time zone — CloudHub uses IST"],
+      "answer": 1,
+      "explain": "Fixed frequency can't target a clock time; use cron and set the time zone, because CloudHub otherwise uses its region's zone (e.g. US)."
+    }
+  ],
+  "cards": [
+    {"front": "Mapping sheet", "back": "A field-by-field source → target mapping (often Excel/Word) from the Salesforce team, marking mandatory and optional fields. Send all mandatory fields."},
+    {"front": "How do you insert records into Salesforce from Mule?", "back": "Map the source to the object's field names in a Transform with `output application/java`, then Create with the object as **Type** and `payload` as **Records**."},
+    {"front": "Why Java rather than JSON for Create?", "back": "Dates: JSON carries them as strings, Java as date types, so JSON can cause type conflicts. Without dates both work, but Java is the safe practice."},
+    {"front": "Why use a separate Transform before Create?", "back": "So you can log exactly what you're sending. Not mandatory, but common in real projects."},
+    {"front": "How many records can one Create call take?", "back": "**200**. For more: batch (For Each with a batch size), ask the source to limit, or use bulk **Create Job**."},
+    {"front": "Create Job (bulk)", "back": "Asynchronous bulk insert that returns a job ID; you check the job status with it."},
+    {"front": "`payload.successful` vs. `payload.items[n].successful`", "back": "`payload.successful` is true only if all records succeeded; `items[n].successful` is each record's result."},
+    {"front": "You need to create a single record. What do you send?", "back": "An array of one object."},
+    {"front": "INVALID_TYPE_ON_FIELD_IN_RECORD", "back": "Error for a wrong data type in a field, e.g. \"invalid number: abcde\" for Annual Revenue."},
+    {"front": "CONNECTIVITY error but Test Connection passes", "back": "It's a data problem, not connectivity. Ask the Salesforce developer to check the integration user's logs."},
+    {"front": "Create vs. Upsert", "back": "Create always inserts; Upsert updates an existing record or inserts if it doesn't exist."},
+    {"front": "On New Object vs. On Modified Object", "back": "Both are polling **sources**. On New Object fires for new records, On Modified Object for updated ones."},
+    {"front": "How do records arrive from On New Object?", "back": "One at a time, each as a single object in **Java** (not an array)."},
+    {"front": "Which reconnection strategy suits a Salesforce source?", "back": "**Forever** — a source can keep retrying without blocking a response."},
+    {"front": "Fixed frequency vs. cron", "back": "Fixed frequency runs every N units (optional start delay); cron runs at specific times, e.g. every day at 8 PM in a given time zone."},
+    {"front": "Start delay", "back": "Wait before the first run. Deployed at 10:00 with a 1-hour delay and 5-hour frequency → 11:00, 16:00, 21:00, 02:00."},
+    {"front": "Default fixed frequency", "back": "1000 ms with start delay 0."},
+    {"front": "Cron expression positions", "back": "seconds, minutes, hours, day of month, month, day of week, year. `0 0 20 * * ?` = 8 PM every day."},
+    {"front": "Time zone for India in a cron scheduler", "back": "`Asia/Kolkata`. Without it, CloudHub uses its region's time zone (e.g. US)."},
+    {"front": "Scheduler alternative to On New Object", "back": "Scheduler → Salesforce Query → transform → DB insert, remembering where you stopped (e.g. a sequence number in an Object Store)."},
+    {"front": "Is a scheduler-based DB-to-DB flow an API?", "back": "No — it's an **integration**. An API is exposed to consumers and returns responses."}
+  ]
+}

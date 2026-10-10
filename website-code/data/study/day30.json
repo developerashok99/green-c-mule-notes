@@ -1,0 +1,226 @@
+{
+  "quiz": [
+    {
+      "q": "When is the Remove Variable component most useful, per the lecture?",
+      "options": [
+        "At the very end of every flow",
+        "Mid-flow, to free memory held by a big variable (e.g. a large saved payload) that's no longer needed",
+        "To remove headers from the request",
+        "To reset the payload"
+      ],
+      "answer": 1,
+      "explain": "Removing a variable frees its memory. At the end of a flow it isn't needed since everything is cleared anyway; small variables don't matter much."
+    },
+    {
+      "q": "The POST implementation now returns transactionId and employeeId, which aren't in the RAML. What should you do?",
+      "options": [
+        "Nothing — the RAML is only documentation",
+        "Update the response example and data type in Design Center, publish a new version, and update Studio",
+        "Edit the read-only spec inside src/main/resources/api",
+        "Remove the fields from the response"
+      ],
+      "answer": 1,
+      "explain": "Keep spec and implementation consistent: a new team member checks the RAML first and may give consumers the wrong structure."
+    },
+    {
+      "q": "You published spec 1.0.1. What happens in Studio automatically?",
+      "options": [
+        "Studio updates the dependency itself",
+        "Nothing — update via Manage dependencies or edit the version in pom.xml",
+        "Studio re-scaffolds and overwrites all flows",
+        "The router switches to 1.0.1 automatically"
+      ],
+      "answer": 1,
+      "explain": "Studio isn't updated automatically. Re-scaffolding doesn't overwrite implemented flows either — only empty flows for new resources are generated."
+    },
+    {
+      "q": "After bumping the dependency to 1.0.1 in pom.xml, requests fail with \"Raml not found\". What else must be changed?",
+      "options": [
+        "The Listener port",
+        "The APIkit router configuration's API definition, which still references version 1.0.0",
+        "The Database config",
+        "The secure.key property"
+      ],
+      "answer": 1,
+      "explain": "The router's API definition included the version, so it searched for 1.0.0. Update both the dependency and the router config."
+    },
+    {
+      "q": "In the PATCH input parameters { emp_salary: payload.empSalary, … }, what is on the left side?",
+      "options": [
+        "Values from the payload",
+        "Keys — placeholders named like the table columns",
+        "Variables",
+        "The SQL query"
+      ],
+      "answer": 1,
+      "explain": "Left = keys/placeholders named like DB columns; right = values from our payload or variables."
+    },
+    {
+      "q": "A PATCH for a non-existent employee ID runs without error. What does the Update return?",
+      "options": [
+        "An empty array",
+        "affectedRows: 0",
+        "DB:QUERY_EXECUTION",
+        "404 Not Found"
+      ],
+      "answer": 1,
+      "explain": "No error is raised, but nothing was updated, so the class added a check on affectedRows."
+    },
+    {
+      "q": "How did the class make PATCH fail when no row is updated?",
+      "options": [
+        "Is number on payload.affectedRows with min 1 and max 1",
+        "Is email on payload.empId",
+        "A Try scope with On Error Continue",
+        "Reconnection strategy Forever"
+      ],
+      "answer": 0,
+      "explain": "If affectedRows isn't exactly 1, Is number raises VALIDATION:INVALID_NUMBER. A Choice with Raise Error (or Is false) would also work."
+    },
+    {
+      "q": "You map VALIDATION:INVALID_NUMBER to DATABASE:NO_DATA_FOUND on the Is number component. Which handler type must match it now?",
+      "options": [
+        "VALIDATION:INVALID_NUMBER",
+        "DATABASE:NO_DATA_FOUND",
+        "DB:CONNECTIVITY",
+        "APIKIT:NOT_FOUND"
+      ],
+      "answer": 1,
+      "explain": "After error mapping, the handler must match the custom type, not the original — also a certification-style question."
+    },
+    {
+      "q": "What does a Database Select return when one row matches?",
+      "options": [
+        "A single JSON object",
+        "An array of objects (Java) with one element — access it with payload[0]",
+        "A string",
+        "affectedRows: 1"
+      ],
+      "answer": 1,
+      "explain": "A Select can return many rows, so it's always an array of objects, one per row; output application/json converts it to JSON."
+    },
+    {
+      "q": "GET /api/employees/1000 returns 200 with every field null except active. The mapping used payload[0].empId, payload[0].empName… What's the bug?",
+      "options": [
+        "The employee doesn't exist",
+        "The right side must use the DB column names, e.g. payload[0].emp_id",
+        "output application/json is missing",
+        "The URI parameter is wrong"
+      ],
+      "answer": 1,
+      "explain": "Left side = response fields per the contract; right side = DB values with column names."
+    },
+    {
+      "q": "For GET of a non-existent employee, what did the class decide to return?",
+      "options": [
+        "500 with DATABASE:NO_DATA_FOUND",
+        "200 with a message like \"employee details not found in the database\", via Choice on !isEmpty(payload)",
+        "404 from the APIkit Router",
+        "An empty array"
+      ],
+      "answer": 1,
+      "explain": "The team chose success with a not-found message for GET. isEmpty is preferred over sizeOf for large/streamed data."
+    },
+    {
+      "q": "mvn clean package fails with \"Global element 'error-handler' does not provide a name attribute\". What's the cause?",
+      "options": [
+        "The error handler has no ANY handler",
+        "A top-level error-handler has no name — every global error handler needs one so flows can reference it",
+        "The Validation module is missing",
+        "Port 6666 is busy"
+      ],
+      "answer": 1,
+      "explain": "In the student's file a second top-level error-handler lacked a name; give it a name or merge it into the named handler."
+    }
+  ],
+  "cards": [
+    {
+      "front": "Remove Variable",
+      "back": "Deletes a variable by name to free memory — useful for large variables no longer needed mid-flow."
+    },
+    {
+      "front": "Hard-coded values in SQL",
+      "back": "Allowed, e.g. status `'active'` on insert since all new employees are active. Keep others as input parameters for neatness."
+    },
+    {
+      "front": "Response structure changed — what else must change?",
+      "back": "RAML example + data type in Design Center → publish new version → update Studio dependency → update router API definition if it has the version."
+    },
+    {
+      "front": "Why keep RAML and implementation in sync?",
+      "back": "APIs are permanent, people change: a new member reads the RAML first and could give consumers the wrong structure."
+    },
+    {
+      "front": "Updating the spec dependency in Studio",
+      "back": "Right-click project → **Manage dependencies** → Update version; or edit the version in **pom.xml**."
+    },
+    {
+      "front": "Router API definition",
+      "back": "APIkit config pointing to the spec; may include the version, e.g. `…:hr-employees-sapi-7303:1.0.0:raml:zip:…`."
+    },
+    {
+      "front": "Does re-scaffolding overwrite implemented flows?",
+      "back": "No. Only empty flows for new resources are generated; existing flows remain."
+    },
+    {
+      "front": "Input parameters: left vs right",
+      "back": "Left = keys (placeholders named like table columns). Right = values from payload or variables."
+    },
+    {
+      "front": "`affectedRows`",
+      "back": "Rows changed by Update/Insert. `0` on PATCH means the employee didn't exist."
+    },
+    {
+      "front": "Validation module",
+      "back": "Validates values: Is number, Is email, IP, URL, null, empty/blank, empty collection, true/false, …"
+    },
+    {
+      "front": "Is number for affectedRows",
+      "back": "Value `#[payload.affectedRows]`, type INTEGER, min 1, max 1. Otherwise raises `VALIDATION:INVALID_NUMBER`."
+    },
+    {
+      "front": "Error mapping",
+      "back": "Converts a component's error type into a custom one, e.g. `VALIDATION:INVALID_NUMBER` → `DATABASE:NO_DATA_FOUND`."
+    },
+    {
+      "front": "Error type format",
+      "back": "`NAMESPACE:IDENTIFIER`, like `HTTP:CONNECTIVITY` or `DATABASE:NO_DATA_FOUND`."
+    },
+    {
+      "front": "Why did deployment fail with a custom error type in a handler?",
+      "back": "No component raised or mapped that type; Mule validates referenced error types at deployment."
+    },
+    {
+      "front": "Alternative to Is number",
+      "back": "A Choice (`payload.affectedRows == 0`) with Raise Error, or Validation **Is false**."
+    },
+    {
+      "front": "What does a Database Select return?",
+      "back": "An **array of objects** (Java), one per row — even for one row. Access with `payload[0]`."
+    },
+    {
+      "front": "GET mapping",
+      "back": "Left = response fields per the contract; right = DB column values, e.g. `empId: payload[0].emp_id`."
+    },
+    {
+      "front": "Should \"record not found\" be an error?",
+      "back": "Depends on the agreed design. Here GET returns **200** with \"employee details not found in the database\"."
+    },
+    {
+      "front": "`isEmpty` vs `sizeOf`",
+      "back": "`isEmpty` checks existence; `sizeOf` counts. `isEmpty` is preferred for large/streamed data."
+    },
+    {
+      "front": "Multiple SQL statements",
+      "back": "One query per operation; for several use **Execute Script** or a **stored procedure**."
+    },
+    {
+      "front": "Port 6666 busy",
+      "back": "The debugger port — the app was already running; stop it before debugging again."
+    },
+    {
+      "front": "Global error handler needs…",
+      "back": "A `name` attribute, so flows can reference it; otherwise the build fails."
+    }
+  ]
+}

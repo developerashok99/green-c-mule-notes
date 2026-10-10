@@ -1,0 +1,88 @@
+{
+  "quiz": [
+    {
+      "q": "What is the correct order of the four steps to apply any policy?",
+      "options": ["Publish spec to Exchange → create API in API Manager → add API Autodiscovery → deploy", "Deploy → publish to Exchange → add Autodiscovery → create API in API Manager", "Add Autodiscovery → deploy → create API in API Manager → publish to Exchange", "Create API in API Manager → deploy → publish to Exchange → add Autodiscovery"],
+      "answer": 0,
+      "explain": "The same procedure works for every policy: Exchange → API Manager (instance ID) → Autodiscovery with that ID → deploy to Runtime Manager."
+    },
+    {
+      "q": "The API you want to protect has no spec in Exchange. Which option do you use in API Manager?",
+      "options": ["Select API from Exchange", "Create new API", "Deploy a proxy application", "Import from Design Center"],
+      "answer": 1,
+      "explain": "Create new API registers the API without an Exchange spec; the class used asset type HTTP API for the simple policies-demo-app."
+    },
+    {
+      "q": "Which asset type was chosen for the policies-demo-app, which has no RAML?",
+      "options": ["REST API", "HTTP API", "SOAP API", "AsyncAPI"],
+      "answer": 1,
+      "explain": "HTTP API is a simple API registered without RAML; a full implementation with a spec would be a REST API."
+    },
+    {
+      "q": "What does the client provider setting decide when creating an API instance?",
+      "options": ["Which runtime version is used", "Who generates client IDs and secrets for the Client ID Enforcement policy", "Which space the app is deployed to", "Who can see the API in Exchange"],
+      "answer": 1,
+      "explain": "The client provider (default Anypoint; Okta or Auth0 if configured by admins in Access Management) issues consumer client IDs/secrets."
+    },
+    {
+      "q": "The API instance is created but no app with its instance ID has been deployed yet. What status does it show?",
+      "options": ["Active", "Unregistered", "Running", "Applied"],
+      "answer": 1,
+      "explain": "The status stays Unregistered until an app with this instance ID connects through Autodiscovery."
+    },
+    {
+      "q": "Which deployment property keys let the deployed app connect to API Manager?",
+      "options": ["anypoint.platform.clientid / anypoint.platform.clientsecret", "anypoint.platform.client_id / anypoint.platform.client_secret", "mule.env / secure.key", "api.id / api.secret"],
+      "answer": 1,
+      "explain": "The keys need underscores. The class typed clientid, which was wrong — corrected on Day 36."
+    },
+    {
+      "q": "Where do the platform client ID and secret come from?",
+      "options": ["The Client ID Enforcement contract of a consumer", "Access Management → Business Groups → the org → Settings", "The API Autodiscovery global element", "Exchange asset details"],
+      "answer": 1,
+      "explain": "They are the organization's credentials — not the client ID/secret created by the Client ID Enforcement policy. In real projects the pipeline passes them."
+    },
+    {
+      "q": "You tick \"Protect value\" on a deployment property and later want to see it again. What can you do?",
+      "options": ["Untick Protect value to reveal it", "Nothing to reveal it — you can only delete it and enter it again", "View it in the application logs", "Download it from Exchange"],
+      "answer": 1,
+      "explain": "A protected value can't be unprotected, so keep the original somewhere safe."
+    },
+    {
+      "q": "Which CloudHub 2.0 target do real organizations use, with their own load balancer and access to private networks?",
+      "options": ["Shared space", "Private space", "Edge channel", "Sandbox environment"],
+      "answer": 1,
+      "explain": "Shared spaces are shared with other Anypoint customers (fine for practice); private spaces are dedicated to your organization."
+    },
+    {
+      "q": "A test call to the CloudHub 2.0 app over HTTP got no response. Why?",
+      "options": ["CloudHub 2.0 endpoints are HTTPS by default", "The policy blocked HTTP", "The app needs a proxy for HTTP", "HTTP only works in private spaces"],
+      "answer": 0,
+      "explain": "On CloudHub 2.0 the app's endpoint is HTTPS by default, which is why the earlier HTTP test didn't respond."
+    },
+    {
+      "q": "Which release channel lets you pick an older runtime such as 4.4.0?",
+      "options": ["Edge", "Long Term Support", "None", "Rolling update"],
+      "answer": 2,
+      "explain": "Edge offers the latest, Long Term Support offered 4.6.x, and None lets you pick a specific version like 4.4.0."
+    }
+  ],
+  "cards": [
+    {"front": "Four steps to apply any policy", "back": "Publish spec to Exchange → create the API in API Manager (instance ID) → add API Autodiscovery with that ID → deploy to Runtime Manager."},
+    {"front": "Create new API", "back": "Registers an API in API Manager without a spec in Exchange."},
+    {"front": "HTTP API (asset type)", "back": "A simple API registered without RAML; a full implementation would be a REST API."},
+    {"front": "Client provider", "back": "System that issues client IDs/secrets for Client ID Enforcement — Anypoint (default), or Okta/Auth0 if admins configured them in Access Management."},
+    {"front": "Role of API Autodiscovery and the instance ID", "back": "The instance ID identifies the API in API Manager; Autodiscovery uses it so the running app is linked to that API and enforces its policies."},
+    {"front": "API Autodiscovery — Flow name", "back": "The main flow; with APIkit, the main flow that has the Listener and APIkit Router."},
+    {"front": "Why does the deployed app need the platform client ID/secret?", "back": "They let the runtime authenticate to the Anypoint control plane (API Manager) so it can download policies."},
+    {"front": "`anypoint.platform.client_id` / `anypoint.platform.client_secret`", "back": "Org credentials (Access Management → Business Groups → Settings) passed as deploy properties. Underscores required."},
+    {"front": "Platform credentials vs. Client ID Enforcement credentials", "back": "Platform ones are the **organization's** credentials for runtime ↔ API Manager; Client ID Enforcement credentials are per consumer."},
+    {"front": "Protected property", "back": "A deploy property hidden like a password; it can't be unprotected — only deleted and re-entered."},
+    {"front": "Shared vs. private space", "back": "Shared: shared with other customers, shared load balancer/logs — practice. Private: dedicated to your org, own load balancer, can reach private networks — real organizations."},
+    {"front": "Ways to deploy", "back": "Upload an exported jar in Runtime Manager; Studio → Anypoint Platform → Deploy to CloudHub; or a CI/CD pipeline (how real projects deploy)."},
+    {"front": "CloudHub 2.0 endpoint protocol", "back": "HTTPS by default."},
+    {"front": "Release channel options", "back": "Edge (latest), Long Term Support (4.6.x at the time), None (pick a specific version, e.g. 4.4.0)."},
+    {"front": "Why did the Day 35 deployment hang?", "back": "Found on Day 36: wrong property key names (`clientid`), stray digits in the instance ID, and a name clash with a background Exchange asset."},
+    {"front": "Are `mule.env` and `secure.key` always required?", "back": "No — the policies-demo-app had no environments or encrypted properties, so they weren't needed."}
+  ]
+}

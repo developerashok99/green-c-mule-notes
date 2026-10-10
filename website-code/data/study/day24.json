@@ -1,0 +1,99 @@
+{
+  "quiz": [
+    {
+      "q": "What are the two main goals of the RAML best practices in this session?",
+      "options": ["Speed and caching", "Readability and modularity", "Security and encryption", "Versioning and mocking"],
+      "answer": 1,
+      "explain": "The main file shows only resources, methods, headers and references (readability), and a change is made once in its own file (modularity)."
+    },
+    {
+      "q": "You moved the POST request example into examples/requests/postRequestExample.json. How do you reference it in the root file?",
+      "options": ["example: postRequestExample", "example: !include examples/requests/postRequestExample.json", "types: !include examples/requests/postRequestExample.json", "uses: postRequestExample.json"],
+      "answer": 1,
+      "explain": "Examples are placed directly with !include, which pulls the file's content in at that spot."
+    },
+    {
+      "q": "An externalised example has empSalary as a string, while the type says number. What happens?",
+      "options": ["Nothing — external examples aren't validated", "The editor reports that it should be number", "The type changes to string automatically", "The mock converts it silently"],
+      "answer": 1,
+      "explain": "An included example is still validated against the type."
+    },
+    {
+      "q": "How is an external data type used, compared to an example?",
+      "options": ["Same as examples: type: !include path directly at the body", "Declared first under types: with an alias, then used with type: alias", "Placed in the examples/ folder", "Imported from Exchange only"],
+      "answer": 1,
+      "explain": "Data types are declared under types (e.g. postRequestDataType: !include /dataTypes/requests/postRequestDataType.raml) and then used by name with type."
+    },
+    {
+      "q": "What is the first line of a RAML data-type file?",
+      "options": ["#%RAML 1.0", "#%RAML 1.0 DataType", "#%RAML 1.0 Trait", "%YAML 1.2"],
+      "answer": 1,
+      "explain": "The data-type fragment header is #%RAML 1.0 DataType; #%RAML 1.0 is the root file's header."
+    },
+    {
+      "q": "You paste type: object … properties into a new data-type file and get \"Syntax error in the following text: ' properties: …'\". What's the fix?",
+      "options": ["Add !include before properties", "Fix the indentation — select the lines and press Shift+Tab", "Rename the file to .json", "Remove additionalProperties"],
+      "answer": 1,
+      "explain": "Pasted blocks keep their old indentation; Shift+Tab moves them backward until aligned."
+    },
+    {
+      "q": "Your root file has type: postRequestDataTyp (a typo). What does Design Center do?",
+      "options": ["Creates the type automatically", "Shows an error and suggests existing type names", "Ignores the line", "Falls back to type: object"],
+      "answer": 1,
+      "explain": "If a referenced type doesn't exist, the editor shows an error and suggests the existing type names."
+    },
+    {
+      "q": "What is the difference between an example and a data type?",
+      "options": ["An example validates; a data type shows values", "An example shows sample values; a data type defines structure and constraints used to validate", "They are the same thing", "Examples apply only to errors"],
+      "answer": 1,
+      "explain": "Values in an example can change (salary 80,000 or 1 lakh) and remain valid; the data type is the structure they are checked against."
+    },
+    {
+      "q": "Another API specification in Design Center wants to use your Address type. What do you need?",
+      "options": ["Nothing — types are global in Design Center", "A fragment — a separate reusable project imported into each API", "Copy path from your spec", "A domain project"],
+      "answer": 1,
+      "explain": "Types and examples in one spec can be reused only within that API. Cross-API reuse needs a fragment."
+    },
+    {
+      "q": "Which items are most commonly put in fragments, per the class?",
+      "options": ["Main requests and success responses", "Headers and error responses", "Root titles and versions", "Mock URLs"],
+      "answer": 1,
+      "explain": "Headers and error responses repeat across projects; main requests and success responses usually differ per API."
+    },
+    {
+      "q": "In real projects, why are error responses usually separate types even if the class example matched the success response?",
+      "options": ["RAML doesn't allow sharing types", "Error responses usually have extra fields, e.g. an event/correlation ID", "Error responses must be XML", "Fragments can't hold success types"],
+      "answer": 1,
+      "explain": "In class the error and create responses had the same structure and could share a type; real error responses often add fields."
+    },
+    {
+      "q": "How do organisations start new API specifications consistently?",
+      "options": ["Write each spec from scratch", "Duplicate a template with the folder structure, rename it, and fill in the files", "Import from Runtime Manager", "Copy the Studio project"],
+      "answer": 1,
+      "explain": "A template (in Design Center/Exchange) saves 10–15 minutes and keeps the organisation consistent."
+    }
+  ],
+  "cards": [
+    {"front": "How do you keep a large RAML maintainable?", "back": "Split it into folders and files — examples (JSON), data types (DataType files), traits — referenced from the root file."},
+    {"front": "Examples folder structure", "back": "`examples/` with `requests/`, `responses/`, `errorResponses/` (subfolders optional but helpful)."},
+    {"front": "`!include`", "back": "Inserts another file's content at that place, e.g. `example: !include examples/requests/postRequestExample.json`."},
+    {"front": "Copy path", "back": "Design Center option (⋮ on a file) that copies its path for use in `!include`."},
+    {"front": "Root file", "back": "The main RAML file, starting `#%RAML 1.0`, marked in Design Center."},
+    {"front": "Data type / schema", "back": "Defines the structure: object with these properties, this one string, that one number… Used to validate."},
+    {"front": "Example vs data type", "back": "Example = sample values. Data type = structure and constraints used for validation."},
+    {"front": "Data-type file header", "back": "`#%RAML 1.0 DataType`"},
+    {"front": "`types:`", "back": "Root-file section that declares custom types with aliases, e.g. `postRequestDataType: !include /dataTypes/requests/postRequestDataType.raml`."},
+    {"front": "`type:`", "back": "Uses a declared type by name, e.g. `type: postRequestDataType`."},
+    {"front": "Tab / Shift+Tab", "back": "Tab = forward indentation; **Shift+Tab** = backward indentation for selected lines."},
+    {"front": "Duplicate a file", "back": "Duplicate an existing file (e.g. 400 error example → 500) and edit it instead of creating from scratch."},
+    {"front": "Reuse within one spec", "back": "If two blocks have identical structure, declare one type and reference it in several places."},
+    {"front": "Can one API's types be used in another?", "back": "No. Use a **fragment** for cross-API reuse."},
+    {"front": "Fragment", "back": "A separate Design Center project (not a full API spec) with reusable RAML, imported into each API."},
+    {"front": "Fragment example — address", "back": "Fifty APIs need the same `address` structure: define `Address` once in a fragment; each API uses `type: Address`."},
+    {"front": "What goes in fragments?", "back": "Repeated items: headers (traits), error response types, common objects like addresses."},
+    {"front": "Template", "back": "Pre-built spec with the folder structure; duplicate, rename and fill in for new APIs."},
+    {"front": "Enhancement", "back": "A change to an existing API: update the spec in Design Center, re-import into Studio, update the implementation."},
+    {"front": "RAML error locations", "back": "Errors can show up in a different file than where the mistake is — check where each cut/pasted block starts and ends."},
+    {"front": "Next topic after data types", "back": "**Traits** — define headers once and use them in methods."}
+  ]
+}

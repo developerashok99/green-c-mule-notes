@@ -1,0 +1,226 @@
+{
+  "quiz": [
+    {
+      "q": "What are the two main benefits of JMS messaging stressed in class?",
+      "options": [
+        "Encryption and compression",
+        "Decoupling and asynchronous communication",
+        "Lower licence cost and faster DataWeave",
+        "Synchronous replies and transactions"
+      ],
+      "answer": 1,
+      "explain": "The producer and consumer have no direct connection (decoupling), and the producer sends and forgets (asynchronous)."
+    },
+    {
+      "q": "A new customer in Salesforce must be created in SAP, a database and a microservice. Which destination fits?",
+      "options": [
+        "A queue",
+        "A topic",
+        "A VM queue",
+        "A DLQ"
+      ],
+      "answer": 1,
+      "explain": "A topic is one-to-many — every subscriber gets the same message. A queue is point-to-point."
+    },
+    {
+      "q": "In a queue, what happens to a message after a consumer receives and acknowledges it?",
+      "options": [
+        "Every other consumer also gets it",
+        "It is removed (dequeued)",
+        "It moves to a topic",
+        "It stays forever"
+      ],
+      "answer": 1,
+      "explain": "A queue is point-to-point; once consumed and acknowledged, the message is dequeued and can't be consumed again."
+    },
+    {
+      "q": "In Mule, where do JMS message headers and body end up?",
+      "options": [
+        "Headers → variables, body → attributes",
+        "Headers → attributes, body → payload",
+        "Both in the payload",
+        "Headers → payload, body → attributes"
+      ],
+      "answer": 1,
+      "explain": "Like HTTP, JMS headers become attributes and the body becomes the payload."
+    },
+    {
+      "q": "Which JMS operation is a source that triggers the flow as soon as a message arrives?",
+      "options": [
+        "Consume",
+        "Publish Consume",
+        "On New Message",
+        "Ack"
+      ],
+      "answer": 2,
+      "explain": "On New Message (named Listener in some Studio versions) is the source; Consume is a processor that takes a message only when the flow reaches it."
+    },
+    {
+      "q": "Which operation publishes a message and waits for the reply?",
+      "options": [
+        "Publish",
+        "Publish Consume",
+        "On New Message",
+        "Recover Session"
+      ],
+      "answer": 1,
+      "explain": "Publish is asynchronous; Publish Consume is synchronous and waits for the response."
+    },
+    {
+      "q": "What is the Broker URL for a local ActiveMQ in the class JMS config?",
+      "options": [
+        "`http://localhost:8161`",
+        "`tcp://localhost:61616`",
+        "`amqp://localhost:5672`",
+        "`jdbc:activemq://localhost`"
+      ],
+      "answer": 1,
+      "explain": "61616 is the openwire transport connector; 8161 is the web console."
+    },
+    {
+      "q": "You publish to a queue name that doesn't exist yet in ActiveMQ. What happens?",
+      "options": [
+        "\"destination not found\" error",
+        "ActiveMQ creates the queue automatically",
+        "The message is sent to a topic",
+        "The publish waits until the queue is created"
+      ],
+      "answer": 1,
+      "explain": "ActiveMQ auto-creates any queue you publish to; Anypoint MQ returns \"destination not found\". Use exact names."
+    },
+    {
+      "q": "With the default acknowledgement mode, when is a message acknowledged?",
+      "options": [
+        "As soon as it is received",
+        "When the whole flow succeeds (AUTO)",
+        "Only when the Ack operation runs",
+        "Never — it is deleted after 7 days"
+      ],
+      "answer": 1,
+      "explain": "AUTO is the default and acknowledges when the flow succeeds. IMMEDIATE acks on receipt; MANUAL waits for Ack."
+    },
+    {
+      "q": "With MANUAL acknowledgement, what do you pass to the Ack operation?",
+      "options": [
+        "`attributes.messageId`",
+        "`attributes.ackId`",
+        "`vars.counter`",
+        "`correlationId`"
+      ],
+      "answer": 1,
+      "explain": "Each message has an acknowledgement ID in `attributes.ackId`; the message stays pending until Ack runs."
+    },
+    {
+      "q": "A consumed message arrives as a String containing JSON, and `payload.name` doesn't work. What do you use?",
+      "options": [
+        "`write(payload, \"application/json\")`",
+        "`read(payload, \"application/json\")`",
+        "`payload as Object`",
+        "`typeOf(payload)`"
+      ],
+      "answer": 1,
+      "explain": "`read` converts a string/binary into its underlying format; `write` does the reverse."
+    },
+    {
+      "q": "App 1 must publish a message that app 2 consumes. Why won't the VM connector work?",
+      "options": [
+        "VM is only for topics",
+        "VM queues are intra-app — they work only within the same application",
+        "VM needs Anypoint MQ licence",
+        "VM has no Publish operation"
+      ],
+      "answer": 1,
+      "explain": "VM is for asynchronous communication within one application; JMS brokers and Anypoint MQ are inter-app."
+    }
+  ],
+  "cards": [
+    {
+      "front": "JMS",
+      "back": "**Java Messaging Service** — a generic concept for communication between systems in a message format, with many brokers."
+    },
+    {
+      "front": "Message brokers mentioned",
+      "back": "Apache ActiveMQ (open source, used in class), RabbitMQ, Apache Kafka, IBM MQ, and Anypoint MQ (MuleSoft's own, licensed, cloud-only)."
+    },
+    {
+      "front": "Why use JMS?",
+      "back": "To decouple systems and communicate asynchronously — the producer doesn't wait, consumers process independently, and messages survive while a downstream system is down."
+    },
+    {
+      "front": "Queue vs. topic",
+      "back": "A queue is **point-to-point** — one consumer, then removed. A topic is **one-to-many** — every subscriber gets the same message."
+    },
+    {
+      "front": "JMS message structure in Mule",
+      "back": "Headers → **attributes**, body → **payload**."
+    },
+    {
+      "front": "Publish vs. Publish Consume",
+      "back": "Publish is asynchronous — send and move on. Publish Consume is synchronous — it publishes and waits for the reply."
+    },
+    {
+      "front": "Consume vs. On New Message",
+      "back": "Consume is a processor that takes a message when the flow reaches it. On New Message is a source that triggers the flow when a message arrives."
+    },
+    {
+      "front": "JMS operations",
+      "back": "Publish, Consume, On New Message (source), Publish Consume, Ack, Recover Session."
+    },
+    {
+      "front": "Acknowledgement",
+      "back": "Telling the broker \"I have successfully processed it\", so the message is dequeued."
+    },
+    {
+      "front": "JMS acknowledgement modes",
+      "back": "**AUTO** (default — when the flow succeeds), **IMMEDIATE** (on receipt), **DUPS_OK** (like AUTO, duplicates possible), **MANUAL** (Ack operation with `attributes.ackId`)."
+    },
+    {
+      "front": "When use MANUAL acknowledgement?",
+      "back": "For long processes — acknowledge only near the end with the Ack operation and `#[attributes.ackId]`."
+    },
+    {
+      "front": "Enqueued / dequeued / pending",
+      "back": "Messages that came in / were removed / are waiting. 10 enqueued, 5 dequeued → 5 pending."
+    },
+    {
+      "front": "Purge vs. Delete in the ActiveMQ console",
+      "back": "Purge deletes the messages; Delete deletes the queue."
+    },
+    {
+      "front": "ActiveMQ ports",
+      "back": "Broker (openwire) `tcp://localhost:61616`; web console `http://localhost:8161`."
+    },
+    {
+      "front": "What do you need from the messaging team?",
+      "back": "Broker URL, username and password, and the queue/topic names (they create them)."
+    },
+    {
+      "front": "Publish to a non-existent queue",
+      "back": "ActiveMQ creates it automatically; Anypoint MQ returns \"destination not found\"."
+    },
+    {
+      "front": "Reconnection for On New Message",
+      "back": "**Forever** — it's a source."
+    },
+    {
+      "front": "`read` vs. `write`",
+      "back": "`read(s, \"application/json\")` turns a string/binary into structured data; `write(obj, \"application/json\")` turns it into a string."
+    },
+    {
+      "front": "DLQ",
+      "back": "Dead-letter queue for failed messages."
+    },
+    {
+      "front": "VM vs. JMS / Anypoint MQ",
+      "back": "VM queues work only within one application (**intra-app**); JMS brokers and Anypoint MQ work between applications (**inter-app**)."
+    },
+    {
+      "front": "Anypoint MQ",
+      "back": "MuleSoft's queuing service — an extra licence, for cloud-based deployments only."
+    },
+    {
+      "front": "Log streaming with queues",
+      "back": "CloudHub logs are limited or deleted within 30 days; send logs to queues and let a system like the ELK stack consume and store them."
+    }
+  ]
+}

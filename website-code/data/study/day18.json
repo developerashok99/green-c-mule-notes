@@ -1,0 +1,101 @@
+{
+  "quiz": [
+    {
+      "q": "You try to deploy a second Mule application onto the same CloudHub worker as an existing app. What does the lecture say?",
+      "options": ["It works — a worker can host up to 10 apps", "It is not possible — one worker runs one application", "It works only on 1 vCore workers", "It works only in CloudHub 2.0"],
+      "answer": 1,
+      "explain": "A worker is a dedicated Mule instance: one worker, one application. That's why it's called dedicated."
+    },
+    {
+      "q": "What memory does a 0.2 vCore worker have (CloudHub 1.0 sizes from the slide)?",
+      "options": ["500 MB", "1 GB", "1.5 GB", "2 GB"],
+      "answer": 1,
+      "explain": "0.1 vCore = 500 MB, 0.2 vCore = 1 GB, 1 vCore = 1.5 GB."
+    },
+    {
+      "q": "During a festive sale, the number of requests triples but each payload stays the same size. Which scaling fits?",
+      "options": ["Vertical scaling — bigger vCore", "Horizontal scaling — more workers", "Change the runtime version", "Switch to a Dedicated Load Balancer"],
+      "answer": 1,
+      "explain": "Horizontal scaling (more workers) suits high-frequency, small-payload requests and also gives high availability."
+    },
+    {
+      "q": "Payloads grow from about 200 KB to 2,000 KB and the worker throws out-of-memory errors. Which scaling fits?",
+      "options": ["Horizontal scaling — more workers", "Vertical scaling — increase the vCore size, e.g. 0.1 → 0.2", "Add a Choice router", "Reduce log retention"],
+      "answer": 1,
+      "explain": "Vertical scaling increases the worker's memory/CPU, which is what larger payloads need."
+    },
+    {
+      "q": "Can worker 1 of an app be 0.2 vCore while workers 2 and 3 stay 0.1 vCore?",
+      "options": ["Yes, sizes are set per worker", "No — the vCore size applies to all workers of the application", "Only with a Dedicated Load Balancer", "Only in CloudHub 2.0"],
+      "answer": 1,
+      "explain": "The size applies to all workers. Otherwise, with round robin, some requests would hit a small worker and run out of memory."
+    },
+    {
+      "q": "What is the maximum number of workers per CloudHub application in this lecture?",
+      "options": ["2", "4", "8", "16"],
+      "answer": 2,
+      "explain": "Minimum 1, maximum 8 workers per application. (16 is the largest vCore size, not a worker count.)"
+    },
+    {
+      "q": "Which CloudHub application name is valid?",
+      "options": ["2-weather-api", "-weather-api", "weather-conn-api", "Weather_Conn_API"],
+      "answer": 2,
+      "explain": "Names use lowercase letters, numbers and dashes, can't start with a number or dash, and are 3–42 characters long."
+    },
+    {
+      "q": "An app was built for Mule runtime 4.8. Can it be deployed on a 4.6 runtime?",
+      "options": ["Yes, minor versions are always compatible", "No — higher to lower is not supported", "Yes, if the patch number matches", "Only on CloudHub 2.0"],
+      "answer": 1,
+      "explain": "Lower → higher works (a 4.4 app can run on 4.8), but higher → lower does not."
+    },
+    {
+      "q": "In CloudHub 2.0, what is the term for what CloudHub 1.0 called a worker?",
+      "options": ["Container", "Replica", "Node", "Instance group"],
+      "answer": 1,
+      "explain": "Worker → replica, worker size → replica size, number of workers → replica count."
+    },
+    {
+      "q": "You mark a property as Protected when deploying in Runtime Manager. What happens?",
+      "options": ["Its value is encrypted but admins can still view it", "Its value can't be viewed or retrieved by any user, and this can't be undone", "It is copied into the JAR", "It becomes read-only only in Sandbox"],
+      "answer": 1,
+      "explain": "Once protected, nobody can view or retrieve the value, and the protection cannot be undone."
+    },
+    {
+      "q": "How long are Runtime Manager logs kept?",
+      "options": ["7 days", "Up to 30 days or 100 MB, whichever comes first", "Forever", "90 days or 1 GB"],
+      "answer": 1,
+      "explain": "Logs are kept up to 30 days or 100 MB; for longer retention organisations use a separate logging system."
+    },
+    {
+      "q": "You change only the properties file while the app runs in Studio. What happens?",
+      "options": ["Studio auto-redeploys immediately", "Nothing until you stop and run the app again", "Studio deletes the old properties", "The app is deployed to CloudHub"],
+      "answer": 1,
+      "explain": "Property file changes don't trigger auto-redeploy (code changes do), so stop and run again."
+    }
+  ],
+  "cards": [
+    {"front": "What is CloudHub?", "back": "MuleSoft's **iPaaS** — a managed cloud environment, built on cloud infrastructure, where Mule apps are deployed without managing servers."},
+    {"front": "iPaaS", "back": "Integration Platform as a Service."},
+    {"front": "Worker", "back": "A dedicated Mule instance (mini server) running **one** application (CloudHub 1.0 term)."},
+    {"front": "Replica", "back": "The CloudHub 2.0 term for a worker. Size → **replica size**, count → **replica count**."},
+    {"front": "vCore", "back": "Unit of worker size (CPU/memory) and licensing. MuleSoft charges by the number of vCores purchased."},
+    {"front": "Worker sizes (CloudHub 1.0)", "back": "0.1 vCore = 500 MB (minimum), 0.2 vCore = 1 GB, 1 vCore = 1.5 GB. Larger sizes go up to 16 vCores."},
+    {"front": "How many apps fit in 1 vCore?", "back": "**10** apps at 0.1 vCore each; fewer if some apps need 0.2 or 0.3."},
+    {"front": "Instructor's view on worker size", "back": "0.1 vCore handles most applications (80–90%); but use **multiple workers** for high availability."},
+    {"front": "Horizontal scaling", "back": "Increasing the **number of workers**. For high-frequency, small-payload requests; gives high availability. Max **8** workers."},
+    {"front": "Vertical scaling", "back": "Increasing the **vCore size** of the worker. For larger payloads that need more memory."},
+    {"front": "Can workers of one app have different sizes?", "back": "No — the size applies to all workers of the application."},
+    {"front": "CloudHub app naming rules", "back": "Lowercase letters, numbers, dashes; not starting with a number or dash; **3–42** characters; unique."},
+    {"front": "Shared space", "back": "CloudHub 2.0 shared infrastructure option (demo region: US East (Ohio))."},
+    {"front": "Version number parts", "back": "`4.8.1` = **major.minor.patch**. Major (3→4) = big changes; minor (4.4→4.8) = small improvements."},
+    {"front": "Runtime compatibility", "back": "Lower → higher works (4.4 app on 4.8). Higher → lower doesn't (4.8 app on 4.6)."},
+    {"front": "Upgrading 4.4 → 4.8", "back": "Change `app.runtime` in pom.xml (and `minMuleVersion` in mule-artifact.json), test all connectors, upgrade incompatible connector versions."},
+    {"front": "Release channel", "back": "**Edge** (frequent releases, shorter support) and **LTS** (long-term support)."},
+    {"front": "Protected property", "back": "A Runtime Manager property whose value can't be viewed or retrieved by any user — permanently."},
+    {"front": "How are properties passed in real projects?", "back": "Via the **CI/CD pipeline**, usually built by DevOps; or the Properties section of the deployment (e.g. `mule.env=prod`)."},
+    {"front": "Log retention in Runtime Manager", "back": "Up to **30 days or 100 MB**, whichever comes first."},
+    {"front": "Correlation ID", "back": "A unique ID sent in headers to identify one request; filter logs by it to follow that request."},
+    {"front": "Exporting the JAR", "back": "Right-click → Export → **Mule Deployable Archive**, or take it from the project's **target** folder."},
+    {"front": "Why always test locally first?", "back": "A shared-environment deployment takes 15–20 minutes; failing there wastes double the time."}
+  ]
+}

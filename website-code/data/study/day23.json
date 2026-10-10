@@ -1,0 +1,100 @@
+{
+  "quiz": [
+    {
+      "q": "In Design Center → Create, which option do you choose to write the Employee REST API's RAML?",
+      "options": ["New Fragment", "New AsyncAPI", "New API Specification", "Sync from existing GitHub repo"],
+      "answer": 2,
+      "explain": "New API Specification creates a REST API spec. Fragments are reusable RAML pieces; AsyncAPI is for asynchronous APIs."
+    },
+    {
+      "q": "Which resource name follows the best practice taught in class?",
+      "options": ["/createEmployee", "/employee/add", "/employees", "/getEmployees"],
+      "answer": 2,
+      "explain": "Resources should be plural nouns with no action verbs — the HTTP method already indicates the action."
+    },
+    {
+      "q": "A consumer sends the header as TransactionId, but the RAML defines transaction-id. What happens?",
+      "options": ["It matches — header names are case-insensitive in RAML", "It doesn't match and the request fails as a bad request", "Mule renames it automatically", "It is treated as an optional header"],
+      "answer": 1,
+      "explain": "Consumers must send headers exactly as named; TransactionId or transactionID won't match."
+    },
+    {
+      "q": "The transaction-id header has minLength: 32 and maxLength: 32. Its example has 30 characters. What does the editor show?",
+      "options": ["Nothing — examples aren't validated", "Error: should NOT be shorter than 32 characters", "A warning that maxLength is ignored", "The example is padded automatically"],
+      "answer": 1,
+      "explain": "Examples are validated against the rules; exactly 32 characters means both min and max are 32."
+    },
+    {
+      "q": "The origin header is defined with enum: [mobile, web]. A consumer sends Mobile. What happens?",
+      "options": ["Accepted — enum values are case-insensitive", "Error — the value isn't in the enum list", "Accepted as web", "Accepted because origin is optional"],
+      "answer": 1,
+      "explain": "Only listed values are allowed; Mobile with a capital M (or iot) causes an error. Add a value to the enum to allow it."
+    },
+    {
+      "q": "You don't write required for the language header. How is it treated?",
+      "options": ["Optional", "Required — required defaults to true", "Ignored by the mock", "Required only for POST"],
+      "answer": 1,
+      "explain": "required defaults to true in RAML, so optional headers need required: false."
+    },
+    {
+      "q": "You want the request body to reject fields that aren't declared. What do you set, and where?",
+      "options": ["additionalProperties: false, after type: object and before properties", "additionalProperties: true, at the end of the file", "required: false on every field", "strict: true under mediaType"],
+      "answer": 0,
+      "explain": "additionalProperties defaults to true (extras accepted). Set it to false, placed after type: object and before properties; placing it wrongly caused syntax errors in class."
+    },
+    {
+      "q": "In the class RAML, how is the employee ID passed to the fetch (GET) endpoint?",
+      "options": ["As a query parameter ?empid=", "As a URI parameter in the nested resource /employees/{empid}", "In the request body", "In the origin header"],
+      "answer": 1,
+      "explain": "The employee ID is the unique resource identifier, passed as a URI parameter on /{empid} under /employees."
+    },
+    {
+      "q": "Which success status codes did the class use for create and for update?",
+      "options": ["200 for create, 201 for update", "201 for create, 200 for update", "201 for both", "202 for both"],
+      "answer": 1,
+      "explain": "POST create returns 201; PATCH update and GET fetch return 200."
+    },
+    {
+      "q": "A star (*) appears next to the RAML file name in Design Center. What does it mean?",
+      "options": ["The file has errors", "The file has unsaved changes", "The file is the root file", "The file is published to Exchange"],
+      "answer": 1,
+      "explain": "Design Center auto-saves; the star shows unsaved changes and disappears after saving."
+    },
+    {
+      "q": "In \"Try it\", every POST returned 400 with an enum validation error. What did the instructor conclude?",
+      "options": ["The body example was wrong", "It's an enum-related issue they couldn't trace; it works without the enum, so testing moves to a separate mocking service", "The mock only supports GET", "The header names must be uppercase"],
+      "answer": 1,
+      "explain": "Removing a mandatory field changed the error (proving validation works), but the enum issue stayed unresolved."
+    },
+    {
+      "q": "An optional string header (language) may be sent empty or null. What does the class suggest?",
+      "options": ["Make it required", "Give it a default value in RAML", "Remove the header from RAML", "Change its type to object"],
+      "answer": 1,
+      "explain": "Sent as null it fails because the header expects a string; a default value allows it."
+    }
+  ],
+  "cards": [
+    {"front": "Design Center Create options", "back": "New API Specification, New Fragment, New AsyncAPI, Import from file, Sync from existing GitHub repo."},
+    {"front": "Fragment", "back": "A reusable RAML piece (covered in later sessions)."},
+    {"front": "AsyncAPI", "back": "Specification format for asynchronous APIs (recently introduced in Design Center)."},
+    {"front": "Specification language choices", "back": "RAML 1.0, RAML 0.8, OAS 2.0, OAS 3.0 (OAS in JSON or YAML). The class chose **RAML 1.0**."},
+    {"front": "Design Center layout", "back": "Left: project files. Middle: RAML editor with auto-suggestions. Right: auto-generated documentation."},
+    {"front": "Root-level information", "back": "`title`, `description`, `version: v1`, `protocols`, `mediaType`."},
+    {"front": "API versioning advice", "back": "Start at `v1`; minor additions → v1.1, v1.2; major changes → v2."},
+    {"front": "Resource naming best practice", "back": "Plural nouns (e.g. `/employees`), no action verbs — the method indicates the action."},
+    {"front": "Main parts of a RAML method", "back": "Description, headers, query/URI parameters, body (type, properties, example), responses per status code."},
+    {"front": "`required`", "back": "Mandatory flag; defaults to **true**. Use `required: false` for optional."},
+    {"front": "`enum`", "back": "Restricts a value to a list, e.g. `enum: [mobile, web]`. The example must be one of the values."},
+    {"front": "`minLength` / `maxLength`", "back": "String length rules. Exactly 32 characters → both set to 32."},
+    {"front": "`additionalProperties`", "back": "Allow/reject undeclared fields; default **true**. Set `false` after `type: object`, before `properties`."},
+    {"front": "Header name matching", "back": "Consumers must send headers exactly as named — `TransactionId` won't match `transaction-id`."},
+    {"front": "Example errors like \"should have required property active\"", "back": "All properties are required by default, so the example must contain them all (and alignment must be correct)."},
+    {"front": "Class response codes", "back": "**201** create, **200** update/fetch, **400** bad request, **500** internal server error."},
+    {"front": "Indenting several lines", "back": "Select them and press **Tab** (repeat for more levels)."},
+    {"front": "`default`", "back": "Value used when absent — lets an optional header be sent empty/null."},
+    {"front": "Try it", "back": "Auto-generated documentation feature that calls a **mock** of the spec, like Postman. Optional headers appear under *Show optional*."},
+    {"front": "How do you test a spec before implementation?", "back": "Use the mocking service (Try it in Design Center) or share the mock URL / Postman collection."},
+    {"front": "Order used to write a method", "back": "Method → headers → body → responses (success, then errors)."},
+    {"front": "Why modularise the RAML?", "back": "It had **300+ lines** with headers repeated three times; folders, separate files and references improve readability."}
+  ]
+}

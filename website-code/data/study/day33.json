@@ -1,0 +1,101 @@
+{
+  "quiz": [
+    {
+      "q": "What does OAuth 2.0 primarily handle?",
+      "options": ["Authentication — verifying who the user is", "Authorization — granting restricted access", "Encryption of the payload", "Rate limiting of requests"],
+      "answer": 1,
+      "explain": "OAuth 2.0 is an authorization framework, not an authentication protocol. Authentication is handled by OpenID Connect on top of OAuth."
+    },
+    {
+      "q": "In the hotel analogy, receiving the key to room 405 only (and not room 407) corresponds to what?",
+      "options": ["Authentication", "Authorization", "Registration", "Token refresh"],
+      "answer": 1,
+      "explain": "Checking the booking ID and ID proof is authentication; getting restricted access to just your room is authorization."
+    },
+    {
+      "q": "Which comes first in the process?",
+      "options": ["Authorization, then authentication", "Authentication, then authorization", "They always happen at the same moment", "Only one of them ever happens"],
+      "answer": 1,
+      "explain": "Identity is verified first (authentication), then restricted access is granted (authorization)."
+    },
+    {
+      "q": "Ramesh signs up on Zomato with his Facebook account. Where does he type his Facebook password?",
+      "options": ["On Zomato's sign-up form", "On Facebook's login page", "In Zomato's backend token request", "He doesn't need a password"],
+      "answer": 1,
+      "explain": "The browser is redirected to Facebook's login page; the credentials go only to the provider, never to the client app."
+    },
+    {
+      "q": "After the user gives consent in the authorization code grant, what does the authorization server send to the client's redirect URI?",
+      "options": ["The access token", "The authorization code", "The user's password", "The refresh token only"],
+      "answer": 1,
+      "explain": "An authorization code is sent via the redirect URI. The client then exchanges it for an access token in the backend."
+    },
+    {
+      "q": "What does Zomato's backend send to Facebook's token endpoint to get the access token?",
+      "options": ["Authorization code + client ID + client secret", "Ramesh's username and password", "Only the redirect URI", "The access token it already has"],
+      "answer": 0,
+      "explain": "The client exchanges the code together with its client ID and client secret, server-to-server, for an access token."
+    },
+    {
+      "q": "Why isn't the authorization code itself used as the access token?",
+      "options": ["It is too long to send in a header", "It passes through the browser and can be seen, so the token is obtained in the backend with the client secret", "The resource server cannot read codes", "Codes never expire"],
+      "answer": 1,
+      "explain": "Up to the redirect everything is in the browser, so the code is visible. The exchange needs the client secret and happens server-to-server."
+    },
+    {
+      "q": "Zomato calls Facebook's profile API with the access token. What does the resource server do before returning data?",
+      "options": ["Asks the authorization server to validate the token", "Asks Ramesh to log in again", "Creates the Zomato account", "Generates a new authorization code"],
+      "answer": 0,
+      "explain": "The resource server checks the token with the authorization server; valid → profile details (only consented fields) returned, invalid → rejected."
+    },
+    {
+      "q": "In the Zomato + Facebook example, which OAuth actor is Zomato?",
+      "options": ["Resource owner", "Client", "Authorization server", "Resource server"],
+      "answer": 1,
+      "explain": "Zomato is the client application requesting access on the user's behalf. Ramesh is the resource owner."
+    },
+    {
+      "q": "An access token expires after 1 hour. What lets the client get a new one without repeating the whole flow?",
+      "options": ["The authorization code", "A refresh token", "The redirect URI", "The scope"],
+      "answer": 1,
+      "explain": "A refresh token is long-lived; the client sends it to the token endpoint to obtain a new access token."
+    },
+    {
+      "q": "User 2 can read and edit a file but not delete it. Which OAuth concept expresses this?",
+      "options": ["Grant type", "Scope", "Redirect URI", "OAuth dance"],
+      "answer": 1,
+      "explain": "Scope is the set of permissions the client requests — the level of access within a resource."
+    },
+    {
+      "q": "Which grant type is used when a user signs in to a third-party app with their Google/Facebook/LinkedIn account?",
+      "options": ["Client credentials grant", "Authorization code grant", "Resource owner password grant", "Refresh token grant"],
+      "answer": 1,
+      "explain": "The authorization code grant covers sign-up/login to third-party apps via a provider account. Client credentials (mostly used for APIs) comes next session."
+    }
+  ],
+  "cards": [
+    {"front": "OAuth", "back": "**Open Authorization**. Version 2.0 is current; 1.0 was less secure and is no longer used."},
+    {"front": "What is OAuth 2.0?", "back": "An authorization framework that lets an application access a user's resources on another application on their behalf, without sharing credentials."},
+    {"front": "Is OAuth authentication or authorization?", "back": "Authorization. Authentication is handled by **OpenID Connect**, though people commonly say \"OAuth\" for both."},
+    {"front": "Authentication vs. authorization", "back": "Authentication verifies identity (who are you?); authorization grants restricted access (what can you access?). Authentication comes first."},
+    {"front": "OpenID Connect", "back": "The authentication (identity) layer on top of OAuth."},
+    {"front": "OAuth actors", "back": "Resource owner, client, authorization server, resource server."},
+    {"front": "Resource owner", "back": "The user who owns the data/account being accessed (Ramesh in the example)."},
+    {"front": "Client (OAuth)", "back": "The application requesting access to protected resources on behalf of the user (Zomato)."},
+    {"front": "Authorization server", "back": "Handles authentication/authorization and issues access tokens — e.g. Okta, Auth0 in companies."},
+    {"front": "Resource server", "back": "Hosts the protected resources. For our MuleSoft APIs, the worker/runtime hosting the API."},
+    {"front": "Explain the OAuth dance (authorization code grant)", "back": "Login with provider → enter credentials on provider → consent → auth code to client's redirect URI → client exchanges code + client ID/secret for access token → calls resource server with token → token validated → data returned."},
+    {"front": "Why isn't the auth code used as the access token?", "back": "It passes through the browser and can be seen; the token is obtained in the backend using the code plus the client secret."},
+    {"front": "Prerequisite for \"Login with Facebook\" on Zomato", "back": "Zomato registered with Facebook's authorization server beforehand — it has a client ID/secret and a known redirect URI."},
+    {"front": "Authorization code", "back": "A temporary code the client receives after the user authorizes the request."},
+    {"front": "Access token", "back": "Token the client uses to call the resource server. Lifetime is configured — typically 1, 2 or 24 hours."},
+    {"front": "Refresh token", "back": "Long-lived token the client sends to the token endpoint to get a new access token when the current one expires."},
+    {"front": "Scope", "back": "The specific permissions the client requests — e.g. read only vs. read/write vs. read/write/delete."},
+    {"front": "Grant type", "back": "The method by which the client obtains the access token. Examples: authorization code, client credentials, resource owner password."},
+    {"front": "Redirect URI", "back": "The registered URI where the authorization server sends the user (and code) after authorization."},
+    {"front": "Token endpoint", "back": "The authorization server endpoint that issues tokens."},
+    {"front": "When is the authorization code grant used?", "back": "When users sign up/log in to third-party apps with Google, Facebook, LinkedIn or another provider account."},
+    {"front": "Why does Zomato get only GET profile access?", "back": "Ramesh consented to share only a few details — no POST/PATCH/DELETE. That restricted access is authorization."},
+    {"front": "Most-used grant type in the API field", "back": "**Client credentials grant** (instructor's observation)."}
+  ]
+}

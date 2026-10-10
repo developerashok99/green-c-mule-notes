@@ -1,0 +1,132 @@
+{
+  "quiz": [
+    {
+      "q": "Where on the résumé should relevant certifications go?",
+      "options": ["At the very end, after the declaration", "At the top, so the recruiter sees them immediately", "Only in the cover letter", "Inside the technical skills table"],
+      "answer": 1,
+      "explain": "Recruiters have no time to search; a certification at the top puts you ahead of uncertified candidates only if it's seen."
+    },
+    {
+      "q": "Why does the sample profile summary use both \"Mule ESB developer\" and \"MuleSoft developer\"?",
+      "options": ["They are different products", "Job sites like Naukri and LinkedIn search with both keywords", "Mule ESB is the newer name", "To make the résumé longer"],
+      "answer": 1,
+      "explain": "Both keywords are used by job sites, so use both across the résumé — and vary forms like web services / REST APIs / RESTful API."
+    },
+    {
+      "q": "In the technical skills table, why is RAML listed under ESB skills rather than programming skills?",
+      "options": ["RAML is a Java library", "RAML is a modeling language, not a programming language", "RAML only runs on Mule ESB", "Recruiters don't read the programming row"],
+      "answer": 1,
+      "explain": "RAML (RESTful API Modeling Language) describes APIs; DataWeave is the programming skill."
+    },
+    {
+      "q": "What makes an Achievements point effective, according to the class?",
+      "options": ["Being as long as possible", "Quantified results (e.g. a 40% reduction) that you can explain in detail", "Listing every certification ever taken", "Copying it from another résumé"],
+      "answer": 1,
+      "explain": "Numbers give a better impression, and you must have the explanation ready — never keep a point you can't explain."
+    },
+    {
+      "q": "You haven't built CI/CD pipelines yourself, only used them. What is the suggested answer to \"Have you created a pipeline?\"",
+      "options": ["Say yes and describe Jenkins in general", "Say you used it and debugged failures, a separate DevOps team built it, and you're ready to learn", "Refuse to answer", "Say CI/CD isn't used in MuleSoft"],
+      "answer": 1,
+      "explain": "Answer honestly; creating pipelines is an added advantage, and you shouldn't claim what you can't answer questions on."
+    },
+    {
+      "q": "What is the main difference between an API and a web service, as defined in class?",
+      "options": ["APIs use XML; web services use JSON", "A web service is code that lets systems communicate and exchange data over the internet; an API need not use the internet", "APIs are always SOAP", "There is no difference"],
+      "answer": 1,
+      "explain": "An API helps systems communicate and exchange data; a web service does so over the internet, and comes in REST and SOAP types."
+    },
+    {
+      "q": "Which statement about SOAP is correct?",
+      "options": ["It accepts JSON, XML, HTML and text", "It is an XML-based protocol documented with WSDL and defines its own security", "It is documented with RAML", "It inherits security from the transport layer"],
+      "answer": 1,
+      "explain": "SOAP (Simple Object Access Protocol) is XML-only, uses WSDL, and defines its own security; REST inherits it from the transport."
+    },
+    {
+      "q": "A requirement needs response caching. Which style should you choose?",
+      "options": ["SOAP", "REST", "Either — both support caching", "Neither"],
+      "answer": 1,
+      "explain": "SOAP doesn't support caching; choose REST whenever caching is required. SOAP suits strong security and standardized communication."
+    },
+    {
+      "q": "You need all active accounts of a bank (`/accounts?status=active`). Which parameter type is this?",
+      "options": ["URI parameter", "Query parameter", "Header", "Form parameter"],
+      "answer": 1,
+      "explain": "Query parameters filter, sort and paginate a collection, after `?`. URI parameters like `/{customerId}` identify one unique resource."
+    },
+    {
+      "q": "A resource may or may not exist; you want to update it completely if it does, or create it if it doesn't. Which method?",
+      "options": ["POST", "PUT", "PATCH", "GET"],
+      "answer": 1,
+      "explain": "PUT fully updates or creates; POST creates a new resource; PATCH partially updates."
+    },
+    {
+      "q": "A consumer creates a customer with a customer ID that already exists. Which status code fits?",
+      "options": ["400 Bad Request", "404 Not Found", "409 Conflict", "415 Unsupported Media Type"],
+      "answer": 2,
+      "explain": "409 means the request conflicts with the current state of the resource — e.g. a duplicate."
+    },
+    {
+      "q": "A consumer exceeds the limit set by the Rate Limiting policy. What status code do they get?",
+      "options": ["401", "403", "429", "503"],
+      "answer": 2,
+      "explain": "429 Too Many Requests — the client exceeded the number of requests allowed in a period."
+    },
+    {
+      "q": "The consumer has access to one resource but calls another it isn't allowed to use. Which code?",
+      "options": ["401 Unauthorized", "403 Forbidden", "405 Method Not Allowed", "404 Not Found"],
+      "answer": 1,
+      "explain": "403: the server understood the request but the user isn't allowed. 401 is for missing/invalid credentials."
+    },
+    {
+      "q": "You send XML to an endpoint that only accepts JSON. Which code is expected?",
+      "options": ["400", "405", "415", "501"],
+      "answer": 2,
+      "explain": "415 Unsupported Media Type — e.g. XML or CSV sent instead of JSON."
+    },
+    {
+      "q": "Running locally with Autodiscovery enabled, every request returns 503. What fixes it?",
+      "options": ["Change the port to 8082", "Disable the Anypoint Platform gatekeeper property or comment out the Autodiscovery ID", "Add a Rate Limiting policy", "Return 201 instead"],
+      "answer": 1,
+      "explain": "503 Service Unavailable appears locally when Autodiscovery is enabled without the gatekeeper disabled."
+    }
+  ],
+  "cards": [
+    {"front": "What decides whether you get an interview call?", "back": "The résumé and Naukri profile get you the call; your confidence on the recruiter call decides whether the interview is scheduled."},
+    {"front": "Three things the profile summary should cover", "back": "Total and relevant experience, technical expertise, and soft skills (communication, teamwork)."},
+    {"front": "Why name every Anypoint component in the summary?", "back": "So the profile is shortlisted if the job description mentions any of them (Studio, Design Center, Exchange, API Manager, Runtime Manager, Anypoint Monitoring)."},
+    {"front": "Rule for listing connectors, components, policies and tools", "back": "Only list what you can answer — at least 50–60% knowledge. Each item steers the interview towards it."},
+    {"front": "Similar connector groups", "back": "JMS ≈ VM; File ≈ FTP ≈ SFTP — learn one and you can handle the other."},
+    {"front": "Asked about a connector you haven't used?", "back": "If you know it, say you did a POC but haven't used it in real time; if you don't, say so plainly."},
+    {"front": "Why is MuleSoft listed under \"ESB skills\"?", "back": "It's an Enterprise Service Bus — it facilitates orchestration, transformation and enrichment."},
+    {"front": "Project header fields", "back": "Client, Duration (matching your experience dates), Domain, Role, Environments (e.g. DR for banking), Team size; optionally connectors used."},
+    {"front": "Why include DR in a banking project's environments?", "back": "Disaster Recovery is critical for banking and finance; explaining it well can tip the decision."},
+    {"front": "How many responsibilities per project?", "back": "5–6, written in different words for each project — don't copy-paste. Include at least two MuleSoft projects."},
+    {"front": "Cover letter structure", "back": "1) Interest in the role with total and MuleSoft experience, 2) technical skills, 3) non-technical skills, 4) résumé attached and closing. Personalise the recruiter's name; clear subject line."},
+    {"front": "The three key opening questions", "back": "Tell me about yourself; explain your project; explain your current roles and responsibilities. They steer the interviewer along your path."},
+    {"front": "What must \"tell me about yourself\" cover?", "back": "Total experience → relevant experience → achievements/certifications → projects and domains → then \"Coming to the recent project…\". About 2–5 minutes."},
+    {"front": "Why say \"end-to-end implementations\" rather than \"projects\"?", "back": "In MuleSoft a single API or application is also called a \"project\"."},
+    {"front": "Roles and responsibilities flow", "back": "Jira story → docs/queries → RAML in Design Center + feedback → import to Studio and implement → MUnit 80% → peer & architect review → Dev → SIT → UAT → performance test → Prod → hypercare → KT → Confluence."},
+    {"front": "Hypercare", "back": "The initial support period after go-live (15–30 days depending on the organization)."},
+    {"front": "Greeting rule in interviews", "back": "Greet by the **interviewer's** time of day (good morning/afternoon/evening) — never \"good night\"."},
+    {"front": "What is an API?", "back": "Application Programming Interface — code that helps two or more systems communicate and exchange data."},
+    {"front": "What is a web service?", "back": "Code that helps systems communicate and exchange data **over the internet**. Two types: REST and SOAP."},
+    {"front": "What is a REST web service?", "back": "Representational State Transfer — follows HTTP, accepts JSON, XML, HTML and text/plain, documented with RAML in Design Center."},
+    {"front": "What is a SOAP web service?", "back": "Simple Object Access Protocol — XML-based, XML input only, documented with WSDL, platform- and language-independent."},
+    {"front": "REST vs. SOAP (key points)", "back": "SOAP is a protocol, WSDL, XML only, more bandwidth, own security, no caching. REST is an architectural pattern, RAML, many formats, lighter, inherits transport security, caching possible."},
+    {"front": "When to choose REST vs. SOAP?", "back": "REST for simplicity, flexibility and whenever caching is needed. SOAP for complex, highly secure, standardized communication."},
+    {"front": "Query vs. URI parameters", "back": "Query params filter/sort/paginate, after `?` (`/accounts?status=active`). URI params identify one unique resource, in the path (`/{customerId}`)."},
+    {"front": "HTTP methods most used", "back": "GET (fetch, 200), POST (create, 201), PUT (full update or create), PATCH (partial update), DELETE."},
+    {"front": "POST vs. PUT vs. PATCH", "back": "POST creates a new resource; PUT updates completely if it exists or creates it; PATCH updates partially."},
+    {"front": "HTTP status code families", "back": "1xx informational, 2xx success, 3xx redirection, 4xx client error, 5xx server error."},
+    {"front": "200 vs. 201 vs. 204", "back": "200 OK with data; 201 Created (response to POST); 204 success with no content."},
+    {"front": "400 vs. 401 vs. 403", "back": "400 bad/undesired format or missing params; 401 missing/wrong credentials; 403 understood but not allowed."},
+    {"front": "405 Method Not Allowed", "back": "E.g. a GET sent to a POST-only resource."},
+    {"front": "409 / 415 / 429", "back": "409 Conflict (duplicate), 415 Unsupported Media Type (XML instead of JSON), 429 Too Many Requests (rate limit exceeded)."},
+    {"front": "500 vs. 501", "back": "500: server hit an error (e.g. DB down). 501: server doesn't support the functionality."},
+    {"front": "502 vs. 504", "back": "502 Bad Gateway: the gateway got no response from upstream. 504 Gateway Timeout: no timely response (e.g. slower than the gateway's 300 ms)."},
+    {"front": "503 Service Unavailable", "back": "The app is down/not running — also seen locally with Autodiscovery enabled unless the gatekeeper is disabled."},
+    {"front": "What is RAML?", "back": "RESTful API Modeling Language — a YAML-based language to describe REST APIs: requests, responses, schemas, examples, resources, methods, security schemes."},
+    {"front": "What is a trait in RAML?", "back": "A reusable component, similar to a function, declaring common properties for HTTP methods."}
+  ]
+}

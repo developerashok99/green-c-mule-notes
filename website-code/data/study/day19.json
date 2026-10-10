@@ -1,0 +1,100 @@
+{
+  "quiz": [
+    {
+      "q": "You redeploy a CloudHub app via Runtime Manager → Settings → new JAR → Apply changes. What happens to incoming requests during the redeploy?",
+      "options": ["They fail until the new version is up", "The existing version keeps serving them — zero downtime", "They are queued and replayed later", "They are routed to the Sandbox environment"],
+      "answer": 1,
+      "explain": "During redeployment the existing version keeps serving requests and the new version replaces it without the app going down."
+    },
+    {
+      "q": "How do you deploy an application to a running standalone Mule runtime?",
+      "options": ["Copy the JAR into the domains/ folder", "Copy the JAR into the apps/ folder", "Edit conf/wrapper.conf", "Run mule deploy from Studio"],
+      "answer": 1,
+      "explain": "Copy the JAR into apps/ and the running runtime deploys it automatically. domains/ is for domain projects."
+    },
+    {
+      "q": "After copying a JAR into apps/, how do you know it deployed successfully?",
+      "options": ["A <app-name>-anchor.txt file appears", "The JAR file disappears", "mule_ee.log is deleted", "A .lock file appears in bin/"],
+      "answer": 0,
+      "explain": "The anchor file confirms a successful deployment. No anchor file = not deployed."
+    },
+    {
+      "q": "How do you cleanly undeploy an app on a standalone runtime?",
+      "options": ["Stop the runtime and delete logs/", "Delete its anchor file while Mule is running", "Rename the JAR", "Remove the -D entries from wrapper.conf"],
+      "answer": 1,
+      "explain": "The anchor file itself says: delete this file while Mule is running to remove the artifact in a clean way."
+    },
+    {
+      "q": "Which line correctly passes mule.env to a standalone runtime in conf/wrapper.conf?",
+      "options": ["mule.env=prod", "wrapper.java.additional.20=mule.env=prod", "wrapper.java.additional.20=-Dmule.env=prod", "-Dmule.env=prod"],
+      "answer": 2,
+      "explain": "The format is wrapper.java.additional.<unique number>=-Dkey=value; the -D is mandatory."
+    },
+    {
+      "q": "You added mule.env to wrapper.conf but the log still says \"Could not find configuration property value for key mule.env\" — and you didn't restart. What's the fix?",
+      "options": ["Restart the runtime", "Move the JAR to domains/", "Delete the anchor file", "Change the HTTP port"],
+      "answer": 0,
+      "explain": "wrapper.conf changes aren't picked up while the runtime is running; restart it."
+    },
+    {
+      "q": "After a restart, the property is still missing. Your new line used number 18, which already existed in the file. What's wrong?",
+      "options": ["The -D is not allowed", "The number must be unique in wrapper.conf", "Properties must go in mule_ee.log", "The runtime needs Maven to read it"],
+      "answer": 1,
+      "explain": "Reusing an existing index confuses the runtime. Use obviously unused numbers (e.g. 20, 21) and restart."
+    },
+    {
+      "q": "Deployment fails with \"HTTP Listener config on port 8081 … Address already in use\". What was the cause in class?",
+      "options": ["The anchor file was missing", "The same app was also running in Studio on port 8081", "mule.env was not set", "The domain project was not deployed"],
+      "answer": 1,
+      "explain": "Ports must be unique on a machine. The laptop was acting as the server and Studio already used 8081; stopping the Studio app fixed it."
+    },
+    {
+      "q": "Which log is the system-level log for the whole standalone runtime?",
+      "options": ["<application-name>.log", "mule_ee.log", "wrapper.conf", "log4j2.xml"],
+      "answer": 1,
+      "explain": "mule_ee.log is the runtime system log; each application also gets its own log file."
+    },
+    {
+      "q": "Five apps on the same on-premises runtime share an identical database configuration. What does the lecture recommend?",
+      "options": ["A domain project holding the shared configuration", "A global error handler", "Protected properties in Runtime Manager", "Deploying all five on one CloudHub worker"],
+      "answer": 0,
+      "explain": "A domain project holds shared configurations; apps reference it, so a password change is made once."
+    },
+    {
+      "q": "Can domain projects be used on CloudHub or Runtime Fabric?",
+      "options": ["Yes, on both", "Only on CloudHub 2.0", "No — only where apps share a customer-hosted runtime (on-premises)", "Only on Runtime Fabric"],
+      "answer": 2,
+      "explain": "CloudHub and RTF deploy each app in an isolated worker/container, so there's no shared domain to read configurations from."
+    },
+    {
+      "q": "What is a key difference between a CloudHub worker and a standalone Mule runtime?",
+      "options": ["A worker can host many apps; a runtime only one", "A worker runs one app; a standalone runtime can host many", "Both run only one app", "Standalone runtimes don't produce logs"],
+      "answer": 1,
+      "explain": "A worker is dedicated to one application; a standalone runtime (a Mule application server) hosts multiple apps."
+    }
+  ],
+  "cards": [
+    {"front": "Mule runtime (standalone)", "back": "Runtime engine that hosts and runs Mule applications — a **Mule application server**. One runtime can host many apps."},
+    {"front": "Zero-downtime redeployment", "back": "Runtime Manager → Settings → new JAR → **Apply changes**; the old version keeps serving until the new one replaces it."},
+    {"front": "Shared space vs private space", "back": "CloudHub 2.0 shared infrastructure vs dedicated infrastructure — like sharing a hotel room vs booking your own."},
+    {"front": "Updating connector versions in Studio", "back": "Project **Properties → Mule Project → Modules**; blue symbol = newer version; click Update (pom.xml updates automatically)."},
+    {"front": "Studio hung — what to do?", "back": "In Task Manager, end the **OpenJDK** process (Studio's Java process), then reopen Studio."},
+    {"front": "`apps/` folder", "back": "Deployment folder: drop the JAR here and the running runtime deploys it."},
+    {"front": "`bin/` folder", "back": "Start/stop the runtime: `mule.bat` on Windows, or `mule start` / `mule stop` / `mule restart`."},
+    {"front": "`conf/wrapper.conf`", "back": "Runtime JVM properties and memory settings: `wrapper.java.additional.<N>=-Dkey=value`."},
+    {"front": "wrapper.conf rules", "back": "`-D` is mandatory, the number **N must be unique**, don't change system entries, and **restart** after editing."},
+    {"front": "`domains/` folder", "back": "Holds domain projects. On startup the `default` domain deploys first, then applications."},
+    {"front": "`logs/` folder", "back": "`mule_ee.log` (system log) plus one log per application (and per domain)."},
+    {"front": "`policies/` folder", "back": "Where API policies applied to apps are downloaded."},
+    {"front": "Anchor file", "back": "`<app>-anchor.txt`. Present = deployed. Delete it while Mule runs to undeploy cleanly."},
+    {"front": "Domain project", "back": "Special project with configurations shared by apps on the same runtime; deployed to `domains/`; apps reference it."},
+    {"front": "Creating a domain project", "back": "File → New → **Mule Domain Project**. Link apps via Properties → Mule Project → Domain."},
+    {"front": "Domain projects — where do they work?", "back": "**On-premises only** (customer-hosted runtimes). Not CloudHub, not Runtime Fabric."},
+    {"front": "Standalone runtime prerequisites", "back": "A supported JDK (instructor: Java 11). Maven is needed to build projects, not to run the runtime."},
+    {"front": "\"Address already in use\"", "back": "Another app already uses that port on the same machine. Ports must be unique — stop the other app or change the port."},
+    {"front": "Missing property after editing wrapper.conf", "back": "Either the runtime wasn't restarted, or the index number duplicated an existing entry."},
+    {"front": "How do developers reach on-prem servers?", "back": "Raise a ticket for access/approvals, then connect via a **remote desktop / VM** inside the enterprise network."},
+    {"front": "Log file rotation", "back": "Controlled in the app's `log4j2.xml` (e.g. roll over at 50 or 100 MB)."},
+    {"front": "CloudHub 2.0 binary payload issue", "back": "Upgrading the HTTP connector didn't fix it; suspected Studio/runtime version mismatch — **unresolved** in this session."}
+  ]
+}

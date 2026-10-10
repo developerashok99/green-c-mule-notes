@@ -1,0 +1,41 @@
+{
+  "quiz": [
+    {"q": "You close a file's tab in the canvas. What happens to the project?", "options": ["The project is exported", "The project is deleted from the workspace", "Nothing — the project stays open in Package Explorer", "The project is closed"], "answer": 2, "explain": "Closing a tab is not closing the project; use right-click → Close Project for that."},
+    {"q": "You deleted project `dummy` without ticking \"Delete project contents on disk\". Creating a new project named `dummy` now fails. Why?", "options": ["The project is still in Exchange", "The pom.xml artifactId is locked", "The project folder still exists in the workspace on disk", "Studio forbids reusing project names forever"], "answer": 2, "explain": "Without the checkbox the project is only removed from Studio; delete the leftover folder from the workspace (or delete with the checkbox)."},
+    {"q": "Nine projects are open and you want only the current one. Which option is quickest?", "options": ["Close Unrelated Projects", "Clean", "Reset Perspective", "Delete project contents on disk"], "answer": 0, "explain": "Close Unrelated Projects closes all other projects (without deleting them)."},
+    {"q": "How do you share a project with a colleague without a code repository?", "options": ["Copy the Console output", "Export it as a Mule Deployable Archive (JAR) and they import it via File → Import → Anypoint Studio → Packaged mule application (.jar)", "Send only pom.xml", "Publish the canvas to Runtime Manager"], "answer": 1, "explain": "Export creates a JAR; share it via a common location, and the colleague imports the JAR."},
+    {"q": "On the Export dialog, what is the effect of exporting a lightweight package without modules and dependencies?", "options": ["It deletes the original project", "It can be imported into Studio but won't be deployable to CloudHub", "It is deployable to CloudHub but not importable", "It becomes a RAML spec"], "answer": 1, "explain": "The dialog note says a lightweight package without modules and dependencies won't deploy to CloudHub but can be imported into Studio."},
+    {"q": "Importing a JAR shows \"A project with name ... already exists\" and Finish stays disabled. What do you do?", "options": ["Delete pom.xml", "Clean the project first", "Switch to Debug mode", "Change the project name in the import dialog"], "answer": 3, "explain": "The import name must not clash with an existing project in the workspace; the demo imported it under a new name."},
+    {"q": "Two files are modified and you press Ctrl+S. What happens?", "options": ["Only the active file is saved; the other still shows a `*`", "Studio exports both files", "Both files are saved", "Neither is saved until you Build"], "answer": 0, "explain": "Ctrl+S saves the active file; Save All (Ctrl+Shift+S) saves all modified files."},
+    {"q": "Build Automatically is disabled. What must you do after changing a flow?", "options": ["Stop and redeploy the application yourself", "Nothing — saving redeploys it", "Switch workspace", "Reset Perspective"], "answer": 0, "explain": "With Build Automatically on (the default), saving rebuilds and redeploys; with it off, you redeploy manually."},
+    {"q": "After running a project many times with changes you see odd behavior from stale build output. Which Project menu option helps?", "options": ["Show View", "Close Unrelated Projects", "Format", "Clean"], "answer": 3, "explain": "Clean deletes generated build output (JARs in `target/`); then deploy again."},
+    {"q": "You want to run locally against the UAT database's property file. Which option lets you specify such settings?", "options": ["Run Configurations / Debug Configurations", "Run As → Mule Application with defaults", "Window → Perspective", "Help → About"], "answer": 0, "explain": "Run/Debug Configurations run with specific settings, such as which environment's property file to load."},
+    {"q": "You accidentally closed the Mule Debugger tab. How do you get it back?", "options": ["Window → Show View → Other… → Mule Debugger", "File → Restart only", "Project → Clean", "Edit → Select All"], "answer": 0, "explain": "Show View reopens closed tabs; Window → Perspective → Reset Perspective also restores the default layout."},
+    {"q": "What is a workspace in Anypoint Studio?", "options": ["A single Mule project", "An Anypoint Platform environment", "The canvas area", "The folder where Studio creates and stores projects"], "answer": 3, "explain": "Studio shows only the current workspace's projects; switch with File → Switch Workspace, e.g. if a workspace gets corrupted."}
+  ],
+  "cards": [
+    {"front": "Studio layout", "back": "Package Explorer (left) · Canvas (centre) · Mule Palette (right) · bottom tabs: properties, Console, Problems, Search, Mule Debugger, MUnit Coverage/Errors."},
+    {"front": "Package Explorer", "back": "Lists all projects created or imported in the current workspace, sorted alphabetically."},
+    {"front": "Canvas", "back": "Central working area with Message Flow, Global Elements and Configuration XML tabs."},
+    {"front": "Connector not in the Mule Palette?", "back": "Add Modules → search Exchange → build a custom connector only if none exists."},
+    {"front": "Console tab", "back": "Shows logs printed during deployment and request processing (Run or Debug)."},
+    {"front": "Mule Debugger controls", "back": "**Next processor** (one step), **Resume** (to next breakpoint or end), **x+y** evaluate expression."},
+    {"front": "MUnit Coverage", "back": "After writing MUnit tests: how many components and what percentage of each file are covered."},
+    {"front": "Close vs. delete a project", "back": "Close: project stays in Studio and workspace. Delete: removed from Studio; removed from disk only with \"Delete project contents on disk\"."},
+    {"front": "Close Unrelated Projects", "back": "Closes all projects except the selected one (does not delete them)."},
+    {"front": "Export a project", "back": "Right-click → Export → Mule → Anypoint Studio Project to Mule Deployable Archive → produces a JAR."},
+    {"front": "Import a project", "back": "File → Import → Anypoint Studio → Packaged mule application (.jar) → choose JAR and a non-clashing project name."},
+    {"front": "JAR file", "back": "Machine-readable, deployable archive of the project (the XML code is human-readable)."},
+    {"front": "Save vs. Save All", "back": "Ctrl+S saves the active file; Ctrl+Shift+S saves all. A `*` on a tab means unsaved."},
+    {"front": "Build Automatically", "back": "Enabled by default: saving rebuilds and redeploys. If disabled, redeploy manually."},
+    {"front": "Clean", "back": "Deletes generated build output (JARs in `target/`) to clear stale artifacts."},
+    {"front": "Run/Debug Configurations", "back": "Run with specific settings — e.g. which environment's property file to use."},
+    {"front": "Show View", "back": "Window → Show View reopens closed tabs (Console, Mule Palette, Other… → Mule Debugger)."},
+    {"front": "Reset Perspective", "back": "Window → Perspective → Reset Perspective restores the default panel layout."},
+    {"front": "Mule Design vs. Mule Debug mode", "back": "Design for regular development; Debug rearranges panels for stepping through flows. Toggle at top-right."},
+    {"front": "Search menu", "back": "Searches across projects; results in the Search tab with file and line number."},
+    {"front": "Help → About Anypoint Studio", "back": "Shows the Studio version (e.g. 7.12.0). Mule 4.x refers to the runtime, not Studio."},
+    {"front": "Workspace", "back": "The folder where Studio stores projects. A fresh one contains only `.metadata`."},
+    {"front": "Why switch workspaces?", "back": "To keep separate project sets, or to recover when a project/workspace is corrupted. File → Switch Workspace → Other…"}
+  ]
+}

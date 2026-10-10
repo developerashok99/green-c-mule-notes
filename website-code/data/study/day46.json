@@ -1,0 +1,99 @@
+{
+  "quiz": [
+    {
+      "q": "In Salesforce terminology, what is the equivalent of a database table?",
+      "options": ["Record", "Object", "Field", "Picklist"],
+      "answer": 1,
+      "explain": "Salesforce calls a table an object, a column a field and a row a record."
+    },
+    {
+      "q": "How can you recognise a custom object or custom field in Salesforce?",
+      "options": ["Its name starts with `c__`", "Its API name ends with `__c`", "Its label is shown in red", "It has the type Lookup(User)"],
+      "answer": 1,
+      "explain": "Custom objects and fields created by the org end with `__c`; standard ones like `Account` don't."
+    },
+    {
+      "q": "Which three values does the Salesforce connector's Basic Authentication connection need?",
+      "options": ["Consumer key, consumer secret and callback URL", "Username, password and security token", "Client ID, client secret and org ID", "Username, password and a JWT certificate"],
+      "answer": 1,
+      "explain": "Basic Authentication uses username, password and the security token, which you get from Settings → Reset My Security Token."
+    },
+    {
+      "q": "Where do you reset the Salesforce security token so it is emailed to you?",
+      "options": ["Object Manager → Account → Details", "Profile icon → Settings → My Personal Information → Reset My Security Token", "Advanced Setup → Connected Apps", "Sales app → Leads → All Open Leads"],
+      "answer": 1,
+      "explain": "Under the profile's Settings, My Personal Information → Reset My Security Token sends a new token by email."
+    },
+    {
+      "q": "You write `select * from Account` in the Salesforce Query operation. What is the problem?",
+      "options": ["Nothing — SOQL supports `*` like SQL", "SOQL doesn't support `*`; you must list every field name", "The object must be written as `Account__c`", "Queries need a WHERE clause"],
+      "answer": 1,
+      "explain": "SOQL is almost like SQL, but `*` doesn't work — you list the field names you want."
+    },
+    {
+      "q": "In a SOQL query, which name do you use for the object and its fields?",
+      "options": ["The field label shown on the form", "The API name of the object and the field names", "The list view name", "The record ID"],
+      "answer": 1,
+      "explain": "Labels are only for display and can contain spaces; queries use the object's API name and field names."
+    },
+    {
+      "q": "A Salesforce Query matches no records. What does the payload contain?",
+      "options": ["null", "An empty array", "A SALESFORCE:INVALID_INPUT error", "An empty JSON object {}"],
+      "answer": 1,
+      "explain": "Query results are always an array: many records, an array of one, or an empty array when nothing matches."
+    },
+    {
+      "q": "In what format does the Salesforce Query operation return its result?",
+      "options": ["JSON", "XML", "Java", "CSV"],
+      "answer": 2,
+      "explain": "Like the Database select, the query returns Java; you convert it with a Transform (`output json`)."
+    },
+    {
+      "q": "The query fails with \"No such column 'AccountNumber' on entity 'Account'\". Which error type is this?",
+      "options": ["SALESFORCE:CONNECTIVITY", "SALESFORCE:INVALID_INPUT", "HTTP:NOT_FOUND", "MULE:EXPRESSION"],
+      "answer": 1,
+      "explain": "The class saw SALESFORCE:INVALID_INPUT for an unknown column; if the field is correct, ask the Salesforce team to check their configuration."
+    },
+    {
+      "q": "For which connector must connection pooling be configured manually, rather than being enabled automatically?",
+      "options": ["HTTP Request", "Salesforce", "Database", "None — it is always automatic"],
+      "answer": 2,
+      "explain": "Pooling is automatic for HTTP Request and Salesforce, but must be configured for the Database connector."
+    },
+    {
+      "q": "What is the main benefit of connection pooling?",
+      "options": ["It encrypts the connection", "It reduces latency by reusing connections that are already open", "It raises the 200-record limit", "It removes the need for a security token"],
+      "answer": 1,
+      "explain": "Connections are created in advance and kept in a pool, so requests skip connect/close steps and latency drops."
+    },
+    {
+      "q": "Your Salesforce team has no UAT environment. What should you do about the Mule UAT property file?",
+      "options": ["Skip deploying to UAT", "Confirm with the Salesforce team which of their environments maps to UAT (e.g. QA)", "Point UAT at Salesforce Prod", "Use a new trial org for UAT"],
+      "answer": 1,
+      "explain": "Map environments with the Salesforce team; in the example, both SIT and UAT used Salesforce QA/Testing, so those property files may be almost the same."
+    }
+  ],
+  "cards": [
+    {"front": "What is Salesforce?", "back": "A **SaaS CRM** (Customer Relationship Management) platform that manages the customer journey from lead to customer to service. It owns MuleSoft."},
+    {"front": "Object / field / record", "back": "Salesforce's names for table / column / row."},
+    {"front": "Standard vs. custom object", "back": "Standard objects are predefined by Salesforce (Account, Contact). Custom objects are created by the org and end with `__c`."},
+    {"front": "Lead", "back": "A prospect's details (e.g. phone/email) before they buy — the first stage of the customer journey."},
+    {"front": "SOQL", "back": "**Salesforce Object Query Language** — like SQL, but you query objects by API name and must list fields (`*` isn't supported)."},
+    {"front": "Picklist", "back": "A field type with fixed choices, like an enum."},
+    {"front": "Field label vs. API name", "back": "The label is display-only and may contain spaces. Queries use the object's **API name** and the **field names**."},
+    {"front": "Where do you find an object's fields?", "back": "Gear icon → Advanced Setup → **Object Manager** → object → **Fields & Relationships** (label, API name, data type)."},
+    {"front": "Security token", "back": "An extra secret used with username and password for Basic Authentication API logins. Reset it under Settings → My Personal Information → Reset My Security Token."},
+    {"front": "What do you need for Basic Authentication to Salesforce?", "back": "Username, password and security token — usually of a **service account** — kept in property files per environment."},
+    {"front": "Service account", "back": "A dedicated Salesforce user that the organization creates for the MuleSoft integration."},
+    {"front": "Connection types of the Salesforce connector", "back": "Basic Authentication, OAuth v2.0, OAuth JWT, OAuth SAML and OAuth Username Password. Ask the Salesforce team which one they provide."},
+    {"front": "Which connection type is seen often in real projects?", "back": "**OAuth JWT** — the class used Basic Authentication for simplicity."},
+    {"front": "What does a Salesforce Query return?", "back": "A **Java** collection — always an array of records (an array of one, or empty if nothing matches). Transform it to JSON."},
+    {"front": "Connection pooling", "back": "Keeping connections ready in a pool so requests skip the connect/close steps, reducing latency."},
+    {"front": "Where is connection pooling automatic?", "back": "For HTTP Request and Salesforce. It must be configured for the Database connector."},
+    {"front": "SALESFORCE:INVALID_INPUT", "back": "Error for bad input, such as an unknown field (\"No such column ... on entity\")."},
+    {"front": "A field from the Salesforce team errors even though your query is correct — what do you do?", "back": "Ask the Salesforce team to check their configuration; it's on their side."},
+    {"front": "Environment mapping", "back": "Confirm with the Salesforce team which of their environments maps to Mule Dev, SIT, UAT and Prod (e.g. SIT and UAT may both use their QA)."},
+    {"front": "How long is a Salesforce developer trial org free?", "back": "30 days, no credit card; after it expires, create another account."},
+    {"front": "Common Advanced settings shared across connectors", "back": "Target variable, reconnection strategy and error mapping."}
+  ]
+}

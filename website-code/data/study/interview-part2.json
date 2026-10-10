@@ -1,0 +1,331 @@
+{
+  "quiz": [
+    {
+      "q": "How is a trait applied to a method in RAML?",
+      "options": [
+        "With the `type` keyword",
+        "With the `is` keyword",
+        "With `uses:`",
+        "With `securedBy`"
+      ],
+      "answer": 1,
+      "explain": "Traits are declared with `traits` in the root and applied with `is`; resource types use `type`; libraries are imported with `uses:`."
+    },
+    {
+      "q": "What is the key difference between a trait and a resource type?",
+      "options": [
+        "Traits work at method level; resource types are templates up to the resource level",
+        "Traits are only for security; resource types for data",
+        "Resource types must be published to Exchange",
+        "There is no difference"
+      ],
+      "answer": 0,
+      "explain": "A trait declares common properties for HTTP methods; a resource type defines common properties of resources."
+    },
+    {
+      "q": "Which RAML construct can be published to Exchange, versioned and reused across any API specification, but can't be an independent spec?",
+      "options": [
+        "Trait",
+        "Library",
+        "Fragment",
+        "Data type"
+      ],
+      "answer": 2,
+      "explain": "Libraries, data types and resource types are reused within one spec; a fragment published to Exchange can be reused in other specs."
+    },
+    {
+      "q": "A request sends an extra `status` field not defined in the RAML object type. What rejects it?",
+      "options": [
+        "Nothing — extras are always rejected",
+        "`additionalProperties: false` (the default is true)",
+        "`maxItems: 0`",
+        "`required: true`"
+      ],
+      "answer": 1,
+      "explain": "By default extra properties are allowed; set `additionalProperties: false` to reject them (`additionalItems: false` for arrays)."
+    },
+    {
+      "q": "`securedBy` is set in the root RAML and also on one resource. Which applies to that resource?",
+      "options": [
+        "The root-level one",
+        "The resource-level one",
+        "Both, combined",
+        "Neither — it causes an error"
+      ],
+      "answer": 1,
+      "explain": "Root-level `securedBy` applies to all resources, but if both are set, the resource level wins."
+    },
+    {
+      "q": "What does API Autodiscovery do?",
+      "options": [
+        "Generates RAML from code",
+        "Connects the app deployed on the runtime to its API Manager asset so policies apply",
+        "Discovers connectors in Exchange",
+        "Scales workers automatically"
+      ],
+      "answer": 1,
+      "explain": "The Autodiscovery ID pairs the app with the asset; in Studio it's set on the flow containing the APIkit router, and the asset goes from Unregistered to Active."
+    },
+    {
+      "q": "What is the difference between an API gateway and an API proxy?",
+      "options": [
+        "A gateway handles one API; a proxy handles many",
+        "A gateway is one entry point managing many APIs; a proxy focuses on one API",
+        "A proxy routes to nodes; a gateway to load balancers",
+        "They are the same"
+      ],
+      "answer": 1,
+      "explain": "100 APIs → one gateway routes them all; without it you'd need 100 proxies."
+    },
+    {
+      "q": "Ten partners each need their own credentials so you have more control. Which policy fits?",
+      "options": [
+        "Basic Authentication – Simple",
+        "Client ID Enforcement",
+        "HTTP Caching",
+        "Spike Control"
+      ],
+      "answer": 1,
+      "explain": "Basic Auth uses the same credentials for all consumers; Client ID Enforcement gives each consumer its own client ID and secret (invalid → 401)."
+    },
+    {
+      "q": "The threshold is reached and 10 more requests arrive. Which policy queues them for the next window instead of rejecting them?",
+      "options": [
+        "Rate Limiting",
+        "Spike Control",
+        "Client ID Enforcement",
+        "HTTP Caching"
+      ],
+      "answer": 1,
+      "explain": "Rate Limiting rejects with 429 straightaway; Spike Control (throttling) queues requests and rejects only if not processed within the retries."
+    },
+    {
+      "q": "Which OAuth 2.0 grant type fits server-to-server communication with no user involved?",
+      "options": [
+        "Authorization code",
+        "Client credentials",
+        "Resource owner password",
+        "Implicit"
+      ],
+      "answer": 1,
+      "explain": "Client credentials is for server-to-server calls with no resource ownership. Authorization code is for signing up with a third-party app."
+    },
+    {
+      "q": "Why use the JWT Validation policy rather than validating each token with the authorization server?",
+      "options": [
+        "JWTs never expire",
+        "It verifies the signature locally with a cached JWKS key, skipping a call to the authorization server per request",
+        "It doesn't need a token at all",
+        "It encrypts the payload"
+      ],
+      "answer": 1,
+      "explain": "At 1 lakh requests a day, per-request validation calls are very costly; JWT Validation checks the signature, then the claims."
+    },
+    {
+      "q": "Which statement about On Error Continue vs On Error Propagate is correct?",
+      "options": [
+        "On Error Continue keeps running the rest of the flow",
+        "Both stop the process; Continue sends a success response to the next level, Propagate sends an error",
+        "Propagate always returns 200",
+        "Continue only works inside Try"
+      ],
+      "answer": 1,
+      "explain": "The instructor corrected the common belief: both stop the flow — the difference is the response to the next level (parent flow or consumer)."
+    },
+    {
+      "q": "A child flow's HTTP Requester fails, and its handler is On Error Continue. What happens in the parent flow?",
+      "options": [
+        "The parent gets an error and stops",
+        "The Flow Reference gets a success response, and the parent continues to the next component",
+        "The parent restarts the child",
+        "The Listener returns its error response"
+      ],
+      "answer": 1,
+      "explain": "With On Error Propagate in the child, the parent would get an error instead."
+    },
+    {
+      "q": "One route of a Scatter-Gather fails (no Try). What happens?",
+      "options": [
+        "The other routes are cancelled immediately",
+        "The other routes still complete, then MULE:COMPOSITE_ROUTING is raised and the error propagates",
+        "Only the failed route is retried",
+        "The failed route's output is null and processing continues"
+      ],
+      "answer": 1,
+      "explain": "To continue, wrap each route's components in a Try with On Error Continue."
+    },
+    {
+      "q": "What is true of `Mule::lookup`?",
+      "options": [
+        "It can call a sub-flow, default timeout 5000 ms",
+        "It calls a flow or private flow (not a sub-flow), default timeout 2000 ms",
+        "It passes the whole Mule event like Flow Reference",
+        "It only works in the Playground"
+      ],
+      "answer": 1,
+      "explain": "Parameters: flow name, input, timeout. Unlike Flow Reference, it passes only the given input."
+    }
+  ],
+  "cards": [
+    {
+      "front": "What is RAML?",
+      "back": "**RESTful API Modeling Language** — YAML-based, describes REST APIs: requests, responses, schemas, examples, resources, methods, security schemes. Design Center supports 1.0 and 0.8."
+    },
+    {
+      "front": "Which RAML version is the latest?",
+      "back": "RAML 1.0 (since about 2015–16); 0.8 is the old one and lacks many 1.0 features."
+    },
+    {
+      "front": "Trait",
+      "back": "A method-level reusable component, like a function. Declared with `traits`, applied with `is`."
+    },
+    {
+      "front": "Resource type",
+      "back": "A template for common properties of resources (descriptions, methods, parameters). Applied with `type`."
+    },
+    {
+      "front": "Library",
+      "back": "A collection of data types, security schemes, traits and resource types. Imported with `uses:`, referenced with dot notation (`lib.traitName`)."
+    },
+    {
+      "front": "Fragment",
+      "back": "A reusable RAML part published to Exchange, versionable, reusable across any API spec — but never an independent API spec."
+    },
+    {
+      "front": "Four benefits of traits, libraries and fragments",
+      "back": "Readability, reusability, modularity, consistency."
+    },
+    {
+      "front": "RAML built-in data types",
+      "back": "String, Number, Integer, Boolean, Date-Only, Time-Only, DateTime (also array and object). Custom types build on them; imported with `types`, used with `type`."
+    },
+    {
+      "front": "Restrict extra properties in a JSON object",
+      "back": "`additionalProperties: false` (default true). For arrays: `additionalItems: false`."
+    },
+    {
+      "front": "Restrict the number of properties or items",
+      "back": "`minProperties` / `maxProperties` for objects; `minItems` / `maxItems` for arrays."
+    },
+    {
+      "front": "How do you define security in RAML?",
+      "back": "In `securitySchemes`, applied with `securedBy` — at root for all resources, or per resource. Resource level wins."
+    },
+    {
+      "front": "Multiple formats / structures for one request",
+      "back": "List `application/json` and `application/xml` under `body`; join two JSON types with a pipe: `type: jsonOne | jsonTwo`."
+    },
+    {
+      "front": "baseUri",
+      "back": "Optional base URL for the API resources; URL = baseUri + resource path. A dummy URL is fine during design; the version (e.g. `v1`) is often included."
+    },
+    {
+      "front": "Swagger / OAS",
+      "back": "Swagger is the old name of OAS (Open API Specification), another REST modeling language. If you haven't used it, say so and that you're ready to learn."
+    },
+    {
+      "front": "Same HTTP method twice on one path?",
+      "back": "No — a resource can have several different methods but no duplicates. A child path like `/employees/department` can have its own GET."
+    },
+    {
+      "front": "Sharing an API spec for testing",
+      "back": "Internal: Design Center share. External: mocking service + Postman collection, or publish to Exchange, make it public and share the public portal link."
+    },
+    {
+      "front": "What is API Manager?",
+      "back": "An Anypoint Platform component to manage the policies, alerts, clients and SLAs of APIs."
+    },
+    {
+      "front": "Autodiscovery steps",
+      "back": "Publish spec to Exchange → API Manager: Manage API from Exchange → embedded gateway → ID generated (Unregistered) → Studio global element API Autodiscovery on the APIkit router flow → deploy → Active."
+    },
+    {
+      "front": "API gateway",
+      "back": "A software layer acting as a single entry point for API calls between clients and backend services: traffic management, security enforcement, request processing, response handling, monitoring."
+    },
+    {
+      "front": "API proxy",
+      "back": "An intermediary for one API that translates requests, enforces policies and routes traffic."
+    },
+    {
+      "front": "Basic Auth vs. Client ID Enforcement",
+      "back": "Basic Auth: same username/password for all consumers, less secure. Client ID Enforcement: different client ID/secret per consumer, more control; invalid → 401."
+    },
+    {
+      "front": "HTTP Caching policy",
+      "back": "Returns the cached response for the same request instead of calling the end system — for responses that rarely change. Better performance, less load."
+    },
+    {
+      "front": "Rate Limiting – SLA based",
+      "back": "Different limits for different consumers — e.g. 500 requests/day for one, 1000 for another."
+    },
+    {
+      "front": "Rate Limiting vs. throttling (Spike Control)",
+      "back": "Rate Limiting rejects at the threshold (429). Throttling queues requests for later windows and rejects only if not processed within the retries."
+    },
+    {
+      "front": "What is OAuth 2.0?",
+      "back": "Open Authorization — an authorization framework, not an authentication protocol. A user lets an app access their resources on another app without sharing credentials."
+    },
+    {
+      "front": "OAuth process in short",
+      "back": "Client gets a token from the authorization server → sends it as a header to the resource server → resource server validates it with the authorization server → valid proceeds; invalid → 401."
+    },
+    {
+      "front": "OAuth 2.0 roles",
+      "back": "Resource owner (the user), resource server (hosts resources), client (requests access), authorization server (issues tokens)."
+    },
+    {
+      "front": "OAuth grant types",
+      "back": "Client credentials (server-to-server), authorization code (sign up with a third-party app), resource owner password (user's own data on the client's server — less secure)."
+    },
+    {
+      "front": "OpenID Token Enforcement vs. OAuth policy",
+      "back": "OpenID Token Enforcement does authentication + authorization; the OAuth policy does authorization only."
+    },
+    {
+      "front": "Authentication vs. authorization",
+      "back": "Authentication verifies who you are (comes first); authorization grants what you may do — limited by the **scope**."
+    },
+    {
+      "front": "OAuth 2.0 dance",
+      "back": "The series of steps between the actors to get the token and validate it (redirect, exchange the code for a token, use the token)."
+    },
+    {
+      "front": "JWT structure",
+      "back": "JSON Web Token — header.payload.signature, separated by dots."
+    },
+    {
+      "front": "Error handling levels",
+      "back": "Component: **Try** scope. Flow: the flow's error handler. Project: **global error handler** (separate XML, set as default in the Configuration global element)."
+    },
+    {
+      "front": "How do you manage business errors?",
+      "back": "Raise them on purpose with **Raise Error** or the **Validation module** (e.g. loan age outside 21–60)."
+    },
+    {
+      "front": "Order of handlers in an Error Handler",
+      "back": "Checked in sequence like a Choice — put **ANY last**, otherwise it catches everything."
+    },
+    {
+      "front": "Errors in a sub-flow",
+      "back": "A sub-flow has no error handler; use a Try scope inside it (or a private flow). It inherits the parent's handling."
+    },
+    {
+      "front": "Continue after an error in For Each / Parallel For Each / Scatter-Gather",
+      "back": "Try scope with On Error Continue inside the loop, or wrapping every Scatter-Gather route."
+    },
+    {
+      "front": "flatten / distinctBy / `payload - \"key\"`",
+      "back": "flatten removes the first level of sub-arrays; distinctBy removes duplicates from an array or object; `payload - \"name\"` removes a key."
+    },
+    {
+      "front": "read vs. write",
+      "back": "`read` parses a string/binary (e.g. `read(payload, \"application/json\")`); `write` turns a value into a string — e.g. to store JSON in a DB column."
+    },
+    {
+      "front": "filter vs. filterObject; reduce",
+      "back": "filter: array → array; filterObject: object → object. reduce: `$` item, `$$` accumulator; for computation or array → object."
+    }
+  ]
+}

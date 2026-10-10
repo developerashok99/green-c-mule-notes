@@ -1,0 +1,39 @@
+{
+  "quiz": [
+    {"q": "Your API must call another team's REST service to get data. Which HTTP module operation do you use?", "options": ["Web Service Consumer", "HTTP Listener", "HTTP Request", "Flow Reference"], "answer": 2, "explain": "The Listener exposes your API (inbound); the Request consumes another HTTP/REST service (outbound)."},
+    {"q": "Which statement about endpoint types is correct?", "options": ["Request can only be used in error handling", "Listener is an inbound endpoint in Source; Request is an outbound endpoint in Process", "Both can be placed in Source", "Listener is outbound; Request is inbound"], "answer": 1, "explain": "Studio enforces placement: Listener only in Source, Request only in Process (and inside error handling)."},
+    {"q": "How do Experience, Process and System APIs normally call each other?", "options": ["With Flow References across projects", "With the Database connector", "Through shared variables", "With HTTP Requests, since every layer is a REST API"], "answer": 3, "explain": "The instructor estimates this is how it's done 99.9% of the time."},
+    {"q": "In the chain mobile app → Experience API → Process API → System APIs, what is the Process API relative to the System APIs?", "options": ["The service provider", "The gateway", "The consumer (client)", "The target system"], "answer": 2, "explain": "The caller is the consumer/client/source; the System APIs are the service providers for it."},
+    {"q": "What are the default ports for HTTP and HTTPS?", "options": ["HTTP 8081, HTTPS 8082", "HTTP 3306, HTTPS 8443", "HTTP 443, HTTPS 80", "HTTP 80, HTTPS 443"], "answer": 3, "explain": "When no port is shown in a URL, the protocol's default is used. The class weather app used HTTP on port 80."},
+    {"q": "In the HTTP Request configuration for OpenWeatherMap, where was `/data/2.5/weather` set?", "options": ["In the host field", "In the Listener path", "In the operation's Path (base path was empty)", "As a URI parameter"], "answer": 2, "explain": "The config held protocol HTTP, host `api.openweathermap.org`, port 80, no base path; the operation's Path was `/data/2.5/weather`."},
+    {"q": "How was the city sent to OpenWeatherMap?", "options": ["As a URI parameter", "In the request body only", "As query parameter `q` with value `payload.city`", "As a header named city"], "answer": 2, "explain": "Our API received `{\"city\": ...}` in the body (payload); the Request mapped it to the `q` query parameter, with `appid` carrying the API key."},
+    {"q": "A red mark appears on the Request because in fx mode the `appid` value was written without quotes. What's the fix?", "options": ["Add a URI parameter", "Put the literal value in double quotes, e.g. `appid : \"<api key>\"`", "Switch the method to POST", "Remove the query parameter"], "answer": 1, "explain": "In DataWeave expression mode a literal must be a quoted string."},
+    {"q": "Testing the API in Postman, the placeholder `{API key}` is left in the URL. What does OpenWeatherMap return?", "options": ["\"Invalid API key\"", "\"Bad request: wrong latitude\"", "200 OK with weather data", "404 Not Found"], "answer": 0, "explain": "After using the real key, the next error was \"wrong latitude\" because of placeholder coordinates."},
+    {"q": "After the HTTP Request executes, what are the payload and attributes?", "options": ["Both are empty", "Unchanged from the original request", "The payload is kept, only attributes change", "The third-party response body, and the response's attributes (headers, statusCode 200, reasonPhrase OK)"], "answer": 3, "explain": "Connector operations overwrite payload and attributes; variables are not overwritten."},
+    {"q": "You need the original city after the HTTP Request. What should you do?", "options": ["Call the Listener again", "Read it from `attributes.queryParams` after the request", "Read `payload.city` after the request", "Store it in a variable before the request, then use `vars.originalPayload.city`"], "answer": 3, "explain": "Payload and attributes are replaced by the response; save needed values in a variable first."},
+    {"q": "A third-party provider's documentation is unclear and mandatory fields aren't named. What does the course recommend?", "options": ["Ask for their Postman collection, study the docs, and contact the provider's SPOC, escalating if needed", "Return the error to the consumer and stop", "Rebuild their API yourself", "Guess the fields until it works"], "answer": 0, "explain": "The consumer must obtain the details; a SPOC (Single Point of Contact) should provide them."}
+  ],
+  "cards": [
+    {"front": "HTTP Listener vs. HTTP Request", "back": "Listener: Source, **inbound** endpoint, exposes our API. Request: Process, **outbound** endpoint, consumes another HTTP/REST service."},
+    {"front": "Inbound vs. outbound calls", "back": "Inbound = coming to our API; outbound = from our API to others."},
+    {"front": "Which HTTP operations are used most?", "back": "Listener and Request — 99% of the time; a developer uses HTTP Request every day."},
+    {"front": "How do API-led layers communicate?", "back": "Each layer is a REST API, so the caller uses an HTTP Request (Experience → Process → System)."},
+    {"front": "Consumer / provider terminology", "back": "Consumer = client = source (the caller). Service provider = producer (the API that answers). Target = the system called."},
+    {"front": "Details needed to configure an HTTP Request", "back": "Method, protocol, host, port, base path, path, query/URI params, headers, authorization, body."},
+    {"front": "URL composition in HTTP Request", "back": "`host:port` / base path (config) / path (operation) `?` query params."},
+    {"front": "Default ports", "back": "HTTP **80**, HTTPS **443**."},
+    {"front": "Domain name", "back": "Human-readable name (e.g. `api.openweathermap.org`) mapped to a server IP and port."},
+    {"front": "HTTP Request configuration", "back": "A global element holding protocol, host, port, base path (e.g. `HTTP_Request_configuration_openweather`)."},
+    {"front": "Weather demo request", "back": "GET `http://api.openweathermap.org/data/2.5/weather` with query params `q = payload.city` and `appid` (API key)."},
+    {"front": "API key", "back": "Secret key identifying the caller; OpenWeatherMap expects it in the `appid` query parameter."},
+    {"front": "Literal values in fx mode", "back": "Must be in double quotes — `appid : \"<key>\"` — or a red error mark appears."},
+    {"front": "Does HTTP Request send a body by default?", "back": "Yes — the current payload is sent as the body by default (ignored by the GET weather API)."},
+    {"front": "What does HTTP Request do to the Mule event?", "back": "Overwrites payload (response body) and attributes (response headers, statusCode, reasonPhrase). Variables survive."},
+    {"front": "Preserving the original request", "back": "Set Variable before the request, e.g. `originalPayload = payload`, then `vars.originalPayload.city`."},
+    {"front": "Why not return the third-party response as is?", "back": "It has unnecessary data and units (Kelvin) the consumer may not want; transform it to what the consumer needs."},
+    {"front": "Postman collection", "back": "Saved set of requests shared by an API provider — import and test their services yourself."},
+    {"front": "SPOC", "back": "Single Point of Contact for a service — who to ask (and escalate to) when docs are unclear."},
+    {"front": "Where are a provider's input restrictions defined?", "back": "In the provider's RAML, e.g. `city` mandatory with max length 10 → longer values rejected."},
+    {"front": "CloudHub app name limit", "back": "42 characters — so short forms like `eapi`, `papi`, `sapi`, `sfdc` are used in names."}
+  ]
+}

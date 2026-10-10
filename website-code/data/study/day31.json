@@ -1,0 +1,100 @@
+{
+  "quiz": [
+    {
+      "q": "In the watchman analogy, what does the API gateway do?",
+      "options": ["Sits between consumers and the API, checks each request against the policies and rejects invalid ones", "Stores API specifications so consumers can discover them", "Runs the Mule flows on a CloudHub worker", "Generates RAML from the API implementation"],
+      "answer": 0,
+      "explain": "Like a watchman at a house, the gateway checks whether the request comes from the right client and follows the policies; if not, it is rejected at the gateway before reaching the API."
+    },
+    {
+      "q": "Your organisation has Mule APIs and also Java/Spring Boot APIs, and wants one gateway for all of them. Which gateway fits?",
+      "options": ["Mule Gateway", "Flex Gateway", "A proxy application", "API Autodiscovery"],
+      "answer": 1,
+      "explain": "Flex Gateway is an independent gateway that protects Mule and non-Mule APIs. Mule Gateway is embedded in the Mule runtime and protects Mule apps only."
+    },
+    {
+      "q": "Which statement about Mule Gateway is correct?",
+      "options": ["It must be installed on its own separate server by admins", "It is embedded in the Mule runtime, so nothing extra has to be set up", "It protects Mule and non-Mule APIs", "It is the same product as Kong"],
+      "answer": 1,
+      "explain": "Mule Gateway runs inside the app's worker as part of the Mule runtime. Installing on a separate server describes Flex Gateway."
+    },
+    {
+      "q": "What is the main cost of choosing \"Deploy a proxy application\" instead of \"Connect to existing application (basic endpoint)\"?",
+      "options": ["The API can no longer have policies", "The proxy is a separate app with its own workers, CPU and memory", "The app must be redeployed for every request", "Auto-Discovery stops working"],
+      "answer": 1,
+      "explain": "A proxy is another application in Runtime Manager, so it consumes its own resources. It makes sense for exposed experience APIs, but wastes resources for internal process/system APIs."
+    },
+    {
+      "q": "A deployed app must get its policies from API Manager. Which two pieces make this work?",
+      "options": ["The platform client ID/secret (to authenticate) and the API instance ID via Auto-Discovery (to find the API)", "The consumer's client ID/secret and the HTTP Listener port", "The mule.env property and the secure.key property", "The RAML file and the asset version"],
+      "answer": 0,
+      "explain": "Client ID/secret = communication with the control plane; instance ID + auto-discovery = finding the API so its policies are downloaded."
+    },
+    {
+      "q": "The platform client ID/secret given at deployment come from where?",
+      "options": ["The Client ID Enforcement contract of each consumer", "The environment's credentials in Access Management → Environments", "The API Autodiscovery global element", "Exchange asset details"],
+      "answer": 1,
+      "explain": "They are the environment's credentials, which are different from the per-consumer credentials used by the Client ID Enforcement policy."
+    },
+    {
+      "q": "You just saved a new API instance in API Manager but have not deployed the app with Auto-Discovery yet. What status does it show?",
+      "options": ["Active", "Unregistered", "Deprecated", "Pending approval"],
+      "answer": 1,
+      "explain": "A new instance is Unregistered; it becomes Active once the deployed app connects to it through Auto-Discovery."
+    },
+    {
+      "q": "When configuring the API Autodiscovery global element, what goes in the Flow name field?",
+      "options": ["The main flow (with the Listener and router)", "The error handler flow", "The first sub-flow in the project", "The name of the API in Exchange"],
+      "answer": 0,
+      "explain": "The API ID gets the property placeholder for the instance ID, and Flow name points to the main flow that has the Listener and APIkit router."
+    },
+    {
+      "q": "What is the main weakness of the Basic Authentication policy?",
+      "options": ["It generates a new token on every call, which is slow", "The same username/password is shared by all consumers, so you can't tell them apart", "It only works on Flex Gateway", "It requires a proxy application"],
+      "answer": 1,
+      "explain": "Basic auth uses one generic credential for everyone; it can be shared further and gives no traceability, so it is less secure."
+    },
+    {
+      "q": "Which policy gives each consumer its own credential pair so you can track which client called?",
+      "options": ["Basic Authentication – Simple", "Client ID Enforcement", "Header injection", "Message logging"],
+      "answer": 1,
+      "explain": "Client ID Enforcement generates a separate client ID and client secret for each consumer (by default from the Anypoint client provider)."
+    },
+    {
+      "q": "Why should an externally exposed API not rely only on Client ID Enforcement?",
+      "options": ["Client ID/secret are static, while OAuth issues a new token each time", "Client ID Enforcement cannot be applied to experience APIs", "It only works with a proxy", "It rejects all requests with 429"],
+      "answer": 0,
+      "explain": "The client ID/secret are the same on every call; OAuth generates a new token each time and is more secure, so the experience layer gets HTTPS + OAuth."
+    },
+    {
+      "q": "In the Day 31 policy catalogue, which category do Client ID enforcement and CORS belong to?",
+      "options": ["Security", "Quality of service", "Compliance", "Transformation"],
+      "answer": 2,
+      "explain": "Client ID enforcement and CORS were listed under Compliance. Rate limiting and spike control are Quality of service; Basic auth and OAuth are Security."
+    }
+  ],
+  "cards": [
+    {"front": "API gateway", "back": "A layer between consumers and APIs that enforces policies (authentication, rate limits, …) and forwards only valid requests — the \"watchman\"."},
+    {"front": "Flex Gateway vs. Mule Gateway", "back": "**Flex**: independent, installed separately, protects Mule and non-Mule APIs. **Mule Gateway**: embedded in the Mule runtime, protects Mule apps only."},
+    {"front": "When choose Mule Gateway?", "back": "When you only have Mule APIs — no extra servers or configuration needed."},
+    {"front": "Proxy application", "back": "A separate app deployed in Runtime Manager in front of the real API. Costs its own workers/CPU/memory, so use it only for externally exposed experience APIs."},
+    {"front": "Basic endpoint (Connect to existing application)", "back": "API Manager connects to the already deployed app via auto-discovery — no extra application."},
+    {"front": "API instance ID", "back": "Unique ID API Manager gives an API instance (100 APIs → 100 IDs). The app uses it via Auto-Discovery to find its API and download policies."},
+    {"front": "What is API Auto-Discovery?", "back": "A global element that links a deployed Mule app to its API instance in API Manager using the instance ID, so policies are fetched and enforced."},
+    {"front": "API Autodiscovery global element fields", "back": "API ID: the instance ID property placeholder (e.g. `${autodiscovery.id}`); Flow name: the main flow with the Listener and router."},
+    {"front": "How does a deployed app talk to API Manager?", "back": "It authenticates with the environment's **platform client ID/secret** and identifies its API via the **auto-discovery instance ID**."},
+    {"front": "Platform client ID/secret", "back": "The environment's credentials (Access Management → Environments) that let the runtime authenticate to the control plane — not the per-consumer credentials of Client ID Enforcement."},
+    {"front": "Unregistered → Active", "back": "API instance status before / after the deployed app connects to it through Auto-Discovery."},
+    {"front": "Four steps to apply policies", "back": "① Publish spec to Exchange → ② create API instance in API Manager (instance ID) → ③ configure Autodiscovery in the app → ④ deploy to Runtime Manager."},
+    {"front": "Client provider", "back": "System that issues consumer client IDs/secrets for Client ID Enforcement — default is **Anypoint**."},
+    {"front": "Basic authentication", "back": "Consumer sends a username and password; the gateway checks them. One credential shared by everyone — weak and not traceable."},
+    {"front": "Client ID enforcement", "back": "Each consumer gets its own client ID and secret; the gateway validates the pair. More secure and traceable, but more steps."},
+    {"front": "Basic auth vs. client ID enforcement", "back": "Basic auth: one shared username/password, less security, fewer steps. Client ID: separate pair per consumer, more security (know who called), more effort."},
+    {"front": "Which policies on experience vs. process/system APIs?", "back": "Experience (external): **HTTPS + OAuth**. Process/system (internal): lighter policies like basic auth or client ID enforcement — regulated industries (e.g. banks audited by RBI) may need at least basic auth."},
+    {"front": "Why not only client ID enforcement on external APIs?", "back": "Client ID/secret are static (same every call); OAuth generates a new token each time, so it is more secure."},
+    {"front": "Policy categories in API Manager", "back": "Security (OAuth, JWT, threat protection, basic auth, IP lists), Quality of service (caching, spike control, rate limiting), Compliance (client ID, CORS), Troubleshooting (message logging), Transformation (header injection/removal)."},
+    {"front": "Rate limiting vs. spike control (preview)", "back": "Rate limiting: fixed window, extra requests rejected with **429 Too Many Requests**. Spike control: sliding window, extra requests queued/delayed and retried."},
+    {"front": "Rate limiting – SLA based", "back": "Client ID + rate limit per tier, e.g. Silver 1 req/min, Gold 2 req/min, Diamond 5 req/min."},
+    {"front": "How often are custom policies needed?", "back": "Rarely — 90–95% of the time MuleSoft's existing policies are used; custom policies are advanced and rare."}
+  ]
+}

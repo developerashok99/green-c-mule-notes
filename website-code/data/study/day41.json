@@ -1,0 +1,95 @@
+{
+  "quiz": [
+    {
+      "q": "Which Mule 4 module do you use to call a third-party SOAP service?",
+      "options": ["HTTP Request", "Web Service Consumer", "APIkit for SOAP", "Database connector"],
+      "answer": 1,
+      "explain": "The Web Service Consumer module calls SOAP services; its only operation is Consume."
+    },
+    {
+      "q": "How many operations does the Web Service Consumer module have?",
+      "options": ["One — Consume", "Two — Request and Response", "Four — one per SOAP verb", "It depends on the WSDL"],
+      "answer": 0,
+      "explain": "Only Consume. The SOAP operation (e.g. Add) is chosen inside Consume from the WSDL."
+    },
+    {
+      "q": "What is WSDL in relation to SOAP?",
+      "options": ["The SOAP equivalent of RAML — it describes operations, inputs and outputs", "A Mule property file for SOAP", "An XML threat protection policy", "The SOAP response envelope"],
+      "answer": 0,
+      "explain": "WSDL = Web Services Description Language, SOAP's contract. The provider shares its location (URL)."
+    },
+    {
+      "q": "The WSDL location is `http://www.dneonline.com/calculator.asmx?WSDL`. What goes in the Address field?",
+      "options": ["The same URL with `?WSDL`", "`http://www.dneonline.com/calculator.asmx` — the WSDL URL without `?WSDL`", "`http://tempuri.org/`", "`localhost:8081/soap`"],
+      "answer": 1,
+      "explain": "Address is the WSDL URL minus `?WSDL`; it usually fills automatically, otherwise remove `?WSDL` yourself."
+    },
+    {
+      "q": "What is the default SOAP version in the Web Service Consumer config?",
+      "options": ["SOAP11", "SOAP12", "SOAP20", "There is no default"],
+      "answer": 0,
+      "explain": "SOAP11 is the default (MTOM enabled false). The calculator also offers a CalculatorSoap12 port."
+    },
+    {
+      "q": "Why drop the Consume component first, then place a Transform Message before it?",
+      "options": ["Consume must always be the first processor", "The Transform's output metadata is then already the XML structure the Consume expects", "It makes the call faster", "Otherwise the WSDL won't load"],
+      "answer": 1,
+      "explain": "With Consume configured, a Transform placed before it shows the operation's XML (`Add` with `intA`, `intB`) as its output metadata."
+    },
+    {
+      "q": "Input metadata won't load, so you add a temporary Transform with the example JSON before your mapping Transform. What must you do afterwards?",
+      "options": ["Keep it so metadata stays loaded", "Delete it — otherwise every request's numbers are overwritten by the example", "Convert it to a Set Payload", "Move it after the Consume"],
+      "answer": 1,
+      "explain": "The helper Transform only helps map fields; left in place, it would replace the real input on every request."
+    },
+    {
+      "q": "In `ns ns0 http://tempuri.org/` and `ns0#Add`, what is `ns0`?",
+      "options": ["A short prefix for the namespace URI `http://tempuri.org/`", "The name of the SOAP port", "A DataWeave variable holding the payload", "The SOAP version"],
+      "answer": 0,
+      "explain": "`ns0` is a short name for the namespace so it isn't written in full; `ns0#Add` means Add belongs to ns0."
+    },
+    {
+      "q": "With no target variable set on Consume, what does the payload look like after the call?",
+      "options": ["Plain JSON", "A SoapOutputEnvelope (Java) with body, headers and attachments; the body holds XML", "A string with the number only", "Empty — the response goes to a variable"],
+      "answer": 1,
+      "explain": "The response is in the payload as a SoapOutputEnvelope; the body holds `<AddResponse><AddResult>…</AddResult></AddResponse>`."
+    },
+    {
+      "q": "Which expression reads the sum from the SOAP response?",
+      "options": ["`payload.AddResult`", "`payload.body.AddResponse.AddResult`", "`payload.headers.AddResult`", "`attributes.body.AddResult`"],
+      "answer": 1,
+      "explain": "Navigate `payload.body.<OperationResponse>.<Result>`; for the calculator, `payload.body.AddResponse.AddResult`."
+    },
+    {
+      "q": "The class sent `{\"num1\": 195, \"num2\": 200}`. What did the final JSON response look like?",
+      "options": ["`{\"Response\": \"395\", \"serviceused\": \"addition\"}`", "`{\"AddResult\": 195200}`", "`{\"Response\": \"-5\", \"serviceused\": \"addition\"}`", "`<AddResult>395</AddResult>` as XML"],
+      "answer": 0,
+      "explain": "The service added the numbers (395) and the final Transform mapped it to `Response` with a hard-coded `serviceused: \"addition\"`."
+    },
+    {
+      "q": "A key `Response` is written without double quotes in a Transform with `output json`. What happens?",
+      "options": ["A compile error", "DataWeave adds the double quotes to the keys in the output automatically", "The key is dropped", "The value becomes null"],
+      "answer": 1,
+      "explain": "With `output json`, DataWeave quotes all keys in the output, so nothing happens if you forget them."
+    }
+  ],
+  "cards": [
+    {"front": "Which connector consumes a SOAP service in Mule 4?", "back": "The **Web Service Consumer**, using its only operation, **Consume**."},
+    {"front": "WSDL", "back": "Web Services Description Language — SOAP's contract (like RAML), describing operations, inputs and outputs."},
+    {"front": "WSDL location", "back": "URL of the WSDL file, shared by the SOAP provider, e.g. `…/calculator.asmx?WSDL`."},
+    {"front": "Web Service Consumer config fields", "back": "WSDL location, service, port, address (WSDL URL without `?WSDL`), plus SOAP version; then the operation on Consume."},
+    {"front": "Service / Port / Address", "back": "Service name, binding port and endpoint from the WSDL — filled automatically, or copied from the WSDL if not."},
+    {"front": "SOAP11 / SOAP12", "back": "SOAP versions; SOAP11 is the default."},
+    {"front": "Do Mule developers build SOAP services?", "back": "Rarely — new services are REST (99%); SOAP is mostly **consumed** from older systems."},
+    {"front": "How do you build the SOAP request body?", "back": "Put a Transform before Consume — its output metadata is the operation's XML — and map the JSON fields (with the namespace prefix, e.g. `ns0#Add`)."},
+    {"front": "Metadata-loading hack", "back": "If input metadata won't load, add a temporary Transform with the example JSON before it, map fields, then **delete** the temporary Transform."},
+    {"front": "Namespace prefix `ns0`", "back": "Short name for an XML namespace URI (`http://tempuri.org/`); `ns0#Add` = Add in that namespace."},
+    {"front": "Generated input DataWeave for Add", "back": "`output application/xml`, `ns ns0 http://tempuri.org/`, `{ ns0#Add: { ns0#intA: payload.num1, ns0#intB: payload.num2 } }`."},
+    {"front": "SoapOutputEnvelope", "back": "Consume's response payload (Java) with **body, headers, attachments**; the body holds the XML."},
+    {"front": "How do you read the SOAP response?", "back": "Navigate `payload.body.<OperationResponse>.<Result>` — e.g. `payload.body.AddResponse.AddResult` — and transform to JSON."},
+    {"front": "dneonline calculator operations", "back": "Add, Subtract, Multiply, Divide — only **Add** works reliably."},
+    {"front": "Add operation inputs", "back": "`intA` and `intB`; returns their sum in `AddResult`."},
+    {"front": "Quotes on JSON keys in DataWeave", "back": "With `output json`, DataWeave adds double quotes to keys automatically."},
+    {"front": "Common SOAP interview question", "back": "\"Which connector?\" → Web Service Consumer with its Consume operation."}
+  ]
+}

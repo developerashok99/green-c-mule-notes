@@ -1,0 +1,101 @@
+{
+  "quiz": [
+    {
+      "q": "There are two experience systems (mobile and web), two back-ends (database and Salesforce) and one simple functionality. How many APIs does the class design?",
+      "options": ["3", "4", "5", "6"],
+      "answer": 2,
+      "explain": "Two experience APIs (one per consumer), one process API reused by both, and two system APIs (one per back-end) = 5."
+    },
+    {
+      "q": "Why have separate experience APIs for the mobile and web apps?",
+      "options": ["Mobile apps can't call HTTPS", "The web app has more screen space and may need more data; each experience API shapes the shared process API's data for its consumer", "Each experience API needs its own database", "CloudHub allows only one consumer per API"],
+      "answer": 1,
+      "explain": "Consumers differ in data needs; the process API returns the same data and each experience API adapts it."
+    },
+    {
+      "q": "Which naming style do most organisations use for MuleSoft API names?",
+      "options": ["camelCase, e.g. hrEmployeeSysApi", "snake_case, e.g. hr_employee_sys_api", "kebab-case, e.g. hr-employee-sys-api", "PascalCase, e.g. HrEmployeeSysApi"],
+      "answer": 2,
+      "explain": "Kebab-case separates words with hyphens, not underscores. Keep names short too — CloudHub limits names to 42 characters."
+    },
+    {
+      "q": "A JSON validator reports \"Parse error … Expecting 'EOF'\" near the last property \"active\": true. What was the cause in class?",
+      "options": ["A missing opening brace", "A trailing comma at the end", "A boolean must be quoted", "Keys can't contain lowercase letters"],
+      "answer": 1,
+      "explain": "A comma after the last property breaks JSON. Removing it fixed the error."
+    },
+    {
+      "q": "After fixing the comma, \"bad string\" errors appear on keys copied from a slide. What's the likely cause?",
+      "options": ["Keys must be in single quotes", "Smart (curly) quotes copied from the document", "Strings longer than 32 characters", "Postman doesn't support JSON"],
+      "answer": 1,
+      "explain": "Quotes copied from slides/documents can be different characters that look the same. Retype them as plain double quotes."
+    },
+    {
+      "q": "Which is NOT one of the reasons given for JSON's popularity?",
+      "options": ["Human-readable", "Lightweight", "Easily used by many programming languages", "It has a built-in date data type"],
+      "answer": 3,
+      "explain": "The three reasons were readable, lightweight and language-friendly. The class drawing explicitly marked a JSON date data type as ✗ (dates are written as strings)."
+    },
+    {
+      "q": "The consumer sends wrong data to the create-employee API. Which status code does the design document use?",
+      "options": ["201", "400", "500", "404"],
+      "answer": 1,
+      "explain": "Wrong data from the consumer → 400 Bad Request. 201 is the success response; 500 is for cases like the database being down."
+    },
+    {
+      "q": "Who decides whether a field such as employeeId is mandatory?",
+      "options": ["The developer alone while writing RAML", "Team leads / business in the requirements discussion", "Postman", "The gateway policy"],
+      "answer": 1,
+      "explain": "Mandatory vs optional is decided by business/team leads and documented in the design. employeeId is mandatory because it's the primary key."
+    },
+    {
+      "q": "In RAML, how is a property treated if you don't say otherwise?",
+      "options": ["Optional by default", "Required by default; use required: false (or ?) to make it optional", "Ignored", "Only required for POST"],
+      "answer": 1,
+      "explain": "RAML properties are required by default. Length rules are written as minLength / maxLength."
+    },
+    {
+      "q": "Where should the token and correlation ID be sent in a request?",
+      "options": ["In the request body", "In headers", "In the URI path", "In query parameters"],
+      "answer": 1,
+      "explain": "Sending them in the body technically works but isn't the standard; headers carry tokens/correlation IDs, the body carries business data."
+    },
+    {
+      "q": "A request reaches API Manager / the gateway with an invalid token. What happens?",
+      "options": ["The Experience API rejects it in its error handler", "It is rejected at the gateway and never reaches the API", "It is forwarded with a warning header", "It is queued until a valid token arrives"],
+      "answer": 1,
+      "explain": "Policies sit in the gateway; if the token is invalid the request is rejected before reaching the Experience API."
+    },
+    {
+      "q": "In a design document, a field directly in the root object is level 1. What level is a field inside a nested data object?",
+      "options": ["Level 0", "Level 1", "Level 2", "Level 3"],
+      "answer": 2,
+      "explain": "Fields inside a nested object such as data are level 2."
+    }
+  ],
+  "cards": [
+    {"front": "Source system", "back": "Where the request starts — here the HR front-end (mobile or web)."},
+    {"front": "Counting APIs", "back": "One experience API per consumer + a shared process API + one system API per back-end. Example: 2 + 1 + 2 = **5**."},
+    {"front": "Who can call our APIs?", "back": "Front-ends (mobile, web), other companies' APIs, other departments' APIs, and our own APIs internally."},
+    {"front": "Kebab-case", "back": "Words separated by hyphens, e.g. `hr-employee-sys-api`. Used by most organisations."},
+    {"front": "SAPI / PAPI / EAPI", "back": "System / Process / Experience API."},
+    {"front": "Why keep API names short?", "back": "CloudHub limits app names to **42** characters; longer names are rejected."},
+    {"front": "How do you find errors in JSON?", "back": "Use a JSON validator or Postman (Body → raw → JSON). Check quoted keys, commas (no trailing comma), braces/brackets, smart quotes."},
+    {"front": "Smart quotes", "back": "Curly quote characters copied from slides/documents; they look like `\"` but break JSON. Retype them."},
+    {"front": "Why is JSON popular?", "back": "Human-readable, lightweight, easily used by many programming languages."},
+    {"front": "Design document / API blueprint", "back": "Agreed requests, responses, error responses and schemas — the understanding between consumer and provider."},
+    {"front": "Create employee success response", "back": "`{ \"statusCode\": 201, \"message\": \"employee details created successfully in the db\" }`"},
+    {"front": "A request has 120 fields — approach?", "back": "Break them down one by one: name, type, mandatory/optional, length. Discuss unclear ones with the team lead."},
+    {"front": "Who decides mandatory fields?", "back": "Business / team leads in the initial discussion, documented in the design."},
+    {"front": "Primary key", "back": "Unique identifier column in a DB table. `employeeId` is mandatory because it's the primary key."},
+    {"front": "Required properties in RAML", "back": "Required by default; `required: false` (or `?`) makes them optional. Lengths: `minLength` / `maxLength`."},
+    {"front": "Where do tokens and correlation IDs go?", "back": "In **headers**; the body carries business data."},
+    {"front": "Correlation ID / transaction ID", "back": "Unique ID per request, sent in a header, used for traceability across APIs and logs."},
+    {"front": "Field level", "back": "Field in the root object = level 1; inside a nested object (e.g. `data`) = level 2."},
+    {"front": "Mapping sheet", "back": "Maps fields between systems, e.g. `empId` → `employee_ID`. If unclear, ask the business for a call."},
+    {"front": "Documentation tool", "back": "Usually **Confluence**: specs, Postman collections per environment, high-level, landscape and sequence diagrams."},
+    {"front": "API landscape diagram", "back": "Diagram of all APIs for a business functionality."},
+    {"front": "Sequence diagram", "back": "The order of calls between systems, e.g. experience → process → system → DB."},
+    {"front": "Copy-paste and reuse", "back": "Not wrong — know **what** to copy, **where** to paste, and what minimal changes to make."}
+  ]
+}

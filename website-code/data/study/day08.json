@@ -1,0 +1,42 @@
+{
+  "quiz": [
+    {"q": "Which tool, embedded in Anypoint Studio, creates the Mule project's folder structure and builds the deployable JAR?", "options": ["Maven", "MUnit", "Spring", "Log4j2"], "answer": 0, "explain": "A Mule 4 project is a Maven project: Maven creates the standard folders, resolves dependencies and builds the JAR."},
+    {"q": "Where do the configuration XML files containing your flows live?", "options": ["`src/main/java`", "`src/main/resources`", "`target/`", "`src/main/mule`"], "answer": 3, "explain": "`src/main/mule` holds the main logic: flows, connector configurations and error handling."},
+    {"q": "Where should one property file per environment (dev, UAT, prod) be kept?", "options": ["`src/test/munit`", "`src/main/mule`", "In `pom.xml`", "`src/main/resources`"], "answer": 3, "explain": "`src/main/resources` supplies what the main project needs to run: property files, API spec, `log4j2.xml`, certificates."},
+    {"q": "Which folder holds MUnit tests?", "options": ["`src/test/resources`", "`src/test/munit`", "`src/test/java`", "`src/main/java`"], "answer": 1, "explain": "`src/test/java` is for JUnit (almost never used); `src/test/resources` holds resources for the MUnit tests."},
+    {"q": "What does `mule-artifact.json` declare?", "options": ["The log levels", "All connector dependencies", "The Studio version", "The Mule runtime version the project targets (e.g. `minMuleVersion: 4.4.0`)"], "answer": 3, "explain": "\"Mule 4.x developer\" refers to the runtime version, not Studio — Studio 7.12 embeds runtime 4.4.0."},
+    {"q": "In `pom.xml`, what does the `groupId` identify?", "options": ["The repository URL", "The project, usually the same as the project name", "The organization, often its reversed domain like `com.flipkart`", "The runtime version"], "answer": 2, "explain": "groupId = organization; artifactId = the project. Reversing the domain is MuleSoft's suggestion, not a rule."},
+    {"q": "You remove the Database module from the Mule Palette. What happens to `pom.xml`?", "options": ["A new repository is added", "The `mule-db-connector` dependency is removed automatically", "The groupId changes", "Nothing — pom.xml must be edited by hand"], "answer": 1, "explain": "Adding/removing a module in the palette automatically adds/removes its `<dependency>`; JARs are downloaded from the repositories."},
+    {"q": "In `pom.xml`, `<version>${mule.maven.plugin.version}</version>` reads its value from which section?", "options": ["`mule-artifact.json`", "`<repositories>`", "`<dependencies>`", "`<properties>`"], "answer": 3, "explain": "Properties define a value once (e.g. `3.5.4`) and reuse it with `${...}`."},
+    {"q": "Why must two projects not share the same groupId and artifactId?", "options": ["Maven would delete one of them", "Studio cannot open more than one project", "Built JARs are stored by groupId → artifactId → version, so they would collide", "They would share one HTTP port"], "answer": 2, "explain": "Like saving `test.doc` twice in one folder, the same coordinates would overwrite each other."},
+    {"q": "You create an HTTP Listener configuration with the + button. Under which tab of the configuration XML is it stored for reuse anywhere in the project?", "options": ["Global Elements", "Configuration XML only", "Mule Palette", "Message Flow"], "answer": 0, "explain": "Connector configurations are global elements, usable from any flow or XML file in the project."},
+    {"q": "You try to drag the HTTP Listener into the Process section of a flow. What happens?", "options": ["It works as a second listener", "It is converted into an HTTP Request", "It goes into Error handling", "Studio does not allow it — the Listener is a source and works only in Source"], "answer": 3, "explain": "Studio enforces placement: Listener only in Source; HTTP Request only in Process."},
+    {"q": "How does one flow call another flow in a different XML file of the same project?", "options": ["Through pom.xml dependencies", "With a Flow Reference component", "With a second HTTP Listener", "It is not possible across XML files"], "answer": 1, "explain": "Flow Reference works within the same XML and across XML files; the called flow doesn't need a source."}
+  ],
+  "cards": [
+    {"front": "Why is a Mule 4 project a Maven project?", "back": "Maven (embedded in Studio) creates the standard structure, resolves dependencies in pom.xml and builds the deployable JAR with plugins."},
+    {"front": "Workspace", "back": "The folder on disk where Studio stores all your projects (Show In → System Explorer)."},
+    {"front": "`src/main/mule`", "back": "Configuration XML files with flows, connector configs and error handling — the main code. Multiple XML files and multiple flows are normal."},
+    {"front": "`src/main/java`", "back": "Custom Java code — rarely used: only when no connector exists or Mule/DataWeave can't do something."},
+    {"front": "`src/main/resources`", "back": "Property files per environment, `api/` (imported RAML), `log4j2.xml`, `application-types.xml`, certificates."},
+    {"front": "`log4j2.xml`", "back": "Configures logging (format, file names, levels). Mule uses the Java Log4j2 framework because it's built on Spring/Java."},
+    {"front": "`src/test/munit` vs. `src/test/java`", "back": "munit: MUnit tests (used). java: JUnit tests (almost never used)."},
+    {"front": "`target/`", "back": "Build output — where the deployable JAR goes."},
+    {"front": "`mule-artifact.json`", "back": "Declares the Mule runtime version, e.g. `{\"minMuleVersion\": \"4.4.0\"}`."},
+    {"front": "Mule 4.x — Studio or runtime?", "back": "Runtime (server) version. Studio has its own version (e.g. 7.12 embeds runtime 4.4.0)."},
+    {"front": "POM", "back": "Project Object Model — `pom.xml` in the project **root**: identity, properties, build plugins, dependencies, repositories."},
+    {"front": "groupId / artifactId", "back": "groupId = organization (often reversed domain, `com.flipkart`). artifactId = project, usually the project name."},
+    {"front": "`packaging` in pom.xml", "back": "Tells Maven the kind of application — `mule-application`."},
+    {"front": "pom.xml properties", "back": "Values defined once and reused with `${...}`, e.g. `mule.maven.plugin.version`, `app.runtime`, encoding UTF-8."},
+    {"front": "Build plugins", "back": "`mule-maven-plugin` packages the Mule app into a JAR; `maven-clean-plugin` cleans previous build output."},
+    {"front": "Dependency", "back": "A connector/library the project needs: groupId, artifactId (e.g. `mule-db-connector`), version, classifier `mule-plugin`."},
+    {"front": "Repositories in pom.xml", "back": "Where dependencies/plugins are downloaded from — Anypoint Exchange and MuleSoft releases. Path: groupId → artifactId → version → JARs."},
+    {"front": "Default modules", "back": "HTTP and Sockets. Adding/removing modules in the palette edits pom.xml automatically."},
+    {"front": "Three tabs of a configuration XML", "back": "**Message Flow** (visual), **Global Elements** (reusable configs), **Configuration XML** (the generated code)."},
+    {"front": "Global element", "back": "A reusable configuration (HTTP Listener config, Database config) usable anywhere in the project."},
+    {"front": "Flow", "back": "Scope where orchestration, transformation and enrichment happen. Sections: **Source, Process, Error handling**."},
+    {"front": "Two ways to create a flow", "back": "Drag any component onto an empty canvas, or drag the **Flow** scope from Core → Scopes."},
+    {"front": "Flow Reference", "back": "Calls another flow and returns — in the same or a different XML file of the project."},
+    {"front": "Source vs. Process placement", "back": "HTTP Listener works only in Source; HTTP Request works only in Process. Studio enforces it."}
+  ]
+}

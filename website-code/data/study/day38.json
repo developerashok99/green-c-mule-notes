@@ -1,0 +1,100 @@
+{
+  "quiz": [
+    {
+      "q": "Which HTTP methods does the HTTP Caching policy cache by default?",
+      "options": ["GET and HEAD", "POST and PUT", "PATCH and DELETE", "All methods"],
+      "answer": 0,
+      "explain": "The default request caching condition is GET or HEAD. POST/PUT/PATCH insert or replace data, so every request is different."
+    },
+    {
+      "q": "With HTTP Caching on, a repeated request with the same key arrives within the TTL. What happens?",
+      "options": ["The app processes it again and updates the cache", "The gateway returns the cached response; the request doesn't reach the app", "It is rejected with 429", "It is queued"],
+      "answer": 1,
+      "explain": "Cached responses are returned immediately without reaching the API's processing — which is why the flow's loggers appear only the first time."
+    },
+    {
+      "q": "You want `GET /resignedemployees?resignedDate=…` cached per date. What should the HTTP Caching Key be?",
+      "options": ["`#[attributes.queryParams.resignedDate]`", "`#[payload]`", "`#[attributes.method]`", "`#[vars.resignedDate]`"],
+      "answer": 0,
+      "explain": "The caching key extracts what to cache by; here the resignedDate query parameter, so each date has its own cached entry."
+    },
+    {
+      "q": "Entry Time To Live is set to 600. What does that mean?",
+      "options": ["600 cache entries maximum", "A cached response is kept for 600 seconds (10 minutes)", "600 requests per minute", "600 ms delay between attempts"],
+      "answer": 1,
+      "explain": "TTL is in seconds; after it the entry expires and the next request is processed again."
+    },
+    {
+      "q": "Your app runs on multiple workers and the cache should be shared across them. Which option do you tick?",
+      "options": ["Persistent Cache", "Distributed", "Invalidation header", "Maximum Cache Entries"],
+      "answer": 1,
+      "explain": "Distributed shares the cache across workers. Persistent means the cache survives redeploys and worker restarts."
+    },
+    {
+      "q": "Which response caching condition did the instructor suggest?",
+      "options": ["Cache all the default codes including 404 and 501", "Cache only 200 (success)", "Cache only error responses", "Cache only 429"],
+      "answer": 1,
+      "explain": "The cache shouldn't hold error responses, so caching only 200 (success) is enough."
+    },
+    {
+      "q": "Which JWT origin option means the consumer sends `Authorization: Bearer <token>`?",
+      "options": ["Bearer authentication header", "Custom expression", "JWKS", "Skip Client ID validation"],
+      "answer": 0,
+      "explain": "Bearer authentication header reads the standard header; the class instead used a custom expression `#[attributes.headers['jwt']]`."
+    },
+    {
+      "q": "With RSA signing for JWT, what can the API gateway do with the public key?",
+      "options": ["Sign new tokens", "Only verify signatures — not sign", "Decrypt the client secret", "Generate a private key"],
+      "answer": 1,
+      "explain": "The authorization server signs with its private key; the public key can be shared with anyone and can only verify."
+    },
+    {
+      "q": "Why is JWKS advisable over pasting the public key manually?",
+      "options": ["JWKS skips signature checks", "If the auth server rotates its key, the gateway picks up the new public key from the URL automatically", "JWKS is faster to type", "Manual keys only work with HS256"],
+      "answer": 1,
+      "explain": "With a pasted key, all requests fail until someone updates it. JWKS downloads the key from the URL (cached, e.g. 60 min)."
+    },
+    {
+      "q": "Which Auth0 application type was created for the JWT demo?",
+      "options": ["Single Page Application", "Regular Web Application", "Machine to Machine Application", "Native Application"],
+      "answer": 2,
+      "explain": "Requests come from a server (mobile app → its web server → our API), so a Machine to Machine app with `grant_type: client_credentials` was used."
+    },
+    {
+      "q": "A request reaches the JWT-protected API without the `jwt` header. What does it get?",
+      "options": ["401 Unauthorized", "400 Bad Request — \"JWT Token is required\"", "403 Forbidden", "200 with an empty body"],
+      "answer": 1,
+      "explain": "The class saw 400 \"JWT Token is required\"; with the Auth0 access token in the header it returned 200."
+    },
+    {
+      "q": "On jwt.io, which payload claim holds the token's expiry?",
+      "options": ["`iat`", "`exp`", "`iss`", "`azp`"],
+      "answer": 1,
+      "explain": "`exp` is expiry (epoch time); `iat` is issued-at, `iss` the issuer, `azp` the authorized party (client ID)."
+    }
+  ],
+  "cards": [
+    {"front": "HTTP Caching policy", "back": "Gateway stores the response for a request and replies from the cache for repeats — they don't reach the app."},
+    {"front": "Which requests can HTTP Caching cache?", "back": "GET (and HEAD). POST/PUT/PATCH change data, so each request is different."},
+    {"front": "How do you check the caching policy works?", "back": "The first request prints the flow's loggers; repeats within the TTL return from cache, so no logs appear in Runtime Manager."},
+    {"front": "HTTP Caching Key", "back": "Expression deciding what a cached entry is keyed by, e.g. `#[attributes.queryParams.empid]`. Default `#[attributes.requestPath]`."},
+    {"front": "Maximum Cache Entries", "back": "How many entries are stored; when full a new one replaces another. Default 10,000 — you'd usually reduce it."},
+    {"front": "Entry Time To Live", "back": "Seconds a cached response is kept (600 = 10 min). Generally kept within 24 hours."},
+    {"front": "Persistent vs. distributed cache", "back": "Persistent survives redeploys and restarts; distributed shares the cache across multiple workers."},
+    {"front": "Response caching condition — instructor's suggestion", "back": "Cache only **200** responses; the cache shouldn't hold errors."},
+    {"front": "DB-credentials API use case", "back": "A small API returning DB host/port/user/password, with HTTP caching for 48 hours, so ~20 APIs fetch credentials once per 48 h despite quarterly password changes."},
+    {"front": "Did HTTP caching work in class?", "back": "No — loggers printed on every request; the instructor said he'd figure it out later."},
+    {"front": "JWT origin options", "back": "Bearer authentication header (`Authorization: Bearer <token>`) or a custom expression — class used `#[attributes.headers['jwt']]`."},
+    {"front": "Symmetric vs. asymmetric (RSA) signing", "back": "Symmetric: one key signs and verifies — less secure. RSA: private key signs, public key verifies — more secure."},
+    {"front": "Why RSA for JWT?", "back": "The auth server signs with a private key; the gateway verifies with the public key, which can be shared safely and can't be used to sign."},
+    {"front": "JWKS", "back": "JSON Web Key Set — a URL (e.g. `/.well-known/jwks.json`) publishing the public keys; the gateway downloads and caches them (class: 60 min TTL)."},
+    {"front": "Why JWKS rather than pasting the public key?", "back": "Key rotation is picked up automatically; a pasted key breaks all requests until updated manually."},
+    {"front": "Auth0", "back": "Okta-owned authorization server used in class to issue JWTs (Machine to Machine app, client credentials grant)."},
+    {"front": "Parts of a JWT", "back": "Header (`alg`, `typ`, `kid`), payload (`iss`, `sub`, `aud`, `iat`, `exp`, `scope`…), signature — Base64, dot-separated."},
+    {"front": "JWT claims `iss`, `sub`, `aud`", "back": "`iss`: issuer (tenant domain). `sub`: subject (client ID + `@clients`). `aud`: audience (domain + `/api/v2/`)."},
+    {"front": "JWT claims `iat`, `exp`, `gty`, `azp`", "back": "`iat`: issued at; `exp`: expiry (both epoch time). `gty`: grant type. `azp`: authorized party (client ID)."},
+    {"front": "Missing JWT header", "back": "Gateway returns **400 Bad Request** \"JWT Token is required\"."},
+    {"front": "Mule API calling a JWT-protected API — token handling", "back": "Get the token once and keep it in the Object Store or a cache for its lifetime — not a variable, which dies with each request."},
+    {"front": "Epoch time", "back": "Numeric timestamp used by the `iat` / `exp` claims."}
+  ]
+}
