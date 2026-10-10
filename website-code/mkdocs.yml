@@ -33,9 +33,11 @@ theme:
         icon: material/weather-night
         name: Switch to system preference
   features:
+    - navigation.instant
     - navigation.tabs
     - navigation.indexes
     - navigation.top
+    - header.autohide
     - navigation.footer
     - navigation.tracking
     - search.suggest

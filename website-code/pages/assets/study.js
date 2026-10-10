@@ -29,7 +29,7 @@
   }
   async function dataOf(box) {
     if (box.dataset.src) return (await fetch(box.dataset.src)).json();
-    return JSON.parse(box.querySelector("script[type='application/json']").textContent);
+    return JSON.parse(box.querySelector("script").textContent);
   }
 
   /* ---------------- quiz ---------------- */
@@ -192,6 +192,52 @@
       }
     }
   }
-  if (window.document$) window.document$.subscribe(init);   // Material instant navigation
-  else document.addEventListener("DOMContentLoaded", init);
+  /* ---------------- focus mode (fullscreen reading) ---------------- */
+  const ICON_ON = '<svg viewBox="0 0 24 24"><path d="M5 5h5V3H3v7h2V5zm9-2v2h5v5h2V3h-7zm5 16h-5v2h7v-7h-2v5zM5 14H3v7h7v-2H5v-5z"/></svg>';
+  const ICON_OFF = '<svg viewBox="0 0 24 24"><path d="M8 3H6v3H3v2h5V3zm8 0h-2v5h5V6h-3V3zM3 16v2h3v3h2v-5H3zm13 0v5h2v-3h3v-2h-5z"/></svg>';
+  function focusMode() {
+    const KEY = "focus-mode";
+    const btn = el("button", "focus-btn");
+    btn.type = "button";
+    document.body.appendChild(btn);
+    function store(on) { try { sessionStorage.setItem(KEY, on ? "1" : ""); } catch (e) {} }
+    function render() {
+      const on = document.body.classList.contains("focus-mode");
+      btn.innerHTML = (on ? ICON_OFF + "Exit focus" : ICON_ON + "Focus");
+      btn.title = on ? "Exit focus mode (Esc)" : "Focus mode: notes only, fullscreen";
+    }
+    function set(on, fullscreen) {
+      document.body.classList.toggle("focus-mode", on);
+      store(on);
+      if (fullscreen) {
+        try {
+          if (on && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+          if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        } catch (e) {}
+      }
+      render();
+      window.dispatchEvent(new Event("resize"));   // let mind maps re-fit
+    }
+    btn.onclick = () => set(!document.body.classList.contains("focus-mode"), true);
+    // leaving browser fullscreen (Esc) also leaves focus mode
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement && document.body.classList.contains("focus-mode")) set(false, false);
+    });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && document.body.classList.contains("focus-mode") && !document.fullscreenElement) set(false, false);
+    });
+    // keep the focus layout when moving to the next page (browser fullscreen can't be restored automatically)
+    let saved = "";
+    try { saved = sessionStorage.getItem(KEY) || ""; } catch (e) {}
+    set(!!saved, false);
+  }
+
+  function boot() { init(); if (!document.querySelector(".focus-btn")) focusMode(); }
+  // Material's document$ fires on the first load and after every instant-navigation page change
+  function hook() {
+    if (window.document$ && window.document$.subscribe) window.document$.subscribe(boot);
+    else boot();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", hook);
+  else hook();
 })();
