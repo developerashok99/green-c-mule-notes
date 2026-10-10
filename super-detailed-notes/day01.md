@@ -1,5 +1,10 @@
 # Day 01 — What Is MuleSoft and Why Learn It
 
+> **Sources:**
+> - Cleaned audio transcript ([transcripts-cleaned/day01.txt](../transcripts-cleaned/day01.txt)) and the class video (recorded 28 Oct 2024).
+> - Text marked *slide* or *screen* is read from the recording.
+> - Slide images: [slides/day01](../slides/day01/).
+
 ## 1. Overview
 
 Day 01 is the orientation session. No full hands-on build is done yet, but the lecture sets up the mental model used for the rest of the course.
@@ -12,7 +17,7 @@ Topics covered:
 4. Why the term "Enterprise Application Integration" is used
 5. Connectors (first mention)
 6. Why learn MuleSoft — technical and market reasons
-7. A short live demo: HTTP Listener → Database (MySQL SELECT) → Transform Message → JSON
+7. A short live demo: HTTP Listener → Logger → Database (MySQL Select) → Logger → Transform Message → JSON
 8. Common integration project requirements (the "80/20" principle)
 9. Career FAQs (Java, non-IT background, testing background, career gap, roles)
 10. Instructor background, training approach and course materials
@@ -140,9 +145,10 @@ The same idea works for two systems or many systems.
 
 - An international climate conference is held in India.
 - Delegates come from Japan, France and Spain (a German delegate is also mentioned).
+- The *slide* "Generic complex example" shows the Japanese delegate with a separate translator per pair: **J to S**, **J to F**, **J to H**.
 - Each group speaks only its own language; the Indian side speaks Hindi.
 
-> **Transcript unclear:** this part of the recording is heavily garbled (it mentions a translator handling "German to Spanish, German to French … German to Hindi" and "the job has become very easy"). The pairwise-vs-central explanation below is reconstructed from that context and the conclusion the instructor states; the exact set-up described in class could not be reliably recovered.
+> **Transcript unclear:** the spoken part is heavily garbled (it mentions "German to Spanish, German to French … German to Hindi" and "the job has become very easy"). The pairwise set-up comes from the slide, and the central translator from the board drawing (one "Translator" connected to J, F, S, H and G).
 
 If every pair of languages needs its own translator (Japanese↔Spanish, Japanese↔French, Spanish↔French, each↔Hindi …), the number of translators grows very fast as countries are added.
 
@@ -153,12 +159,11 @@ Use a central translation arrangement that every delegate connects to. Adding a 
 ```text
 Pairwise (messy)                          Central (manageable)
 
-Japanese ─── Spanish                       Japanese    Spanish
-   │  ╲    ╱   │                                ╲       ╱
-   │   ╲  ╱    │                                 Central
-   │    ╳      │                                Translator
-   │   ╱  ╲    │                                 ╱      ╲
-French ───── Hindi                          French      Hindi
+Japanese ── J to S ── Spanish            J        F
+   │  ╲                                     ╲      ╱
+ J to F  J to H                            Translator ── S
+   │       ╲                                ╱      ╲
+French      Hindi                          H        G
 ```
 
 ### 4.3 What it teaches
@@ -191,10 +196,13 @@ Each system is specialised and well known for its own purpose. An enterprise use
 | Inventory / stock | SAP |
 | Customer details, addresses (CRM) | Salesforce |
 | Payment | Razorpay |
-| Billing / invoice | A billing application |
-| Delivery / shipping | A delivery application |
+| Billing / invoice | A billing application (*slide*: Billing (Geneva)) |
+| Delivery / shipping | A delivery application (marked "Java" on the board drawing) |
 
 ### 5.3 The flow
+
+The *slide* draws the MuleSoft integration as: **Source → IM connector → SF connector → Transformation → Enrichment → P connector → B connector → D connector**, with request in and response out. The board drawing adds "orchestration" over the flow and "EAI tool" at the top.
+
 
 ```text
 Mobile / Web App
@@ -301,25 +309,25 @@ The repetitive "donkey work" of integration (connecting, converting formats) is 
 - Research/analyst firms evaluate integration tools every year on parameters such as business volume, number of customers, ability to handle complex projects, and cloud and on-premises support.
 - They publish a yearly report.
 - The instructor states MuleSoft has been named an **industry leader for integration about 9–10 times**.
-
-> **Technical clarification:** The firm is not named in the transcript; this most likely refers to reports such as the Gartner Magic Quadrant.
+- The *slide* names the firm: "Industry leader of integration tools as per **Gartner** report".
 
 ### 7.2 Salesforce acquisition (2018)
 
-- **Salesforce acquired MuleSoft in 2018** for over ₹40,000 crore (about US $6.5 billion).
+- **Salesforce acquired MuleSoft in 2018** for over ₹40,000 crore. The *slide*: "6.5 Billion USD (40000+ crores INR) in Mar 2018".
 - Reason given: Salesforce is a large CRM platform whose customers need to integrate it with many other enterprise applications. Owning MuleSoft lets Salesforce offer integration to its large customer base.
 - **Instructor's claim:** Salesforce holds about 28% of the CRM market with no close competitor.
 - A large company owning and promoting MuleSoft increases its popularity and job demand.
 
 ### 7.3 Ahead of competitors
 
+- The *slide* lists the competitors: **TIBCO BW, Boomi, IIB, Apache Camel**.
 - Before MuleSoft, **TIBCO** was a well-known integration leader.
 - MuleSoft's strength: **ready-made connectors** for most systems, so little custom connector work is needed. The instructor cites **300+ connectors**.
 - MuleSoft adopts new trends quickly (the instructor's example: AI-related capabilities).
 
 ### 7.4 Full API lifecycle management
 
-An API goes through many steps — **design, implementation, security, deployment, monitoring**. MuleSoft provides its own sub-tool for every step.
+An API goes through many steps — **design, implementation, security, deployment, monitoring** (*slide*: "Design, Implement, Secure, Deploy and Monitor"). MuleSoft provides its own sub-tool for every step.
 
 Why it matters: if a platform is weak in one step, the project needs a third-party tool for it. That raises cost and forces the team to learn and maintain another tool.
 
@@ -327,7 +335,7 @@ Why it matters: if a platform is weak in one step, the project needs a third-par
 
 ### 7.5 Reasonable pricing
 
-**Instructor's opinion:** pricing is reasonable compared with other integration tools.
+**Instructor's opinion:** pricing is reasonable compared with other integration tools (*slide*: "Reasonable pricing for companies").
 
 ### 7.6 Cloud and on-premises support
 
@@ -341,7 +349,7 @@ Deployment options are covered in detail from Day 17 onward.
 
 | Reason | Explanation |
 |---|---|
-| Smaller tool, faster to learn | The instructor compares it with Salesforce, which they say takes 4–6 months to learn. Typical MuleSoft courses run about 35–40 sessions; this course runs about 55 hours. |
+| Smaller tool, faster to learn | The instructor compares it with Salesforce, which they say takes 4–6 months to learn. Typical MuleSoft courses run about 35–40 sessions; this course runs about 55 sessions of 1.5 hours (board drawing: "Salesforce → 4 to 6 months; MuleSoft → (35 to 40) sessions → 55 sessions"). |
 | Drag-and-drop | About 80% of the work is dragging, dropping and configuring components. About 10–25% is writing DataWeave scripts. |
 | Demand and salary | **Instructor's market observation:** in their network, people with 3–5 years of experience earn around ₹10–15 lakh per year; some are 22–25 years old. Not a guarantee. |
 | History | **Instructor's statement:** MuleSoft has existed for 10–12+ years (around 2006–2007), with aggressive adoption from 2015–16, especially by banks. |
@@ -357,13 +365,16 @@ To show how little effort a basic integration needs in MuleSoft compared with ha
 ### 8.2 What was built
 
 ```text
-HTTP Listener  (receives the request, e.g. GET http://localhost:8081/db)
+HTTP Listener  (receives GET http://localhost:8081/db)
       │
       ▼
 Logger         (for debugging)
       │
       ▼
-Database  ─ Select ─►  MySQL table "Employees"
+Database  ─ Select ─►  MySQL table EMPLOYEES_INFO
+      │
+      ▼
+Logger
       │
       ▼
 Transform Message  (convert the database result to JSON)
@@ -374,19 +385,19 @@ HTTP response (JSON)
 
 ### 8.3 Steps shown
 
-1. **New Mule project** created in Anypoint Studio, named "MuleDB demo".
-2. **HTTP Listener** added so the application listens for requests. Its configuration (port) was created with default settings, path `db`.
-   > **Transcript unclear:** the port is spoken as "808" and the test URL as "localhost 80814 path db". The default HTTP Listener port is **8081**, so the URL was most likely `http://localhost:8081/db`, but the exact value could not be reliably recovered.
+1. **New Mule project** created in Anypoint Studio, named **mule-db-demo** (*screen*).
+2. **HTTP Listener** added so the application listens for requests. Its configuration uses port **8081** (default settings otherwise), path `/db`; saved with Ctrl+S. The Postman *screen* confirms `http://localhost:8081/db`.
 3. **Database module added** using *Add Modules* → drag and drop **Database**. This adds the Database connector to the project.
 4. **Database configuration** for MySQL:
    - A JDBC **driver** is needed. Clicking **Configure → Add recommended libraries** adds the MySQL driver automatically.
-   - Connection details required: **host** (where the database runs), **port**, **username**, **password**, and **database name**.
+   - Connection details required: **host** (where the database runs — `localhost` on *screen*), **port**, **username**, **password**, and **database name**.
    - **Test Connection** → *Test connection successful*. (The database must be running.)
    - > **Transcript unclear:** the database name is spoken as "Mule3, Mule4"; the exact name could not be reliably recovered.
 5. **Logger** placed in the flow. Reason: in real-time and production applications, logs make debugging easier.
-6. **Select operation** with a query on the `Employees` table. The table and query were checked in **MySQL Workbench** first.
+6. **Select operation** with a query on the `EMPLOYEES_INFO` table (*screen*: `select * from EMPLOYEES_INFO;` in **MySQL Workbench**). A second Logger follows the Select.
 7. **Transform Message** added. The database returns data in an internal (Java object) format; the requirement is JSON, so a small DataWeave script converts it.
-8. **Tested with Postman** — the response contained the table rows as JSON.
+8. App run — the Console shows **DEPLOYED**.
+9. **Tested with Postman** — `GET http://localhost:8081/db` → **200 OK**, the table rows as JSON.
 
 A typical DataWeave script for this conversion:
 
@@ -417,11 +428,13 @@ payload
 
 | Category | Examples |
 |---|---|
-| Web services | REST services, SOAP services |
+| Web services | REST services (create and consume), SOAP services (consume) |
 | File-based systems | File, FTP, SFTP |
-| Databases | e.g. MySQL |
-| Messaging | ActiveMQ, Anypoint MQ |
-| Enterprise / SaaS systems | Salesforce, Azure, Google, etc. |
+| Databases | Oracle DB, MySQL DB, Microsoft SQL DB |
+| Messaging | ActiveMQ, Anypoint MQ, VM, Kafka |
+| Other systems | Salesforce, Jira, AWS S3, SAP |
+
+(Table from the *slide* "Common integration project requirements".)
 
 The course concentrates on these, plus Salesforce.
 
@@ -509,7 +522,9 @@ No. **Instructor's view:** MuleSoft is a much smaller tool than Salesforce (whic
 ### Q. Is certification covered?
 The course prepares students to clear **MCD Level 1** (MuleSoft Certified Developer – Level 1). The instructor says MuleSoft has four major certifications and that they hold three.
 
-> **Technical clarification:** The commonly cited major MuleSoft certifications are MCD Level 1, MCD Level 2, MuleSoft Certified Integration Architect (MCIA) and MuleSoft Certified Platform Architect (MCPA). The transcript does not name them.
+The *slide* names the three the instructor holds: **MCD Level 1, MCD Level 2 and MCIA**.
+
+> **Technical clarification:** The fourth commonly cited major certification is MuleSoft Certified Platform Architect (MCPA); it is not named in class.
 
 ### Q. Will the application (Anypoint Studio) be shown for each topic?
 Yes. Each topic is explained with slides first, then demonstrated in Anypoint Studio and the wider MuleSoft ecosystem.
@@ -521,16 +536,21 @@ Yes. Each topic is explained with slides first, then demonstrated in Anypoint St
 ### 11.1 Instructor (as stated)
 
 - Name: **Mahesh Reddy**
-- About **8 years** of experience
+- About **8 years** of experience (*slide*: 7+ years in the IT industry)
+- *Slide*: trained **100+ students** ("actually a lot more"); "industry-ready professional"
 - Has attended or conducted **200+ interviews** and sits on interview panels regularly, so has a view of what the market asks
-- Holds **3 of the 4** major MuleSoft certifications
+- Holds **3 of the 4** major MuleSoft certifications — MCD Level 1, MCD Level 2, MCIA
 
 ### 11.2 Training approach
 
+- *Slide*: presentation and whiteboard for live experience; **LPP model — Learn, Practice, Practice**.
+- *Slide*: learn from the right trainer — concepts and hands-on — **33.33%**; practice with the assignments given — your efforts — **66.66%**.
+- Schedule: **7:30–9:00 am, Monday to Thursday** (written on the board over the slide's "daily 1 hour, Mon to Fri"), about six hours a week; recordings provided.
 - Each topic: concept on slides → demonstration in Studio → real-project scenarios.
 - Prerequisites are taught from scratch: APIs, web services, REST, SOAP, integration, microservices vs. monolithic, API lifecycle, environments, data formats, HTTP.
 - Course focus: the most-used parts of the tool ("learn less, get more results"), based on the common 80% of requirements.
-- Topics listed on the slides include the Salesforce connector, Database connector, scopes, managed APIs and policies.
+- Topics mentioned include the Salesforce connector, Database connector, scopes, managing APIs and policies.
+- The syllabus shown on *screen* (Modules 14–19): API-led connectivity; Design APIs (RAML, mock, publish to Exchange); Manage APIs (Basic Auth, Client ID enforcement, OAuth, Rate Limiting, Spike Control); scopes (For Each, Parallel For Each, Batch, Async, Try); Salesforce connector (create, query); CI/CD (Jenkins, Bitbucket/GitHub).
 
 ### 11.3 Materials provided
 
@@ -538,7 +558,7 @@ Yes. Each topic is explained with slides first, then demonstrated in Anypoint St
 |---|---|
 | Session recordings | Provided |
 | Interview preparation content | 10–12 hours of separately recorded content, in addition to the ~55 hours of sessions |
-| Interview Q&A documents | Short, one-question-one-answer format for quick revision before interviews |
+| Interview Q&A documents | Short, one-question-one-answer format for quick revision before interviews; about 2 weeks of work (*screen*: "Anypoint Studio Interview Q&As for MuleSoft Developers") |
 | Resume guidance | A detailed ~1-hour resume preparation session: what to include, what not to include, how to phrase it |
 | Mock interviews | 10–30 minutes, with detailed feedback; students must come prepared |
 | Placement assistance | Mentioned as part of the program |
@@ -547,9 +567,10 @@ Q&A documents and interview content are shared after the mid-point/end of the co
 
 ### 11.4 Practice
 
-> **Transcript unclear:** part of the instructor's introduction (about certifications, practice and their weekly schedule) is lost in a speech-to-text repetition loop; only "Monday to Thursday" and the points below are recoverable.
+> **Transcript unclear:** part of the instructor's introduction is lost in a speech-to-text repetition loop ("I'm not going to practice actually…"); the training-approach slide fills in the LPP model above.
 
-The instructor stresses that watching videos is not enough. Rigorous hands-on practice is required to reach the level expected from candidates with 2–4 years of experience.
+- The trainer gives 100%; "the rest lies with you — practice and practice."
+- Watching videos is not enough. Rigorous practice, followed religiously, brings you to the level expected from candidates with 2–4 years of experience.
 
 ---
 
@@ -623,4 +644,4 @@ No. It supports cloud and on-premises deployment, which matters for organisation
 7. Strengths cited: analyst leadership, Salesforce acquisition (2018), 300+ connectors, full API lifecycle, cloud + on-prem.
 8. About **80% drag-and-drop**, the rest **DataWeave**; Java is helpful but not required.
 9. **80/20**: most project requirements repeat (REST, SOAP, File/FTP/SFTP, DB, messaging, Salesforce); learn new ones from docs + POC.
-10. Demo: **HTTP Listener → Database Select → Transform Message → JSON**, tested in Postman.
+10. Demo: **Listener → Logger → Select → Logger → Transform Message → JSON**, tested in Postman at `localhost:8081/db`.
