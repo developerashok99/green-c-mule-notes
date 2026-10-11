@@ -177,3 +177,84 @@ body.focus-mode .st-controls .st-small { display: flex; }
 .st-test span { font-size: .72rem; color: var(--md-default-fg-color--light); }
 .st-test .md-button { align-self: flex-start; margin-top: .3rem; }
 .st-final { border-color: var(--md-accent-fg-color); background: var(--md-accent-fg-color--transparent); }
+
+/* =====================================================================
+   Reading layout (UI pass 2)
+   - text lines capped at ~80 characters; code, tables, diagrams, quizzes
+     may use the full content column
+   - content column centred between the two sidebars
+   ===================================================================== */
+:root { --st-measure: calc(0.82rem * var(--st-scale, 1) * 40); }   /* ≈ 75–80 characters of body text */
+[dir] .md-content__inner { max-width: 1180px; margin-left: auto !important; margin-right: auto !important;
+  padding-left: 1.2rem; padding-right: 1.2rem; padding-bottom: 4rem; box-sizing: border-box; }
+[dir] article.md-content__inner.md-typeset > :is(p, ul, ol, dl, blockquote, h1, h2, h3, h4, h5, h6, hr, .admonition, details, .lec-nav) {
+  max-width: var(--st-measure); margin-left: auto; margin-right: auto;
+}
+[dir] article.md-content__inner.md-typeset > :is(ul, ol) { padding-left: 1.6em; }
+/* wide content keeps the full column, but is centred too */
+.md-content__inner > :is(pre, .highlight, .md-typeset__scrollwrap, .mermaid, table, .grid, [data-study], .markmap, .tabbed-set, figure) {
+  margin-left: auto; margin-right: auto;
+}
+.st-area { max-width: var(--st-measure); margin-left: auto; margin-right: auto; }
+body.focus-mode .md-main__inner { display: block; }
+body.focus-mode .md-content { width: 100%; }
+[dir] body.focus-mode .md-content__inner { margin: 1.2rem auto 2rem; }
+
+/* Headings: clear hierarchy, not oversized, readable weight */
+.md-typeset h1 { font-size: 1.75em; font-weight: 600; line-height: 1.3; color: var(--md-default-fg-color); margin-bottom: 1em; }
+.md-typeset h2 { font-size: 1.38em; font-weight: 600; line-height: 1.35; margin-top: 2.2em; padding-top: .9em;
+  border-top: 1px solid var(--md-default-fg-color--lightest); }
+.md-typeset h3 { font-size: 1.14em; font-weight: 600; margin-top: 1.7em; }
+.md-typeset h4 { font-size: 1em; font-weight: 600; }
+.md-typeset h1 + h2, .md-typeset hr + h2 { border-top: none; padding-top: 0; }
+.md-typeset p, .md-typeset li { line-height: 1.75; }
+.md-typeset li + li { margin-top: .25em; }
+.md-typeset blockquote { color: var(--md-default-fg-color); border-left-color: var(--md-accent-fg-color); }
+
+/* Code: comfortable padding, always scrollable */
+.md-typeset pre > code { padding: .9em 1.1em; line-height: 1.55; }
+.md-typeset pre { overflow-x: auto; }
+
+/* Keyboard focus that is always visible */
+.md-typeset a:focus-visible, .md-typeset button:focus-visible, .st-opt:focus-visible, .st-card:focus-visible,
+.st-tile:focus-visible, .focus-btn:focus-visible, .md-button:focus-visible, .lec-nav a:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color); outline-offset: 2px;
+}
+
+/* Quiz results are not shown by colour alone */
+.st-right::after { content: "  ✓ correct answer"; font-weight: 600; color: #2e9e4f; white-space: nowrap; }
+.st-wrong::after { content: "  ✗ your answer"; font-weight: 600; color: #d64545; white-space: nowrap; }
+[data-md-color-scheme="slate"] .st-right::after { color: #5ccf7e; }
+[data-md-color-scheme="slate"] .st-wrong::after { color: #ff7b7b; }
+
+/* ---------- Lecture section bar (top of every lecture page) ---------- */
+.md-typeset .lec-nav { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: -.4em; margin-bottom: 1.6em; }
+.md-typeset .lec-nav a {
+  padding: .25em .8em; border-radius: 999px; font-size: .78em; text-decoration: none;
+  border: 1px solid var(--md-default-fg-color--lightest); color: var(--md-default-fg-color--light);
+}
+.md-typeset .lec-nav a:hover { color: var(--md-accent-fg-color); border-color: var(--md-accent-fg-color); }
+.md-typeset .lec-nav a.lec-on { color: var(--md-accent-fg-color); border-color: var(--md-accent-fg-color);
+  background: var(--md-accent-fg-color--transparent); font-weight: 600; }
+
+/* ---------- "Next step" box at the end of every lecture page ---------- */
+.md-typeset .admonition.next-step { border-left-width: 3px; font-size: .85em; margin-top: 2.5em; }
+
+/* ---------- Home: compact section list instead of large cards ---------- */
+.md-typeset .home-sections { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: .2rem 1.6rem; list-style: none; padding: 0; max-width: none; }
+.md-typeset .home-sections li { margin: 0; padding: .55em 0; border-bottom: 1px solid var(--md-default-fg-color--lightest); line-height: 1.5; }
+.md-typeset .home-sections li strong a { font-weight: 600; }
+.md-typeset .home-sections li span { display: block; font-size: .8em; color: var(--md-default-fg-color--light); }
+.md-content__inner > .home-sections { max-width: 1180px; }
+.st-tile--next b { color: var(--md-default-fg-color); font-size: 1.05rem; }
+.st-tile--next span { font-size: .78rem; color: var(--md-default-fg-color); }
+
+/* ---------- Floating controls on phones: small, out of the way ---------- */
+@media screen and (max-width: 44.984375em) {
+  [dir] .md-content__inner { padding-left: .8rem; padding-right: .8rem; }
+  .st-controls { right: .5rem; bottom: .5rem; gap: .25rem; }
+  .focus-btn { padding: .4rem .5rem; font-size: .62rem; opacity: .7; }
+  .focus-btn.st-focus .st-label-text { display: none; }
+  .st-right::after, .st-wrong::after { display: block; margin-top: .2em; }
+}

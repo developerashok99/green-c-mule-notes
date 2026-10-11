@@ -431,9 +431,6 @@ def main():
         base = DOCS / "lectures" / sid
         pages = [("Summary", "index.md")]
         summary = rewrite((REPO / f"{sid}.md").read_text(encoding="utf-8"), "summary")
-        head, _, rest = summary.partition("\n")
-        summary = (head + "\n\n[:material-graph-outline: Mind map of this lecture](../../mindmaps/"
-                   f"{sid}.md){{ .md-button }}\n" + rest)
         write(base / "index.md", summary)
         write(DOCS / "mindmaps" / f"{sid}.md", lecture_mindmap_page(sid))
         for kind, folder, name, lab in [("detailed", "detailed-notes", "detailed.md", "Detailed Notes"),
@@ -454,6 +451,7 @@ def main():
             write(base / "flashcards.md", cards_page(sid, sd))
             pages.append(("Flashcards", "flashcards.md"))
         nav_sessions[sid] = pages
+        add_lecture_chrome(sid, base, pages, ids)
 
     # lectures index + study plan
     write(DOCS / "lectures" / "index.md", lectures_index(ids))
@@ -518,6 +516,42 @@ def main():
     gen = "INHERIT: mkdocs.yml\nnav: " + json.dumps(nav, ensure_ascii=False) + "\n"
     (HERE / "mkdocs.gen.yml").write_text(gen, encoding="utf-8")
     print(f"built {len(ids)} sessions into {DOCS}")
+
+
+
+# --- lecture section bar + "next step" box (website copies only) -------------
+NEXT_STEP = {
+    "index.md": ("Read the **Detailed Notes** with the class video open", ["detailed.md", "quiz.md"]),
+    "detailed.md": ("Test yourself with the **Quiz**, or go deeper in the **Super-Detailed Notes**", ["quiz.md", "notes.md"]),
+    "notes.md": ("Check what stuck: take the **Quiz**, then the **Flashcards**", ["quiz.md", "flashcards.md"]),
+    "slides.md": ("Turn the screens into memory: take the **Quiz**", ["quiz.md", "flashcards.md"]),
+    "quiz.md": ("Lock it in with the **Flashcards** — wrong answers are already saved in **My Mistakes**", ["flashcards.md"]),
+    "flashcards.md": ("Finish the day with **Review Today**, then move on to the next lecture", []),
+}
+SHORT = {"index.md": "Summary", "detailed.md": "Detailed", "notes.md": "Notes", "slides.md": "Slides",
+         "quiz.md": "Quiz", "flashcards.md": "Flashcards"}
+
+
+def add_lecture_chrome(sid, base, pages, ids):
+    names = [n for _, n in pages]
+    nxt = ids[ids.index(sid) + 1] if ids.index(sid) + 1 < len(ids) else None
+    for _, name in pages:
+        f = base / name
+        text = f.read_text(encoding="utf-8")
+        links = [f"[{SHORT[n]}]({n})" + ("{ .lec-on }" if n == name else "") for n in names]
+        links.append(f"[Mind map](../../mindmaps/{sid}.md)")
+        bar = " ".join(links) + "\n{: .lec-nav aria-label=\"Lecture sections\" }\n"
+        lines = text.split("\n")
+        h1 = next((i for i, l in enumerate(lines) if l.startswith("# ")), 0)
+        lines[h1 + 1:h1 + 1] = ["", bar]
+        lead, targets = NEXT_STEP[name]
+        go = [f"[{SHORT[t]} →]({t})" for t in targets if t in names]
+        if name == "flashcards.md":
+            go.append("[Review Today →](../../practice/review.md)")
+        if nxt and name in ("flashcards.md", "quiz.md"):
+            go.append(f"[Next lecture: {label(nxt)} →](../{nxt}/index.md)")
+        box = ["", '!!! tip next-step "Next step"', f"    {lead}.", "", "    " + " · ".join(go), ""] if go else []
+        f.write_text("\n".join(lines + box), encoding="utf-8")
 
 
 def lectures_index(ids):

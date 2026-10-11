@@ -109,6 +109,7 @@
       if (opts.timer) timerTick();
       area.appendChild(el("div", "st-q", fmt(q.q)));
       const box = el("div", "st-opts"), fb = el("div", "st-feedback");
+      fb.setAttribute("aria-live", "polite");
       let done = false;
       const btns = q.order.map((o, k) => {
         const b = el("button", "st-opt", `<span class="st-key">${k + 1}</span>${fmt(o.t)}`);
@@ -183,7 +184,12 @@
       card.appendChild(el("div", "st-face st-front", fmt(c.front)));
       card.appendChild(el("div", "st-face st-back", fmt(c.back)));
       card.appendChild(el("div", "st-hint", "Click or press Space to flip"));
-      card.onclick = () => card.classList.toggle("flipped");
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", "Flashcard — press Enter or Space to flip");
+      const flip = () => { card.classList.toggle("flipped"); card.setAttribute("aria-pressed", card.classList.contains("flipped")); };
+      card.onclick = flip;
+      card.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); flip(); } };
       area.appendChild(card);
       const row = el("div", "st-row");
       const again = button("← Again", false, () => { srs.grade(c.id, false); deck.push(deck.shift()); show(); });
@@ -192,7 +198,7 @@
       area.appendChild(row);
       keyHandler = e => {
         if (!area.isConnected) return;
-        if (e.code === "Space") { e.preventDefault(); card.classList.toggle("flipped"); }
+        if (e.code === "Space") { e.preventDefault(); flip(); }
         else if (e.key === "ArrowLeft") { e.preventDefault(); again.click(); }
         else if (e.key === "ArrowRight") { e.preventDefault(); know.click(); }
       };
@@ -427,18 +433,24 @@
       fetch(box.dataset.cards).then(r => r.json()), fetch(box.dataset.quiz).then(r => r.json())]);
     const last = store.get("last", null), due = srs.due(cardsAll).length, mist = Object.keys(mistakes.all()).length;
     const started = Object.keys(srs.all()).length;
+    // course order of sessions, taken from the card bank
+    const order = [], labels = {};
+    cardsAll.forEach(c => { if (!labels[c.sid]) { labels[c.sid] = c.lecture; order.push(c.sid); } });
+    const lastSid = last && (last.href.match(/\/lectures\/([^/]+)\//) || [])[1];
+    const nextSid = lastSid ? order[order.indexOf(lastSid) + 1] : null;
     const w = el("div", "st-today");
     const row = el("div", "st-today__row");
-    function tile(big, small, href, hot) {
-      const a = el("a", "st-tile" + (hot ? " st-tile--hot" : ""), `<b>${big}</b><span>${small}</span>`);
+    function tile(big, small, href, cls) {
+      const a = el("a", "st-tile" + (cls ? " " + cls : ""), `<b>${big}</b><span>${small}</span>`);
       a.href = href; row.appendChild(a);
     }
-    if (last) tile("Continue →", esc(last.title), last.href, true);
-    else tile("Start →", "Day 1 — Summary", link("lectures/day01/"), true);
-    tile(due, due === 1 ? "card due today" : "cards due today", link("practice/review/"), due > 0);
-    tile(mist, mist === 1 ? "mistake to fix" : "mistakes to fix", link("practice/mistakes/"), false);
-    tile(`${started}<small> / ${cardsAll.length}</small>`, "flashcards started", link("practice/review/"), false);
-    tile(bank.length, "questions · take a test", link("practice/tests/"), false);
+    if (last) tile("Continue →", esc(last.title), last.href, "st-tile--hot");
+    else tile("Start →", "Day 1 — Summary", link("lectures/day01/"), "st-tile--hot");
+    if (nextSid) tile("Next in plan", `${esc(labels[nextSid])} — Summary`, link(`lectures/${nextSid}/`), "st-tile--next");
+    tile(due, (due === 1 ? "card due today" : "cards due today") + ` · ${started} of ${cardsAll.length} started`,
+         link("practice/review/"), due > 0 ? "st-tile--hot" : "");
+    tile(mist, mist === 1 ? "mistake to fix" : "mistakes to fix", link("practice/mistakes/"), "");
+    tile("Test", `${bank.length} questions · phase tests & mock exam`, link("practice/tests/"), "");
     w.appendChild(row);
     box.appendChild(w);
   }
@@ -459,6 +471,7 @@
     const focus = el("button", "focus-btn st-focus");
     [minus, plus, focus].forEach(b => { b.type = "button"; bar.appendChild(b); });
     minus.title = "Smaller text"; plus.title = "Larger text";
+    minus.setAttribute("aria-label", "Smaller text"); plus.setAttribute("aria-label", "Larger text");
     document.body.appendChild(bar);
     function scale(d) {
       let s = store.get("font", 1);
@@ -470,8 +483,10 @@
     scale(0);
     function render() {
       const on = document.body.classList.contains("focus-mode");
-      focus.innerHTML = on ? ICON_OFF + "Exit focus" : ICON_ON + "Focus";
+      focus.innerHTML = (on ? ICON_OFF : ICON_ON) + `<span class="st-label-text">${on ? "Exit focus" : "Focus"}</span>`;
       focus.title = on ? "Exit focus mode (Esc)" : "Focus mode: notes only, fullscreen";
+      focus.setAttribute("aria-label", focus.title);
+      focus.setAttribute("aria-pressed", on);
     }
     function set(on, fullscreen) {
       document.body.classList.toggle("focus-mode", on);
