@@ -8,7 +8,9 @@ hide:
 
 Notes for the **MuleSoft Telugu course (Green Cloud batch)**: 57 class sessions (Day 1 – Day 58) and 3 interview-preparation sessions, built from the class recordings.
 
-Use the **☀ / ☾** button at the top to switch between light and dark themes.
+<div data-study="dashboard" data-cards="assets/cards.json" data-quiz="assets/quizbank.json"></div>
+
+**A daily routine that works:** 1) open **Continue** and study the next lecture → 2) do its **Quiz** → 3) finish with **Review Today** (10–15 min) → once a week, take a **phase test** and clear **My Mistakes**.
 
 <div class="grid cards" markdown>
 
@@ -24,7 +26,7 @@ Use the **☀ / ☾** button at the top to switch between light and dark themes.
 
     ---
 
-    Every session has four pages: **Summary**, **Detailed Notes** (diagrams), **Super-Detailed Notes** (interview Q&A) and **Slides**.
+    Every session has six pages: **Summary**, **Detailed Notes** (diagrams), **Super-Detailed Notes** (interview Q&A), **Slides**, **Quiz** and **Flashcards**.
 
     [:octicons-arrow-right-24: All lectures](lectures/index.md)
 
@@ -52,19 +54,51 @@ Use the **☀ / ☾** button at the top to switch between light and dark themes.
 
     [:octicons-arrow-right-24: Try Day 36](lectures/day36/quiz.md)
 
--   :material-dumbbell: **Practice**
+-   :material-calendar-refresh: **Review Today**
 
     ---
 
-    **DataWeave Practice** — 50 exercises, easy to hard, all checked on the real DataWeave engine. **Interview Drill** — every flashcard from every lecture, filterable by phase.
+    Spaced repetition over all 1,321 flashcards: missed cards come back tomorrow, known ones after 3, 7, 21 and 60 days.
 
-    [:octicons-arrow-right-24: DataWeave](practice/dataweave.md) · [Interview drill](practice/drill.md)
+    [:octicons-arrow-right-24: Review](practice/review.md)
+
+-   :material-clipboard-check-outline: **Tests & Mock Exam**
+
+    ---
+
+    A 30-question test per phase, and a timed 60-question final mock exam with a score per lecture. Wrong answers go to **My Mistakes**.
+
+    [:octicons-arrow-right-24: Tests](practice/tests.md) · [My mistakes](practice/mistakes.md)
+
+-   :material-account-voice: **Mock Interview**
+
+    ---
+
+    Answer interview questions out loud, reveal the model answer, rate yourself — weak ones are scheduled for review.
+
+    [:octicons-arrow-right-24: Start](practice/interview.md)
+
+-   :material-code-json: **DataWeave Practice**
+
+    ---
+
+    50 exercises, easy to hard, all checked on the real DataWeave engine.
+
+    [:octicons-arrow-right-24: Practise](practice/dataweave.md)
+
+-   :material-book-alphabet: **Glossary**
+
+    ---
+
+    Every term from every lecture, A–Z, linked to where it is taught.
+
+    [:octicons-arrow-right-24: Glossary](glossary.md)
 
 -   :material-magnify: **Search**
 
     ---
 
-    Press ++slash++ or click the search box to find any topic across all notes.
+    Press ++slash++ or click the search box to find any topic across all notes. Bottom-right: **A− / A+** text size and **Focus** (fullscreen notes).
 
 </div>
 

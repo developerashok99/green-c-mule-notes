@@ -275,15 +275,31 @@ def embed(kind, data):
     return f'<div data-study="{kind}">\n<script type="application/json">{blob}</script>\n</div>\n'
 
 
+def with_ids(sid, d):
+    """Stable ids (sid-qN / sid-cN) so the browser can remember mistakes and review schedules."""
+    meta = {"sid": sid, "lecture": label(sid), "phase": phase_of(sid), "src": f"lectures/{sid}/"}
+    quiz = [dict(q, id=f"{sid}-q{n}", **meta) for n, q in enumerate(d["quiz"], 1)]
+    cards = [dict(c, id=f"{sid}-c{n}", **meta) for n, c in enumerate(d["cards"], 1)]
+    return quiz, cards
+
+
+KEYS_QUIZ = "*Keys: **1–4** choose an answer · **Enter** next question.*"
+KEYS_CARDS = "*Keys: **Space** flip · **←** Again · **→** Know it.*"
+
+
 def quiz_page(sid, d):
-    return (f"# {label(sid)} — Quiz\n\n{len(d['quiz'])} questions on {short_title(sid)}. "
-            "Options are shuffled each time; after each answer you'll see why.\n\n" + embed("quiz", d["quiz"]))
+    quiz, _ = with_ids(sid, d)
+    return (f"# {label(sid)} — Quiz\n\n{len(quiz)} questions on {short_title(sid)}. "
+            "Options are shuffled each time; after each answer you'll see why. "
+            "Questions you miss are saved to **My Mistakes**.\n\n" + KEYS_QUIZ + "\n\n" + embed("quiz", quiz))
 
 
 def cards_page(sid, d):
-    return (f"# {label(sid)} — Flashcards\n\n{len(d['cards'])} cards. Read the front, answer in your head, "
-            "then flip. **Again** sends the card to the back of the deck; **Know it** removes it.\n\n"
-            + embed("cards", d["cards"]))
+    _, cards = with_ids(sid, d)
+    return (f"# {label(sid)} — Flashcards\n\n{len(cards)} cards. Read the front, answer in your head, "
+            "then flip. **Again** sends the card to the back of the deck; **Know it** removes it. "
+            "Your answers also schedule the card in **Review Today**.\n\n" + KEYS_CARDS + "\n\n"
+            + embed("cards", cards))
 
 
 def phase_of(sid):
@@ -296,15 +312,59 @@ def phase_of(sid):
     return "Other"
 
 
-def drill_data(ids):
-    out = []
+def banks(ids):
+    """All quiz questions and all cards, with ids, for the practice pages."""
+    quiz, cards = [], []
     for sid in ids:
         d = load_study(sid)
         if d:
-            for c in d["cards"]:
-                out.append({"front": c["front"], "back": c["back"], "phase": phase_of(sid),
-                            "lecture": label(sid), "src": f"../../lectures/{sid}/"})
-    return out
+            q, c = with_ids(sid, d)
+            quiz += q
+            cards += c
+    return quiz, cards
+
+
+def glossary_page(ids):
+    terms = {}
+    for sid in ids:
+        f = REPO / "super-detailed-notes" / f"{sid}.md"
+        if not f.exists():
+            continue
+        text, inside = f.read_text(encoding="utf-8"), False
+        for line in text.split("\n"):
+            if line.startswith("#"):
+                inside = bool(re.search(r"terminolog|glossary", line, re.I))
+                continue
+            if not inside or not line.startswith("|"):
+                continue
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) < 2 or set(cells[0]) <= set("-: ") or cells[0].lower() in ("term", "terms"):
+                continue
+            term, meaning = cells[0], cells[1]
+            key = re.sub(r"[`*]", "", term).strip().lower()
+            if not key:
+                continue
+            entry = terms.setdefault(key, {"term": term, "meaning": meaning, "sids": []})
+            if sid not in entry["sids"]:
+                entry["sids"].append(sid)
+    out = ["# Glossary", "",
+           f"{len(terms)} terms from the Terminology sections of every lecture, A–Z. "
+           "Use the page search (**Ctrl+F**) or the site search to find one. "
+           "Each term links to the lecture(s) that teach it.", ""]
+    letters = {}
+    for key in sorted(terms, key=lambda k: re.sub(r"^[^a-z0-9]+", "", k) or k):
+        first = (re.sub(r"^[^a-z0-9]+", "", key)[:1] or "#").upper()
+        letters.setdefault(first if first.isalpha() else "#", []).append(terms[key])
+    out.append(" · ".join(f"[{L}](#{L.lower() if L != '#' else 'other'})" for L in letters))
+    out.append("")
+    for L, items in letters.items():
+        out += [f"## {L if L != '#' else 'Other'} {{ #{L.lower() if L != '#' else 'other'} }}", "",
+                "| Term | Meaning | Taught in |", "|---|---|---|"]
+        for t in items:
+            links = ", ".join(f"[{label(s)}](lectures/{s}/notes.md)" for s in t["sids"])
+            out.append(f"| **{t['term'].replace('**', '')}** | {t['meaning']} | {links} |")
+        out.append("")
+    return "\n".join(out) + "\n"
 
 
 def dataweave_page():
@@ -422,21 +482,39 @@ def main():
     nav.append({"Mind Maps": mm_nav})
 
     practice = []
+    qbank, cbank = banks(ids)
+    if qbank:
+        write(DOCS / "assets" / "quizbank.json", json.dumps(qbank, ensure_ascii=False))
+        write(DOCS / "assets" / "cards.json", json.dumps(cbank, ensure_ascii=False))
+        pages = [
+            ("Review Today", "review",
+             "Flashcards that come back at the right time: cards you miss return **tomorrow**; cards you know return "
+             "after **3, 7, 21, then 60 days**. Do this every day — 10–15 minutes is enough. "
+             "Cards you mark on any lecture's Flashcards page are scheduled here too.\n\n" + KEYS_CARDS,
+             "review", "cards.json"),
+            ("My Mistakes", "mistakes",
+             "Every quiz question you answered wrong, anywhere on the site. Answer one correctly and it leaves the "
+             "list.\n\n" + KEYS_QUIZ, "mistakes", "quizbank.json"),
+            ("Tests & Mock Exam", "tests",
+             "A **30-question test** for each phase, or the **final mock exam**: 60 questions from the whole course "
+             "with a 120-minute timer (the MCD Level 1 format). At the end you get your score per lecture, "
+             "weakest first.\n\n" + KEYS_QUIZ, "tests", "quizbank.json"),
+            ("Mock Interview", "interview",
+             "The interview questions from every lecture. Answer **out loud** first, then reveal the model answer and "
+             "rate yourself. *Partial* and *Missed* questions go into **Review Today**.", "interview", "cards.json"),
+        ]
+        for title, slug, intro, kind, src in pages:
+            write(DOCS / "practice" / f"{slug}.md",
+                  f"# {title}\n\n{intro}\n\n" f'<div data-study="{kind}" data-src="../../assets/{src}"></div>\n')
+            practice.append({title: f"practice/{slug}.md"})
     dw = dataweave_page()
     if dw:
         write(DOCS / "practice" / "dataweave.md", dw)
         practice.append({"DataWeave Practice": "practice/dataweave.md"})
-    drill = drill_data(ids)
-    if drill:
-        write(DOCS / "assets" / "drill.json", json.dumps(drill, ensure_ascii=False))
-        write(DOCS / "practice" / "drill.md",
-              "# Interview Drill\n\n"
-              f"{len(drill)} flashcards from every lecture with a deck, shuffled together. "
-              "Pick a phase to focus on, or drill everything.\n\n"
-              '<div data-study="drill" data-src="../../assets/drill.json"></div>\n')
-        practice.append({"Interview Drill": "practice/drill.md"})
+    write(DOCS / "glossary.md", glossary_page(ids))
     if practice:
         nav.append({"Practice": practice})
+    nav.append({"Glossary": "glossary.md"})
     gen = "INHERIT: mkdocs.yml\nnav: " + json.dumps(nav, ensure_ascii=False) + "\n"
     (HERE / "mkdocs.gen.yml").write_text(gen, encoding="utf-8")
     print(f"built {len(ids)} sessions into {DOCS}")
