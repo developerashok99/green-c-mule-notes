@@ -31,10 +31,11 @@ Local preview: `python3 build.py && mkdocs serve -f mkdocs.gen.yml`
 | `mule.last` | `{href, title, at}` | "Continue" and "Next in plan" on the dashboard |
 | `mule.font` | number 0.8–1.5 | A− / A+ |
 | `mule.width` | `"wide"` / `"narrow"` | ↔ text width |
+| `mule.navHidden` | `true` / `false` | header button / `[` key — hide the left lecture list |
 | `sessionStorage["focus-mode"]` | `"1"` / `""` | Focus mode across pages |
 
 Card ids are `<sid>-c<n>` and question ids `<sid>-q<n>` (position in the lecture's JSON file), so reordering a file's items changes which saved entries they match.
 
 ## Keyboard
 
-Quiz: **1–4** answer · **Enter** next. Flashcards: **Space** (or Enter on the focused card) flip · **←** Again · **→** Know it. Mock interview: **Space** reveal · **1/2/3** rate. Site search: **/**.
+Quiz: **1–4** answer · **Enter** next. Flashcards: **Space** (or Enter on the focused card) flip · **←** Again · **→** Know it. Mock interview: **Space** reveal · **1/2/3** rate. Site search: **/**. Hide/show the left lecture list: **[**.

@@ -10,6 +10,10 @@
     <a href="{{ config.extra.homepage | d(nav.homepage.url, true) | url }}" title="{{ config.site_name | e }}" class="md-header__button md-logo" aria-label="{{ config.site_name }}" data-md-component="logo">
       {% include "partials/logo.html" %}
     </a>
+    {#- desktop: hide / show the left lecture list (state saved by study.js) -#}
+    <button class="md-header__button md-icon nav-toggle" type="button" title="Hide the lecture list ( [ )" aria-label="Hide the lecture list" aria-pressed="false">
+      {% include ".icons/material/dock-left.svg" %}
+    </button>
     <label class="md-header__button md-icon" for="__drawer">
       {% set icon = config.theme.icon.menu or "material/menu" %}
       {% include ".icons/" ~ icon ~ ".svg" %}

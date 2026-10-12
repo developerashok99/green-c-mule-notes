@@ -528,6 +528,9 @@ NEXT_STEP = {
     "quiz.md": ("Lock it in with the **Flashcards** — wrong answers are already saved in **My Mistakes**", ["flashcards.md"]),
     "flashcards.md": ("Finish the day with **Review Today**, then move on to the next lecture", []),
 }
+PAGE_ICON = {"index.md": "material/text-box-outline", "detailed.md": "material/book-open-page-variant-outline",
+             "notes.md": "material/notebook-outline", "slides.md": "material/presentation",
+             "quiz.md": "material/help-circle-outline", "flashcards.md": "material/cards-outline"}
 SHORT = {"index.md": "Summary", "detailed.md": "Detailed", "notes.md": "Notes", "slides.md": "Slides",
          "quiz.md": "Quiz", "flashcards.md": "Flashcards"}
 
@@ -544,6 +547,7 @@ def add_lecture_chrome(sid, base, pages, ids):
         lines = text.split("\n")
         h1 = next((i for i, l in enumerate(lines) if l.startswith("# ")), 0)
         lines[h1 + 1:h1 + 1] = ["", bar]
+        lines = ["---", f"icon: {PAGE_ICON[name]}", "---", ""] + lines   # icon shown in the left menu
         lead, targets = NEXT_STEP[name]
         go = [f"[{SHORT[t]} →]({t})" for t in targets if t in names]
         if name == "flashcards.md":

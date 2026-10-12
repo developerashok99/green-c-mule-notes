@@ -543,7 +543,25 @@
       }
     }
   }
-  function boot() { init(); if (!document.querySelector(".st-controls")) controls(); }
+  /* ---------- hide / show the left lecture list (header button or "[") ---------- */
+  function applyNav(toggle) {
+    let hidden = store.get("navHidden", false);
+    if (toggle) { hidden = !hidden; store.set("navHidden", hidden); }
+    document.body.classList.toggle("nav-hidden", hidden);
+    document.querySelectorAll(".nav-toggle").forEach(b => {
+      const t = hidden ? "Show the lecture list ( [ )" : "Hide the lecture list ( [ )";
+      b.title = t; b.setAttribute("aria-label", t.replace(" ( [ )", "")); b.setAttribute("aria-pressed", hidden);
+    });
+    window.dispatchEvent(new Event("resize"));
+  }
+  document.addEventListener("click", e => { if (e.target.closest && e.target.closest(".nav-toggle")) applyNav(true); });
+  document.addEventListener("keydown", e => {
+    if (e.key !== "[" || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || "") || e.target.isContentEditable) return;
+    applyNav(true);
+  });
+
+  function boot() { init(); applyNav(false); if (!document.querySelector(".st-controls")) controls(); }
   function hook() {
     if (window.document$ && window.document$.subscribe) window.document$.subscribe(boot);
     else boot();
