@@ -258,3 +258,9 @@ body.focus-mode .md-content { width: 100%; }
   .focus-btn.st-focus .st-label-text { display: none; }
   .st-right::after, .st-wrong::after { display: block; margin-top: .2em; }
 }
+
+/* ---------- Text width: wide (default, fills the column) / narrow (↔ Width button) ---------- */
+body[dir]:not(.narrow-text) .md-content__inner { max-width: none; }
+body[dir]:not(.narrow-text) article.md-content__inner.md-typeset > :is(p, ul, ol, dl, blockquote, h1, h2, h3, h4, h5, h6, hr, .admonition, details, .lec-nav) { max-width: none; }
+body:not(.narrow-text) .st-area { max-width: 980px; margin-left: 0; }
+body[dir].focus-mode:not(.narrow-text) .md-content__inner { max-width: none; padding-left: 3vw; padding-right: 3vw; }

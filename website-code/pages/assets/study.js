@@ -468,8 +468,19 @@
   function controls() {
     const bar = el("div", "st-controls");
     const minus = el("button", "focus-btn st-small", "A−"), plus = el("button", "focus-btn st-small", "A+");
+    const width = el("button", "focus-btn st-small st-width", "↔");
     const focus = el("button", "focus-btn st-focus");
-    [minus, plus, focus].forEach(b => { b.type = "button"; bar.appendChild(b); });
+    [minus, plus, width, focus].forEach(b => { b.type = "button"; bar.appendChild(b); });
+    function applyWidth(toggle) {
+      let w = store.get("width", "wide");
+      if (toggle) { w = w === "wide" ? "narrow" : "wide"; store.set("width", w); }
+      document.body.classList.toggle("narrow-text", w === "narrow");
+      width.title = w === "wide" ? "Narrow text (easier line tracking)" : "Wide text (use the full width)";
+      width.setAttribute("aria-label", width.title);
+      window.dispatchEvent(new Event("resize"));
+    }
+    width.onclick = () => applyWidth(true);
+    applyWidth(false);
     minus.title = "Smaller text"; plus.title = "Larger text";
     minus.setAttribute("aria-label", "Smaller text"); plus.setAttribute("aria-label", "Larger text");
     document.body.appendChild(bar);

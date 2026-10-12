@@ -18,8 +18,8 @@ Local preview: `python3 build.py && mkdocs serve -f mkdocs.gen.yml`
 
 ## Reading layout
 
-- Text (paragraphs, lists, headings, quotes, admonitions) is capped at `--st-measure` ≈ 40× the body font size (≈ 75–80 characters per line).
-- Code, tables, diagrams, mind maps and study widgets can use the whole content column (max 1180 px), centred between the sidebars.
+- **Wide (default):** text fills the whole content column between the sidebars; in Focus mode it fills the screen (3% margins).
+- **Narrow (↔ button):** text is capped at `--st-measure` ≈ 40× the body font size (≈ 75–80 characters per line) in a centred 1180 px column — easier line tracking. The choice is saved as `mule.width`.
 - **A− / A+** scale the body text (`--st-scale`); **Focus** hides header, tabs and sidebars and requests browser fullscreen (Esc leaves).
 
 ## Saved progress (browser only, `localStorage`)
@@ -30,6 +30,7 @@ Local preview: `python3 build.py && mkdocs serve -f mkdocs.gen.yml`
 | `mule.mistakes` | `{questionId: timesMissed}` | Every quiz/test, My Mistakes, dashboard |
 | `mule.last` | `{href, title, at}` | "Continue" and "Next in plan" on the dashboard |
 | `mule.font` | number 0.8–1.5 | A− / A+ |
+| `mule.width` | `"wide"` / `"narrow"` | ↔ text width |
 | `sessionStorage["focus-mode"]` | `"1"` / `""` | Focus mode across pages |
 
 Card ids are `<sid>-c<n>` and question ids `<sid>-q<n>` (position in the lecture's JSON file), so reordering a file's items changes which saved entries they match.
