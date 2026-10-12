@@ -305,9 +305,9 @@ body[dir].focus-mode:not(.narrow-text) .md-content__inner { max-width: none; pad
 .md-nav--primary .md-nav[data-md-level="3"] .md-nav__item--active { border-left: 2px solid var(--md-accent-fg-color); margin-left: calc(-.45em - 2px); padding-left: .45em; }
 
 /* hide / show the left menu (desktop) */
-.nav-toggle { display: none; }
+.md-header__button.nav-toggle { display: none; }
 @media screen and (min-width: 76.25em) {
-  .nav-toggle { display: inline-flex; align-items: center; background: none; border: 0; cursor: pointer; color: inherit; }
+  .md-header__button.nav-toggle { display: inline-flex; align-items: center; background: none; border: 0; cursor: pointer; color: inherit; }
   body.nav-hidden .md-sidebar--primary { display: none; }
   body.nav-hidden .nav-toggle { color: var(--md-accent-fg-color); }
 }
